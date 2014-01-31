@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.3.1 r9886"
+   width="518.25525"
+   height="112.28655"
+   sodipodi:docname="cimba-logo.svg"
+   inkscape:export-filename="/home/deiu/dev/cimba/app/favicon.png"
+   inkscape:export-xdpi="19.2365"
+   inkscape:export-ydpi="19.2365">
+  <metadata
+     id="metadata8">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs6">
+    <filter
+       color-interpolation-filters="sRGB"
+       x="-0.10993"
+       y="-0.1321"
+       width="1.2199"
+       height="1.2642"
+       id="filter3721">
+      <feGaussianBlur
+         stdDeviation="1.5830058"
+         id="feGaussianBlur3723" />
+    </filter>
+  </defs>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1098"
+     inkscape:window-height="732"
+     id="namedview4"
+     showgrid="false"
+     showguides="true"
+     inkscape:guide-bbox="true"
+     inkscape:zoom="0.92187502"
+     inkscape:cx="188.62225"
+     inkscape:cy="112.0611"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg2"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
+  <g
+     id="g2996"
+     transform="translate(4.1603e-6,-3.5246245e-8)">
+    <path
+       inkscape:connector-curvature="0"
+       id="path3975"
+       d="M 56.114132,4.8833212e-6 C 25.114963,4.8833212e-6 -4.1603e-6,25.114978 -4.1603e-6,56.114142 -4.1603e-6,87.113305 25.114963,112.28655 56.114132,112.28655 l 0,-112.2865451166788 z"
+       style="fill:#4fc1e9;fill-opacity:1;fill-rule:nonzero;stroke:none" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path3990"
+       d="m 56.114114,112.28655 c 30.999169,0 56.114136,-25.173239 56.114136,-56.172414 C 112.22825,25.114973 87.113283,3.524624e-8 56.114114,3.524624e-8 L 56.114114,112.28655 z"
+       style="fill:#38afda;fill-opacity:1;fill-rule:nonzero;stroke:none" />
+    <g
+       style="fill:#ffffff;stroke:#000000;stroke-width:1.31549346;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       transform="matrix(0.760171,0,0,0.760171,-143.13613,4.4292139)"
+       id="g4000">
+      <path
+         d="m 226.8177,93.79243 c -4.47461,10.96165 -1.19782,8.21831 -7.54303,16.87904 8.97793,-6.39373 11.76441,-0.76104 20.52935,-10.677834 m -13.01611,-6.21543 c -10.55003,-6.472044 -17.32072,-16.089297 -17.32072,-26.44728 0,-19.545621 23.5698,-35.390905 52.64521,-35.390905 29.07478,0 52.64521,15.844976 52.64521,35.390905 l 0,0 c 0,19.545621 -23.25449,35.706224 -52.32989,35.706224 -9.50083,0 -14.88821,-0.0648 -22.58296,-3.02466"
+         id="path2892-8"
+         inkscape:connector-curvature="0"
+         style="fill:#ffffff;stroke:#000000;stroke-width:1.31549346;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         sodipodi:nodetypes="ccccssccsc" />
+      <path
+         style="fill:#ffffff;stroke:#000000;stroke-width:1.31549346;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         d="m 226.78144,58.420602 c 6.99704,-8.334667 21.1651,-14.210451 31.58966,-13.519168"
+         id="path3173"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cc" />
+    </g>
+  </g>
+  <text
+     xml:space="preserve"
+     style="font-size:12px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+     x="126.91525"
+     y="100.55927"
+     id="text3771"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       id="tspan3773"
+       x="126.91525"
+       y="100.55927"
+       style="font-size:128px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Ubuntu;-inkscape-font-specification:Ubuntu">CIMBA</tspan></text>
+</svg>
