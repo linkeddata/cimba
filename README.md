@@ -1,4 +1,4 @@
-cimba-app
-=========
+cimba
+=====
 
 Client-Integrated Micro-Blogging Architecture application
