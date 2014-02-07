@@ -10,6 +10,40 @@ function CimbaCtrl($scope, $timeout, $http) {
 	$scope.fullname = undefined;
 	$scope.userpic = 'img/photo.png';
 
+	// cache user credentials in localStorage to avoid double sign in
+	$scope.storeLocalCredentials = function () {
+		var cimba = {};
+		cimba.webid = $scope.webid;
+		cimba.fullname = $scope.fullname;
+		cimba.userpic = $scope.userpic;
+		console.log(cimba);
+		localStorage.setItem('cimba', JSON.stringify(cimba));
+		console.log(JSON.parse(localStorage.getItem( 'cimba')));
+	}
+
+	// retrieve from localStorage
+	$scope.getLocalCredentials = function () {
+		if (localStorage.getItem('cimba')) {
+			var cimba = JSON.parse(localStorage.getItem('cimba'));
+			$scope.webid = cimba.webid;
+			$scope.fullname = cimba.fullname;
+			$scope.userpic = cimba.userpic;
+		} else {
+			console.log('localStorage is empty!');
+		}
+	}
+
+	// clear localStorage
+	$scope.clearLocalCredentials = function () {
+		localStorage.removeItem('cimba');
+		console.log(JSON.parse(localStorage.getItem('cimba')));
+	}
+
+	// update my user picture	
+	$scope.updateUserDOM = function () {
+		$('#mypic').html('<img class="media-object" src="'+$scope.userpic+'" rel="tooltip" data-placement="top" width="70" title="'+$scope.fullname+'">');
+	}
+
 	$scope.setAudience = function(v) {
 		if (v=='public')
 			$scope.audience = 'icon-globe';
@@ -66,11 +100,11 @@ function CimbaCtrl($scope, $timeout, $http) {
 	        }
 	        $scope.userpic = pic;
 
-			// update my user picture
-			$('#mypic').html('<img class="media-object" src="'+$scope.userpic+'" rel="tooltip" data-placement="top" width="70" title="'+$scope.fullname+'">');
+        	// cache user credentials in localStorage
+        	$scope.storeLocalCredentials();
+        	$scope.updateUserDOM();
 	    });
 	}
-
 
 	// Event listener (from child iframe)
 	var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
@@ -86,6 +120,10 @@ function CimbaCtrl($scope, $timeout, $http) {
 		}
 		$('#loginModal').modal('hide');
 	},false);
+
+	// retrieve user from localStorage
+	$scope.getLocalCredentials();
+	$scope.updateUserDOM();
 }
 
 
