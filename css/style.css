@@ -1,5 +1,9 @@
-
-@import url(http://fonts.googleapis.com/css?family=Roboto:400);
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Roboto Regular'), local('Roboto-Regular'), url(https://themes.googleusercontent.com/static/fonts/roboto/v10/2UX7WLTfW3W8TclTUvlFyQ.woff) format('woff');
+}
 body {
   background-color:#e0e0e0;
   -webkit-font-smoothing: antialiased;
@@ -24,12 +28,14 @@ body {
 }
 .navbar-default .dropdown-menu {background-color:#ffffff;}
 .navbar-default .dropdown-menu li > a {padding-left:30px;}
+.navbar-nav {background-color: #f4f4f4; margin-top:0px;}
+.navbar-toggle{margin-top:10px!important;}
 
 .header {background-color:#ffffff;border-width:0;}
 .header .navbar-collapse {background-color:#ffffff;}
 .btn {height: 43px;}
 .btn,.form-control,.panel,.list-group,.well {border-radius:3px;box-shadow:0 0 0;}
-.form-control {border-color:#d7d7d7;height:43px;}
+.form-control {border-color:#d7d7d7;height:43px!important;}
 .btn-primary {border-color:transparent;}
 .btn-primary,.label-primary,.list-group-item.active, .list-group-item.active:hover, .list-group-item.active:focus {background-color:#4285f4;}
 .btn-plus {background-color:#ffffff;border-width:1px;border-color:#dddddd;box-shadow:1px 1px 0 #999999;border-radius:3px;color:#666666;text-shadow:0 0 1px #bbbbbb;}
@@ -62,10 +68,26 @@ v-spacer { margin-right: 5px!important;}
 hr {border-color:#ececec;}
 button {
 	outline: 0;
+  margin-top:0px!important;
+}
+.message {
+  margin-left:15px;
+  padding:15px;
+  min-width:68%;
+  min-height: 100px;
+  border-radius:3px;box-shadow:0 0 0;
+  border-color:#d7d7d7;
 }
 textarea {
   resize: none;
   outline: 0;
+}
+
+.post-title {
+  position: relative;
+  padding-left: 100px;
+  min-width: 100px;
+  width: 70%;
 }
 .panel .btn i,.btn span{
   color:#666666;
@@ -109,11 +131,24 @@ h3,h4,h5 {
     font-weight: bold;
 }
 .modal-dialog {
- width: 450px;
+ width: 420px!important;
+}
+.modal-body {
+  padding: 5px!important;
+}
+.modal-header {
+  border-bottom: 0px!important;
+}
+.modal-footer {
+  margin-top: 0px!important;
+  padding-top: 0px!important;
+  border-top: 0px!important;
 }
 
 .modal-footer {
  border-width:0;
+ padding-top:5px;
+ margin-top:0px;
 }
 
 .dropdown-menu {
@@ -142,8 +177,11 @@ a.link-post {
     margin-top: 15px;
     color: #fff;
 }
+.thumb {
+    height: 20px;
+}
 .light-blue {
-    background-color: #4fc1e9!important;
+    background-color: #3bafda!important;
 }
 .dark-blue {
     background-color: #4285f4!important;
@@ -154,3 +192,5 @@ a.link-post {
 .green {
     color: green !important;
 }
+
+iframe {border:0px;}

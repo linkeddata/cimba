@@ -1,40 +1,61 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="CimbaApp">
 <head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8"> 
 <meta charset="utf-8">
 <title>Cimba</title>
-<meta name="generator" content="Cimba" />
+<meta name="generator" content="Cimba">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css" rel="stylesheet">
+<!-- prod
+<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css" rel="stylesheet">
+<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css" rel="stylesheet">
+-->
+<!-- dev -->
+<link href="dev/css/bootstrap.min.css" rel="stylesheet">
+<link href="dev/css/font-awesome.min.css" rel="stylesheet">
+<!-- local -->
+<link href="css/style.css" rel="stylesheet">
 
+<!-- prod
+<script type='text/javascript' src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type='text/javascript' src="//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.js"></script>
+-->
+<!-- dev -->
+<script type='text/javascript' src="dev/js/jquery.min.js"></script>
+<script type='text/javascript' src="dev/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="dev/js/jquery-ui.js"></script>
+
+<script src="dev/js/angular.min.js"></script>
+<script src="dev/js/angular-ui.min.js"></script> 
+<!-- local -->
+<script type='text/javascript' src="js/jquery.notify.js"></script>
+<script type='text/javascript' src="js/rdflib.min.js"></script>
+<script type='text/javascript' src="js/common.js"></script>
+<script type='text/javascript' src="js/app.js"></script>
 <!--[if lt IE 9]>
   <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
 <![endif]-->
     
 <link rel="shortcut icon" type="img/png" href="favicon.png">
-<link rel="apple-touch-icon" href="/bootstrap/img/apple-touch-icon.png">
-<link rel="apple-touch-icon" sizes="72x72" href="/bootstrap/img/apple-touch-icon-72x72.png">
-<link rel="apple-touch-icon" sizes="114x114" href="/bootstrap/img/apple-touch-icon-114x114.png">
-<link rel="stylesheet" href="css/style.css">
-<link href="http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css" rel="stylesheet">
 </head>
     
-<body>
+<body ng-controller="CimbaCtrl">
 <div class="navbar navbar-default" id="subnav">
     <div class="col-md-12">
         <div class="navbar-header">
             <img src="img/cimba-logo.svg" class="logo">
-            <button type="button" class="navbar-toggle pull-right" data-toggle="collapse" data-target="#navbar-collapse2">
+            <button id="menuToggle" type="button" class="navbar-toggle pull-right" data-toggle="collapse" data-target="#navbar-collapse2">
                 <span class="sr-only">Toggle navigation</span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
         </div>
-        
+
         <div class="collapse navbar-collapse" id="navbar-collapse2">
         <ul class="nav navbar-nav navbar-right">
+            <li><a href="#" onclick="notify('Post', 'Your post was succesfully submitted!')">Notif</a></li>
             <li><a href="#"><i class="icon-refresh"></i> Refresh </a></li>
             <li class="active"><a href="#">Mine</a></li>
             <li><a href="#">Others'</a></li>
@@ -50,42 +71,40 @@
 <div class="container" id="main">
     <div class="row">
         <div class="clear-20"></div>
-        <!-- new post -->
         <div class="col-md-12">
+            <!-- new post -->
             <div class="panel panel-default"> 
                 <div class="panel-heading dark-blue">
                     <h4 class="bold">What's New?</h4>
                     <div class="pull-left">
-                        <a class="thumbnail pull-right" href="#">
-                        <img class="media-object" src="img/photo.png" rel="tooltip" data-placement="top" title="WebID of the user">
+                        <a id="mypic" class="thumbnail pull-right" href="#">
+                          <img class="media-object" src="img/photo.png" rel="tooltip" data-placement="top" title="Name">
                         </a>
                     </div>
                 </div>
                 <div class="panel-body">
-                    <div class="panel-body-text">
-                        <form class="form-horizontal" role="form">
-                            <input type="text" class="form-control" name="title" value="" placeholder="Title">
-                            <div class="form-group" style="padding:14px;">
-                                <textarea class="form-control" placeholder="Type your message" onfocus="textareaResize(this)"></textarea>
+                    <div class="panel-body-textmail">
+                        <form class="form-horizontal" role="form" method="post" action="#">
+                          <div class="row">
+                            <div class="form-group col-md-11 .col-md-offset-1">
+                                <textarea name="message" class="form-control message" placeholder="Type your message"></textarea>
                             </div>
+                          </div>
                             <div class="dropdown">
-                                <button id="audience" class="btn btn-classic dropdown-toggle" data-toggle="dropdown" data-target="#" href="#" rel="tooltip" data-placement="top" title="Audience"><i class="icon-globe icon-2x blue"></i> <small class="drop"><i class="icon-chevron-down icon-2x"></i></small></button>
+                                <button id="audience" ng-model="audience" class="btn btn-classic dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"><i class="{{audience}} icon-2x blue"></i> <small class="drop"><i class="icon-chevron-down icon-2x"></i></small></button>
                                 <ul class="dropdown-menu" role="menu" aria-labelledby="audience">
-                                    <li><a href="#"><i id="public" class="icon-globe icon-2x blue"></i> Public</a></li>
-                                    <li><a href="#">&nbsp;<i id="private" class="icon-lock icon-2x blue"></i>&nbsp; Private</a></li>
-                                    <li><a href="#"><i id="friends" class="icon-user icon-2x blue"></i> Friends</a></li>
+                                    <li><a href="#" ng-click="setAudience('public')"><i id="public" class="icon-globe icon-2x blue"></i> Public</a></li>
+                                    <li><a href="#" ng-click="setAudience('private')">&nbsp;<i id="private" class="icon-lock icon-2x blue"></i>&nbsp; Private</a></li>
+                                    <li><a href="#" ng-click="setAudience('friends')"><i id="friends" class="icon-user icon-2x blue"></i> Friends</a></li>
                                 </ul>
                                 <button class="btn btn-classic" rel="tooltip" data-placement="top" title="Add a photo"><i class="icon-camera  icon-2x green"></i></button>
-
-                                <input type="submit" class="btn btn-primary pull-right" name="submit" value="Publish" onclick="notify('Post', 'Your post was succesfully submitted!')">
+                                <button class="btn btn-primary pull-right" onclick="notify('Post', 'Your post was succesfully submitted!')">Publish</button>
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
-        
-
-        <!-- end new post -->
+            <!-- end new post -->
 
              <div class="panel panel-default">
                <div class="panel-heading light-blue">
@@ -105,11 +124,11 @@
                     <form>
                         <div class="input-group">
                         <div class="input-group-btn">
-                            <button class="btn btn-success" rel="tooltip" data-placement="top" title="Posting as...">More</button>
+                            <button class="btn btn-success" rel="tooltip" data-placement="top" title="Read full message">More</button>
                             <button class="btn btn-default" rel="tooltip" data-placement="top" title="Star message"><span class="icon-star icon-2x"></span></button>
                             <button class="btn btn-default" data-placement="top" title="Delete message"><i class="icon-trash icon-2x"></i></button>
                             <button class="btn btn-default">
-                                <img class="media-object" src="https://lh5.googleusercontent.com/-b0-k99FZlyE/AAAAAAAAAAI/AAAAAAAAAAA/eu7opA4byxI/photo.jpg?sz=20" rel="tooltip" data-placement="top" title="Posting as...">
+                                <img class="media-object thumb" src="img/photo.png" rel="tooltip" data-placement="top" title="Posting as...">
                             </button>
                         </div>
                         <div>
@@ -143,7 +162,7 @@
                         <button class="btn btn-default" rel="tooltip" data-placement="top" title="Reply"><span class="icon-reply icon-2x"></span></button>
                         <button class="btn btn-default" rel="tooltip" data-placement="top" title="Share message"><i class="icon-share icon-2x"></i></button>
                         <button class="btn btn-default">
-                                <img class="media-object" src="https://lh5.googleusercontent.com/-b0-k99FZlyE/AAAAAAAAAAI/AAAAAAAAAAA/eu7opA4byxI/photo.jpg?sz=20" rel="tooltip" data-placement="top" title="Posting as...">
+                                <img class="media-object thumb" src="img/photo.png" rel="tooltip" data-placement="top" title="Posting as...">
                             </button>
                     </div>
                     <input type="text" class="form-control" placeholder="Add a comment..">
@@ -153,8 +172,6 @@
         </div>
     </div>
 
-
-  	<hr>
     <!-- 
   	<div class="row">
   		<div class="col-md-12"><h2>Playground</h2></div>
@@ -204,15 +221,14 @@
     </div>
     -->
 
-
+    <hr>
     <div class="col-md-12 text-center"><p>Powered by CIMBA v1.0 alpha</p></div>
 
   </div>
 </div>
 <!--/main-->
 
-
-<!-- set the container hidden to avoid a flash of unstyled content when the page first loads -->
+<!-- set the container hidden when the page first loads -->
 <div id="notification" style="display:none">
     <!-- 
     Later on, you can choose which template to use by referring to the 
@@ -233,26 +249,18 @@
   <div class="modal-content">
       <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-          <h2 class="text-center"><img src="https://lh5.googleusercontent.com/-b0-k99FZlyE/AAAAAAAAAAI/AAAAAAAAAAA/eu7opA4byxI/photo.jpg?sz=100" class="img-circle"><br>Login</h2>
+          <h2 class="text-center">Login / Sign Up</h2>
       </div>
       <div class="modal-body">
-          <form class="form col-md-12 center-block">
-            <div class="form-group">
-              <input type="text" class="form-control input-lg" placeholder="Email">
-            </div>
-            <div class="form-group">
-              <input type="password" class="form-control input-lg" placeholder="Password">
-            </div>
-            <div class="form-group">
-              <button class="btn btn-primary btn-lg btn-block">Sign In</button>
-              <span class="pull-right"><a href="#">Register</a></span><span><a href="#">Need help?</a></span>
-            </div>
-          </form>
+          <!-- <div id="login-body"></div> -->
+          
+          <iframe id="signup" src="" sandbox="allow-same-origin allow-scripts allow-forms" frameborder="0" width="390" height="430"></iframe>
+          
       </div>
       <div class="modal-footer">
           <div class="col-md-12">
-          <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
-		  </div>	
+              <button class="btn btn-info" data-dismiss="modal" aria-hidden="true">Cancel</button>
+		      </div>	
       </div>
   </div>
   </div>
@@ -268,7 +276,7 @@
       </div>
       <div class="modal-body">
           <div class="col-md-12 text-center">
-            <h3>This messaging app is powered by <a href="#">Cimba v1.0 alpha</a></h3>
+            <h3>This microblogging app is powered by <a href="#">Cimba v1.0 alpha</a></h3>
             <br>UI design by <a href="#">Andrei Sambra</a>
             <br><br>
             <a href="#">GitHub Fork</a>
@@ -281,13 +289,7 @@
   </div>
 </div>
 
-<script type='text/javascript' src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-<script type='text/javascript' src="http://netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.js"></script>
-<script type='text/javascript' src="js/jquery.notify.js"></script>
-<script type='text/javascript' src="js/common.js"></script>
 <script type='text/javascript'>
-
 $(document).ready(function() {
     /* toggle layout */
     $('#btnToggle').click(function(){
@@ -300,10 +302,23 @@ $(document).ready(function() {
             $(this).addClass('on');
         }
     });
-    
-    $('#audience').tooltip();
-});
+    // auto close menu after click
+    $(document).click(function () {
+        if (!$("#menuToggle").hasClass('collapsed')) {
+            $('.navbar-collapse').collapse('hide');
+        }
+    });
 
+    // load login/signup
+    //$('#login-body').load("//example.org/onboard/signup.html");
+    //angular.bootstrap(document.getElementById('ob-app'), ['ob-app']);
+
+    // init tooltip plugin
+    $('#audience').tooltip();
+
+    // set the parameter in the src of iframe
+    document.getElementById('signup').src = '//linkeddata.github.io/signup/index.html?ref='+window.location.protocol+'//'+window.location.host;
+});
 </script>
 </body>
 </html>
