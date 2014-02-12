@@ -33,6 +33,7 @@
 <script type='text/javascript' src="js/rdflib.min.js"></script>
 <script type='text/javascript' src="js/common.js"></script>
 <script type='text/javascript' src="js/app.js"></script>
+
 <!--[if lt IE 9]>
   <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
 <![endif]-->
@@ -40,81 +41,93 @@
 <link rel="shortcut icon" type="img/png" href="favicon.png">
 </head>
     
-<body ng-controller="CimbaCtrl">
-<div class="navbar navbar-default" id="subnav">
-    <div class="col-md-12">
-        <div class="navbar-header">
-            <img src="img/cimba-logo.svg" class="logo">
-            <button id="menuToggle" type="button" class="navbar-toggle pull-right" data-toggle="collapse" data-target="#navbar-collapse2">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-        </div>
+<body>
+<div ng-controller="CimbaCtrl">
+    <div class="navbar navbar-default" id="subnav">
+        <div class="col-md-12">
+            <div class="navbar-header">
+                <img src="img/cimba-logo.svg" class="logo">
+                <button id="menuToggle" type="button" class="navbar-toggle pull-right" data-toggle="collapse" data-target="#navbar-collapse2">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
 
-        <div class="collapse navbar-collapse" id="navbar-collapse2">
-        <ul class="nav navbar-nav navbar-right">
-            <li><a href="#" onclick="notify('Post', 'Your post was succesfully submitted!')">Notif</a></li>
-            <li><a href="#"><i class="icon-refresh"></i> Refresh </a></li>
-            <li class="active"><a href="#">Mine</a></li>
-            <li><a href="#">Others'</a></li>
-            <li><a href="#loginModal" role="button" data-toggle="modal">Login</a></li>
-            <li><a href="#aboutModal" role="button" data-toggle="modal">About</a></li>
-        </ul>
+            <div class="collapse navbar-collapse" id="navbar-collapse2">
+            <ul ng-cloak class="nav navbar-nav navbar-right">
+                <li><a href="#" onclick="notify('Post', 'Your post was succesfully submitted!')">Notif</a></li>
+                <li><a href="#"><i class="icon-refresh"></i> Refresh </a></li>
+                <li class="active"><a href="#">Mine</a></li>
+                <li><a href="#">Others'</a></li>
+                <li ng-hide="loggedin"><a href="#loginModal" role="button" data-toggle="modal">Login</a></li>
+                <li ng-show="loggedin"><a href="#" ng-click="clearSession()" role="button">Logout</a></li>
+                <li><a href="#aboutModal" role="button" data-toggle="modal">About</a></li>
+            </ul>
+            </div>
+        </div>	
+    </div>
+
+    <!--main-->
+    <!-- NEW -->
+    <div class="container" id="newpost">
+        <div class="row">
+            <div class="clear-70"></div>
+            <div class="col-md-12">
+                <!-- new post -->
+                <div class="panel panel-default" ng-show="loggedin"> 
+                    <div class="panel-heading dark-blue">
+                        <h4 class="bold">What's New?</h4>
+                        <div class="pull-left">
+                            <a id="mypic" class="thumbnail pull-right" href="#">
+                              <img class="media-object" src="img/photo.png" rel="tooltip" data-placement="top" title="Name">
+                            </a>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="panel-body-textmail">
+                            <form class="form-horizontal" role="form" method="post" action="#">
+                              <div class="row">
+                                <div class="form-group col-md-11 .col-md-offset-1">
+                                    <textarea name="message" class="form-control message" placeholder="Type your message"></textarea>
+                                </div>
+                              </div>
+                                <div class="dropdown">
+                                    <button id="audience" ng-model="audience" class="btn btn-classic dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"><i class="{{audience}} icon-2x blue"></i> <small class="drop"><i class="icon-chevron-down icon-2x"></i></small></button>
+                                    <ul class="dropdown-menu" role="menu" aria-labelledby="audience">
+                                        <li><a href="#" ng-click="setAudience('public')"><i id="public" class="icon-globe icon-2x blue"></i> Public</a></li>
+                                        <li><a href="#" ng-click="setAudience('private')">&nbsp;<i id="private" class="icon-lock icon-2x blue"></i>&nbsp; Private</a></li>
+                                        <li><a href="#" ng-click="setAudience('friends')"><i id="friends" class="icon-user icon-2x blue"></i> Friends</a></li>
+                                    </ul>
+                                    <button class="btn btn-classic" rel="tooltip" data-placement="top" title="Add a photo"><i class="icon-camera  icon-2x green"></i></button>
+                                    <button class="btn btn-primary pull-right" onclick="notify('Post', 'Your post was succesfully submitted!')">Publish</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <!-- end new post -->
+            </div>
         </div>
-    </div>	
+    </div>
 </div>
 
-<!--main-->
-<!-- NEW -->
-<div class="container" id="main">
-    <div class="row">
-        <div class="clear-20"></div>
+<div class="container" ng-controller="PostsCtrl">
+    <div id="posts" class="row">
         <div class="col-md-12">
-            <!-- new post -->
-            <div class="panel panel-default"> 
-                <div class="panel-heading dark-blue">
-                    <h4 class="bold">What's New?</h4>
+            <posts-viewer></posts-viewer>
+      <!--
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading light-blue">
+                    <a href="#" class="link-post pull-right"><i class="icon-link"></i> Link to post</a> <h4 class="bold">Last post</h4>
                     <div class="pull-left">
-                        <a id="mypic" class="thumbnail pull-right" href="#">
-                          <img class="media-object" src="img/photo.png" rel="tooltip" data-placement="top" title="Name">
+                        <a class="thumbnail pull-right" href="#">
+                          <img class="media-object" src="img/photo.png" rel="tooltip" data-placement="top" title="WebID of the user">
                         </a>
                     </div>
                 </div>
-                <div class="panel-body">
-                    <div class="panel-body-textmail">
-                        <form class="form-horizontal" role="form" method="post" action="#">
-                          <div class="row">
-                            <div class="form-group col-md-11 .col-md-offset-1">
-                                <textarea name="message" class="form-control message" placeholder="Type your message"></textarea>
-                            </div>
-                          </div>
-                            <div class="dropdown">
-                                <button id="audience" ng-model="audience" class="btn btn-classic dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"><i class="{{audience}} icon-2x blue"></i> <small class="drop"><i class="icon-chevron-down icon-2x"></i></small></button>
-                                <ul class="dropdown-menu" role="menu" aria-labelledby="audience">
-                                    <li><a href="#" ng-click="setAudience('public')"><i id="public" class="icon-globe icon-2x blue"></i> Public</a></li>
-                                    <li><a href="#" ng-click="setAudience('private')">&nbsp;<i id="private" class="icon-lock icon-2x blue"></i>&nbsp; Private</a></li>
-                                    <li><a href="#" ng-click="setAudience('friends')"><i id="friends" class="icon-user icon-2x blue"></i> Friends</a></li>
-                                </ul>
-                                <button class="btn btn-classic" rel="tooltip" data-placement="top" title="Add a photo"><i class="icon-camera  icon-2x green"></i></button>
-                                <button class="btn btn-primary pull-right" onclick="notify('Post', 'Your post was succesfully submitted!')">Publish</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <!-- end new post -->
-
-             <div class="panel panel-default">
-               <div class="panel-heading light-blue">
-                   <a href="#" class="link-post pull-right"><i class="icon-link"></i> Link to post</a> <h4 class="bold">Last post</h4>
-                   <div class="pull-left">
-                    <a class="thumbnail pull-right" href="#">
-                        <img class="media-object" src="img/photo.png" rel="tooltip" data-placement="top" title="WebID of the user">
-                    </a>
-                   </div>
-                 </div>
                 <div class="panel-body">
                     <div class="panel-body-text">
                         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer sem sapien, elementum sagittis erat at, tempus tincidunt nulla. In fringilla eleifend tortor vitae blandit. Maecenas ultricies sem quis lectus feugiat, at tincidunt nisi elementum. Aliquam erat volutpat. Praesent condimentum metus eget nibh pharetra porttitor. Duis a elit sit amet felis dignissim imperdiet. Sed tristique nunc in sem semper congue.</p>
@@ -123,55 +136,54 @@
                     <hr>
                     <form>
                         <div class="input-group">
-                        <div class="input-group-btn">
+                          <div class="input-group-btn">
                             <button class="btn btn-success" rel="tooltip" data-placement="top" title="Read full message">More</button>
                             <button class="btn btn-default" rel="tooltip" data-placement="top" title="Star message"><span class="icon-star icon-2x"></span></button>
                             <button class="btn btn-default" data-placement="top" title="Delete message"><i class="icon-trash icon-2x"></i></button>
                             <button class="btn btn-default">
                                 <img class="media-object thumb" src="img/photo.png" rel="tooltip" data-placement="top" title="Posting as...">
                             </button>
+                          </div>
                         </div>
                         <div>
                         <input type="text" class="form-control" placeholder="Add a comment..">
                         </div>
                     </form>
                 </div>
-             </div>
-        </div>
-
-        <div class="panel panel-default">
-            <div class="panel-heading light-blue">
-                <a href="#" class="link-post pull-right"><i class="icon-link"></i> Link to post</a>
-                <h4 class="bold">Stackoverflow - If you're looking for help with Bootstrap code</h4>
-                
-                <div class="pull-left">
-                <a class="thumbnail pull-right" href="#">
-                    <img class="media-object" src="img/photo.png" rel="tooltip" data-placement="top" title="WebID of the user">
-                </a>
-               </div>
             </div>
-            <div class="panel-body">
-                <div class="panel-body-text">If you're looking for help with Bootstrap code, the <code>twitter-bootstrap</code> tag at <a href="http://stackoverflow.com/questions/tagged/twitter-bootstrap">Stackoverflow</a> is a good place to find answers.
+        </div>
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading light-blue">
+                    <a href="#" class="link-post pull-right"><i class="icon-link"></i> Link to post</a>
+                    <h4 class="bold">Stackoverflow - If you're looking for help with Bootstrap code</h4>
+                    
+                    <div class="pull-left">
+                    <a class="thumbnail pull-right" href="#">
+                        <img class="media-object" src="img/photo.png" rel="tooltip" data-placement="top" title="WebID of the user">
+                    </a>
+                   </div>
                 </div>
-                <hr>
-                <form>
-                  <div class="input-group">
-                    <div class="input-group-btn">
-                        <button class="btn btn-success" rel="tooltip" data-placement="top" title="Read full message">More</button>
-                        <button class="btn btn-default" rel="tooltip" data-placement="top" title="Unstar message"><i class="icon-star icon-2x blue"></i></button>
-                        <button class="btn btn-default" rel="tooltip" data-placement="top" title="Reply"><span class="icon-reply icon-2x"></span></button>
-                        <button class="btn btn-default" rel="tooltip" data-placement="top" title="Share message"><i class="icon-share icon-2x"></i></button>
-                        <button class="btn btn-default">
-                                <img class="media-object thumb" src="img/photo.png" rel="tooltip" data-placement="top" title="Posting as...">
-                            </button>
+                <div class="panel-body">
+                    <div class="panel-body-text">If you're looking for help with Bootstrap code, the <code>twitter-bootstrap</code> tag at <a href="http://stackoverflow.com/questions/tagged/twitter-bootstrap">Stackoverflow</a> is a good place to find answers.
                     </div>
-                    <input type="text" class="form-control" placeholder="Add a comment..">
-                  </div>
-                </form>
+                    <hr>
+                    <form>
+                        <div class="input-group">
+                            <div class="input-group-btn">
+                                <button class="btn btn-success" rel="tooltip" data-placement="top" title="Read full message">More</button>
+                                <button class="btn btn-default" rel="tooltip" data-placement="top" title="Unstar message"><i class="icon-star icon-2x blue"></i></button>
+                                <button class="btn btn-default" rel="tooltip" data-placement="top" title="Reply"><span class="icon-reply icon-2x"></span></button>
+                                <button class="btn btn-default" rel="tooltip" data-placement="top" title="Share message"><i class="icon-share icon-2x"></i></button>
+                                <button class="btn btn-default"><img class="media-object thumb" src="img/photo.png" rel="tooltip" data-placement="top" title="Posting as..."></button>
+                            </div>
+                            <input type="text" class="form-control" placeholder="Add a comment..">
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
-
+      -->
     <!-- 
   	<div class="row">
   		<div class="col-md-12"><h2>Playground</h2></div>
@@ -221,9 +233,9 @@
     </div>
     -->
 
-    <hr>
-    <div class="col-md-12 text-center"><p>Powered by CIMBA v1.0 alpha</p></div>
-
+          <hr>
+          <div class="col-md-12 text-center"><p>Powered by CIMBA v1.0 alpha</p></div>
+      </div>
   </div>
 </div>
 <!--/main-->
@@ -320,5 +332,6 @@ $(document).ready(function() {
     document.getElementById('signup').src = '//linkeddata.github.io/signup/index.html?ref='+window.location.protocol+'//'+window.location.host;
 });
 </script>
+
 </body>
 </html>
