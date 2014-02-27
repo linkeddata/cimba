@@ -2,6 +2,9 @@
 var PROXY = "https://rww.io/proxy?uri={uri}";
 var ngCimba = angular.module('CimbaApp', ['ui','ui.filters']);
 
+var ggg = undefined;
+
+// Main angular controller
 function CimbaCtrl($scope, $timeout) {
 	// default values
 	$scope.appuri = window.location.hostname+window.location.pathname;
@@ -10,13 +13,21 @@ function CimbaCtrl($scope, $timeout) {
 	$scope.webid = undefined;
 	$scope.myname = undefined;
 	$scope.mypic = 'img/photo.png';
+	$scope.storagespace = undefined;
+	// show loading spinner
+	$scope.loading = false;
+	// posts
+	$scope.Items = [];
 
 	// cache user credentials in localStorage to avoid double sign in
 	$scope.storeLocalCredentials = function () {
 		var cimba = {};
-		cimba.webid = $scope.webid;
-		cimba.myname = $scope.myname;
-		cimba.mypic = $scope.mypic;
+		var _user = {};
+		_user.webid = $scope.webid;
+		_user.myname = $scope.myname;
+		_user.mypic = $scope.mypic;
+		_user.storagespace = $scope.storagespace;
+		cimba.user = _user;
 		localStorage.setItem($scope.appuri, JSON.stringify(cimba));
 	}
 
@@ -24,12 +35,29 @@ function CimbaCtrl($scope, $timeout) {
 	$scope.getLocalCredentials = function () {
 		if (localStorage.getItem($scope.appuri)) {
 			var cimba = JSON.parse(localStorage.getItem($scope.appuri));
-			$scope.webid = cimba.webid;
-			$scope.myname = cimba.myname;
-			$scope.mypic = cimba.mypic;
+			$scope.webid = cimba.user.webid;
+			$scope.myname = cimba.user.myname;
+			$scope.mypic = cimba.user.mypic;
+			$scope.storagespace = cimba.user.storagespace;
 			$scope.loggedin = true;
 		} else {
 			console.log('Snap, localStorage is empty!');
+		}
+	}
+
+	// save current posts in localStorage
+	$scope.saveItems = function () {
+		if (localStorage.getItem($scope.appuri)) {
+			var cimba = JSON.parse(localStorage.getItem($scope.appuri));			
+			cimba.items = $scope.Items;
+			localStorage.setItem($scope.appuri, JSON.stringify(cimba));
+		}
+	}
+
+	$scope.loadItems = function () {
+		if (localStorage.getItem($scope.appuri)) {
+			var cimba = JSON.parse(localStorage.getItem($scope.appuri));			
+			$scope.Items = cimba.items
 		}
 	}
 
@@ -40,7 +68,8 @@ function CimbaCtrl($scope, $timeout) {
 
 	// update my user picture	
 	$scope.updateUserDOM = function () {
-		$('#mypic').html('<img class="media-object" src="'+$scope.mypic+'" rel="tooltip" data-placement="top" width="70" title="'+$scope.myname+'">');
+		$('#mypic').html('<a href="'+$scope.webid+'" target="_blank">'+
+			'<img class="media-object" src="'+$scope.mypic+'" rel="tooltip" data-placement="top" width="70" title="'+$scope.myname+'"></a>');
 	}
 
 	// logout (clear localStorage)
@@ -59,45 +88,34 @@ function CimbaCtrl($scope, $timeout) {
 			$scope.audience = 'icon-user';
 	}
 
-	// get a user's WebID profile to personalize app
-	$scope.getWebIDProfile = function() {
-		if ($scope.webid) {
-			console.log('Found WebID: '+$scope.webid);
-			$scope.userInfo();
-		} else {
-			console.log('No webid found!');
-		}
-	}
-
-	// Fetech the profile using rdflib.js
-	$scope.userInfo = function () {
+	// get relevant info for a webid
+	function getInfo(webid, mine) {
 	    var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 	    var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
-	    var MB = $rdf.Namespace("http://rdfs.org/sioc/types#");
+	    var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
 	    var g = $rdf.graph();
 	    var f = $rdf.fetcher(g);
 	    // add CORS proxy
 	    $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
 
-	    var docURI = $scope.webid.slice(0, $scope.webid.indexOf('#'));
-	    var webidRes = $rdf.sym($scope.webid);
+	    var docURI = webid.slice(0, webid.indexOf('#'));
+	    var webidRes = $rdf.sym(webid);
 
 	    // fetch user data
 	    f.nowOrWhenFetched(docURI,undefined,function(){
-	        // export the user graph
-	        mygraph = g;
 	        // get some basic info
 	        var name = g.any(webidRes, FOAF('name'));
 	        var pic = g.any(webidRes, FOAF('img'));
 	        var depic = g.any(webidRes, FOAF('depiction'));
-        	// get microblogging endpoints
-        	var mb = g.an(ywebidRes, MB('Microblog'));
+	    	// get storage endpoints
+	    	var storage = g.any(webidRes, SPACE('storage'));	    	
 
+	    	// Clean up name
 	        name = (name == undefined) ? 'Unknown':name.value;
 	        if (name.length > 22)
 	            name = name.slice(0, 18)+'...';
-	        $scope.myname = name;
 
+	        // set avatar picture
 	        if (pic == undefined) {
 	            if (depic)
 	                pic = depic.value;
@@ -106,14 +124,98 @@ function CimbaCtrl($scope, $timeout) {
 	        } else {
 	            pic = pic.value;
 	        }
-	        $scope.mypic = pic;
 
-        	// cache user credentials in localStorage
-        	$scope.storeLocalCredentials();
-        	// update DOM
-        	$scope.updateUserDOM();
-        	$scope.loggedin = true;
-        	$scope.$apply();
+	        // find microblogging feeds/channels
+	        if (storage)
+	        	$scope.getFeeds(storage.value);
+	        else
+	        	$scope.loading = false; // hide spinner
+
+			var _user = {
+	    		fullname: name,
+				pic: pic,
+				storagespace: storage
+	    	}
+
+			if (mine) {
+		        $scope.myname = name;
+		        $scope.mypic = pic;
+		        $scope.storagespace = storage;
+
+		    	// cache user credentials in localStorage
+		    	$scope.storeLocalCredentials();
+		    	// update DOM
+		    	$scope.updateUserDOM();
+		    	$scope.loggedin = true;
+		    	$scope.$apply();
+			}
+
+	    	return _user;
+	    });
+	}
+
+	// get a user's WebID profile data to personalize app
+	$scope.getWebIDProfile = function() {
+		$scope.loading = true;
+		console.log('load='+$scope.loading);
+		if ($scope.webid) {
+			console.log('Found WebID: '+$scope.webid);
+			getInfo($scope.webid, true);
+		} else {
+			console.log('No webid found!');
+			// hide spinner
+			$scope.loading = false;
+		}
+
+		console.log('load='+$scope.loading);
+	}
+
+	// get feeds based on a storage container
+	$scope.getFeeds = function(uri) {
+		var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+		var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
+	    var LDP = $rdf.Namespace("http://www.w3.org/ns/ldp#");
+	    var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
+	    var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
+	    var g = $rdf.graph();
+	    var f = $rdf.fetcher(g);
+	    // add CORS proxy
+	    $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
+
+	    // fetch user data: SIOC:Container -> SIOC:Forum -> SIOC:Post
+	    f.nowOrWhenFetched(uri,undefined,function(){
+	        // find all SIOC:Container
+	        var ws = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));
+			for (var i in ws) {
+				w = ws[i]['subject']['value'];
+				
+				// find all SIOC:Forum (using globbing)
+				var ff = $rdf.fetcher(g);
+				ff.nowOrWhenFetched(w+'*/*', undefined,function(){
+					var posts = g.statementsMatching(undefined, RDF('type'), SIOC('Post'));
+									
+					for (var p in posts) {
+						var uri = posts[p]['subject'];
+						var useraccount = g.any(uri, SIOC('has_creator'));
+						var post = g.statementsMatching(posts[p]['subject']);
+						var _newItem = {
+							uri : uri.value,
+							date : moment(g.any(uri, DCT('created')).value).fromNow(),
+							userpic : g.any(useraccount, SIOC('avatar')).value,
+							username : g.any(useraccount, SIOC('account_of')).value,
+							body : g.any(uri, SIOC('content')).value
+						}
+						console.log(_newItem);
+						$scope.Items.push(_newItem);
+						$scope.$apply();
+					}
+					// done loading, save items
+					$scope.saveItems();
+					// hide spinner
+					$scope.loading = false;
+					$scope.$apply();
+				});
+			}
 	    });
 	}
 
@@ -128,56 +230,17 @@ function CimbaCtrl($scope, $timeout) {
 		if (e.data.slice(0,5) == 'User:') {
 			$scope.webid = e.data.slice(5, e.data.length);
 			$scope.getWebIDProfile();
+			// clear previous posts
+	    	jQuery('posts-viewer').empty();
 		}
 		$('#loginModal').modal('hide');
 	},false);
 
 	// init by retrieving user from localStorage
 	$scope.getLocalCredentials();
+	$scope.loadItems();
 	$scope.updateUserDOM();
 }
-
-
-var posts = {};
-posts[0] = {time: 1111111, 
-			body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer sem sapien, elementum sagittis erat at, tempus tincidunt nulla. In fringilla eleifend tortor vitae blandit. Maecenas ultricies sem quis lectus feugiat, at tincidunt nisi elementum. Aliquam erat volutpat. Praesent condimentum metus eget nibh pharetra porttitor. Duis a elit sit amet felis dignissim imperdiet. Sed tristique nunc in sem semper congue.',
-			userpic: 'img/pic1.jpg',
-			username: 'Test Name 1'
-			};
-posts[1] = {time: 2222222,
-			body: 'If you\'re looking for help with Bootstrap code, the <code>twitter-bootstrap</code> tag at <a href="http://stackoverflow.com/questions/tagged/twitter-bootstrap">Stackoverflow</a> is a good place to find answers.',
-			userpic: 'img/pic2.jpg',
-			username: 'Test Name 2'
-			};
-
-
-// autofetch factory
-ngCimba.factory('DataFeed',function($interval){
-
-	//private storage of feed items
-	var _feedItems = []
-
-	//fake data fetcher, would go to your API
-	function fakeFetchNewData(){
-		var _newFakeItem = {
-			id : _feedItems.length + 1,
-			date : new Date()
-		}
-		if (_newFakeItem.id < 3) // limit for tests
-			_feedItems.push(_newFakeItem)
-	}
-
-	//return the public API
-	return {
-	    //the data
-	    items : _feedItems,
-	    
-	    //a public function to start the autorefresher
-	    startUpdating : function(refreshInterval){
-       		$interval(function(){ fakeFetchNewData() },refreshInterval || 1000);
-	    }
-	}
-})
 
 //simple directive to display each post
 ngCimba.directive('postsViewer',function(){
@@ -186,6 +249,42 @@ ngCimba.directive('postsViewer',function(){
 		restrict : 'E',
 		templateUrl: 'tpl/post.html'
     }; 
+})
+
+/*
+// autofetch factory
+ngCimba.factory('DataFeed',function($interval){
+
+	//private storage of feed items
+	var _feedItems = [];
+	var feeds = [];
+
+	// fetch posts from feed source
+	// TODO: sanitize contents!
+	function fetchNewData($source) {
+			
+		var _newItem = {
+			uri : _feedItems.length + 1,
+			date : new Date(),
+			userpic : posts[_feedItems.length].userpic,
+			username : posts[_feedItems.length].username,
+			body : posts[_feedItems.length].body
+		}
+		_feedItems.push(_newItem);
+	}
+
+	//return the public API
+	return {
+	    // the data
+	    items : _feedItems,
+	    
+	    // a public function to start the autorefresher
+	    
+	    //startUpdating : function(refreshInterval){
+       	//	$interval(function(){ fetchNewData() },refreshInterval || 500);
+	    //}
+	    
+	}
 })
 
 
@@ -198,43 +297,4 @@ ngCimba.controller('PostsCtrl', function($scope,DataFeed) {
 	DataFeed.startUpdating();
 
 });
-
-
-/*
-function PostsCtrl($scope, $timeout, $http) {
-	$scope.posts = posts;
-	
-	for (var p in posts) {
-		$.get("tpl/post.html", function(data){
-		    $('#posts').children("div:first").html(data);
-		});
-		console.log(p);
-	}
-
-	$('#posts').html('<div ng-include="tpl/post.html"></div>');
-}
-*/
-/*
-
-1. get all posts in a container
-
-2. for each post -> fetch independently
-
-3. (try to sort?)
-
-4. append to #posts
-
-
-*/
-
-
-
-/*
-
-<#n8624715161>
-    <http://purl.org/dc/terms/created> "2013-07-15T12:51:48Z" ;
-    <http://rdfs.org/sioc/ns#content> "test" ;
-    <http://rdfs.org/sioc/ns#has_creator> <https://deiu.rww.io/profile/card#me> ;
-    a <http://rdfs.org/sioc/types#MicroblogPost> .
-
 */

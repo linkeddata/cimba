@@ -15,6 +15,7 @@
 <link href="dev/css/font-awesome.min.css" rel="stylesheet">
 <!-- local -->
 <link href="css/style.css" rel="stylesheet">
+<link href="css/proxima-nova.css" rel="stylesheet">
 
 <!-- prod
 <script type='text/javascript' src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
@@ -32,6 +33,7 @@
 <script type='text/javascript' src="js/jquery.notify.js"></script>
 <script type='text/javascript' src="js/rdflib.min.js"></script>
 <script type='text/javascript' src="js/common.js"></script>
+<script type="text/javascript" src="js/moment.min.js"></script>
 <script type='text/javascript' src="js/app.js"></script>
 
 <!--[if lt IE 9]>
@@ -43,7 +45,7 @@
     
 <body>
 <div ng-controller="CimbaCtrl">
-    <div class="navbar navbar-default" id="subnav">
+    <div ng-cloak class="navbar navbar-default" id="subnav">
         <div class="col-md-12">
             <div class="navbar-header">
                 <img src="img/cimba-logo.svg" class="logo">
@@ -54,16 +56,15 @@
                     <span class="icon-bar"></span>
                 </button>
             </div>
+            
+            <!-- <a href="#" onclick="notify('Post', 'Your post was succesfully submitted!')">Notif</a> -->
 
             <div class="collapse navbar-collapse" id="navbar-collapse2">
-            <ul ng-cloak class="nav navbar-nav navbar-right">
-                <li><a href="#" onclick="notify('Post', 'Your post was succesfully submitted!')">Notif</a></li>
+            <ul class="nav navbar-nav navbar-right">
+                <li class="active"><a href="#"><span class="icon-home"></span> Home</a></li>
                 <li><a href="#"><i class="icon-refresh"></i> Refresh </a></li>
-                <li class="active"><a href="#">Mine</a></li>
-                <li><a href="#">Others'</a></li>
-                <li ng-hide="loggedin"><a href="#loginModal" role="button" data-toggle="modal">Login</a></li>
-                <li ng-show="loggedin"><a href="#" ng-click="clearSession()" role="button">Logout</a></li>
-                <li><a href="#aboutModal" role="button" data-toggle="modal">About</a></li>
+                <li ng-hide="loggedin"><a href="#loginModal" role="button" data-toggle="modal"><span class="icon-signin"></span> Login</a></li>
+                <li ng-show="loggedin"><a href="#" ng-click="clearSession()" role="button"><span class="icon-signout"></span> Logout</a></li>
             </ul>
             </div>
         </div>	
@@ -78,7 +79,7 @@
                 <!-- new post -->
                 <div class="panel panel-default" ng-show="loggedin"> 
                     <div class="panel-heading dark-blue">
-                        <h4 class="bold">What's New?</h4>
+                        <h4 class="bold">What's new, {{myname}}?</h4>
                         <div class="pull-left">
                             <a id="mypic" class="thumbnail pull-right" href="#">
                               <img class="media-object" src="img/photo.png" rel="tooltip" data-placement="top" title="Name">
@@ -90,7 +91,7 @@
                             <form class="form-horizontal" role="form" method="post" action="#">
                               <div class="row">
                                 <div class="form-group col-md-11 .col-md-offset-1">
-                                    <textarea name="message" class="form-control message" placeholder="Type your message"></textarea>
+                                    <textarea name="message" class="form-control message" placeholder="Type your message here.."></textarea>
                                 </div>
                               </div>
                                 <div class="dropdown">
@@ -111,132 +112,22 @@
             </div>
         </div>
     </div>
-</div>
 
-<div class="container" ng-controller="PostsCtrl">
-    <div id="posts" class="row">
-        <div class="col-md-12">
-            <posts-viewer></posts-viewer>
-      <!--
-        <div class="col-md-12">
-            <div class="panel panel-default">
-                <div class="panel-heading light-blue">
-                    <a href="#" class="link-post pull-right"><i class="icon-link"></i> Link to post</a> <h4 class="bold">Last post</h4>
-                    <div class="pull-left">
-                        <a class="thumbnail pull-right" href="#">
-                          <img class="media-object" src="img/photo.png" rel="tooltip" data-placement="top" title="WebID of the user">
-                        </a>
-                    </div>
-                </div>
-                <div class="panel-body">
-                    <div class="panel-body-text">
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer sem sapien, elementum sagittis erat at, tempus tincidunt nulla. In fringilla eleifend tortor vitae blandit. Maecenas ultricies sem quis lectus feugiat, at tincidunt nisi elementum. Aliquam erat volutpat. Praesent condimentum metus eget nibh pharetra porttitor. Duis a elit sit amet felis dignissim imperdiet. Sed tristique nunc in sem semper congue.</p>
-                        <p>Curabitur auctor, lacus in commodo varius, dolor neque hendrerit eros, sit amet gravida sem libero in velit. Praesent consequat ut turpis id luctus. Cras urna turpis, vehicula a tincidunt eu, laoreet sollicitudin massa. Sed venenatis ultricies ullamcorper. Donec blandit, ante non auctor porttitor, ligula ligula malesuada libero, sit amet mattis metus magna ac orci.</p>
-                    </div>
-                    <hr>
-                    <form>
-                        <div class="input-group">
-                          <div class="input-group-btn">
-                            <button class="btn btn-success" rel="tooltip" data-placement="top" title="Read full message">More</button>
-                            <button class="btn btn-default" rel="tooltip" data-placement="top" title="Star message"><span class="icon-star icon-2x"></span></button>
-                            <button class="btn btn-default" data-placement="top" title="Delete message"><i class="icon-trash icon-2x"></i></button>
-                            <button class="btn btn-default">
-                                <img class="media-object thumb" src="img/photo.png" rel="tooltip" data-placement="top" title="Posting as...">
-                            </button>
-                          </div>
-                        </div>
-                        <div>
-                        <input type="text" class="form-control" placeholder="Add a comment..">
-                        </div>
-                    </form>
+    <div id="posts" class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <!-- All posts go into <posts-viewer> -->
+                <posts-viewer ng-show="loggedin"></posts-viewer>
+                <div class="panel panel-default" ng-show="loading">
+                    <div id="spinner"></div>
                 </div>
             </div>
         </div>
-        <div class="col-md-12">
-            <div class="panel panel-default">
-                <div class="panel-heading light-blue">
-                    <a href="#" class="link-post pull-right"><i class="icon-link"></i> Link to post</a>
-                    <h4 class="bold">Stackoverflow - If you're looking for help with Bootstrap code</h4>
-                    
-                    <div class="pull-left">
-                    <a class="thumbnail pull-right" href="#">
-                        <img class="media-object" src="img/photo.png" rel="tooltip" data-placement="top" title="WebID of the user">
-                    </a>
-                   </div>
-                </div>
-                <div class="panel-body">
-                    <div class="panel-body-text">If you're looking for help with Bootstrap code, the <code>twitter-bootstrap</code> tag at <a href="http://stackoverflow.com/questions/tagged/twitter-bootstrap">Stackoverflow</a> is a good place to find answers.
-                    </div>
-                    <hr>
-                    <form>
-                        <div class="input-group">
-                            <div class="input-group-btn">
-                                <button class="btn btn-success" rel="tooltip" data-placement="top" title="Read full message">More</button>
-                                <button class="btn btn-default" rel="tooltip" data-placement="top" title="Unstar message"><i class="icon-star icon-2x blue"></i></button>
-                                <button class="btn btn-default" rel="tooltip" data-placement="top" title="Reply"><span class="icon-reply icon-2x"></span></button>
-                                <button class="btn btn-default" rel="tooltip" data-placement="top" title="Share message"><i class="icon-share icon-2x"></i></button>
-                                <button class="btn btn-default"><img class="media-object thumb" src="img/photo.png" rel="tooltip" data-placement="top" title="Posting as..."></button>
-                            </div>
-                            <input type="text" class="form-control" placeholder="Add a comment..">
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-      -->
-    <!-- 
-  	<div class="row">
-  		<div class="col-md-12"><h2>Playground</h2></div>
-        <div class="col-md-12">
-          <div class="alert alert-info alert-dismissable">
-              <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-              <strong>Heads up!</strong> This alert needs your attention, but it's not super important.
-          </div>
-        </div>
-    	<div class="col-md-6 col-sm-6">
-    	<div class="panel panel-default">
-            <div class="top-border"></div>
-           <div class="panel-heading"><a href="#" class="pull-right">Link to post</a> <h4>Buttons &amp; Labels</h4></div>
-   			<div class="panel-body">
-              <div class="row">
-                <div class="col-xs-4"><a class="btn btn-default center-block" href="#">Button</a></div>
-                <div class="col-xs-4"><a class="btn btn-primary center-block" href="#">Primary</a></div>
-                <div class="col-xs-4"><a class="btn btn-danger center-block" href="#">Danger</a></div>
-              </div>
-              <br>
-              <div class="row">
-                <div class="col-xs-4"><a class="btn btn-warning center-block" href="#">Warning</a></div>
-                <div class="col-xs-4"><a class="btn btn-info center-block" href="#">Info</a></div>
-                <div class="col-xs-4"><a class="btn btn-success center-block" href="#">Success</a></div>
-              </div>
-              <hr>
-              <div class="btn-group btn-group-sm"><button class="btn btn-default">1</button><button class="btn btn-default">2</button><button class="btn btn-default">3</button></div>              
-              <hr>
-              <div class="row">
-              <div class="col-md-4">
-                <span class="label label-default">Label</span>
-                <span class="label label-success">Success</span>
-                
-              </div>
-              <div class="col-md-4">
-              	<span class="label label-warning">Warning</span>  
-                <span class="label label-info">Info</span>
-              </div>
-              <div class="col-md-4">
-                <span class="label label-danger">Danger</span>
-                <span class="label label-primary">Primary</span>
-                </div>
-              </div>
-              
-            </div>
-         </div> 
     </div>
-    -->
-
-          <hr>
-          <div class="col-md-12 text-center"><p>Powered by CIMBA v1.0 alpha</p></div>
-      </div>
-  </div>
+</div>
+<div class="col-md-12 text-center">
+    <hr>
+    <p>Powered by <a href="https://github.com/social-webarch/cimba" target="_blank">CIMBA</a> v1.0 alpha</p>
 </div>
 <!--/main-->
 

@@ -1,15 +1,15 @@
-<div class="panel panel-default" custom ng-repeat="item in feedItems">
+<div class="panel panel-default" custom ng-repeat="item in Items">
     <div class="panel-heading light-blue">
-        <a href="#" class="link-post pull-right"><i class="icon-link"></i> Link to post</a> <h4 class="bold">Posted {{item.date}}{{timeago}}</h4>
+        <a href="{{item.uri}}" class="link-post pull-right"><i class="icon-link"></i> Link to post</a> <h4 class="bold">Posted by {{item.username}}, {{item.date}}</h4>
         <div class="pull-left">
             <a class="thumbnail pull-right" href="#">
-              <img class="media-object" src="{{userpic}}" rel="tooltip" data-placement="top" title="{{username}}">
+              <img class="media-object thumb-pic" src="{{item.userpic}}" rel="tooltip" data-placement="top" title="{{item.username}}">
             </a>
         </div>
     </div>
     <div class="panel-body">
         <div class="panel-body-text">
-            <p>{{body}}</p>
+            <p>{{item.body}}</p>
         </div>
         <hr>
         <form>
@@ -18,13 +18,7 @@
                 <button class="btn btn-success" rel="tooltip" data-placement="top" title="Read full message">More</button>
                 <button class="btn btn-default" rel="tooltip" data-placement="top" title="Star message" ng-click="starPost()"><span class="icon-star icon-2x"></span></button>
                 <button class="btn btn-default" data-placement="top" title="Delete message" ng-click="deletePost()"><i class="icon-trash icon-2x"></i></button>
-                <button class="btn btn-default">
-                    <img class="media-object thumb" src="{{myuserpic}}" rel="tooltip" data-placement="top" title="Posting as {{myusername}}">
-                </button>
               </div>
-            </div>
-            <div>
-            <input type="text" class="form-control" placeholder="Add a comment..">
             </div>
         </form>
     </div>

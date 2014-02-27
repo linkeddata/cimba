@@ -1,13 +1,14 @@
-@font-face {
-  font-family: 'Roboto';
-  font-style: normal;
-  font-weight: 400;
-  src: local('Roboto Regular'), local('Roboto-Regular'), url(https://themes.googleusercontent.com/static/fonts/roboto/v10/2UX7WLTfW3W8TclTUvlFyQ.woff) format('woff');
-}
 body {
   background-color:#e0e0e0;
   -webkit-font-smoothing: antialiased;
-  font: normal 14px Roboto,arial,sans-serif;
+
+  font-family:proxima-nova,"Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-weight:400;
+  line-height:1.28
+}
+h4 {
+  font-family:proxima-nova,"Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-weight:400;
 }
 .clear-10 {
     margin-top: 10px;
@@ -121,6 +122,10 @@ textarea {
 .list-group-item:first-child,.list-group-item:last-child {
 	border-radius:0;
 }
+.thumb-pic {
+  width:70px;
+}
+
 h3,h4,h5 {
     color: #fff;
     border:0 solid #efefef; 
@@ -159,6 +164,15 @@ h3,h4,h5 {
     border-radius:3px;
 }
 /* end theme */
+
+#spinner {
+    width: 128px;
+    height: 128px;
+    background-image: url(../img/load.gif);
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 100%;
+}
 
 /* template layout*/
 #subnav {
