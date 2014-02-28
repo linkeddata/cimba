@@ -11,13 +11,13 @@
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.3.1 r9886"
+   inkscape:version="0.48.4 r9939"
    width="518.25525"
    height="112.28655"
    sodipodi:docname="cimba-logo.svg"
-   inkscape:export-filename="/home/deiu/dev/cimba/app/favicon.png"
-   inkscape:export-xdpi="19.2365"
-   inkscape:export-ydpi="19.2365">
+   inkscape:export-filename="/home/deiu/dev/cimba/img/cimba-logo.png"
+   inkscape:export-xdpi="32.060829"
+   inkscape:export-ydpi="32.060829">
   <metadata
      id="metadata8">
     <rdf:RDF>
@@ -26,7 +26,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
