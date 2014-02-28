@@ -79,7 +79,6 @@
                 <!-- new post -->
                 <div class="panel panel-default" ng-show="loggedin"> 
                     <div class="panel-heading dark-blue">
-                        <h4 class="bold">What's new, {{myname}}?</h4>
                         <div class="pull-left">
                             <a id="mypic" class="thumbnail pull-right" href="#">
                               <img class="media-object" src="img/photo.png" rel="tooltip" data-placement="top" title="Name">
@@ -88,23 +87,35 @@
                     </div>
                     <div class="panel-body">
                         <div class="panel-body-textmail">
-                            <form class="form-horizontal" role="form" method="post" action="#">
-                              <div class="row">
-                                <div class="form-group col-md-11 .col-md-offset-1">
-                                    <textarea name="message" class="form-control message" placeholder="Type your message here.."></textarea>
-                                </div>
-                              </div>
-                                <div class="dropdown">
-                                    <button id="audience" ng-model="audience" class="btn btn-classic dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"><i class="{{audience}} icon-2x blue"></i> <small class="drop"><i class="icon-chevron-down icon-2x"></i></small></button>
-                                    <ul class="dropdown-menu" role="menu" aria-labelledby="audience">
-                                        <li><a href="#" ng-click="setAudience('public')"><i id="public" class="icon-globe icon-2x blue"></i> Public</a></li>
-                                        <li><a href="#" ng-click="setAudience('private')">&nbsp;<i id="private" class="icon-lock icon-2x blue"></i>&nbsp; Private</a></li>
-                                        <li><a href="#" ng-click="setAudience('friends')"><i id="friends" class="icon-user icon-2x blue"></i> Friends</a></li>
-                                    </ul>
-                                    <button class="btn btn-classic" rel="tooltip" data-placement="top" title="Add a photo"><i class="icon-camera  icon-2x green"></i></button>
-                                    <button class="btn btn-primary pull-right" onclick="notify('Post', 'Your post was succesfully submitted!')">Publish</button>
-                                </div>
-                            </form>
+                          <form>
+                            <h3 class="bold">What's new, {{user.myname}}?</h3>
+                              
+                            <textarea name="message" ng-model="postbody" class="form-control message" placeholder="Type your message here.." required></textarea>
+                         
+                            <div class="btn-group">
+                                <button id="audience" ng-model="audience" class="btn btn-classic"><i class="{{audience}} icon-2x blue"></i></button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop"><i class="icon-chevron-down icon-2x"></i></small></button>
+                                <ul class="dropdown-menu" role="menu" aria-labelledby="audience">
+                                    <li><a href="#" ng-click="setAudience('public')"><i id="public" class="icon-globe icon-2x blue"></i> Public</a></li>
+                                    <li><a href="#" ng-click="setAudience('private')">&nbsp;<i id="private" class="icon-lock icon-2x blue"></i>&nbsp; Private</a></li>
+                                    <li><a href="#" ng-click="setAudience('friends')"><i id="friends" class="icon-user icon-2x blue"></i> Friends</a></li>
+                                </ul>
+                            </div>
+                            <div class="btn-group">
+                                <input type="button" id="chs" class="btn btn-classic" value="{{defaultChannel.title}}"><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop"><i class="icon-chevron-down icon-2x"></i></small></button>
+                                <ul class="dropdown-menu" role="menu" aria-labelledby="chs">
+                                    <li ng-repeat="channel in user.channels">
+                                        <a href="#" ng-click="setChannel(channel.title)">{{channel.title}}</a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="btn-group">
+                                <button class="btn btn-classic" rel="tooltip" data-placement="top" title="Add a photo"><i class="icon-camera  icon-2x green"></i></button>
+                            </div>
+                            <div class="pull-right">
+                                
+                                <button class="btn btn-primary pull-right" ng-click="newPost()" ng-disabled="!postbody">Publish</button>
+                            </div>
+                          </form>
                         </div>
                     </div>
                 </div>

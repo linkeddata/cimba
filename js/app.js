@@ -5,28 +5,34 @@ var ngCimba = angular.module('CimbaApp', ['ui','ui.filters']);
 var ggg = undefined;
 
 // Main angular controller
-function CimbaCtrl($scope, $timeout) {
+function CimbaCtrl($scope, $filter) {
 	// default values
+	// show loading spinner
+	$scope.loading = false;
+	// posts array
+	$scope.posts = [];
+	$scope.defaultChannel = {};
+	// user object
+	$scope.user = {};
+	$scope.user.webid = undefined;
+	$scope.user.myname = undefined;
+	$scope.user.mypic = 'img/photo.png';
+	$scope.user.storagespace = undefined;
+	$scope.user.channels = [];
+	// misc
 	$scope.appuri = window.location.hostname+window.location.pathname;
 	$scope.loggedin = false;
 	$scope.audience = 'icon-globe';
-	$scope.webid = undefined;
-	$scope.myname = undefined;
-	$scope.mypic = 'img/photo.png';
-	$scope.storagespace = undefined;
-	// show loading spinner
-	$scope.loading = false;
-	// posts
-	$scope.Items = [];
 
 	// cache user credentials in localStorage to avoid double sign in
 	$scope.storeLocalCredentials = function () {
 		var cimba = {};
 		var _user = {};
-		_user.webid = $scope.webid;
-		_user.myname = $scope.myname;
-		_user.mypic = $scope.mypic;
-		_user.storagespace = $scope.storagespace;
+		_user.webid = $scope.user.webid;
+		_user.myname = $scope.user.myname;
+		_user.mypic = $scope.user.mypic;
+		_user.storagespace = $scope.user.storagespace;
+		_user.channels = $scope.user.channels;
 		cimba.user = _user;
 		localStorage.setItem($scope.appuri, JSON.stringify(cimba));
 	}
@@ -35,13 +41,32 @@ function CimbaCtrl($scope, $timeout) {
 	$scope.getLocalCredentials = function () {
 		if (localStorage.getItem($scope.appuri)) {
 			var cimba = JSON.parse(localStorage.getItem($scope.appuri));
-			$scope.webid = cimba.user.webid;
-			$scope.myname = cimba.user.myname;
-			$scope.mypic = cimba.user.mypic;
-			$scope.storagespace = cimba.user.storagespace;
+			$scope.user.webid = cimba.user.webid;
+			$scope.user.myname = cimba.user.myname;
+			$scope.user.mypic = cimba.user.mypic;
+			$scope.user.storagespace = cimba.user.storagespace;
+			$scope.user.channels = cimba.user.channels;
 			$scope.loggedin = true;
+			if ($scope.user.channels)
+				$scope.defaultChannel = $scope.user.channels[0];
 		} else {
 			console.log('Snap, localStorage is empty!');
+		}
+	}
+
+	// save the list of channels in localStorage
+	$scope.saveChannels = function () {
+		if (localStorage.getItem($scope.appuri)) {
+			var cimba = JSON.parse(localStorage.getItem($scope.appuri));			
+			cimba.user.channels = $scope.user.channels;
+			localStorage.setItem($scope.appuri, JSON.stringify(cimba));
+		}
+	}
+	// load the list of channels from localStorage
+	$scope.loadItems = function () {
+		if (localStorage.getItem($scope.appuri)) {
+			var cimba = JSON.parse(localStorage.getItem($scope.appuri));			
+			$scope.user.channels = cimba.user.channels;
 		}
 	}
 
@@ -49,15 +74,15 @@ function CimbaCtrl($scope, $timeout) {
 	$scope.saveItems = function () {
 		if (localStorage.getItem($scope.appuri)) {
 			var cimba = JSON.parse(localStorage.getItem($scope.appuri));			
-			cimba.items = $scope.Items;
+			cimba.posts = $scope.posts;
 			localStorage.setItem($scope.appuri, JSON.stringify(cimba));
 		}
 	}
-
+	// load the posts from localStorage
 	$scope.loadItems = function () {
 		if (localStorage.getItem($scope.appuri)) {
 			var cimba = JSON.parse(localStorage.getItem($scope.appuri));			
-			$scope.Items = cimba.items
+			$scope.posts = cimba.posts;
 		}
 	}
 
@@ -68,15 +93,27 @@ function CimbaCtrl($scope, $timeout) {
 
 	// update my user picture	
 	$scope.updateUserDOM = function () {
-		$('#mypic').html('<a href="'+$scope.webid+'" target="_blank">'+
-			'<img class="media-object" src="'+$scope.mypic+'" rel="tooltip" data-placement="top" width="70" title="'+$scope.myname+'"></a>');
+		$('#mypic').html('<a href="'+$scope.user.webid+'" target="_blank">'+
+			'<img class="media-object" src="'+$scope.user.mypic+'" rel="tooltip" data-placement="top" width="70" title="'+$scope.user.myname+'"></a>');
 	}
 
 	// logout (clear localStorage)
 	$scope.clearSession = function () {
 		$scope.clearLocalCredentials();
+		$scope.user = {};
+		$scope.posts = [];
 		$scope.loggedin = false;
 	}
+
+	// update account
+    $scope.setChannel = function(ch) {
+        for (var i in $scope.user.channels) {
+        	if ($scope.user.channels[i].title == ch) {
+        		$scope.defaultChannel = $scope.user.channels[i];
+        		break;
+    		}
+        }
+    }
 
 	// update the audience selector
 	$scope.setAudience = function(v) {
@@ -87,9 +124,112 @@ function CimbaCtrl($scope, $timeout) {
 		else if (v=='friends')
 			$scope.audience = 'icon-user';
 	}
+	
+	// post new message
+	$scope.newPost = function () {
+		// get the current date
+		var now = Date.now();
+		now = moment(now).format("YYYY-MM-DDTHH:mm:ssZZ");
+
+		var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+		var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
+	    var FOAF = $rdf.Namespace('http://xmlns.com/foaf/0.1/');
+	    var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
+		var g = $rdf.graph();
+		
+		// set triples
+        g.add($rdf.sym(''), RDF('type'), SIOC('Post'));
+        g.add($rdf.sym(''), SIOC('content'), $rdf.lit($scope.postbody.trim()));
+        g.add($rdf.sym(''), SIOC('has_creator'), $rdf.sym('#author'));
+    	g.add($rdf.sym(''), DCT('created'), $rdf.lit(now, '', $rdf.Symbol.prototype.XSDdateTime));
+        // add author triples
+        g.add($rdf.sym('#author'), RDF('type'), SIOC('UserAccount'));
+        g.add($rdf.sym('#author'), SIOC('account_of'), $rdf.sym($scope.user.webid));
+        g.add($rdf.sym('#author'), SIOC('avatar'), $rdf.sym($scope.user.mypic));
+        g.add($rdf.sym('#author'), FOAF('name'), $rdf.sym($scope.user.myname));
+
+    	var s = new $rdf.Serializer(g).toN3(g);
+    	var uri = $scope.defaultChannel.uri;
+    	
+		var _newPost = {
+			uri : '',
+			date : now,
+			timeago : moment(now).fromNow(),
+			userpic : $scope.user.mypic,
+			userwebid : $scope.user.webid,
+			username : $scope.user.myname,
+			body : $scope.postbody.trim()
+		}
+
+		postRemote(uri, s, _newPost);
+	}
+
+	function postRemote(uri, data, post) {
+	    $.ajax({
+	        type: "POST",
+	        url: uri,
+	        contentType: "text/turtle",
+	        data: data,
+	        processData: false,
+	        statusCode: {
+	            201: function(data) {
+	                console.log("201 Created");
+	                notify('Post', 'Your post was succesfully submitted and created!');
+	            },
+	            401: function() {
+	                console.log("401 Unauthorized");
+	                notify('Error', 'Unauthorized! You need to authentify before posting.');
+	            },
+	            403: function() {
+	                console.log("403 Forbidden");
+	                notify('Error', 'Forbidden! You are not allowed to post to the selected channel.');
+	            },
+	            406: function() {
+	                console.log("406 Contet-type unacceptable");
+	                notify('Error', 'Content-type unacceptable.');
+	            },
+	            507: function() {
+	                console.log("507 Insufficient storage");
+	                notify('Error', 'Insuffifient storage left! Check your server storage.');
+	            },
+	        },
+	        success: function(d,s,r) {
+	            console.log('Success!');
+	            newURI = r.getResponseHeader('Location');
+	            post.uri = newURI;			
+				$scope.posts.push(post);
+				$scope.$apply();
+				$scope.saveItems();
+	        }
+	    });
+	}
+
+	// delete post
+	$scope.deletePost = function (uri, refresh) {
+		$.ajax({
+			url: uri,
+	        type: "delete",
+	        onSuccess: function () {
+	        	console.log('Deleted '+uri);
+
+	        	// also delete from local posts
+
+	            if (refresh == true)
+	                window.location.reload(true);
+	        },
+	        onFailure: function (r) {
+	            var status = r.status.toString();
+	            if (status == '404') {
+	                var msg = 'Access denied';
+	                notify('Error deleting post!');
+	                
+	            }
+	        }
+	    });
+	}
 
 	// get relevant info for a webid
-	function getInfo(webid, mine) {
+	$scope.getInfo = function(webid, mine) {
 	    var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 	    var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
 	    var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
@@ -108,7 +248,7 @@ function CimbaCtrl($scope, $timeout) {
 	        var pic = g.any(webidRes, FOAF('img'));
 	        var depic = g.any(webidRes, FOAF('depiction'));
 	    	// get storage endpoints
-	    	var storage = g.any(webidRes, SPACE('storage'));	    	
+	    	var storage = g.any(webidRes, SPACE('storage')).value;	    	
 
 	    	// Clean up name
 	        name = (name == undefined) ? 'Unknown':name.value;
@@ -127,7 +267,7 @@ function CimbaCtrl($scope, $timeout) {
 
 	        // find microblogging feeds/channels
 	        if (storage)
-	        	$scope.getFeeds(storage.value);
+	        	$scope.getFeeds(storage, mine);
 	        else
 	        	$scope.loading = false; // hide spinner
 
@@ -138,9 +278,9 @@ function CimbaCtrl($scope, $timeout) {
 	    	}
 
 			if (mine) {
-		        $scope.myname = name;
-		        $scope.mypic = pic;
-		        $scope.storagespace = storage;
+		        $scope.user.myname = name;
+		        $scope.user.mypic = pic;
+		        $scope.user.storagespace = storage;
 
 		    	// cache user credentials in localStorage
 		    	$scope.storeLocalCredentials();
@@ -158,9 +298,9 @@ function CimbaCtrl($scope, $timeout) {
 	$scope.getWebIDProfile = function() {
 		$scope.loading = true;
 		console.log('load='+$scope.loading);
-		if ($scope.webid) {
-			console.log('Found WebID: '+$scope.webid);
-			getInfo($scope.webid, true);
+		if ($scope.user.webid) {
+			console.log('Found WebID: '+$scope.user.webid);
+			$scope.getInfo($scope.user.webid, true);
 		} else {
 			console.log('No webid found!');
 			// hide spinner
@@ -171,7 +311,7 @@ function CimbaCtrl($scope, $timeout) {
 	}
 
 	// get feeds based on a storage container
-	$scope.getFeeds = function(uri) {
+	$scope.getFeeds = function(uri, mine) {
 		var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 		var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
 	    var LDP = $rdf.Namespace("http://www.w3.org/ns/ldp#");
@@ -186,27 +326,55 @@ function CimbaCtrl($scope, $timeout) {
 	    f.nowOrWhenFetched(uri,undefined,function(){
 	        // find all SIOC:Container
 	        var ws = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));
+
 			for (var i in ws) {
 				w = ws[i]['subject']['value'];
 				
+				if (mine) {
+					// find the channels info for the user
+		        	f.nowOrWhenFetched(w+'.meta*', undefined,function(){
+			        	var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Forum'));
+
+			        	if (chs) {
+				        	for (var ch in chs) {
+		        				var channel = {};
+		        				channel.uri = chs[ch]['subject']['value'];
+			        			var title = g.any(chs[ch]['subject'], DCT('title')).value;
+
+			        			console.log('ch='+ch+' | u='+channel.uri+' | t='+title);
+			        			if (title)
+			        				channel.title = title;
+			        			else
+			        				channel.title = channel.uri;
+			        			
+								$scope.user.channels.push(channel);
+								console.log($scope.user.channels);
+				        	}
+				        	$scope.defaultChannel = $scope.user.channels[0];
+					        $scope.saveChannels();
+					        $scope.$apply();
+				        }
+		        	});
+        		}
+
 				// find all SIOC:Forum (using globbing)
-				var ff = $rdf.fetcher(g);
-				ff.nowOrWhenFetched(w+'*/*', undefined,function(){
+				f.nowOrWhenFetched(w+'*/*', undefined,function(){
 					var posts = g.statementsMatching(undefined, RDF('type'), SIOC('Post'));
 									
 					for (var p in posts) {
 						var uri = posts[p]['subject'];
 						var useraccount = g.any(uri, SIOC('has_creator'));
 						var post = g.statementsMatching(posts[p]['subject']);
-						var _newItem = {
+						var _newPost = {
 							uri : uri.value,
-							date : moment(g.any(uri, DCT('created')).value).fromNow(),
-							userpic : g.any(useraccount, SIOC('avatar')).value,
+							date : g.any(uri, DCT('created')).value,
+							timeago : moment(g.any(uri, DCT('created')).value).fromNow(),
+							userwebid : g.any(useraccount, SIOC('account_of')).value,
+							userpic : g.any(useraccount, SIOC('avatar')).value,							
 							username : g.any(useraccount, SIOC('account_of')).value,
 							body : g.any(uri, SIOC('content')).value
-						}
-						console.log(_newItem);
-						$scope.Items.push(_newItem);
+						}						
+						$scope.posts.push(_newPost);
 						$scope.$apply();
 					}
 					// done loading, save items
@@ -228,7 +396,7 @@ function CimbaCtrl($scope, $timeout) {
 	eventListener(messageEvent,function(e) {
 		var u = e.data;
 		if (e.data.slice(0,5) == 'User:') {
-			$scope.webid = e.data.slice(5, e.data.length);
+			$scope.user.webid = e.data.slice(5, e.data.length);
 			$scope.getWebIDProfile();
 			// clear previous posts
 	    	jQuery('posts-viewer').empty();
@@ -250,51 +418,3 @@ ngCimba.directive('postsViewer',function(){
 		templateUrl: 'tpl/post.html'
     }; 
 })
-
-/*
-// autofetch factory
-ngCimba.factory('DataFeed',function($interval){
-
-	//private storage of feed items
-	var _feedItems = [];
-	var feeds = [];
-
-	// fetch posts from feed source
-	// TODO: sanitize contents!
-	function fetchNewData($source) {
-			
-		var _newItem = {
-			uri : _feedItems.length + 1,
-			date : new Date(),
-			userpic : posts[_feedItems.length].userpic,
-			username : posts[_feedItems.length].username,
-			body : posts[_feedItems.length].body
-		}
-		_feedItems.push(_newItem);
-	}
-
-	//return the public API
-	return {
-	    // the data
-	    items : _feedItems,
-	    
-	    // a public function to start the autorefresher
-	    
-	    //startUpdating : function(refreshInterval){
-       	//	$interval(function(){ fetchNewData() },refreshInterval || 500);
-	    //}
-	    
-	}
-})
-
-
-// Controller for displaying posts
-ngCimba.controller('PostsCtrl', function($scope,DataFeed) {
-	//attach the service data to the controller scope so the directive can use it
-	$scope.feedItems = DataFeed.items;
-
-	//attach the event click handler to the service
-	DataFeed.startUpdating();
-
-});
-*/
