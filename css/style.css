@@ -83,6 +83,18 @@ textarea {
   outline: 0;
 }
 
+pre {
+  display: block;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  word-break: break-all;
+  word-wrap: break-word;
+  background-color: inherit;
+  border: 0px;
+  padding: 0px;
+}
+
 .post-title {
   position: relative;
   padding-left: 100px;
@@ -101,7 +113,6 @@ textarea {
 }
 .panel .panel-heading a {
   font-weight:400;
-  font-size:11px;
 }
 .panel .panel-default {
   border-color:#cccccc;
@@ -194,6 +205,9 @@ h4,h5 {
 a.link-post {
     margin-top: 15px;
     color: #fff;
+}
+a.link-white {
+  color: #fff;
 }
 .thumb {
     height: 20px;

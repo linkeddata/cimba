@@ -1,6 +1,6 @@
 <div ng-animate="{enter: 'animate'}" class="panel panel-default" custom ng-repeat="post in posts | orderBy:'date':true">
     <div class="panel-heading light-blue">
-        <a href="{{post.uri}}" class="link-post pull-right"><i class="icon-link"></i> Link to post</a> <h4 class="bold">Posted {{post.timeago}} by {{post.username}}</h4>
+        <a href="{{post.uri}}" class="link-post pull-right" target="_blank"><i class="icon-link"></i> Link to post</a> <h4>Posted {{post.timeago}} by <a href="{{post.userwebid}}" class="link-white bold" target="_blank">{{post.username}}</a></h4>
         <div class="pull-left">
             <a class="thumbnail pull-right" href="{{post.userwebid}}">
               <img class="media-object thumb-pic" src="{{post.userpic}}" rel="tooltip" data-placement="top" title="{{post.username}}">
@@ -9,7 +9,9 @@
     </div>
     <div class="panel-body">
         <div class="panel-body-text">
-            <p>{{post.body}}</p>
+            <p>
+                <pre>{{post.body}}</pre>
+            </p>
         </div>
         <hr>
         <form>
@@ -17,7 +19,7 @@
               <div class="input-group-btn">
                 <button class="btn btn-success" rel="tooltip" data-placement="top" title="Read full message">More</button>
                 <button class="btn btn-default" rel="tooltip" data-placement="top" title="Star message" ng-click="starPost()"><span class="icon-star icon-2x"></span></button>
-                <button class="btn btn-default" data-placement="top" title="Delete message" ng-click="deletePost(post.uri)" ng-show="user.webid == post.userwebid"><i class="icon-trash icon-2x"></i></button>
+                <button class="btn btn-default" data-placement="top" title="Delete message" ng-click="deletePost(post)" ng-show="user.webid == post.userwebid"><i class="icon-trash icon-2x"></i></button>
               </div>
             </div>
         </form>

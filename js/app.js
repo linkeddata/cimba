@@ -63,7 +63,7 @@ function CimbaCtrl($scope, $filter) {
 		}
 	}
 	// load the list of channels from localStorage
-	$scope.loadItems = function () {
+	$scope.loadChannels = function () {
 		if (localStorage.getItem($scope.appuri)) {
 			var cimba = JSON.parse(localStorage.getItem($scope.appuri));			
 			$scope.user.channels = cimba.user.channels;
@@ -71,7 +71,7 @@ function CimbaCtrl($scope, $filter) {
 	}
 
 	// save current posts in localStorage
-	$scope.saveItems = function () {
+	$scope.savePosts = function () {
 		if (localStorage.getItem($scope.appuri)) {
 			var cimba = JSON.parse(localStorage.getItem($scope.appuri));			
 			cimba.posts = $scope.posts;
@@ -79,7 +79,7 @@ function CimbaCtrl($scope, $filter) {
 		}
 	}
 	// load the posts from localStorage
-	$scope.loadItems = function () {
+	$scope.loadPosts = function () {
 		if (localStorage.getItem($scope.appuri)) {
 			var cimba = JSON.parse(localStorage.getItem($scope.appuri));			
 			$scope.posts = cimba.posts;
@@ -146,7 +146,7 @@ function CimbaCtrl($scope, $filter) {
         g.add($rdf.sym('#author'), RDF('type'), SIOC('UserAccount'));
         g.add($rdf.sym('#author'), SIOC('account_of'), $rdf.sym($scope.user.webid));
         g.add($rdf.sym('#author'), SIOC('avatar'), $rdf.sym($scope.user.mypic));
-        g.add($rdf.sym('#author'), FOAF('name'), $rdf.sym($scope.user.myname));
+        g.add($rdf.sym('#author'), FOAF('name'), $rdf.lit($scope.user.myname));
 
     	var s = new $rdf.Serializer(g).toN3(g);
     	var uri = $scope.defaultChannel.uri;
@@ -195,37 +195,54 @@ function CimbaCtrl($scope, $filter) {
 	        },
 	        success: function(d,s,r) {
 	            console.log('Success!');
+            	// clear form
+				$scope.postbody = '';
+            	// also display new post
 	            newURI = r.getResponseHeader('Location');
-	            post.uri = newURI;			
+	            post.uri = newURI;		
 				$scope.posts.push(post);
+				console.log($scope.posts);
 				$scope.$apply();
-				$scope.saveItems();
+				$scope.savePosts();
 	        }
 	    });
 	}
 
 	// delete post
-	$scope.deletePost = function (uri, refresh) {
-		$.ajax({
-			url: uri,
-	        type: "delete",
-	        onSuccess: function () {
-	        	console.log('Deleted '+uri);
+	$scope.deletePost = function (post, refresh) {
+		// check if the user matches the post owner
+		if ($scope.user.webid == post.userwebid) {
+			$scope.removePost(post.uri);
+			$.ajax({
+				url: post.uri,
+		        type: "delete",
+		        success: function () {
+		        	console.log('Deleted '+post.uri);
+		        	notify('Success', 'Your post was removed from the server!')
+		        	// TODO: also delete from local posts
+					
+					$scope.savePosts();
+		        },
+		        failure: function (r) {
+		            var status = r.status.toString();
+		            if (status == '403')
+		                notify('Error', 'Could not delete post, access denied!');
+		            if (status == '404')
+		            	notify('Error', 'Could not delete post, no such resource on the server!');
+		        }
+		    });
+		}
+	}
 
-	        	// also delete from local posts
-
-	            if (refresh == true)
-	                window.location.reload(true);
-	        },
-	        onFailure: function (r) {
-	            var status = r.status.toString();
-	            if (status == '404') {
-	                var msg = 'Access denied';
-	                notify('Error deleting post!');
-	                
-	            }
-	        }
-	    });
+	$scope.removePost = function (uri) {
+		console.log('Removing post '+uri+' from viewer.');
+		for (i=$scope.posts.length - 1; i>=0; i--) {
+		    console.log('u='+$scope.posts[i].uri);
+		    if($scope.posts[i].uri == uri)
+		    	$scope.posts.splice(i,1);
+		}
+		$scope.savePosts();
+		console.log($scope.posts);
 	}
 
 	// get relevant info for a webid
@@ -314,7 +331,7 @@ function CimbaCtrl($scope, $filter) {
 	$scope.getFeeds = function(uri, mine) {
 		var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 		var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
-	    var LDP = $rdf.Namespace("http://www.w3.org/ns/ldp#");
+	    var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
 	    var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
 	    var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
 	    var g = $rdf.graph();
@@ -346,9 +363,9 @@ function CimbaCtrl($scope, $filter) {
 			        				channel.title = title;
 			        			else
 			        				channel.title = channel.uri;
-			        			
+			        			if ($scope.user.channels == undefined)
+			        				$scope.user.channels = [];
 								$scope.user.channels.push(channel);
-								console.log($scope.user.channels);
 				        	}
 				        	$scope.defaultChannel = $scope.user.channels[0];
 					        $scope.saveChannels();
@@ -365,20 +382,47 @@ function CimbaCtrl($scope, $filter) {
 						var uri = posts[p]['subject'];
 						var useraccount = g.any(uri, SIOC('has_creator'));
 						var post = g.statementsMatching(posts[p]['subject']);
+						if (g.any(uri, DCT('created'))) {
+							var date = g.any(uri, DCT('created')).value;
+							var timeago = moment(date).fromNow();
+						} else {
+							var date = undefined;
+						}
+						if (g.any(useraccount, SIOC('account_of'))) {
+							var userwebid = g.any(useraccount, SIOC('account_of')).value;
+						} else {
+							var userwebid = 'Unknown';
+						}
+						if (g.any(useraccount, SIOC('avatar'))) {
+							var userpic = g.any(useraccount, SIOC('avatar')).value;
+						} else {
+							var userpic = 'Unknown';
+						}
+						if (g.any(useraccount, FOAF('name'))) {
+							var username = unescape(g.any(useraccount, FOAF('name')).value);
+						} else {
+							var username = userwebid;
+						}
+						if (g.any(uri, SIOC('content'))) {
+							var body = g.any(uri, SIOC('content')).value;
+						} else {
+							var body = '';
+						}
+
 						var _newPost = {
 							uri : uri.value,
-							date : g.any(uri, DCT('created')).value,
-							timeago : moment(g.any(uri, DCT('created')).value).fromNow(),
-							userwebid : g.any(useraccount, SIOC('account_of')).value,
-							userpic : g.any(useraccount, SIOC('avatar')).value,							
-							username : g.any(useraccount, SIOC('account_of')).value,
-							body : g.any(uri, SIOC('content')).value
+							date : date,
+							timeago : timeago,
+							userwebid : userwebid,
+							userpic : userpic,
+							username : username,
+							body : body
 						}						
 						$scope.posts.push(_newPost);
 						$scope.$apply();
 					}
-					// done loading, save items
-					$scope.saveItems();
+					// done loading, save posts to localStorage
+					$scope.savePosts();
 					// hide spinner
 					$scope.loading = false;
 					$scope.$apply();
@@ -406,7 +450,7 @@ function CimbaCtrl($scope, $filter) {
 
 	// init by retrieving user from localStorage
 	$scope.getLocalCredentials();
-	$scope.loadItems();
+	$scope.loadPosts();
 	$scope.updateUserDOM();
 }
 
