@@ -11,8 +11,13 @@
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    id="svg2"
    version="1.1"
+<<<<<<< HEAD
    inkscape:version="0.48.4 r9939"
    width="518.25525"
+=======
+   inkscape:version="0.48.2 r9819"
+   width="538.91528"
+>>>>>>> f5e6119f4b8d564bde3cd950a143e8c6305a3a1b
    height="112.28655"
    sodipodi:docname="cimba-logo.svg"
    inkscape:export-filename="/home/deiu/dev/cimba/img/cimba-logo.png"
