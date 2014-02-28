@@ -1,6 +1,11 @@
 // some config
 var PROXY = "https://rww.io/proxy?uri={uri}";
-var ngCimba = angular.module('CimbaApp', ['ui','ui.filters']);
+// add filters
+var ngCimba = angular.module('CimbaApp', ['ui','ui.filters']).filter('fromNow', function() {
+  return function(date) {
+    return moment(date).fromNow();
+  }
+});
 
 var ggg = undefined;
 
@@ -245,6 +250,16 @@ function CimbaCtrl($scope, $filter) {
 		console.log($scope.posts);
 	}
 
+	// force refresh the view
+	$scope.updatePosts = function() {
+		if ($scope.user.channels.length > 0) {
+			for (c in $scope.user.channels) {
+				console.log('Getting feed posts for '+$scope.user.channels[c].uri);
+				$scope.getPosts($scope.user.channels[c].uri);
+			}
+		}
+	}
+
 	// get relevant info for a webid
 	$scope.getInfo = function(webid, mine) {
 	    var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
@@ -347,88 +362,103 @@ function CimbaCtrl($scope, $filter) {
 			for (var i in ws) {
 				w = ws[i]['subject']['value'];
 				
-				if (mine) {
-					// find the channels info for the user
-		        	f.nowOrWhenFetched(w+'.meta*', undefined,function(){
-			        	var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Forum'));
+				// find the channels info for the user
+	        	f.nowOrWhenFetched(w+'.meta*', undefined,function(){
+		        	var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Forum'));
+		        	if (chs) {
+			        	for (var ch in chs) {
+	        				var channel = {};
+	        				channel.uri = chs[ch]['subject']['value'];
+		        			var title = g.any(chs[ch]['subject'], DCT('title')).value;
+		        			// get the posts for this channel
+	        				$scope.getPosts(channel.uri);
 
-			        	if (chs) {
-				        	for (var ch in chs) {
-		        				var channel = {};
-		        				channel.uri = chs[ch]['subject']['value'];
-			        			var title = g.any(chs[ch]['subject'], DCT('title')).value;
+		        			console.log('ch='+ch+' | u='+channel.uri+' | t='+title);
+		        			if (title)
+		        				channel.title = title;
+		        			else
+		        				channel.title = channel.uri;
 
-			        			console.log('ch='+ch+' | u='+channel.uri+' | t='+title);
-			        			if (title)
-			        				channel.title = title;
-			        			else
-			        				channel.title = channel.uri;
+							if (mine) {
 			        			if ($scope.user.channels == undefined)
 			        				$scope.user.channels = [];
 								$scope.user.channels.push(channel);
-				        	}
+							}
+			        	}
+    					if (mine) {
 				        	$scope.defaultChannel = $scope.user.channels[0];
 					        $scope.saveChannels();
 					        $scope.$apply();
-				        }
-		        	});
-        		}
-
-				// find all SIOC:Forum (using globbing)
-				f.nowOrWhenFetched(w+'*/*', undefined,function(){
-					var posts = g.statementsMatching(undefined, RDF('type'), SIOC('Post'));
-									
-					for (var p in posts) {
-						var uri = posts[p]['subject'];
-						var useraccount = g.any(uri, SIOC('has_creator'));
-						var post = g.statementsMatching(posts[p]['subject']);
-						if (g.any(uri, DCT('created'))) {
-							var date = g.any(uri, DCT('created')).value;
-							var timeago = moment(date).fromNow();
-						} else {
-							var date = undefined;
-						}
-						if (g.any(useraccount, SIOC('account_of'))) {
-							var userwebid = g.any(useraccount, SIOC('account_of')).value;
-						} else {
-							var userwebid = 'Unknown';
-						}
-						if (g.any(useraccount, SIOC('avatar'))) {
-							var userpic = g.any(useraccount, SIOC('avatar')).value;
-						} else {
-							var userpic = 'Unknown';
-						}
-						if (g.any(useraccount, FOAF('name'))) {
-							var username = unescape(g.any(useraccount, FOAF('name')).value);
-						} else {
-							var username = userwebid;
-						}
-						if (g.any(uri, SIOC('content'))) {
-							var body = g.any(uri, SIOC('content')).value;
-						} else {
-							var body = '';
-						}
-
-						var _newPost = {
-							uri : uri.value,
-							date : date,
-							timeago : timeago,
-							userwebid : userwebid,
-							userpic : userpic,
-							username : username,
-							body : body
-						}						
-						$scope.posts.push(_newPost);
-						$scope.$apply();
-					}
-					// done loading, save posts to localStorage
-					$scope.savePosts();
-					// hide spinner
-					$scope.loading = false;
-					$scope.$apply();
-				});
+			        	}
+			        }
+	        	});
 			}
 	    });
+	}
+
+	// get all posts for a given microblogging workspace
+	$scope.getPosts = function(posturi, forced) {
+		var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+		var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
+	    var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
+	    var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
+	    var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
+	    var g = $rdf.graph();
+	    var f = $rdf.fetcher(g);
+	    // add CORS proxy
+	    $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
+
+		// find all SIOC:Forum (using globbing)
+		f.nowOrWhenFetched(posturi+'*', undefined,function(){
+			var posts = g.statementsMatching(undefined, RDF('type'), SIOC('Post'));
+			for (var p in posts) {
+				var uri = posts[p]['subject'];
+				var useraccount = g.any(uri, SIOC('has_creator'));
+				var post = g.statementsMatching(posts[p]['subject']);
+				if (g.any(uri, DCT('created'))) {
+					var date = g.any(uri, DCT('created')).value;					
+				} else {
+					var date = undefined;
+				}
+				if (g.any(useraccount, SIOC('account_of'))) {
+					var userwebid = g.any(useraccount, SIOC('account_of')).value;
+				} else {
+					var userwebid = 'Unknown';
+				}
+				if (g.any(useraccount, SIOC('avatar'))) {
+					var userpic = g.any(useraccount, SIOC('avatar')).value;
+				} else {
+					var userpic = 'Unknown';
+				}
+				if (g.any(useraccount, FOAF('name'))) {
+					var username = unescape(g.any(useraccount, FOAF('name')).value);
+				} else {
+					var username = userwebid;
+				}
+				if (g.any(uri, SIOC('content'))) {
+					var body = g.any(uri, SIOC('content')).value;
+				} else {
+					var body = '';
+				}
+
+				// check if we need to overwrite instead of pushing new item
+				var _newPost = {
+					uri : uri.value,
+					date : date,
+					userwebid : userwebid,
+					userpic : userpic,
+					username : username,
+					body : body
+				}						
+				$scope.posts.push(_newPost);
+				$scope.$apply();
+			}
+			// done loading, save posts to localStorage
+			$scope.savePosts();
+			// hide spinner
+			$scope.loading = false;
+			$scope.$apply();
+		});
 	}
 
 	// Event listener for login (from child iframe)
@@ -462,3 +492,4 @@ ngCimba.directive('postsViewer',function(){
 		templateUrl: 'tpl/post.html'
     }; 
 })
+

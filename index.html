@@ -62,7 +62,7 @@
             <div class="collapse navbar-collapse" id="navbar-collapse2">
             <ul class="nav navbar-nav navbar-right">
                 <li class="active"><a href="#"><span class="icon-home"></span> Home</a></li>
-                <li><a href="#"><i class="icon-refresh"></i> Refresh </a></li>
+                <li><a href="#" ng-click="updatePosts()"><i class="icon-refresh"></i> Refresh </a></li>
                 <li ng-hide="loggedin"><a href="#loginModal" role="button" data-toggle="modal"><span class="icon-signin"></span> Login</a></li>
                 <li ng-show="loggedin"><a href="#" ng-click="clearSession()" role="button"><span class="icon-signout"></span> Logout</a></li>
             </ul>
