@@ -13,8 +13,6 @@ var ngCimba = angular.module('CimbaApp', ['ui','ui.filters']).filter('fromNow', 
   }
 });
 
-var ggg = undefined;
-
 // Main angular controller
 function CimbaCtrl($scope, $filter) {
 	// default values
@@ -406,8 +404,8 @@ function CimbaCtrl($scope, $filter) {
 
 	// get all posts for a given microblogging workspace
 	$scope.getPosts = function(channel, forced) {
-		var lm = $scope.getLastModified(channel);
-		if (forced) {
+		forced = true;
+        if (forced) {
 			var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 			var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
 		    var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
