@@ -66,7 +66,11 @@ h4 {
 .r5 { border-radius:5px; }
 
 v-spacer { margin-right: 5px!important;}
-hr {border-color:#ececec;}
+hr {
+  border-color:#ececec;
+  margin-top: 30px;
+  margin-bottom: 15px;
+}
 button {
 	outline: 0;
   margin-top:0px!important;
