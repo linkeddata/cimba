@@ -101,7 +101,7 @@
                                     <li><a href="#" ng-click="setAudience('friends')"><i id="friends" class="icon-user icon-2x blue"></i> Friends</a></li>
                                 </ul>
                             </div>
-                            <div class="btn-group" ng-show="user.channels">
+                            <div class="btn-group" ng-show="user.channels.length > 0">
                                 <input type="button" id="chs" class="btn btn-classic" value="{{defaultChannel.title}}"><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop"><i class="icon-chevron-down icon-2x"></i></small></button>
                                 <ul class="dropdown-menu" role="menu" aria-labelledby="chs">
                                     <li ng-repeat="channel in user.channels">
@@ -121,12 +121,12 @@
         </div>
     </div>
 
-    <div id="setup" class="container" ng-show="user.webid && !user.channels">
+    <div id="setup" class="container" ng-show="user.webid && !user.channels[0]">
         <div class="row">
             <div class="col-md-12">
                 <!-- All posts go into <posts-viewer> -->
                 <div class="panel panel-default">
-                    Oh snap, you don't have any microblogging workspaces!
+                    <p>Oh snap, you don't have any microblogging workspaces!</p>
                 </div>
             </div>
         </div>
