@@ -37,7 +37,7 @@ function CimbaCtrl($scope, $filter) {
 	$scope.loggedin = false;
 	$scope.profileloading = false;
 	$scope.testwebid = false;
-	$scope.publishbtn = 'Post';
+	$scope.publishing = false;
 	$scope.addstoragebtn = 'Add';
 	$scope.createbtn = 'Create';
 	$scope.audience = 'icon-globe';
@@ -409,7 +409,7 @@ function CimbaCtrl($scope, $filter) {
 
 	// post new message
 	$scope.newPost = function () {
-		$scope.publishbtn = 'Posting...';
+		$scope.publishing = true;
 		// get the current date
 		var now = Date.now();
 		now = moment(now).format("YYYY-MM-DDTHH:mm:ssZZ");
@@ -484,7 +484,7 @@ function CimbaCtrl($scope, $filter) {
 	            newURI = r.getResponseHeader('Location');
 	            post.uri = newURI;		
 				$scope.posts.push(post);
-				$scope.publishbtn = 'Post';
+				$scope.publishing = false;
 				$scope.$apply();
 				$scope.savePosts();
 	        }
