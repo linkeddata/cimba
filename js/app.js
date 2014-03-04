@@ -519,18 +519,18 @@ function CimbaCtrl($scope, $filter) {
 
 	$scope.removePost = function (uri) {
 		console.log('Removing post '+uri+' from viewer.');
-		for (i=$scope.posts.length - 1; i>=0; i--) {
-		    console.log('u='+$scope.posts[i].uri);
+		for (i=$scope.posts.length - 1; i>=0; i--) {    
 		    if($scope.posts[i].uri == uri)
 		    	$scope.posts.splice(i,1);
 		}
 		$scope.savePosts();
-		console.log($scope.posts);
 	}
 
 	// force refresh the view
 	$scope.updatePosts = function() {
 		if ($scope.user.channels.length > 0) {
+			// clear previous posts
+			$scope.posts = [];
 			for (c in $scope.user.channels) {
 				console.log('Getting feed posts for '+$scope.user.channels[c].uri);
 				$scope.getPosts($scope.user.channels[c].uri);
@@ -640,7 +640,7 @@ function CimbaCtrl($scope, $filter) {
 	    f.nowOrWhenFetched(uri,undefined,function(){
 	        // find all SIOC:Container
 	        var ws = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));
-
+	        
 	        if (ws.length > 0) {
 				$scope.loading = true;
 				// set a default uBlog workspace
@@ -715,6 +715,7 @@ function CimbaCtrl($scope, $filter) {
 			// get all SIOC:Post (using globbing)
 			f.nowOrWhenFetched(channel+'*', undefined,function(){
 				var posts = g.statementsMatching(undefined, RDF('type'), SIOC('Post'));
+
 				for (var p in posts) {
 					var uri = posts[p]['subject'];
 					var useraccount = g.any(uri, SIOC('has_creator'));
@@ -753,7 +754,7 @@ function CimbaCtrl($scope, $filter) {
 						userpic : userpic,
 						username : username,
 						body : body
-					}						
+					}
 					$scope.posts.push(_newPost);
 					$scope.$apply();
 				}
