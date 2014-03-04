@@ -45,6 +45,7 @@ h4 {
 .btn-info,.label-info,.progress-bar-info{background-color:#a0c3ff,border-color:#a0c3ff;}
 .btn-danger,.label-danger,.progress-bar-danger{background-color:#dd4b39;}
 .btn-warning,.label-warning,.progress-bar-warning{background-color:#f4b400;color:#444444;}
+.btn-sep-right {margin-right:20px;}
 .drop { margin-top: -5px!important; }
 <!-- UI notification -->
 .notification { width:350px!important; position:fixed; top:80px; right:10px; }
@@ -82,11 +83,15 @@ button {
   border-radius:3px;box-shadow:0 0 0;
   border-color:#d7d7d7;
 }
+input[type="text"] {
+  font-size: 1.8em;
+  width: 100%;
+  padding: 5px;
+}
 textarea {
   resize: none;
   outline: 0;
 }
-
 pre {
   display: block;
   font-family: inherit;
@@ -98,7 +103,6 @@ pre {
   border: 0px;
   padding: 0px;
 }
-
 .post-title {
   position: relative;
   padding-left: 100px;
@@ -143,8 +147,15 @@ pre {
   width:70px;
   min-height: 70px!important;
 }
-
-h3 {
+.user-thumb {
+  margin-top: 7px;
+  margin-right: 10px;  
+  float: right;
+}
+.user-thumb img {
+  height: 40px;
+}
+.panel-body-textmail h3 {
   margin-top: 10px;
   margin-left: 90px;
 }
@@ -163,19 +174,16 @@ h4,h5 {
 .modal-body {
   padding: 5px!important;
 }
+.modal-body p {
+  font-size: 1.2em;
+}
 .modal-header {
   border-bottom: 0px!important;
 }
 .modal-footer {
   margin-top: 0px!important;
-  padding-top: 0px!important;
+  padding: 0px 0px 20px 0px!important;
   border-top: 0px!important;
-}
-
-.modal-footer {
- border-width:0;
- padding-top:5px;
- margin-top:0px;
 }
 
 .dropdown-menu {
@@ -186,6 +194,11 @@ h4,h5 {
     border-radius:3px;
 }
 /* end theme */
+code {
+  word-break: break-all;
+  word-wrap: break-word;
+  color: #c7254e !important;
+}
 
 #spinner {
     width: 128px;
@@ -260,6 +273,9 @@ a.link-white {
   width: 150px;
   height: 30px;
 }
-  
+
+.m10 {
+  margin: 10px;
+}
 
 iframe {border:0px;}

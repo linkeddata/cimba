@@ -48,34 +48,51 @@
     <div ng-cloak class="navbar navbar-default" id="subnav">
         <div class="col-md-12">
             <div class="navbar-header">
-                <img src="img/cimba-logo.png" class="logo">
+                <img src="img/cimba-logo.png" class="logo">                
                 <button id="menuToggle" type="button" class="navbar-toggle pull-right" data-toggle="collapse" data-target="#navbar-collapse2">
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
+<!-- TODO!
+                <div ng-show="user.mypic" class="user-thumb"><a href="{{user.webid}}" target="_blank"><img class="r3" src="{{user.mypic}}" rel="tooltip" data-placement="top" title="{{user.myname}}"></a></div>
+-->
             </div>
-            
-            <!-- <a href="#" onclick="notify('Post', 'Your post was succesfully submitted!')">Notif</a> -->
 
             <div class="collapse navbar-collapse" id="navbar-collapse2">
-            <ul class="nav navbar-nav navbar-right">
-                <li class="active"><a href="#"><span class="icon-home"></span> Home</a></li>
-                <li><a href="#" ng-click="updatePosts()"><i class="icon-refresh"></i> Refresh </a></li>
-                <li ng-hide="loggedin"><a href="#loginModal" role="button" data-toggle="modal"><span class="icon-signin"></span> Login</a></li>
-                <li ng-show="loggedin"><a href="#" ng-click="clearSession()" role="button"><span class="icon-signout"></span> Logout</a></li>
-            </ul>
+              <ul class="nav navbar-nav navbar-right">
+                  <li class="active"><a href="#"><span class="icon-home"></span> Home</a></li>
+                  <li ng-hide="!user.channels[0]"><a href="#" ng-click="updatePosts()"><i class="icon-refresh"></i> Refresh </a></li>
+                  <li ng-hide="loggedin"><a href="#loginModal" role="button" data-toggle="modal"><span class="icon-signin"></span> Login</a></li>
+                  <li ng-show="loggedin"><a href="#" ng-click="clearSession()" role="button"><span class="icon-signout"></span> Logout</a></li>
+              </ul>
             </div>
         </div>	
     </div>
 
     <!--main-->
-    <!-- NEW -->
+
+    <!-- new post  -->
     <div class="container" id="newpost">
         <div class="row">
             <div class="clear-70"></div>
             <div class="col-md-12">
+                <!-- test WebID -->
+                <div class="panel panel-default" ng-show="testwebid"> 
+                    <div class="panel-heading dark-blue">
+                      &nbsp;
+                    </div>
+                    <div class="panel-body">
+                        <div class="panel-body">
+                          <h2 class="text-center">Oh snap, cannot authentify you using WebID-TLS!</h2>
+                          <ul>
+                            <li><h3>Do you have a <a href="https://auth.my-profile.eu/auth/index.php?verbose=on" target="_blank">working WebID</a>?</h3></li>
+                            <li><h3>Would you like to <a href="#loginModal" role="button" data-toggle="modal">sign up for a WebID</a>?</h3></li>
+                          </ul>
+                        </div>
+                    </div>
+                </div>
                 <!-- new post -->
                 <div class="panel panel-default" ng-show="loggedin"> 
                     <div class="panel-heading dark-blue">
@@ -88,30 +105,31 @@
                     <div class="panel-body">
                         <div class="panel-body-textmail">
                           <div id="spinner" ng-hide="user.myname"></div>
-                          <form>
-                            <h3 class="bold">What's new, {{user.myname}}?</h3>
-                              
-                            <textarea name="message" ng-model="postbody" class="form-control message" placeholder="Type your message here.." required></textarea>
-                         
-                            <div class="btn-group">
-                                <button id="audience" ng-model="audience" class="btn btn-classic"><i class="{{audience}} icon-2x blue"></i></button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop"><i class="icon-chevron-down icon-2x"></i></small></button>
-                                <ul class="dropdown-menu" role="menu" aria-labelledby="audience">
-                                    <li><a href="#" ng-click="setAudience('public')"><i id="public" class="icon-globe icon-2x blue"></i> Public</a></li>
-                                    <li><a href="#" ng-click="setAudience('private')">&nbsp;<i id="private" class="icon-lock icon-2x blue"></i>&nbsp; Private</a></li>
-                                    <li><a href="#" ng-click="setAudience('friends')"><i id="friends" class="icon-user icon-2x blue"></i> Friends</a></li>
-                                </ul>
-                            </div>
-                            <div class="btn-group" ng-show="user.channels.length > 0">
-                                <input type="button" id="chs" class="btn btn-classic" value="{{defaultChannel.title}}"><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop"><i class="icon-chevron-down icon-2x"></i></small></button>
-                                <ul class="dropdown-menu" role="menu" aria-labelledby="chs">
-                                    <li ng-repeat="channel in user.channels">
-                                        <a href="#" ng-click="setChannel(channel.title)">{{channel.title}}</a>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="pull-right">
-                                <button class="btn btn-primary pull-right" ng-click="newPost()" ng-disabled="!postbody">Publish</button>
-                            </div>
+                          <h3 class="bold" ng-show="profileloading">Loading profile...</h3>
+                          <h3 class="bold" ng-show="user.myname && !user.chspace">Hello {{user.myname}}...</h3>
+                          <h3 class="bold" ng-show="user.myname && user.chspace">What's new, {{user.myname}}?</h3>
+                          <form ng-hide="user.webid && !user.chspace">                               
+                              <textarea name="message" ng-model="postbody" class="form-control message" placeholder="Type your message here.." required></textarea>
+                           
+                              <div class="btn-group">
+                                  <button id="audience" ng-model="audience" class="btn btn-classic"><i class="{{audience}} icon-2x blue"></i></button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop"><i class="icon-chevron-down icon-2x"></i></small></button>
+                                  <ul class="dropdown-menu" role="menu" aria-labelledby="audience">
+                                      <li><a href="#" ng-click="setAudience('public')"><i id="public" class="icon-globe icon-2x blue"></i> Public</a></li>
+                                      <li><a href="#" ng-click="setAudience('private')">&nbsp;<i id="private" class="icon-lock icon-2x blue"></i>&nbsp; Private</a></li>
+                                      <li><a href="#" ng-click="setAudience('friends')"><i id="friends" class="icon-user icon-2x blue"></i> Friends</a></li>
+                                  </ul>
+                              </div>
+                              <div class="btn-group" ng-show="user.channels.length > 0">
+                                  <input type="button" id="chs" class="btn btn-classic" value="{{defaultChannel.title}}"><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop"><i class="icon-chevron-down icon-2x"></i></small></button>
+                                  <ul class="dropdown-menu" role="menu" aria-labelledby="chs">
+                                      <li ng-repeat="channel in user.channels">
+                                          <a href="#" ng-click="setChannel(channel.title)">{{channel.title}}</a>
+                                      </li>
+                                  </ul>
+                              </div>
+                              <div class="pull-right">
+                                  <button class="btn btn-primary pull-right" ng-click="newPost()" ng-disabled="!postbody">{{publishbtn}}</button>
+                              </div>
                           </form>
                         </div>
                     </div>
@@ -121,17 +139,40 @@
         </div>
     </div>
 
-    <div id="setup" class="container" ng-show="user.webid && !user.channels[0]">
+    <!-- new storage modal -->
+    <div id="setup" class="container" ng-show="user.webid && !user.storagespace">
         <div class="row">
             <div class="col-md-12">
-                <!-- All posts go into <posts-viewer> -->
                 <div class="panel panel-default">
-                    <p>Oh snap, you don't have any microblogging workspaces!</p>
+                    <h3 class="text-center">Oh snap, I could not find a shared storage space! <a href="#newStorageModal" role="button" data-toggle="modal">Please provide one here.</a></h3>
                 </div>
             </div>
         </div>
-    </div>    
+    </div>
 
+    <!-- new uB modal -->
+    <div id="setup" class="container" ng-show="user.webid && user.storagespace && !user.mbspace">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <h3 class="text-center">Oh snap, I could not find a uBlog space! <a href="#newMBModal" role="button" data-toggle="modal">Click here to create one.</a></h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- new channel modal -->
+    <div id="setup" class="container" ng-show="user.webid && user.storagespace && user.mbspace && !user.channels">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <h3 class="text-center">Oh snap, you don't have any uBlog channels! <a href="#newChannelModal" role="button" data-toggle="modal">Click here to create a channel.</a></h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- posts viewer -->
     <div id="posts" class="container">
         <div class="row">
             <div class="col-md-12">
@@ -143,21 +184,117 @@
             </div>
         </div>
     </div>
+
+    <!--new storage modal-->
+    <div id="newStorageModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                  <h3 class="text-center">Provide a URI for your storage</h3>
+              </div>
+              <div class="modal-body">
+                  <form class="m10">
+                      <input type="text" id="storageuri" name="storageuri" ng-model="storageuri" class="" placeholder="Storage URI.." required>
+                  </form>
+                  <div ng-show="storageuri" class="text-center">
+                  <p>Alternatively, after providing the storage URI, you can manually add the following triple to your WebID profile:</p>
+                  <pre><code>&lt;{{user.webid}}&gt;
+    &lt;http://www.w3.org/ns/pim/space#storage&gt;
+        &lt;{{storageuri}}&gt; .
+                  </code></pre>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                  <div class="col-md-12">
+                      <button class="btn btn-info btn-sep-right" data-dismiss="modal" aria-hidden="true">Cancel</button>
+                      <button class="btn btn-primary" ng-click="newStorage()" ng-disabled="!storageuri">{{addstoragebtn}}</button>
+                  </div>  
+              </div>      
+          </div>
+      </div>
+    </div>
+
+    <!--new microblogging workspace modal-->
+    <div id="newMBModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">                 
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>              
+                  <h3 class="text-center">Create a new uBlog workspace</h3>
+              </div>
+              <div class="modal-body">
+                  <form class="m10">
+                      <input type="text" id="mburi" name="mburi" ng-model="mburi" class="" placeholder="mb, ublog, etc.." required>
+                  </form>
+              </div>
+              <div class="modal-footer">
+                  <div class="col-md-12">
+                      <button class="btn btn-info btn-sep-right" data-dismiss="modal" aria-hidden="true">Cancel</button>
+                      <button class="btn btn-primary" ng-click="newMB()" ng-disabled="!mburi">{{createbtn}}</button>
+                  </div>  
+              </div>
+          </div>
+      </div>
+    </div>
+
+    <!--new channel modal-->
+    <div id="newChannelModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                  <h2 class="text-center">Create a new channel</h2>
+              </div>
+              <div class="modal-body">
+                  <form class="m10">
+                  <p>The name you provide will be used to create a new channel inside your uBlog workspace.</p>
+                  <p><input type="text" id="channeluri" name="channeluri" ng-model="channeluri" class="" placeholder="Name (ch, default, etc.).." required></p>
+                  <p><input type="text" id="channeltitle" name="channeltitle" ng-model="channeltitle" class="" placeholder="Title (Main, Work, etc.).." required></p>
+                  </form>
+              </div>
+              <div class="modal-footer">
+                  <div class="col-md-12">
+                      <button class="btn btn-info btn-sep-right" data-dismiss="modal" aria-hidden="true">Cancel</button>
+                      <button class="btn btn-primary" ng-click="newChannel()" ng-disabled="!channeluri || !channeltitle">{{createbtn}}</button>
+                  </div>  
+              </div>
+          </div>
+      </div>
+    </div>
+
+    <!--login modal-->
+    <div id="loginModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+              <h2 class="text-center">Login / Sign Up</h2>
+          </div>
+          <div class="modal-body">
+              <!-- <div id="login-body"></div> -->
+              
+              <iframe id="signup" src="" sandbox="allow-same-origin allow-scripts allow-forms" frameborder="0" width="390" height="430"></iframe>
+              
+          </div>
+          <div class="modal-footer">
+              <div class="col-md-12">
+                  <button class="btn btn-info" data-dismiss="modal" aria-hidden="true">Cancel</button>
+              </div>  
+          </div>
+      </div>
+      </div>
+    </div>
 </div>
+<!-- bottom -->
 <div class="col-md-12 text-center">
     <hr>
     <p>Powered by <a href="https://github.com/social-webarch/cimba" target="_blank">CIMBA</a> v1.0 alpha</p>
 </div>
 <!--/main-->
 
-<!-- set the container hidden when the page first loads -->
+<!-- set the notifications container hidden when the page first loads -->
 <div id="notification" style="display:none">
-    <!-- 
-    Later on, you can choose which template to use by referring to the 
-    ID assigned to each template.  Alternatively, you could refer
-    to each template by index, so in this example, "basic-tempate" is
-    index 0 and "advanced-template" is index 1.
-    -->
     <div id="basic-template">
         <a class="ui-notify-cross ui-notify-close" href="#">x</a>
         <h1>#{title}</h1>
@@ -165,28 +302,7 @@
     </div>
 </div>
 
-<!--login modal-->
-<div id="loginModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog">
-  <div class="modal-content">
-      <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-          <h2 class="text-center">Login / Sign Up</h2>
-      </div>
-      <div class="modal-body">
-          <!-- <div id="login-body"></div> -->
-          
-          <iframe id="signup" src="" sandbox="allow-same-origin allow-scripts allow-forms" frameborder="0" width="390" height="430"></iframe>
-          
-      </div>
-      <div class="modal-footer">
-          <div class="col-md-12">
-              <button class="btn btn-info" data-dismiss="modal" aria-hidden="true">Cancel</button>
-		      </div>	
-      </div>
-  </div>
-  </div>
-</div>
+
 
 <!--about modal-->
 <div id="aboutModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
@@ -198,7 +314,7 @@
       </div>
       <div class="modal-body">
           <div class="col-md-12 text-center">
-            <h3>This microblogging app is powered by <a href="#">Cimba v1.0 alpha</a></h3>
+            <h3>This uBlog app is powered by <a href="#">Cimba v1.0 alpha</a></h3>
             <br>UI design by <a href="#">Andrei Sambra</a>
             <br><br>
             <a href="#">GitHub Fork</a>
