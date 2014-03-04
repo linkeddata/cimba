@@ -1,9 +1,5 @@
 /* TODO: 
 	* add ACLs!
-	* error message when logging in
-	* display login status
-	* suggest creating a workspace if the user doesn't have one
-	* If-Modify chaching (not working for some reason)
 */
 
 // some config
@@ -22,16 +18,7 @@ function CimbaCtrl($scope, $filter) {
 	$scope.loading = false;
 	// posts array
 	$scope.posts = [];
-	$scope.defaultChannel = {};
-	// user object
-	$scope.user = {};
-	$scope.user.webid = undefined;
-	$scope.user.myname = undefined;
-	$scope.user.mypic = 'img/photo.png';
-	$scope.user.storagespace = undefined;
-	$scope.user.mbspace = undefined;
-	$scope.user.chspace = undefined;
-	$scope.user.channels = [];
+	$scope.defaultChannel = {};	
 	// misc
 	$scope.appuri = window.location.hostname+window.location.pathname;
 	$scope.loggedin = false;
@@ -41,6 +28,15 @@ function CimbaCtrl($scope, $filter) {
 	$scope.addstoragebtn = 'Add';
 	$scope.createbtn = 'Create';
 	$scope.audience = 'icon-globe';
+	// user object
+	$scope.user = {};
+	$scope.user.webid = undefined;
+	$scope.user.myname = undefined;
+	$scope.user.mypic = 'http://cimba.co/img/photo.png';
+	$scope.user.storagespace = undefined;
+	$scope.user.mbspace = undefined;
+	$scope.user.chspace = undefined;
+	$scope.user.channels = [];
 
 	// cache user credentials in localStorage to avoid double sign in
 	$scope.storeLocalCredentials = function () {
@@ -308,7 +304,6 @@ function CimbaCtrl($scope, $filter) {
 				        statusCode: {
 				            201: function(data) {
 				                console.log("201 Created");
-				                notify('Success', 'Your resource was succesfully created!');
 				            },
 				            401: function() {
 				                console.log("401 Unauthorized");
@@ -372,7 +367,6 @@ function CimbaCtrl($scope, $filter) {
 		        statusCode: {
 		            200: function(data) {
 		                console.log("200 Created");
-		                notify('Success', 'Your profile was succesfully updated!');
 		            },
 		            401: function() {
 		                console.log("401 Unauthorized");
@@ -392,9 +386,8 @@ function CimbaCtrl($scope, $filter) {
 		            },
 		        },
 		        success: function(d,s,r) {
-		            console.log('Success!');
-		            var links = r.getResponseHeader('Link');
-		            console.log(links);
+		            console.log('Success! Added a new storage relation to your profile.');
+		            notify('Success', 'Your profile was succesfully updated!');
 	            	// clear form
 					$scope.storageuri = '';
 					$scope.addstoragebtn = 'Add';
@@ -572,7 +565,7 @@ function CimbaCtrl($scope, $filter) {
 	            if (depic)
 	                pic = depic.value;
 	            else
-	                pic = 'img/photo.png';
+	                pic = 'http://cimba.co/img/photo.png';
 	        } else {
 	            pic = pic.value;
 	        }
@@ -635,7 +628,6 @@ function CimbaCtrl($scope, $filter) {
 	    var f = $rdf.fetcher(g);
 	    // add CORS proxy
 	    $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
-	    console.log(uri);
 	    // fetch user data: SIOC:Container -> SIOC:Forum -> SIOC:Post
 	    f.nowOrWhenFetched(uri,undefined,function(){
 	        // find all SIOC:Container
