@@ -1,5 +1,6 @@
 /* TODO: 
 	* add ACLs!
+	* display the "Snap" messages only after we're sure there are no channels/posts.
 */
 
 // some config
@@ -476,7 +477,10 @@ function CimbaCtrl($scope, $filter) {
             	// also display new post
 	            newURI = r.getResponseHeader('Location');
 	            post.uri = newURI;		
-				$scope.posts.push(post);
+				if ($scope.posts)
+					$scope.posts.push(post);
+				else
+					notify('Error', 'Cannot append the new post to the viewer!');
 				$scope.publishing = false;
 				$scope.$apply();
 				$scope.savePosts();
