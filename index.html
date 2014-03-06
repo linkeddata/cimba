@@ -17,6 +17,7 @@
 <link href="css/style.css" rel="stylesheet">
 <link href="css/proxima-nova.css" rel="stylesheet">
 
+
 <!-- prod
 <script type='text/javascript' src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script type='text/javascript' src="//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
@@ -63,6 +64,7 @@
             <div class="collapse navbar-collapse" id="navbar-collapse2">
               <ul class="nav navbar-nav navbar-right">
                   <li class="active"><a href="#"><span class="icon-home"></span> Home</a></li>
+                  <li ng-show="loggedin"><a href="#subsModal" role="button" data-toggle="modal"><span class="icon-rss"></span> Channels</a></li>
                   <li ng-hide="!user.channels[0]"><a href="#" ng-click="updatePosts()"><i class="icon-refresh"></i> Refresh </a></li>
                   <li ng-hide="loggedin"><a href="#loginModal" role="button" data-toggle="modal"><span class="icon-signin"></span> Login</a></li>
                   <li ng-show="loggedin"><a href="#" ng-click="clearSession()" role="button"><span class="icon-signout"></span> Logout</a></li>
@@ -78,21 +80,6 @@
         <div class="row">
             <div class="clear-70"></div>
             <div class="col-md-12">
-                <!-- test WebID -->
-                <div class="panel panel-default" ng-show="testwebid"> 
-                    <div class="panel-heading dark-blue">
-                      &nbsp;
-                    </div>
-                    <div class="panel-body">
-                        <div class="panel-body">
-                          <h2 class="text-center">Oh snap, cannot authentify you using WebID-TLS!</h2>
-                          <div class="text-center">
-                            <a href="https://auth.my-profile.eu/auth/index.php?verbose=on" target="_blank"><button class="btn btn-primary btn-sep-right">Test your WebID</button></a></li>
-                            <a href="#loginModal" role="button" data-toggle="modal"><button class="btn btn-primary">Sign up for a WebID</button></a></li>
-                          </div>
-                        </div>
-                    </div>
-                </div>
                 <!-- new post -->
                 <div class="panel panel-default" ng-show="loggedin"> 
                     <div class="panel-heading dark-blue">
@@ -110,17 +97,16 @@
                           <h3 class="bold" ng-show="user.myname && user.chspace">What's new, {{user.myname}}?</h3>
                           <form ng-hide="user.webid && !user.chspace">                               
                               <textarea name="message" ng-model="postbody" class="form-control message" placeholder="Type your message here.." required></textarea>
-                           
                               <div class="btn-group">
-                                  <button id="audience" ng-model="audience" class="btn btn-classic"><i class="{{audience}} icon-2x blue"></i></button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop"><i class="icon-chevron-down icon-2x"></i></small></button>
+                                  <button id="audience" ng-model="audience" class="btn btn-classic"><i class="{{audience}} icon-2x blue"></i></button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop" rel="tooltip" data-placement="top" title="Audience"><i class="icon-chevron-down icon-2x"></i></small></button>
                                   <ul class="dropdown-menu" role="menu" aria-labelledby="audience">
                                       <li><a href="#" ng-click="setAudience('public')"><i id="public" class="icon-globe icon-2x blue"></i> Public</a></li>
                                       <li><a href="#" ng-click="setAudience('private')">&nbsp;<i id="private" class="icon-lock icon-2x blue"></i>&nbsp; Private</a></li>
                                       <li><a href="#" ng-click="setAudience('friends')"><i id="friends" class="icon-user icon-2x blue"></i> Friends</a></li>
                                   </ul>
                               </div>
-                              <div class="btn-group" ng-show="user.channels.length > 0">
-                                  <input type="button" id="chs" class="btn btn-classic" value="{{defaultChannel.title}}"><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop"><i class="icon-chevron-down icon-2x"></i></small></button>
+                              <div class="btn-group" ng-show="user.channels.length > 0" rel="tooltip" data-placement="top" title="Channels">
+                                  <button id="chs" class="btn btn-classic dropdown-toggle" data-toggle="dropdown" data-target="#" href="#">{{defaultChannel.title}}</button>
                                   <ul class="dropdown-menu" role="menu" aria-labelledby="chs">
                                       <li ng-repeat="channel in user.channels">
                                           <a href="#" ng-click="setChannel(channel.title)">{{channel.title}}</a>
@@ -138,6 +124,50 @@
                     </div>
                 </div>
                 <!-- end new post -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- WebID authentication failed/missing -->
+    <div id="setup" class="container" ng-show="testwebid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default"> 
+                    <div class="panel-heading dark-blue">
+                      &nbsp;
+                    </div>
+                    <div class="panel-body">
+                        <div class="panel-body">
+                          <h2 class="text-center">Oh snap, cannot authentify you using WebID-TLS!</h2>
+                          <div class="text-center">
+                            <a href="https://auth.my-profile.eu/auth/index.php?verbose=on" target="_blank"><button class="btn btn-primary btn-sep-right">Test your WebID</button></a>
+                            <a href="#loginModal" role="button" data-toggle="modal"><button class="btn btn-primary">Sign up for a WebID</button></a>
+                          </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- login/signup -->
+    <div id="setup" class="container" ng-show="!user.webid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default"> 
+                    <div class="panel-heading dark-blue">
+                      &nbsp;
+                    </div>
+                    <div class="panel-body">
+                        <div class="panel-body">
+                          <h2 class="text-center">Welcome to <img src="img/cimba-logo.png" height="50"></h2>
+                          <div class="text-center">
+                            <h3>You must be authenticated in order to use this uBlogging application.</h3>
+                            <a href="#loginModal" role="button" data-toggle="modal"><button class="btn btn-primary btn-sep-right">Login / Sign Up</button></a>
+                          </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -210,7 +240,7 @@
               </div>
               <div class="modal-footer">
                   <div class="col-md-12">
-                      <button class="btn btn-info btn-sep-right" data-dismiss="modal" aria-hidden="true">Cancel</button>
+                      <button class="btn btn-info btn-sep-right" data-dismiss="modal" aria-hidden="true">Close</button>
                       <button class="btn btn-primary" ng-click="newStorage()" ng-disabled="!storageuri">{{addstoragebtn}}</button>
                   </div>  
               </div>      
@@ -233,7 +263,7 @@
               </div>
               <div class="modal-footer">
                   <div class="col-md-12">
-                      <button class="btn btn-info btn-sep-right" data-dismiss="modal" aria-hidden="true">Cancel</button>
+                      <button class="btn btn-info btn-sep-right" data-dismiss="modal" aria-hidden="true">Close</button>
                       <button class="btn btn-primary" ng-click="newMB()" ng-disabled="!mburi">{{createbtn}}</button>
                   </div>  
               </div>
@@ -258,7 +288,7 @@
               </div>
               <div class="modal-footer">
                   <div class="col-md-12">
-                      <button class="btn btn-info btn-sep-right" data-dismiss="modal" aria-hidden="true">Cancel</button>
+                      <button class="btn btn-info btn-sep-right" data-dismiss="modal" aria-hidden="true">Close</button>
                       <button class="btn btn-primary" ng-click="newChannel()" ng-disabled="!channeluri || !channeltitle">{{createbtn}}</button>
                   </div>  
               </div>
@@ -282,12 +312,79 @@
           </div>
           <div class="modal-footer">
               <div class="col-md-12">
-                  <button class="btn btn-info" data-dismiss="modal" aria-hidden="true">Cancel</button>
+                  <button class="btn btn-info" data-dismiss="modal" aria-hidden="true">Close</button>
               </div>  
           </div>
       </div>
       </div>
     </div>
+
+    <!--subscriptions modal-->
+    <div id="subsModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header text-center">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h2 class="text-center"><span class="icon-rss"></span>  Manage channels</h2>
+                    <a href="#newChannelModal" role="button" data-toggle="modal" onclick="$('#subsModal').modal('hide')"><button class="btn btn-info btn-sep-right"><i class="icon-rss"></i> New channel</button></a>
+                    <a href="#subscribeModal" role="button" data-toggle="modal" onclick="$('#subsModal').modal('hide')"><button class="btn btn-info btn-sep-right"><i class="icon-search"></i> Search by WebID</button></a>
+                </div>
+                <div class="modal-body">
+                    <channelsList></channelsList>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-md-12">
+                        <button class="btn btn-info btn-sep-right" data-dismiss="modal" aria-hidden="true">Close</button>
+                        <button class="btn btn-primary" ng-click="getInfo(searchwebid)" ng-disabled="!searchwebid"><i class="icon-search"></i> {{searchbtn}}</button>
+                    </div>  
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--subscribe modal-->
+    <div id="subscribeModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h2 class="text-center"><i class="icon-search"></i> Find channels</h2>
+                    <form>
+                        <p>Please provide the channel owner's WebID.</p>
+                        <p><input type="text" id="searchwebid" name="searchwebid" ng-model="searchwebid" autofocus required></p>
+                    </form>
+                </div>
+                <div class="modal-body">
+                    <div class="searchresults" ng-show="gotresults">
+                        <div class="panel-heading dark-blue">
+                            <div class="pull-left">
+                                <a class="thumbnail thumbnail-sm pull-right" href="#">
+                                  <img class="media-object" src="{{search.pic}}" rel="tooltip" data-placement="top" title="{{search.name}}">
+                                </a>
+                            </div>
+                        </div>
+                        <div class="panel-body-text">
+                            <h4 class="black bold">{{search.name}}</h4>
+                            <h4 class="black">Has {{search.channels.length}} channels.</h4>
+                        </div>
+                        <div class="panel-body">
+                            <h4 class="black" ng-repeat="ch in search.channels">
+                                <button class="btn" ng-class="ch.selected" ng-click="channelToggle(ch)">{{ch.status}}</button>
+                                <a href="{{ch.uri}}" target="_blank">{{ch.title}}</a>
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-md-12">
+                        <button class="btn btn-info btn-sep-right" data-dismiss="modal" aria-hidden="true">Close</button>
+                        <button class="btn btn-primary" ng-click="getInfo(searchwebid)" ng-disabled="!searchwebid"><i class="icon-search"></i> {{searchbtn}}</button>
+                    </div>  
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 <!-- bottom -->
 <div class="col-md-12 text-center">
@@ -324,7 +421,7 @@
           </div>
       </div>
       <div class="modal-footer">
-          <button class="btn" data-dismiss="modal" aria-hidden="true">OK</button>
+          <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
       </div>
   </div>
   </div>
@@ -357,8 +454,11 @@ $(document).ready(function() {
     // init tooltip plugin
     $('#audience').tooltip();
 
+    var providerURI = '//linkeddata.github.io/signup/index.html?ref=';
     // set the parameter in the src of iframe
-    document.getElementById('signup').src = '//linkeddata.github.io/signup/index.html?ref='+window.location.protocol+'//'+window.location.host;
+    document.getElementById('signup').src = providerURI+window.location.protocol+'//'+window.location.host;
+    //document.getElementById('directLogin').href = providerURI+window.location.protocol+'//'+window.location.host+'#login';
+    //document.getElementById('directSignup').href = providerURI+window.location.protocol+'//'+window.location.host+'#signup';
 });
 </script>
 

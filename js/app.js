@@ -12,6 +12,8 @@ var ngCimba = angular.module('CimbaApp', ['ui','ui.filters']).filter('fromNow', 
   }
 });
 
+	var ss = '';	
+
 // Main angular controller
 function CimbaCtrl($scope, $filter) {
 	// default values
@@ -19,6 +21,8 @@ function CimbaCtrl($scope, $filter) {
 	$scope.loading = false;
 	// posts array
 	$scope.posts = [];
+	$scope.channels = [];
+	$scope.users = {};
 	$scope.defaultChannel = {};	
 	// misc
 	$scope.appuri = window.location.hostname+window.location.pathname;
@@ -26,8 +30,10 @@ function CimbaCtrl($scope, $filter) {
 	$scope.profileloading = false;
 	$scope.testwebid = false;
 	$scope.publishing = false;
+	$scope.gotresults = false;
 	$scope.addstoragebtn = 'Add';
 	$scope.createbtn = 'Create';
+	$scope.searchbtn = 'Search';
 	$scope.audience = 'icon-globe';
 	// user object
 	$scope.user = {};
@@ -35,12 +41,12 @@ function CimbaCtrl($scope, $filter) {
 	$scope.user.myname = undefined;
 	$scope.user.mypic = 'http://cimba.co/img/photo.png';
 	$scope.user.storagespace = undefined;
-	$scope.user.mbspace = undefined;
-	$scope.user.chspace = undefined;
+	$scope.user.mbspace = true;
+	$scope.user.chspace = true;
 	$scope.user.channels = [];
 
 	// cache user credentials in localStorage to avoid double sign in
-	$scope.storeLocalCredentials = function () {
+	$scope.saveCredentials = function () {
 		var cimba = {};
 		var _user = {};
 		_user.webid = $scope.user.webid;
@@ -55,7 +61,7 @@ function CimbaCtrl($scope, $filter) {
 	}
 
 	// retrieve from localStorage
-	$scope.getLocalCredentials = function () {
+	$scope.loadCredentials = function () {
 		if (localStorage.getItem($scope.appuri)) {
 			var cimba = JSON.parse(localStorage.getItem($scope.appuri));
 			$scope.user.webid = cimba.user.webid;
@@ -77,9 +83,7 @@ function CimbaCtrl($scope, $filter) {
 	$scope.saveChannels = function () {
 		if (localStorage.getItem($scope.appuri)) {
 			var cimba = JSON.parse(localStorage.getItem($scope.appuri));			
-			cimba.user.channels = $scope.user.channels;
-			cimba.user.mbspace = $scope.user.mbspace;
-			cimba.user.chspace = $scope.user.chspace;
+			cimba.channels = $scope.channels;
 			localStorage.setItem($scope.appuri, JSON.stringify(cimba));
 		}
 	}
@@ -87,9 +91,7 @@ function CimbaCtrl($scope, $filter) {
 	$scope.loadChannels = function () {
 		if (localStorage.getItem($scope.appuri)) {
 			var cimba = JSON.parse(localStorage.getItem($scope.appuri));			
-			$scope.user.channels = cimba.user.channels;
-			$scope.user.mbspace = cimba.user.mbspace;
-			$scope.user.chspace = cimba.user.chspace;
+			$scope.channels = cimba.channels;
 		}
 	}
 
@@ -105,6 +107,7 @@ function CimbaCtrl($scope, $filter) {
 	$scope.loadPosts = function () {
 		if (localStorage.getItem($scope.appuri)) {
 			var cimba = JSON.parse(localStorage.getItem($scope.appuri));			
+			$scope.posts = [];
 			$scope.posts = cimba.posts;
 		}
 	}
@@ -493,6 +496,7 @@ function CimbaCtrl($scope, $filter) {
 		// check if the user matches the post owner
 		if ($scope.user.webid == post.userwebid) {
 			$scope.removePost(post.uri);
+			$scope.savePosts();
 			$.ajax({
 				url: post.uri,
 		        type: "delete",
@@ -515,12 +519,10 @@ function CimbaCtrl($scope, $filter) {
 	}
 
 	$scope.removePost = function (uri) {
-		console.log('Removing post '+uri+' from viewer.');
 		for (i=$scope.posts.length - 1; i>=0; i--) {    
 		    if($scope.posts[i].uri == uri)
 		    	$scope.posts.splice(i,1);
 		}
-		$scope.savePosts();
 	}
 
 	// force refresh the view
@@ -531,6 +533,91 @@ function CimbaCtrl($scope, $filter) {
 			for (c in $scope.user.channels) {
 				console.log('Getting feed posts for '+$scope.user.channels[c].uri);
 				$scope.getPosts($scope.user.channels[c].uri);
+			}
+		}
+	}
+
+	// lookup a WebID to find channels
+    $scope.drawSearchResults = function() {
+		$scope.search = {};
+		$scope.gotresults = true;
+    	$scope.search.pic = $scope.users[$scope.searchwebid].pic
+    	$scope.search.name = $scope.users[$scope.searchwebid].name;
+    	$scope.search.channels = $scope.users[$scope.searchwebid].channels;
+    	for (i=0;i<$scope.search.channels.length;i++) {
+    		// find if we have the channel in our list already
+    		var ch = $scope.search.channels[i];
+			if (!$scope.channels)
+				$scope.channels = [];
+			console.log($scope.channels);
+    		var idx = findWithAttr($scope.channels, 'uri', ch.uri);
+			console.log('Idx='+idx);
+    		if (idx != undefined) {
+    			console.log('Already subscribed to '+ch.name);
+    			ch.status = $scope.channels[idx].status;
+    			ch.selected = $scope.channels[idx].selected;
+    		} else {
+	    		if (!ch.status)
+	    			ch.status='Subscribe';
+	    		if (!ch.selected)
+	    			ch.selected = 'btn-primary';
+    		}
+    	}
+    	$scope.$apply();
+
+    }
+    // toggle selected channel for user
+	$scope.channelToggle = function(ch) {
+		if (!$scope.channels)
+			$scope.channels = [];
+		var idx = findWithAttr($scope.channels, 'uri', ch.uri);
+		// already subscribed
+		if (idx) {
+			// removing
+			$scope.channels.splice(idx,1);
+			$scope.saveChannels();
+			$scope.channels[idx].status = 'Subscribe';
+	    	$scope.channels[idx].selected = 'btn-primary';
+		} else {
+			console.log(ch);
+			ch.status = 'Unsubscribe';
+	    	ch.selected = 'btn-success';
+
+			$scope.channels.push(ch);
+			$scope.saveChannels();
+		}
+		/*
+		var idx = findWithAttr($scope.users[$scope.searchwebid].channels, 'uri', ch);
+		// is already selected
+	    if ($scope.users[$scope.searchwebid].channels[idx].status == 'Unsubscribe') {
+	    	$scope.users[$scope.searchwebid].channels[idx].status = 'Subscribe';
+	    	$scope.users[$scope.searchwebid].channels[idx].selected = 'btn-primary';
+	    } else { // is now selected
+	    	$scope.users[$scope.searchwebid].channels[idx].status = 'Unsubscribe';
+	    	$scope.users[$scope.searchwebid].channels[idx].selected = 'btn-success';
+	    }
+	    */
+	}
+
+
+	// get a user's WebID profile data to personalize app
+	$scope.getWebIDProfile = function(webid, mine) {		
+		if (webid && (webid.substr(0, 4) == 'http')) {
+			if (mine) {
+				$scope.user = {};
+				$scope.user.webid = webid;
+				$scope.profileloading = true;
+			}
+			console.log('Found WebID: '+webid);
+			$scope.getInfo(webid, mine);
+		} else {
+			console.log('No webid found!');
+			if (mine) {
+				notify('Error', 'WebID-TLS authentication failed.');
+				$scope.testwebid = true;
+				// hide spinner
+				$scope.profileloading = false;
+				$scope.$apply();
 			}
 		}
 	}
@@ -560,69 +647,53 @@ function CimbaCtrl($scope, $filter) {
 	    		storage = storage.value;
 
 	    	// Clean up name
-	        name = (name == undefined) ? 'Unknown':name.value;
-	        if (name.length > 22)
-	            name = name.slice(0, 18)+'...';
+	        name = (name)?name.value:'Unknown';
 
 	        // set avatar picture
-	        if (pic == undefined) {
+	        if (pic) {
+	        	pic = pic.value
+        	} else {
 	            if (depic)
 	                pic = depic.value;
 	            else
 	                pic = 'http://cimba.co/img/photo.png';
-	        } else {
-	            pic = pic.value;
 	        }
 
-	        // find microblogging feeds/channels
-	        if (storage)
-	        	$scope.getChannels(storage, mine);
-	        else
-	        	$scope.loading = false; // hide spinner
+	        var _user = {
+					webid: webid,
+		    		name: name,
+					pic: pic,
+					storagespace: storage,
+					channels: new Array()
+		    	}
 
-			var _user = {
-	    		fullname: name,
-				pic: pic,
-				storagespace: storage
-	    	}
+	    	$scope.getChannels(storage, webid, mine);
 
-			if (mine) {
+    		// add to users list
+   			$scope.users[webid] = _user;
+
+			if (mine) { // mine
 		        $scope.user.myname = name;
 		        $scope.user.mypic = pic;
 		        $scope.user.storagespace = storage;
+
+				// find microblogging feeds/channels
+		        if (!storage)
+		        	$scope.loading = false; // hide spinner
+
 		    	// cache user credentials in localStorage
-		    	$scope.storeLocalCredentials();
+		    	$scope.saveCredentials();
 		    	// update DOM
 		    	$scope.updateUserDOM();
 		    	$scope.loggedin = true;
+		    	$scope.profileloading = false;
+	    		$scope.$apply();
 			}
-	    	$scope.profileloading = false;
-	    	$scope.$apply();
-
-	    	return _user;
 	    });
 	}
 
-	// get a user's WebID profile data to personalize app
-	$scope.getWebIDProfile = function(webid) {		
-		if (webid && (webid.substr(0, 4) == 'http')) {
-			$scope.user = {};
-			$scope.user.webid = webid;
-			console.log('Found WebID: '+$scope.user.webid);	
-			$scope.profileloading = true;		
-			$scope.getInfo($scope.user.webid, true);
-		} else {
-			console.log('No webid found!');
-			notify('Error', 'WebID-TLS authentication failed.');
-			$scope.testwebid = true;
-			// hide spinner
-			$scope.profileloading = false;
-			$scope.$apply();
-		}
-	}
-
-	// get feeds based on a storage container
-	$scope.getChannels = function(uri, mine) {
+	// get channel feeds based on a storage container
+	$scope.getChannels = function(uri, webid, mine) {
 		var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 		var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
 	    var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
@@ -647,120 +718,145 @@ function CimbaCtrl($scope, $filter) {
 					// find the channels info for the user
 		        	f.nowOrWhenFetched(w+'.meta*', undefined,function(){
 			        	var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Forum'));
+			        	var channels = [];
 			        	if (chs.length > 0) {
 				        	for (var ch in chs) {
 		        				var channel = {};
 		        				channel.uri = chs[ch]['subject']['value'];
 			        			var title = g.any(chs[ch]['subject'], DCT('title')).value;
-			        			// force get the posts for this channel
-		        				$scope.getPosts(channel.uri, true);
-
-			        			console.log('ch='+ch+' | u='+channel.uri+' | t='+title);
+			        			
 			        			if (title)
 			        				channel.title = title;
 			        			else
 			        				channel.title = channel.uri;
+			        						        			
+								channels.push(channel);
 
+								// mine
 								if (mine) {
-				        			if ($scope.user.channels == undefined)
-				        				$scope.user.channels = [];
+									if ($scope.user.channels == undefined)
+			        					$scope.user.channels = [];
 									$scope.user.channels.push(channel);
+		        					// force get the posts for my channels
+		        					$scope.getPosts(channel.uri);
+									$scope.user.chspace = true;
 								}
 				        	}
-	    					if (mine) {
+							
+							$scope.users[webid].channels = channels;
+				        	console.log(channels);
+				        
+	    					if (mine)
 					        	$scope.defaultChannel = $scope.user.channels[0];
-					        	$scope.user.chspace = true;
-				        	}
 				        } else {
 				        	console.log('No channels found!');
-				        	$scope.user.chspace = false;
+				        	if (mine)
+				        		$scope.user.chspace = false;
 				        }
-						$scope.saveChannels();
-				        // hide loader
-				        $scope.loading = false;
-				        $scope.$apply();
+
+				        // we were called by search
+			        	if ($scope.searchwebid && $scope.searchwebid == webid) {
+							$scope.drawSearchResults();
+						}
+
+				        if (mine) {
+							$scope.saveCredentials();
+					        // hide loader
+					        $scope.loading = false;
+					        $scope.$apply();
+				        }
 		        	});
 				}
 			} else {
 				// no uBlogging workspaces found!
-				console.log('No microblog found!');
-				$scope.user.mbspace = false;
-				$scope.user.chspace = false;
-				$scope.saveChannels();
-				// hide loader
-		        $scope.loading = false;
-		        $scope.$apply();
+
+		        // we were called by search
+	        	if ($scope.searchwebid && $scope.searchwebid == webid) {
+					$scope.drawSearchResults();
+				}
+
+				if (mine) {
+					console.log('No microblog found!');
+					$scope.user.mbspace = false;
+					$scope.user.chspace = false;
+					$scope.saveCredentials();
+					// hide loader
+			        $scope.loading = false;
+			        $scope.$apply();
+				}
 			}
 	    });
 	}
 
 	// get all posts for a given microblogging workspace
-	$scope.getPosts = function(channel, forced) {
-		forced = true;
-        if (forced) {
-			var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-			var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
-		    var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
-		    var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
-		    var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
-		    var g = $rdf.graph();
-		    var f = $rdf.fetcher(g);
-		    // add CORS proxy
-		    $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
+	$scope.getPosts = function(channel) {
+		var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+		var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
+	    var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
+	    var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
+	    var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
+	    var g = $rdf.graph();
+	    var f = $rdf.fetcher(g);
+	    // add CORS proxy
+	    $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
 
-			// get all SIOC:Post (using globbing)
-			f.nowOrWhenFetched(channel+'*', undefined,function(){
-				var posts = g.statementsMatching(undefined, RDF('type'), SIOC('Post'));
+		// get all SIOC:Post (using globbing)
+		f.nowOrWhenFetched(channel+'*', undefined,function(){
+			var posts = g.statementsMatching(undefined, RDF('type'), SIOC('Post'));
 
-				for (var p in posts) {
-					var uri = posts[p]['subject'];
-					var useraccount = g.any(uri, SIOC('has_creator'));
-					var post = g.statementsMatching(posts[p]['subject']);
-					if (g.any(uri, DCT('created'))) {
-						var date = g.any(uri, DCT('created')).value;					
-					} else {
-						var date = undefined;
-					}
-					if (g.any(useraccount, SIOC('account_of'))) {
-						var userwebid = g.any(useraccount, SIOC('account_of')).value;
-					} else {
-						var userwebid = 'Unknown';
-					}
-					if (g.any(useraccount, SIOC('avatar'))) {
-						var userpic = g.any(useraccount, SIOC('avatar')).value;
-					} else {
-						var userpic = 'Unknown';
-					}
-					if (g.any(useraccount, FOAF('name'))) {
-						var username = unescape(g.any(useraccount, FOAF('name')).value);
-					} else {
-						var username = userwebid;
-					}
-					if (g.any(uri, SIOC('content'))) {
-						var body = g.any(uri, SIOC('content')).value;
-					} else {
-						var body = '';
-					}
-
-					// check if we need to overwrite instead of pushing new item
-					var _newPost = {
-						uri : uri.value,
-						date : date,
-						userwebid : userwebid,
-						userpic : userpic,
-						username : username,
-						body : body
-					}
-					$scope.posts.push(_newPost);
-					$scope.$apply();
+			for (var p in posts) {
+				var uri = posts[p]['subject'];
+				var useraccount = g.any(uri, SIOC('has_creator'));
+				var post = g.statementsMatching(posts[p]['subject']);
+				if (g.any(uri, DCT('created'))) {
+					var date = g.any(uri, DCT('created')).value;					
+				} else {
+					var date = undefined;
 				}
-				// done loading, save posts to localStorage
-				$scope.savePosts();
-				// hide spinner
-				$scope.loading = false;
+				if (g.any(useraccount, SIOC('account_of'))) {
+					var userwebid = g.any(useraccount, SIOC('account_of')).value;
+				} else {
+					var userwebid = 'Unknown';
+				}
+				if (g.any(useraccount, SIOC('avatar'))) {
+					var userpic = g.any(useraccount, SIOC('avatar')).value;
+				} else {
+					var userpic = 'Unknown';
+				}
+				if (g.any(useraccount, FOAF('name'))) {
+					var username = unescape(g.any(useraccount, FOAF('name')).value);
+				} else {
+					var username = userwebid;
+				}
+				if (g.any(uri, SIOC('content'))) {
+					var body = g.any(uri, SIOC('content')).value;
+				} else {
+					var body = '';
+				}
+				uri = uri.value;
+
+				// check if we need to overwrite instead of pushing new item
+				var _newPost = {
+					uri : uri,
+					date : date,
+					userwebid : userwebid,
+					userpic : userpic,
+					username : username,
+					body : body
+				}
+				
+				// remove if it exists
+				$scope.removePost(post.uri);
+				// append post
+				$scope.posts.push(_newPost);
 				$scope.$apply();
-			});
-		}
+			}
+			// done loading, save posts to localStorage
+			$scope.savePosts();
+			// hide spinner
+			$scope.loading = false;
+			$scope.$apply();
+		});
 	}
 
 	// Event listener for login (from child iframe)
@@ -772,7 +868,7 @@ function CimbaCtrl($scope, $filter) {
 	eventListener(messageEvent,function(e) {
 		var u = e.data;
 		if (e.data.slice(0,5) == 'User:') {
-			$scope.getWebIDProfile(e.data.slice(5, e.data.length));
+			$scope.getWebIDProfile(e.data.slice(5, e.data.length), true);
 			// clear previous posts
 	    	jQuery('posts-viewer').empty();
 		}
@@ -780,8 +876,9 @@ function CimbaCtrl($scope, $filter) {
 	},false);
 
 	// init by retrieving user from localStorage
-	$scope.getLocalCredentials();
-	$scope.loadPosts();
+	$scope.loadCredentials();
+	$scope.loadChannels();
+	$scope.loadPosts();	
 	$scope.updateUserDOM();
 }
 
@@ -794,3 +891,11 @@ ngCimba.directive('postsViewer',function(){
     }; 
 })
 
+//simple directive to display list of channels
+ngCimba.directive('channelsList',function(){
+  	return {
+		replace : true,
+		restrict : 'E',
+		templateUrl: 'tpl/chanel-list.html'
+    }; 
+})

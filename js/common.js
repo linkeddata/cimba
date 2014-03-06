@@ -7,6 +7,21 @@ function notify(title, text) {
     });
 }
 
+function findWithAttr(array, attr, value) {
+    for(var i = 0; i < array.length; i += 1) {
+        if(array[i][attr] === value) {
+            return i;
+        }
+    }
+}
+
+// find object property value
+function findItemByValue(obj, prop, val) {
+	var ret = obj.filter(function(item) {
+		return (item[prop] === val)
+	});
+	return ret[0];
+}
 // Resize message textarea
 function textareaResize(o) { 
     o.style.height = "100px";

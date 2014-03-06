@@ -25,7 +25,7 @@ h4 {
 .navbar {height: 56px;}
 .navbar-default {background-color:#f4f4f4;border-width:0;z-index:5;}
 .navbar-default .navbar-nav > .active > a,.navbar-default .navbar-nav > li:hover > a {
-    border:0 solid #4285f4;border-bottom-width:2px;font-weight:800;background-color:transparent;
+    border:0 solid #4285f4;border-bottom-width:2px;background-color:transparent;
 }
 .navbar-default .dropdown-menu {background-color:#ffffff;}
 .navbar-default .dropdown-menu li > a {padding-left:30px;}
@@ -45,7 +45,7 @@ h4 {
 .btn-info,.label-info,.progress-bar-info{background-color:#a0c3ff,border-color:#a0c3ff;}
 .btn-danger,.label-danger,.progress-bar-danger{background-color:#dd4b39;}
 .btn-warning,.label-warning,.progress-bar-warning{background-color:#f4b400;color:#444444;}
-.btn-sep-right {margin-right:20px;}
+.btn-sep-right {margin-right:10px;}
 .drop { margin-top: -5px!important; }
 <!-- UI notification -->
 .notification { width:350px!important; position:fixed; top:80px; right:10px; }
@@ -143,6 +143,12 @@ pre {
 .list-group-item:first-child,.list-group-item:last-child {
 	border-radius:0;
 }
+.thumbnail {
+  max-width: 80px;
+}
+.thumbnail-sm {
+  max-width: 70px;
+}
 .thumb-pic {
   width:70px;
   min-height: 70px!important;
@@ -185,7 +191,11 @@ h4,h5 {
   padding: 0px 0px 20px 0px!important;
   border-top: 0px!important;
 }
-
+.center {
+  width:50%;
+  margin-left: auto;
+  margin-right: auto;
+}
 .dropdown-menu {
     background-color:#fff;
     border-color:#f0f0f0;
@@ -193,12 +203,18 @@ h4,h5 {
     margin-top:-1px;
     border-radius:3px;
 }
+
+.searchresults {
+  background-color: #FEFCFF;
+  margin: -10px 10px 10px 10px;
+}
 /* end theme */
 code {
   word-break: break-all;
   word-wrap: break-word;
   color: #c7254e !important;
 }
+
 
 #spinner {
     width: 128px;
@@ -220,29 +236,35 @@ code {
 }
 
 .top-border {
-    padding-top: 3px;
+  padding-top: 3px;
 }
 a.link-post {
-    margin-top: 15px;
-    color: #fff;
+  margin-top: 15px;
+  color: #fff;
 }
 a.link-white {
   color: #fff;
 }
 .thumb {
-    height: 20px;
+  height: 20px;
 }
 .light-blue {
-    background-color: #3bafda!important;
+  background-color: #3bafda!important;
 }
 .dark-blue {
-    background-color: #4285f4!important;
+  background-color: #4285f4!important;
 }
 .blue {
-    color: #4285f4 !important;
+  color: #4285f4 !important;
 }
 .green {
-    color: green !important;
+  color: green !important;
+}
+.white {
+  color: #fff !important;
+}
+.black {
+  color: #000 !important;
 }
 
 .animate-enter, 
