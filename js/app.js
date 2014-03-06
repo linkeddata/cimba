@@ -6,13 +6,31 @@
 // some config
 var PROXY = "https://rww.io/proxy?uri={uri}";
 // add filters
-var ngCimba = angular.module('CimbaApp', ['ui','ui.filters']).filter('fromNow', function() {
+var ngCimba = angular.module('CimbaApp', ['ui','ui.filters']);
+// replace dates with moment's "time ago" style
+ngCimba.filter('fromNow', function() {
   return function(date) {
     return moment(date).fromNow();
   }
 });
+// order function for ng-repeat using lists instead of arrays
+ngCimba.filter('orderObjectBy', function(){
+ return function(input, attribute) {
+    if (!angular.isObject(input)) return input;
 
-	var ss = '';	
+    var array = [];
+    for(var objectKey in input) {
+        array.push(input[objectKey]);
+    }
+
+	array.sort(function(a, b){
+		var alc = a[attribute].toLowerCase();
+		var blc = b[attribute].toLowerCase();
+		return alc > blc ? 1 : alc < blc ? -1 : 0;
+	});
+	return array;
+ }
+});
 
 // Main angular controller
 function CimbaCtrl($scope, $filter) {
@@ -79,35 +97,47 @@ function CimbaCtrl($scope, $filter) {
 		}
 	}
 
-	// save the list of channels in localStorage
-	$scope.saveChannels = function () {
-		if (localStorage.getItem($scope.appuri)) {
-			var cimba = JSON.parse(localStorage.getItem($scope.appuri));			
-			cimba.channels = $scope.channels;
-			localStorage.setItem($scope.appuri, JSON.stringify(cimba));
-		}
+	// save the list of users + channels
+	$scope.saveUsers = function () {
+		// save to localStorage
+		if (localStorage.getItem($scope.appuri))
+			var cimba = JSON.parse(localStorage.getItem($scope.appuri));
+		else
+			var cimba = {};
+		
+		cimba.users = $scope.users;
+		localStorage.setItem($scope.appuri, JSON.stringify(cimba));
+
+		// also save to PDS
 	}
-	// load the list of channels from localStorage
-	$scope.loadChannels = function () {
+	// load the list of users + channels from localStorage
+	$scope.loadUsers = function () {
+		$scope.users = {};
+		// load from localStorage
 		if (localStorage.getItem($scope.appuri)) {
 			var cimba = JSON.parse(localStorage.getItem($scope.appuri));			
-			$scope.channels = cimba.channels;
+			$scope.users = cimba.users;
+		} else {
+			// load from PDS
+			//$scope.getUsers();
 		}
 	}
 
 	// save current posts in localStorage
 	$scope.savePosts = function () {
-		if (localStorage.getItem($scope.appuri)) {
-			var cimba = JSON.parse(localStorage.getItem($scope.appuri));			
-			cimba.posts = $scope.posts;
-			localStorage.setItem($scope.appuri, JSON.stringify(cimba));
-		}
+		if (localStorage.getItem($scope.appuri))
+			var cimba = JSON.parse(localStorage.getItem($scope.appuri));
+		else
+			var cimba = {};
+
+		cimba.posts = $scope.posts;
+		localStorage.setItem($scope.appuri, JSON.stringify(cimba));
 	}
 	// load the posts from localStorage
 	$scope.loadPosts = function () {
+		$scope.posts = [];
 		if (localStorage.getItem($scope.appuri)) {
-			var cimba = JSON.parse(localStorage.getItem($scope.appuri));			
-			$scope.posts = [];
+			var cimba = JSON.parse(localStorage.getItem($scope.appuri));
 			$scope.posts = cimba.posts;
 		}
 	}
@@ -201,7 +231,7 @@ function CimbaCtrl($scope, $filter) {
 				var g = $rdf.graph();
 				
 				// add uB triple (append trailing slash since we got dir)
-		        g.add($rdf.sym(churi+'/'), RDF('type'), SIOC('Forum'));
+		        g.add($rdf.sym(churi+'/'), RDF('type'), SIOC('Container'));
 		        g.add($rdf.sym(churi+'/'), DCT('title'), $rdf.lit($scope.channeltitle));
 		        var s = new $rdf.Serializer(g).toN3(g);
 
@@ -243,7 +273,7 @@ function CimbaCtrl($scope, $filter) {
 							// close modal
 							$('#newChannelModal').modal('hide');
 							// reload user profile when done
-							$scope.getWebIDProfile($scope.user.webid);
+							$scope.getInfo($scope.user.webid, true);
 				        }
 				    });
 		        }
@@ -297,7 +327,7 @@ function CimbaCtrl($scope, $filter) {
 				var g = $rdf.graph();
 				
 				// add uB triple (append trailing slash since we got dir)
-		        g.add($rdf.sym(mburi+'/'), RDF('type'), SIOC('Container'));
+		        g.add($rdf.sym(mburi+'/'), RDF('type'), SIOC('Space'));
 		        g.add($rdf.sym(mburi+'/'), DCT('title'), $rdf.lit("Microblogging workspace"));
 		        var s = new $rdf.Serializer(g).toN3(g);	        
 		        if (s.length > 0) {
@@ -337,7 +367,7 @@ function CimbaCtrl($scope, $filter) {
 							// close modal
 							$('#newMBModal').modal('hide');
 							// reload user profile when done
-							$scope.getWebIDProfile($scope.user.webid);
+							$scope.getInfo($scope.user.webid, true);
 				        }
 				    });
 		        }
@@ -400,7 +430,7 @@ function CimbaCtrl($scope, $filter) {
 					// close modal
 					$('#newStorageModal').modal('hide');
 					// reload user profile when done
-					$scope.getWebIDProfile($scope.user.webid);
+					$scope.getInfo($scope.user.webid, true);
 		        }
 		    });
 		}
@@ -541,32 +571,29 @@ function CimbaCtrl($scope, $filter) {
 
 	// lookup a WebID to find channels
     $scope.drawSearchResults = function() {
-		$scope.search = {};
 		$scope.gotresults = true;
-    	$scope.search.pic = $scope.users[$scope.searchwebid].pic
-    	$scope.search.name = $scope.users[$scope.searchwebid].name;
-    	$scope.search.channels = $scope.users[$scope.searchwebid].channels;
     	for (i=0;i<$scope.search.channels.length;i++) {
     		// find if we have the channel in our list already
     		var ch = $scope.search.channels[i];
-    		// set owner
-    		ch.owner = $scope.searchwebid;
-    		ch.ownername = $scope.search.name;
-    		ch.ownerpic = $scope.search.pic;
-    		// set attributes
-			if (!$scope.channels)
-				$scope.channels = [];
-    		var idx = findWithAttr($scope.channels, 'uri', ch.uri);
-    		if (idx != undefined) {
-    			console.log('Already subscribed to '+ch.title);
-    			ch.button = 'fa-eye-slash';
-	    		ch.css = 'btn-success';
-	    		ch.action = 'Unsubscribe';
+    		// check if it's a known user
+			if ($scope.users && $scope.users[$scope.search.webid]) {
+	    		var idx = findWithAttr($scope.users[$scope.search.webid].channels, 'uri', ch.uri);
+	    		var c = $scope.users[$scope.search.webid].channels[idx];    		
+	    		// set attributes
+	    		if (idx != undefined) {
+	    			ch.button = c.button;
+		    		ch.css = c.css;
+		    		ch.action = c.action;
+	    		} else {
+		    		ch.button = 'fa-eye';
+		    		ch.css = 'btn-info';
+		    		ch.action = 'Subscribe';
+	    		}
     		} else {
-	    		if (!ch.button)
+    			if (!ch.button)
 	    			ch.button = 'fa-eye';
 	    		if (!ch.css)
-	    			ch.css = 'btn-primary';
+	    			ch.css = 'btn-info';
 	    		if (!ch.action)
 	    			ch.action = 'Subscribe';
     		}
@@ -576,30 +603,48 @@ function CimbaCtrl($scope, $filter) {
 
     }
     // toggle selected channel for user
-    // TODO: save list on PDS too
-	$scope.channelToggle = function(ch) {
-		var idx = findWithAttr($scope.channels, 'uri', ch.uri);		
-		// already subscribed
-		if (idx != undefined) {
-			// removing
-			$scope.channels.splice(idx,1);
-			$scope.saveChannels();
-			ch.action = 'Subscribe';
-			ch.button = 'fa-eye';
-	    	ch.css = 'btn-primary';
+	$scope.channelToggle = function(ch, user) {
+		// we're following this user
+		if ($scope.users && $scope.users[user.webid]) {
+			var channels = $scope.users[user.webid].channels;
+			var idx = findWithAttr(channels, 'uri', ch.uri);
+			// already have the channel
+			if (idx != undefined) {
+				var c = channels[idx];
+				// unsubscribe
+				if (c.action == 'Unsubscribe') {
+					c.action = ch.action = 'Subscribe';
+					c.button = ch.button = 'fa-eye';
+			    	c.css = ch.css = 'btn-info';
+		    	} else {
+	    		// subscribe
+					c.action = ch.action = 'Unsubscribe';
+					c.button = ch.button = 'fa-eye-slash';
+			    	c.css = ch.css = 'btn-success';
+		    	}
+	    	} else {
+	    		// subscribe
+	    		ch.action = 'Unsubscribe';
+				ch.button = 'fa-eye-slash';
+		    	ch.css = 'btn-success';
+	    	}
+	    	// also update the users list in case there is a new channel
+	    	$scope.users[user.webid] = user;
+	    	$scope.saveUsers();
 		} else {
-			// adding
+			// subscribe (also add user + channels)
 			ch.action = 'Unsubscribe';
 			ch.button = 'fa-eye-slash';
-	    	ch.css = 'btn-success';
-			$scope.channels.push(ch);
-			$scope.saveChannels();
+	    	ch.css = 'btn-success';	    	
+			if (!$scope.users)
+				$scope.users = {};
+			$scope.users[user.webid] = user;
+			$scope.saveUsers();
 		}
 	}
 
-
 	// get a user's WebID profile data to personalize app
-	$scope.getWebIDProfile = function(webid, mine) {		
+	$scope.authenticate = function(webid, mine) {		
 		if (webid && (webid.substr(0, 4) == 'http')) {
 			if (mine) {
 				$scope.user = {};
@@ -665,10 +710,12 @@ function CimbaCtrl($scope, $filter) {
 					channels: new Array()
 		    	}
 
-	    	$scope.getChannels(storage, webid, mine);
+    		// add to search object if it was the object of a search
+    		if ($scope.searchwebid && $scope.searchwebid == webid)
+	   			$scope.search = _user;
 
-    		// add to users list
-   			$scope.users[webid] = _user;
+	   		// get channels for user
+	    	$scope.getChannels(storage, webid, mine);
 
 			if (mine) { // mine
 		        $scope.user.myname = name;
@@ -701,10 +748,10 @@ function CimbaCtrl($scope, $filter) {
 	    var f = $rdf.fetcher(g);
 	    // add CORS proxy
 	    $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
-	    // fetch user data: SIOC:Container -> SIOC:Forum -> SIOC:Post
+	    // fetch user data: SIOC:Space -> SIOC:Container -> SIOC:Post
 	    f.nowOrWhenFetched(uri,undefined,function(){
 	        // find all SIOC:Container
-	        var ws = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));
+	        var ws = g.statementsMatching(undefined, RDF('type'), SIOC('Space'));
 	        
 	        if (ws.length > 0) {
 				$scope.loading = true;
@@ -715,9 +762,14 @@ function CimbaCtrl($scope, $filter) {
 
 					// find the channels info for the user
 		        	f.nowOrWhenFetched(w+'.meta*', undefined,function(){
-			        	var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Forum'));
+			        	var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));
 			        	var channels = [];
+			        	
 			        	if (chs.length > 0) {
+				        	// clear list first
+				        	if (mine)
+				        		$scope.user.channels = [];
+			        	
 				        	for (var ch in chs) {
 		        				var channel = {};
 		        				channel.uri = chs[ch]['subject']['value'];
@@ -731,19 +783,14 @@ function CimbaCtrl($scope, $filter) {
 								channels.push(channel);
 
 								// mine
-								if (mine) {
-									if ($scope.user.channels == undefined)
-			        					$scope.user.channels = [];
+								if (mine) {									
 									$scope.user.channels.push(channel);
 		        					// force get the posts for my channels
 		        					$scope.getPosts(channel.uri);
 									$scope.user.chspace = true;
 								}
 				        	}
-							
-							$scope.users[webid].channels = channels;
-				        	console.log(channels);
-				        
+
 	    					if (mine)
 					        	$scope.defaultChannel = $scope.user.channels[0];
 				        } else {
@@ -751,11 +798,12 @@ function CimbaCtrl($scope, $filter) {
 				        	if (mine)
 				        		$scope.user.chspace = false;
 				        }
-
-				        // we were called by search
+						
+				        // if we were called by search
 			        	if ($scope.searchwebid && $scope.searchwebid == webid) {
+							$scope.search.channels = channels;
 							$scope.drawSearchResults();
-						}
+			        	}
 
 				        if (mine) {
 							$scope.saveCredentials();
@@ -866,7 +914,7 @@ function CimbaCtrl($scope, $filter) {
 	eventListener(messageEvent,function(e) {
 		var u = e.data;
 		if (e.data.slice(0,5) == 'User:') {
-			$scope.getWebIDProfile(e.data.slice(5, e.data.length), true);
+			$scope.authenticate(e.data.slice(5, e.data.length), true);
 			// clear previous posts
 	    	jQuery('posts-viewer').empty();
 		}
@@ -875,8 +923,8 @@ function CimbaCtrl($scope, $filter) {
 
 	// init by retrieving user from localStorage
 	$scope.loadCredentials();
-	$scope.loadChannels();
-	$scope.loadPosts();	
+	$scope.loadUsers();
+	$scope.loadPosts();
 	$scope.updateUserDOM();
 }
 

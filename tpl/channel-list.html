@@ -1,14 +1,17 @@
-<div class="searchresults" ng-repeat="ch in channels|orderBy:'owner':true">
+<div class="searchresults" ng-repeat="u in users|orderObjectBy:'name'">
     <div class="panel-heading dark-blue">
         <div class="pull-left">
-            <a class="thumbnail thumbnail-sm pull-right" href="{{ch.owner}}">
-              <img class="media-object" src="{{ch.ownerpic}}" rel="tooltip" data-placement="top" title="{{ch.ownername}}">
+            <a class="thumbnail thumbnail-sm pull-right" href="{{u.webid}}">
+              <img class="media-object" src="{{u.pic}}" rel="tooltip" data-placement="top" title="{{u.name}}">
             </a>
+        </div>
+        <div class="card-name">
+            <strong class="white">{{u.name}}</strong>
         </div>
     </div>
     <div class="panel-body-text">
-        <h4 class="black">
-            <button class="btn" ng-class="ch.css" ng-click="channelToggle(ch)" rel="tooltip" data-placement="top" title="{{ch.action}}"><i class="fa {{ch.button}} fa-2x"></i></button>
+        <h4 class="black" ng-repeat="ch in u.channels|orderBy:'title'">
+            <button class="btn" ng-class="ch.css" ng-click="channelToggle(ch, u)" rel="tooltip" data-placement="top" title="{{ch.action}}"><i class="fa {{ch.button}} fa-2x"></i></button>
             <a href="{{ch.uri}}" target="_blank">{{ch.title}}</a>
         </h4>
     </div>

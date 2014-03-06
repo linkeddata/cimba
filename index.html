@@ -52,9 +52,7 @@
                 <img src="img/cimba-logo.png" class="logo">                
                 <button id="menuToggle" type="button" class="navbar-toggle pull-right" data-toggle="collapse" data-target="#navbar-collapse2">
                     <span class="sr-only">Toggle navigation</span>
-                    <i class="fa fa-bar"></i>
-                    <i class="fa fa-bar"></i>
-                    <i class="fa fa-bar"></i>
+                    <i class="fa fa-bars fa-2x blue"></i>
                 </button>
 <!-- TODO!
                 <div ng-show="user.mypic" class="user-thumb"><a href="{{user.webid}}" target="_blank"><img class="r3" src="{{user.mypic}}" rel="tooltip" data-placement="top" title="{{user.myname}}"></a></div>
@@ -66,8 +64,8 @@
                   <li class="active"><a href="#"><i class="fa fa-home"></i> Home</a></li>
                   <li ng-show="loggedin"><a href="#subsModal" role="button" data-toggle="modal"><i class="fa fa-rss"></i> Channels</a></li>
                   <li ng-hide="!user.channels[0]"><a href="#" ng-click="updatePosts()"><i class="fa fa-refresh"></i> Refresh </a></li>
-                  <li ng-hide="loggedin"><a href="#loginModal" role="button" data-toggle="modal"><i class="fa fa-signin"></i> Login</a></li>
-                  <li ng-show="loggedin"><a href="#" ng-click="clearSession()" role="button"><i class="fa fa-signout"></i> Logout</a></li>
+                  <li ng-hide="loggedin"><a href="#loginModal" role="button" data-toggle="modal"><i class="fa fa-sign-in"></i> Login</a></li>
+                  <li ng-show="loggedin"><a href="#" ng-click="clearSession()" role="button"><i class="fa fa-sign-out"></i> Logout</a></li>
               </ul>
             </div>
         </div>	
@@ -108,7 +106,7 @@
                               <div class="btn-group" ng-show="user.channels.length > 0" rel="tooltip" data-placement="top" title="Channels">
                                   <button id="chs" class="btn btn-primary" disabled>{{defaultChannel.title}}</button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop" rel="tooltip" data-placement="top" title="Channels"><i class="fa fa-chevron-down fa-2x"></i></small></button>
                                   <ul class="dropdown-menu" role="menu" aria-labelledby="chs">
-                                      <li ng-repeat="channel in user.channels">
+                                      <li ng-repeat="channel in user.channels | orderBy:'title'">
                                           <a href="#" ng-click="setChannel(channel.title)">{{channel.title}}</a>
                                       </li>
                                   </ul>
@@ -327,12 +325,10 @@
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                     <h2 class="text-center"><i class="fa fa-rss"></i>  Manage channels</h2>
                     <a href="#newChannelModal" role="button" data-toggle="modal" onclick="$('#subsModal').modal('hide')"><button class="btn btn-primary btn-sep-right"><i class="fa fa-rss"></i> New channel</button></a>
-                    <a href="#subscribeModal" role="button" data-toggle="modal" onclick="$('#subsModal').modal('hide')"><button class="btn btn-primary btn-sep-right"><i class="fa fa-search"></i> Search by WebID</button></a>
-                    <h3 class="text-center">Currently subscribed to:</h3>
+                    <a href="#subscribeModal" role="button" data-toggle="modal" ><button class="btn btn-primary btn-sep-right"><i class="fa fa-search"></i> Search by WebID</button></a>
+                    <h2 class="text-center">Available channels:</h2>
                 </div>
                 <div class="modal-body">
-                    
-                    
                     <channelslist></channelslist>
                 </div>
                 <div class="modal-footer">

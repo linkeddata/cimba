@@ -30,7 +30,7 @@ h4 {
 .navbar-default .dropdown-menu {background-color:#ffffff;}
 .navbar-default .dropdown-menu li > a {padding-left:30px;}
 .navbar-nav {background-color: #f4f4f4; margin-top:0px;}
-.navbar-toggle{margin-top:10px!important;}
+.navbar-toggle{margin-top:5px!important;margin-right:0px !important;}
 
 .header {background-color:#ffffff;border-width:0;}
 .header .navbar-collapse {background-color:#ffffff;}
@@ -164,6 +164,9 @@ pre {
 }
 .user-thumb img {
   height: 40px;
+}
+.card-name {
+  margin-left: 80px;
 }
 .panel-body-textmail h3 {
   margin-top: 10px;
