@@ -34,7 +34,7 @@ function CimbaCtrl($scope, $filter) {
 	$scope.addstoragebtn = 'Add';
 	$scope.createbtn = 'Create';
 	$scope.searchbtn = 'Search';
-	$scope.audience = 'icon-globe';
+	$scope.audience = 'fa-globe';
 	// user object
 	$scope.user = {};
 	$scope.user.webid = undefined;
@@ -129,6 +129,8 @@ function CimbaCtrl($scope, $filter) {
 		$scope.user = {};
 		$scope.posts = [];
 		$scope.loggedin = false;
+		// hide loader
+		$scope.loading = false;
 	}
 
 	// update account
@@ -144,11 +146,11 @@ function CimbaCtrl($scope, $filter) {
 	// update the audience selector
 	$scope.setAudience = function(v) {
 		if (v=='public')
-			$scope.audience = 'icon-globe';
+			$scope.audience = 'fa-globe';
 		else if (v=='private')
-			$scope.audience = 'icon-lock';
+			$scope.audience = 'fa-lock';
 		else if (v=='friends')
-			$scope.audience = 'icon-user';
+			$scope.audience = 'fa-user';
 	}
 	
 	// create a new channel
@@ -547,41 +549,49 @@ function CimbaCtrl($scope, $filter) {
     	for (i=0;i<$scope.search.channels.length;i++) {
     		// find if we have the channel in our list already
     		var ch = $scope.search.channels[i];
+    		// set owner
+    		ch.owner = $scope.searchwebid;
+    		ch.ownername = $scope.search.name;
+    		ch.ownerpic = $scope.search.pic;
+    		// set attributes
 			if (!$scope.channels)
 				$scope.channels = [];
     		var idx = findWithAttr($scope.channels, 'uri', ch.uri);
-			console.log('Idx='+idx);
     		if (idx != undefined) {
-    			console.log('Already subscribed to '+ch.name);
-    			ch.status = $scope.channels[idx].status;
-    			ch.selected = $scope.channels[idx].selected;
+    			console.log('Already subscribed to '+ch.title);
+    			ch.button = 'fa-eye-slash';
+	    		ch.css = 'btn-success';
+	    		ch.action = 'Unsubscribe';
     		} else {
-	    		if (!ch.status)
-	    			ch.status='Subscribe';
-	    		if (!ch.selected)
-	    			ch.selected = 'btn-primary';
+	    		if (!ch.button)
+	    			ch.button = 'fa-eye';
+	    		if (!ch.css)
+	    			ch.css = 'btn-primary';
+	    		if (!ch.action)
+	    			ch.action = 'Subscribe';
     		}
     	}
+    	$scope.searchbtn = 'Search';
     	$scope.$apply();
 
     }
     // toggle selected channel for user
     // TODO: save list on PDS too
 	$scope.channelToggle = function(ch) {
-		var idx = findWithAttr($scope.channels, 'uri', ch.uri);
-		
+		var idx = findWithAttr($scope.channels, 'uri', ch.uri);		
 		// already subscribed
 		if (idx != undefined) {
 			// removing
 			$scope.channels.splice(idx,1);
 			$scope.saveChannels();
-			ch.status = 'Subscribe';
-	    	ch.selected = 'btn-primary';
+			ch.action = 'Subscribe';
+			ch.button = 'fa-eye';
+	    	ch.css = 'btn-primary';
 		} else {
 			// adding
-			console.log('Subscribing to '+ch.uri);
-			ch.status = 'Unsubscribe';
-	    	ch.selected = 'btn-success';
+			ch.action = 'Unsubscribe';
+			ch.button = 'fa-eye-slash';
+	    	ch.css = 'btn-success';
 			$scope.channels.push(ch);
 			$scope.saveChannels();
 		}
@@ -880,10 +890,10 @@ ngCimba.directive('postsViewer',function(){
 })
 
 //simple directive to display list of channels
-ngCimba.directive('channelsList',function(){
+ngCimba.directive('channelslist',function(){
   	return {
 		replace : true,
 		restrict : 'E',
-		templateUrl: 'tpl/chanel-list.html'
+		templateUrl: 'tpl/channel-list.html'
     }; 
 })
