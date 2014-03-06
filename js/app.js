@@ -549,7 +549,6 @@ function CimbaCtrl($scope, $filter) {
     		var ch = $scope.search.channels[i];
 			if (!$scope.channels)
 				$scope.channels = [];
-			console.log($scope.channels);
     		var idx = findWithAttr($scope.channels, 'uri', ch.uri);
 			console.log('Idx='+idx);
     		if (idx != undefined) {
@@ -567,36 +566,25 @@ function CimbaCtrl($scope, $filter) {
 
     }
     // toggle selected channel for user
+    // TODO: save list on PDS too
 	$scope.channelToggle = function(ch) {
-		if (!$scope.channels)
-			$scope.channels = [];
 		var idx = findWithAttr($scope.channels, 'uri', ch.uri);
+		
 		// already subscribed
-		if (idx) {
+		if (idx != undefined) {
 			// removing
 			$scope.channels.splice(idx,1);
 			$scope.saveChannels();
-			$scope.channels[idx].status = 'Subscribe';
-	    	$scope.channels[idx].selected = 'btn-primary';
+			ch.status = 'Subscribe';
+	    	ch.selected = 'btn-primary';
 		} else {
-			console.log(ch);
+			// adding
+			console.log('Subscribing to '+ch.uri);
 			ch.status = 'Unsubscribe';
 	    	ch.selected = 'btn-success';
-
 			$scope.channels.push(ch);
 			$scope.saveChannels();
 		}
-		/*
-		var idx = findWithAttr($scope.users[$scope.searchwebid].channels, 'uri', ch);
-		// is already selected
-	    if ($scope.users[$scope.searchwebid].channels[idx].status == 'Unsubscribe') {
-	    	$scope.users[$scope.searchwebid].channels[idx].status = 'Subscribe';
-	    	$scope.users[$scope.searchwebid].channels[idx].selected = 'btn-primary';
-	    } else { // is now selected
-	    	$scope.users[$scope.searchwebid].channels[idx].status = 'Unsubscribe';
-	    	$scope.users[$scope.searchwebid].channels[idx].selected = 'btn-success';
-	    }
-	    */
 	}
 
 
