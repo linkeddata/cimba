@@ -204,7 +204,7 @@ function CimbaCtrl($scope, $filter) {
 		} 
 
 		// load from PDS
-		if (!$scope.users || $scope.users.length == 0)
+		if ($scope.user.mbspace && (!$scope.users || $scope.users.length == 0))
 			$scope.getUsers();
 	}
 
@@ -301,11 +301,20 @@ function CimbaCtrl($scope, $filter) {
 			$scope.posts = [];
 			// add my posts
 			for (c in $scope.user.channels) {
-				console.log('Getting feed posts for '+$scope.user.channels[c].uri);
 				$scope.getPosts($scope.user.channels[c].uri);
 			}
-			// add posts from people I follow
+		}
+		// add posts from people I follow
+		if ($scope.users) {
+			for (i in $scope.users) {
+				_user = $scope.users[i];
+				for (j in _user.channels) {
+					var ch = _user.channels[j].uri;
+					if (ch)
+						$scope.getPosts(ch);
+				}
 
+			}
 		}
 	}
 

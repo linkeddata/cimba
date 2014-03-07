@@ -83,9 +83,13 @@ button {
   border-radius:3px;box-shadow:0 0 0;
   border-color:#d7d7d7;
 }
+#searchbutton {
+  position: absolute;
+  height: 46px;
+}
 input[type="text"] {
   font-size: 1.8em;
-  width: 100%;
+  width: auto;
   padding: 5px;
 }
 textarea {
