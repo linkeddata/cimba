@@ -195,7 +195,7 @@
     </div>
 
     <!-- new channel modal -->
-    <div id="setup" class="container" ng-show="user.webid && user.storagespace && user.mbspace && !user.channels">
+    <div id="setup" class="container" ng-show="user.webid && user.storagespace && user.mbspace && (!user.channels || user.channels.length == 0)">
         <div class="row">
             <div class="col-md-12">
                 <div class="panel panel-default text-center">
@@ -206,16 +206,22 @@
         </div>
     </div>
 
-
+    <!-- no posts found -->
+    <div id="setup" class="container" ng-show="user.webid && user.storagespace && user.mbspace && user.channels && (!posts || posts.length == 0)">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default text-center">
+                    <h3>I couldn not find any posts. Try writing a new post or <a href="#subscribeModal" role="button" data-toggle="modal"><button class="btn btn-primary"><i class="fa fa-rss white"></i> subscribe</button></a> to someone's channels!</h3>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- posts viewer -->
     <div id="posts" class="container">
         <div class="row">
             <div class="col-md-12">
                 <!-- All posts go into <posts-viewer> -->
-                <div class="panel panel-default text-center" ng-show="!posts || posts.length == 0">
-                    <h3>I couldn not find any posts. Try writing a new post or <a href="#subscribeModal" role="button" data-toggle="modal"><button class="btn btn-primary"><i class="fa fa-rss white"></i> subscribe</button></a> to someone's channels!</h3>
-                </div>
                 <posts-viewer ng-show="loggedin"></posts-viewer>
                 <div class="panel panel-default" ng-show="loading">
                     <div id="spinner"></div>
@@ -234,7 +240,7 @@
               </div>
               <div class="modal-body">
                   <form class="m10">
-                      <input type="text" id="storageuri" name="storageuri" ng-model="storageuri" class="" placeholder="Storage URI.." required>
+                      <input type="text" id="storageuri" name="storageuri" ng-model="storageuri" class="form-control" placeholder="Storage URI.." required>
                   </form>
                   <div ng-show="storageuri" class="text-center">
                   <p>Alternatively, after providing the storage URI, you can manually add the following triple to your WebID profile:</p>
@@ -264,7 +270,7 @@
               </div>
               <div class="modal-body">
                   <form class="m10">
-                      <input type="text" id="mburi" name="mburi" ng-model="mburi" class="" placeholder="mb, ublog, etc.." required>
+                      <input type="text" id="mburi" name="mburi" ng-model="mburi" class="form-control" placeholder="mb, ublog, etc.." required>
                   </form>
               </div>
               <div class="modal-footer">
@@ -288,8 +294,8 @@
               <div class="modal-body">
                   <form class="m10">
                   <p>The name you provide will be used to create a new channel inside your uBlog workspace.</p>
-                  <p><input type="text" id="channeluri" name="channeluri" ng-model="channeluri" class="" placeholder="Name (ch, default, etc.).." required></p>
-                  <p><input type="text" id="channeltitle" name="channeltitle" ng-model="channeltitle" class="" placeholder="Title (Main, Work, etc.).." required></p>
+                  <p><input type="text" id="channeluri" name="channeluri" ng-model="channeluri" class="form-control" placeholder="Name (ch, default, etc.).." required></p>
+                  <p><input type="text" id="channeltitle" name="channeltitle" ng-model="channeltitle" class="form-control" placeholder="Title (Main, Work, etc.).." required></p>
                   </form>
               </div>
               <div class="modal-footer">
@@ -359,7 +365,7 @@
                         <p>Please provide the WebID for the channel owner.</p>
                         <div class="input-group">
                             <div class="input-group-btn">
-                              <input type="text" id="searchwebid" name="searchwebid" ng-model="searchwebid" autofocus required>
+                              <input type="search" id="searchwebid" name="searchwebid" class="form-control" ng-model="searchwebid" autofocus required>
                               <button id="searchbutton" class="btn btn-primary" ng-click="getInfo(searchwebid); searchbtn='Searching...'" ng-disabled="!searchwebid"><i class="fa fa-search"></i> {{searchbtn}}</button>
                             </div>
                         </div>
@@ -399,7 +405,7 @@
 <!-- bottom -->
 <div class="col-md-12 text-center">
     <hr>
-    <p>Powered by <a href="https://github.com/social-webarch/cimba" target="_blank">CIMBA</a> v1.0 alpha | <a href="#aboutModal" role="button" data-toggle="modal">About Cimba</a></p>
+    <p>Powered by <a href="https://github.com/social-webarch/cimba" target="_blank">CIMBA</a> v1.0 alpha | <a href="https://github.com/social-webarch/cimba/issues" target="_blank">Bug tracker</a> | <a href="#aboutModal" role="button" data-toggle="modal">About</a></p>
 </div>
 <!--/main-->
 
