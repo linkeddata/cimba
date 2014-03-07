@@ -245,18 +245,18 @@ function CimbaCtrl($scope, $filter) {
 								if (g.any(ch, SIOC('has_subscriber'))) {
 					    		// subscribed
 									_channel.action = 'Unsubscribe';
-									_channel.button = ch.button = 'fa-eye';
+									_channel.button = ch.button = 'fa-check-square-o';
 							    	_channel.css = ch.css = 'btn-success';
+									// also load the posts for this channel
+									if (loadposts && _channel.uri)
+										$scope.getPosts(_channel.uri);
 								} else {
 							    	_channel.action = ch.action = 'Subscribe';
-									_channel.button = ch.button = 'blue fa-eye-slash';
-							    	_channel.css = ch.css = 'btn-classic';
+									_channel.button = ch.button = 'fa-square-o';
+							    	_channel.css = ch.css = 'btn-primary';
 								}
 								// add channel to user objects
 								_user.channels.push(_channel);
-
-								if (loadposts && _channel.uri)
-									$scope.getPosts(_channel.uri);
 							}
 						}
 						// add user
@@ -364,15 +364,20 @@ function CimbaCtrl($scope, $filter) {
 
 	// remove all posts from viewer based on given WebID
 	$scope.removePostsByOwner = function(webid) {
-		for (var i in $scope.posts) {
+		var haschanged = false;
+		console.log($scope.posts);
+		for (var i=$scope.posts.length - 1; i>=0; i--) {
 			var post = $scope.posts[i];
+			console.log('Hash='+post.$$hashKey+' | WebID='+webid+' | postWebID='+post.userwebid);
 			if (webid && post.userwebid == webid) {
 				$scope.posts.splice(i,1);
-				console.log('Removing post: '+i);
+				haschanged = true;
+				console.log('Removing post: '+i+' | hash='+post.$$hashKey);
 			}
 		}
-		$scope.savePosts();
-		$scope.$apply();
+		console.log($scope.posts);
+		if (haschanged)
+			$scope.savePosts();
 	}
 
 	// clear localStorage
