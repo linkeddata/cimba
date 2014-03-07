@@ -109,6 +109,87 @@ function CimbaCtrl($scope, $filter) {
 		localStorage.setItem($scope.appuri, JSON.stringify(cimba));
 
 		// also save to PDS
+		var channels = []; // temporary channel list (will load posts from them once this is done)
+		var followURI = ''; // uri of the preferences file
+		if ($scope.user.mbspace && $scope.user.mbspace.length > 1)
+			followURI = $scope.user.mbspace+'following';
+
+		var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+		var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
+	    var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
+		var g = $rdf.graph();
+
+		// set triples
+        g.add($rdf.sym(followURI), RDF('type'), SIOC('Usergroup'));        
+    	g.add($rdf.sym(followURI), DCT('created'), $rdf.lit(Date.now(), '', $rdf.Symbol.prototype.XSDdateTime));
+        // add users
+        var i=0;        
+    	for (var key in $scope.users) {
+    		var user = $scope.users[key];
+    		var uid = '#user_'+i;
+    		// add hash id to main graph
+    		g.add($rdf.sym(followURI), SIOC('has_member'), $rdf.sym(uid));
+
+	    	g.add($rdf.sym(uid), RDF('type'), SIOC('UserAccount'));
+	    	g.add($rdf.sym(uid), SIOC('account_of'), $rdf.sym(user.webid));
+	        g.add($rdf.sym(uid), SIOC('name'), $rdf.lit(user.name));
+	        g.add($rdf.sym(uid), SIOC('avatar'), $rdf.sym(user.pic));
+	        // add each channel
+	        for (var j=0;j<user.channels.length;j++) {
+	        	var ch = user.channels[j];
+	        	var ch_id = '#channel_'+i+'_'+j;
+	        	// add the channel uri to the list
+	        	channels.push(ch.uri);
+
+	        	// add the channel reference back to the user
+	        	g.add($rdf.sym(uid), SIOC('owner_of'), $rdf.sym(ch_id));
+	        	// add channel details
+	        	g.add($rdf.sym(ch_id), RDF('type'), SIOC('Container'));
+				g.add($rdf.sym(ch_id), SIOC('link'), $rdf.sym(ch.uri));
+				g.add($rdf.sym(ch_id), DCT('title'), $rdf.lit(ch.title));
+				// add my WebID if I'm subscribed to this channel
+				if (ch.action == 'Unsubscribe')
+					g.add($rdf.sym(ch_id), SIOC('has_subscriber'), $rdf.sym($scope.user.webid));
+	        }
+	        i++;
+        }
+
+    	var s = new $rdf.Serializer(g).toN3(g);
+    	console.log(s);
+    	if (s.length > 0) {
+		    $.ajax({
+		        type: "PUT",
+		        url: followURI,
+		        contentType: "text/turtle",
+		        data: s,
+		        processData: false,
+		        statusCode: {
+		            201: function(data) {
+		                console.log("201 Created");
+		            },
+		            401: function() {
+		                console.log("401 Unauthorized");
+		                notify('Error', 'Unauthorized! You need to authentify before posting.');
+		            },
+		            403: function() {
+		                console.log("403 Forbidden");
+		                notify('Error', 'Forbidden! You are not allowed to update the selected profile.');
+		            },
+		            406: function() {
+		                console.log("406 Contet-type unacceptable");
+		                notify('Error', 'Content-type unacceptable.');
+		            },
+		            507: function() {
+		                console.log("507 Insufficient storage");
+		                notify('Error', 'Insuffifient storage left! Check your server storage.');
+		            },
+		        },
+		        success: function(d,s,r) {
+		            console.log('Success! Your channel subscription has been updated.');
+		            notify('Success', 'Your channel subscription has been updated!');
+		        }
+		    });
+		}
 	}
 	// load the list of users + channels from localStorage
 	$scope.loadUsers = function () {
@@ -118,8 +199,26 @@ function CimbaCtrl($scope, $filter) {
 			var cimba = JSON.parse(localStorage.getItem($scope.appuri));			
 			$scope.users = cimba.users;
 		} else {
-			// load from PDS
-			//$scope.getUsers();
+		// load from PDS
+			if ($scope.user.mbspace && $scope.user.mbspace.length > 1)
+				prefURI = $scope.user.mbspace+'following';
+
+			var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+			var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
+		    var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
+		    var g = $rdf.graph();
+		    var f = $rdf.fetcher(g);
+		    // add CORS proxy
+		 //    $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
+
+		 //    var docURI = webid.slice(0, webid.indexOf('#'));
+		 //    var webidRes = $rdf.sym(webid);
+
+		 //    // fetch user data
+		 //    f.nowOrWhenFetched(docURI,undefined,function(){
+			
+
+			// });
 		}
 	}
 
@@ -621,12 +720,14 @@ function CimbaCtrl($scope, $filter) {
 					c.action = ch.action = 'Unsubscribe';
 					c.button = ch.button = 'fa-eye-slash';
 			    	c.css = ch.css = 'btn-success';
+			    	$scope.getPosts(ch.uri);
 		    	}
 	    	} else {
 	    		// subscribe
 	    		ch.action = 'Unsubscribe';
 				ch.button = 'fa-eye-slash';
 		    	ch.css = 'btn-success';
+		    	$scope.getPosts(ch.uri);
 	    	}
 	    	// also update the users list in case there is a new channel
 	    	$scope.users[user.webid] = user;
@@ -640,19 +741,19 @@ function CimbaCtrl($scope, $filter) {
 				$scope.users = {};
 			$scope.users[user.webid] = user;
 			$scope.saveUsers();
+			$scope.getPosts(ch.uri);
 		}
 	}
 
 	// get a user's WebID profile data to personalize app
-	$scope.authenticate = function(webid, mine) {		
+	$scope.authenticate = function(webid) {		
 		if (webid && (webid.substr(0, 4) == 'http')) {
-			if (mine) {
-				$scope.user = {};
-				$scope.user.webid = webid;
-				$scope.profileloading = true;
-			}
+			$scope.user = {};
+			$scope.user.webid = webid;
+			$scope.profileloading = true;
+			$scope.testwebid = false;
 			console.log('Found WebID: '+webid);
-			$scope.getInfo(webid, mine);
+			$scope.getInfo(webid, true);
 		} else {
 			console.log('No webid found!');
 			if (mine) {
@@ -756,7 +857,8 @@ function CimbaCtrl($scope, $filter) {
 	        if (ws.length > 0) {
 				$scope.loading = true;
 				// set a default uBlog workspace
-				$scope.user.mbspace = ws[0]['subject']['value'];
+				if (mine)
+					$scope.user.mbspace = ws[0]['subject']['value'];
 				for (var i in ws) {
 					w = ws[i]['subject']['value'];
 
