@@ -142,7 +142,7 @@ function CimbaCtrl($scope, $filter) {
 	        	channels.push(ch.uri);
 
 	        	// add the channel reference back to the user
-	        	g.add($rdf.sym(uid), SIOC('owner_of'), $rdf.sym(ch_id));
+	        	g.add($rdf.sym(uid), SIOC('feed'), $rdf.sym(ch_id));
 	        	// add channel details
 	        	g.add($rdf.sym(ch_id), RDF('type'), SIOC('Container'));
 				g.add($rdf.sym(ch_id), SIOC('link'), $rdf.sym(ch.uri));
@@ -153,9 +153,9 @@ function CimbaCtrl($scope, $filter) {
 	        }
 	        i++;
         }
-
+        // serialize graph
     	var s = new $rdf.Serializer(g).toN3(g);
-    	console.log(s);
+    	// PUT the new file on the PDS
     	if (s.length > 0) {
 		    $.ajax({
 		        type: "PUT",
@@ -684,15 +684,15 @@ function CimbaCtrl($scope, $filter) {
 		    		ch.css = c.css;
 		    		ch.action = c.action;
 	    		} else {
-		    		ch.button = 'fa-eye';
-		    		ch.css = 'btn-info';
+		    		ch.button = 'blue fa-eye-slash';
+		    		ch.css = 'btn-classic';
 		    		ch.action = 'Subscribe';
 	    		}
     		} else {
     			if (!ch.button)
-	    			ch.button = 'fa-eye';
+	    			ch.button = 'blue fa-eye-slash';
 	    		if (!ch.css)
-	    			ch.css = 'btn-info';
+	    			ch.css = 'btn-classic';
 	    		if (!ch.action)
 	    			ch.action = 'Subscribe';
     		}
@@ -713,19 +713,19 @@ function CimbaCtrl($scope, $filter) {
 				// unsubscribe
 				if (c.action == 'Unsubscribe') {
 					c.action = ch.action = 'Subscribe';
-					c.button = ch.button = 'fa-eye';
-			    	c.css = ch.css = 'btn-info';
+					c.button = ch.button = 'blue fa-eye-slash';
+			    	c.css = ch.css = 'btn-classic';
 		    	} else {
 	    		// subscribe
 					c.action = ch.action = 'Unsubscribe';
-					c.button = ch.button = 'fa-eye-slash';
+					c.button = ch.button = 'fa-eye';
 			    	c.css = ch.css = 'btn-success';
 			    	$scope.getPosts(ch.uri);
 		    	}
 	    	} else {
 	    		// subscribe
 	    		ch.action = 'Unsubscribe';
-				ch.button = 'fa-eye-slash';
+				ch.button = 'fa-eye';
 		    	ch.css = 'btn-success';
 		    	$scope.getPosts(ch.uri);
 	    	}
@@ -735,7 +735,7 @@ function CimbaCtrl($scope, $filter) {
 		} else {
 			// subscribe (also add user + channels)
 			ch.action = 'Unsubscribe';
-			ch.button = 'fa-eye-slash';
+			ch.button = 'fa-eye';
 	    	ch.css = 'btn-success';	    	
 			if (!$scope.users)
 				$scope.users = {};
@@ -862,8 +862,8 @@ function CimbaCtrl($scope, $filter) {
 				for (var i in ws) {
 					w = ws[i]['subject']['value'];
 
-					// find the channels info for the user
-		        	f.nowOrWhenFetched(w+'.meta*', undefined,function(){
+					// find the channels info for the user (from .meta files)
+		        	f.nowOrWhenFetched(w+'.*', undefined,function(){
 			        	var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));
 			        	var channels = [];
 			        	
@@ -915,9 +915,7 @@ function CimbaCtrl($scope, $filter) {
 				        }
 		        	});
 				}
-			} else {
-				// no uBlogging workspaces found!
-
+			} else { // no uBlogging workspaces found!
 		        // we were called by search
 	        	if ($scope.searchwebid && $scope.searchwebid == webid) {
 					$scope.drawSearchResults();
