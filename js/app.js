@@ -92,6 +92,8 @@ function CimbaCtrl($scope, $filter) {
 			$scope.loggedin = true;
 			if ($scope.user.channels)
 				$scope.defaultChannel = $scope.user.channels[0];
+			// load users (following)
+			$scope.loadUsers();
 		} else {
 			console.log('Snap, localStorage is empty!');
 		}
@@ -109,6 +111,7 @@ function CimbaCtrl($scope, $filter) {
 		localStorage.setItem($scope.appuri, JSON.stringify(cimba));
 
 		// also save to PDS
+		// TODO: try to discover the followURI instead?
 		var channels = []; // temporary channel list (will load posts from them once this is done)
 		var followURI = ''; // uri of the preferences file
 		if ($scope.user.mbspace && $scope.user.mbspace.length > 1)
@@ -198,27 +201,85 @@ function CimbaCtrl($scope, $filter) {
 		if (localStorage.getItem($scope.appuri)) {
 			var cimba = JSON.parse(localStorage.getItem($scope.appuri));			
 			$scope.users = cimba.users;
-		} else {
-		// load from PDS
-			if ($scope.user.mbspace && $scope.user.mbspace.length > 1)
-				prefURI = $scope.user.mbspace+'following';
+		} 
 
+		// load from PDS
+		if (!$scope.users || $scope.users.length == 0)
+			$scope.getUsers();
+	}
+
+	// get list of users (that I'm following) + their channels
+	// optionally load posts
+	$scope.getUsers = function (loadposts) {
+		if ($scope.user.mbspace && $scope.user.mbspace.length > 1) {
+			var followURI = $scope.user.mbspace+'following';
+	
 			var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 			var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
 		    var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
 		    var g = $rdf.graph();
 		    var f = $rdf.fetcher(g);
 		    // add CORS proxy
-		 //    $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
+		    $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
 
-		 //    var docURI = webid.slice(0, webid.indexOf('#'));
-		 //    var webidRes = $rdf.sym(webid);
+		    // fetch user data
+		    f.nowOrWhenFetched(followURI,undefined,function(){
+				var users = g.statementsMatching(undefined, RDF('type'), SIOC('UserAccount'));
 
-		 //    // fetch user data
-		 //    f.nowOrWhenFetched(docURI,undefined,function(){
-			
+				if (users.length > 0) {
+					for (var i in users) {
+						var u = users[i]['subject'];
+						var _user = {};
+						_user.webid = g.any(u, SIOC('account_of')).value;
+						_user.name = (g.any(u, SIOC('name')))?g.any(u, SIOC('name')).value:'Unknown';
+						_user.pic = (g.any(u, SIOC('avatar')))?g.any(u, SIOC('avatar')).value:'http://cimba.co/img/photo.png';
+						_user.channels = [];
+						// add channels
+						var channels = g.statementsMatching(u, SIOC('feed'), undefined);
+						if (channels.length > 0) {
+							for (var j in channels) {
+								var ch = channels[j]['object'];
+								var _channel = {};
+								_channel.uri = g.any(ch, SIOC('link')).value;
+								_channel.title = (g.any(ch, DCT('title')))?g.any(ch, DCT('title')).value:'Untitled';
+								if (g.any(ch, SIOC('has_subscriber'))) {
+					    		// subscribed
+									_channel.action = 'Unsubscribe';
+									_channel.button = ch.button = 'fa-eye';
+							    	_channel.css = ch.css = 'btn-success';
+								} else {
+							    	_channel.action = ch.action = 'Subscribe';
+									_channel.button = ch.button = 'blue fa-eye-slash';
+							    	_channel.css = ch.css = 'btn-classic';
+								}
+								// add channel to user objects
+								_user.channels.push(_channel);
 
-			// });
+								if (loadposts && _channel.uri)
+									$scope.getPosts(_channel.uri);
+							}
+						}
+						// add user
+						if (!$scope.users)
+							$scope.users = {};
+						$scope.users[_user.webid] = _user;							
+						$scope.$apply();
+					}
+				}
+			});
+		}
+	}
+
+	// remove a given user from the people I follow
+	$scope.removeUser = function (webid) {
+		if (webid) {
+			// remove user from list
+			delete $scope.users[webid];
+			// remove posts for that user
+			$scope.removePostsByOwner(webid);
+			notify('Success', 'The user was been removed.');
+			// save new list of users
+			$scope.saveUsers();
 		}
 	}
 
@@ -232,6 +293,22 @@ function CimbaCtrl($scope, $filter) {
 		cimba.posts = $scope.posts;
 		localStorage.setItem($scope.appuri, JSON.stringify(cimba));
 	}
+
+	// update the view with new posts
+	$scope.updatePosts = function() {
+		if ($scope.user.channels.length > 0) {
+			// clear previous posts
+			$scope.posts = [];
+			// add my posts
+			for (c in $scope.user.channels) {
+				console.log('Getting feed posts for '+$scope.user.channels[c].uri);
+				$scope.getPosts($scope.user.channels[c].uri);
+			}
+			// add posts from people I follow
+
+		}
+	}
+
 	// load the posts from localStorage
 	$scope.loadPosts = function () {
 		$scope.posts = [];
@@ -239,6 +316,54 @@ function CimbaCtrl($scope, $filter) {
 			var cimba = JSON.parse(localStorage.getItem($scope.appuri));
 			$scope.posts = cimba.posts;
 		}
+	}
+
+	// remove the given post by its URI
+	$scope.removePost = function (uri) {
+		for (i=$scope.posts.length - 1; i>=0; i--) {    
+		    if($scope.posts[i].uri == uri)
+		    	$scope.posts.splice(i,1);
+		}
+	}
+	
+	// delete post
+	$scope.deletePost = function (post, refresh) {
+		// check if the user matches the post owner
+		if ($scope.user.webid == post.userwebid) {
+			$scope.removePost(post.uri);
+			$scope.savePosts();
+			$.ajax({
+				url: post.uri,
+		        type: "delete",
+		        success: function () {
+		        	console.log('Deleted '+post.uri);
+		        	notify('Success', 'Your post was removed from the server!')
+		        	// TODO: also delete from local posts
+					
+					$scope.savePosts();
+		        },
+		        failure: function (r) {
+		            var status = r.status.toString();
+		            if (status == '403')
+		                notify('Error', 'Could not delete post, access denied!');
+		            if (status == '404')
+		            	notify('Error', 'Could not delete post, no such resource on the server!');
+		        }
+		    });
+		}
+	}
+
+	// remove all posts from viewer based on given WebID
+	$scope.removePostsByOwner = function(webid) {
+		for (var i in $scope.posts) {
+			var post = $scope.posts[i];
+			if (webid && post.userwebid == webid) {
+				$scope.posts.splice(i,1);
+				console.log('Removing post: '+i);
+			}
+		}
+		$scope.savePosts();
+		$scope.$apply();
 	}
 
 	// clear localStorage
@@ -620,53 +745,7 @@ function CimbaCtrl($scope, $filter) {
 				$scope.savePosts();
 	        }
 	    });
-	}
-
-	// delete post
-	$scope.deletePost = function (post, refresh) {
-		// check if the user matches the post owner
-		if ($scope.user.webid == post.userwebid) {
-			$scope.removePost(post.uri);
-			$scope.savePosts();
-			$.ajax({
-				url: post.uri,
-		        type: "delete",
-		        success: function () {
-		        	console.log('Deleted '+post.uri);
-		        	notify('Success', 'Your post was removed from the server!')
-		        	// TODO: also delete from local posts
-					
-					$scope.savePosts();
-		        },
-		        failure: function (r) {
-		            var status = r.status.toString();
-		            if (status == '403')
-		                notify('Error', 'Could not delete post, access denied!');
-		            if (status == '404')
-		            	notify('Error', 'Could not delete post, no such resource on the server!');
-		        }
-		    });
-		}
-	}
-
-	$scope.removePost = function (uri) {
-		for (i=$scope.posts.length - 1; i>=0; i--) {    
-		    if($scope.posts[i].uri == uri)
-		    	$scope.posts.splice(i,1);
-		}
-	}
-
-	// force refresh the view
-	$scope.updatePosts = function() {
-		if ($scope.user.channels.length > 0) {
-			// clear previous posts
-			$scope.posts = [];
-			for (c in $scope.user.channels) {
-				console.log('Getting feed posts for '+$scope.user.channels[c].uri);
-				$scope.getPosts($scope.user.channels[c].uri);
-			}
-		}
-	}
+	}	
 
 	// lookup a WebID to find channels
     $scope.drawSearchResults = function() {
@@ -684,15 +763,15 @@ function CimbaCtrl($scope, $filter) {
 		    		ch.css = c.css;
 		    		ch.action = c.action;
 	    		} else {
-		    		ch.button = 'blue fa-eye-slash';
-		    		ch.css = 'btn-classic';
+		    		ch.button = 'blue fa-square-o';
+		    		ch.css = 'btn-info';
 		    		ch.action = 'Subscribe';
 	    		}
     		} else {
     			if (!ch.button)
-	    			ch.button = 'blue fa-eye-slash';
+	    			ch.button = 'fa-square-o';
 	    		if (!ch.css)
-	    			ch.css = 'btn-classic';
+	    			ch.css = 'btn-info';
 	    		if (!ch.action)
 	    			ch.action = 'Subscribe';
     		}
@@ -713,19 +792,20 @@ function CimbaCtrl($scope, $filter) {
 				// unsubscribe
 				if (c.action == 'Unsubscribe') {
 					c.action = ch.action = 'Subscribe';
-					c.button = ch.button = 'blue fa-eye-slash';
-			    	c.css = ch.css = 'btn-classic';
+					c.button = ch.button = 'fa-square-o';
+			    	c.css = ch.css = 'btn-info';
+			    	$scope.removePostsByOwner(user.webid);
 		    	} else {
 	    		// subscribe
 					c.action = ch.action = 'Unsubscribe';
-					c.button = ch.button = 'fa-eye';
+					c.button = ch.button = 'fa-check-square-o';
 			    	c.css = ch.css = 'btn-success';
 			    	$scope.getPosts(ch.uri);
 		    	}
 	    	} else {
 	    		// subscribe
 	    		ch.action = 'Unsubscribe';
-				ch.button = 'fa-eye';
+				ch.button = 'fa-check-square-o';
 		    	ch.css = 'btn-success';
 		    	$scope.getPosts(ch.uri);
 	    	}
@@ -735,7 +815,7 @@ function CimbaCtrl($scope, $filter) {
 		} else {
 			// subscribe (also add user + channels)
 			ch.action = 'Unsubscribe';
-			ch.button = 'fa-eye';
+			ch.button = 'fa-check-square-o';
 	    	ch.css = 'btn-success';	    	
 			if (!$scope.users)
 				$scope.users = {};
@@ -857,8 +937,12 @@ function CimbaCtrl($scope, $filter) {
 	        if (ws.length > 0) {
 				$scope.loading = true;
 				// set a default uBlog workspace
-				if (mine)
+				if (mine) {
+					// set default uBlog space
 					$scope.user.mbspace = ws[0]['subject']['value'];
+					// get the list of people I'm following + channels + posts
+					$scope.getUsers(true);
+				}
 				for (var i in ws) {
 					w = ws[i]['subject']['value'];
 
@@ -1023,7 +1107,6 @@ function CimbaCtrl($scope, $filter) {
 
 	// init by retrieving user from localStorage
 	$scope.loadCredentials();
-	$scope.loadUsers();
 	$scope.loadPosts();
 	$scope.updateUserDOM();
 }
