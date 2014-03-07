@@ -136,7 +136,7 @@
                     </div>
                     <div class="panel-body">
                         <div class="panel-body">
-                          <h2 class="text-center">Oh snap, cannot authentify you using WebID-TLS!</h2>
+                          <h2 class="text-center">We were unable to authentify you using WebID-TLS!</h2>
                           <div class="text-center">
                             <a href="https://auth.my-profile.eu/auth/index.php?verbose=on" target="_blank"><button class="btn btn-primary btn-sep-right">Test your WebID</button></a>
                             <a href="#loginModal" role="button" data-toggle="modal"><button class="btn btn-primary">Sign up for a WebID</button></a>
@@ -174,8 +174,9 @@
     <div id="setup" class="container" ng-show="user.webid && !user.storagespace">
         <div class="row">
             <div class="col-md-12">
-                <div class="panel panel-default">
-                    <h3 class="text-center">Oh snap, I could not find a shared storage space! <a href="#newStorageModal" role="button" data-toggle="modal"><button class="btn btn-primary">Please provide one here</button></a></h3>
+                <div class="panel panel-default text-center">
+                    <h3>Hi {{user.name}}! We could not find a shared storage space in your WebID profile.</h3>
+                    <p><a href="#newStorageModal" role="button" data-toggle="modal"><button class="btn btn-primary">Please provide one here</button></a></p>
                 </div>
             </div>
         </div>
@@ -185,8 +186,9 @@
     <div id="setup" class="container" ng-show="user.webid && user.mbspace == false">
         <div class="row">
             <div class="col-md-12">
-                <div class="panel panel-default">
-                    <h3 class="text-center">Oh snap, I could not find a uBlog space! <a href="#newMBModal" role="button" data-toggle="modal"><button class="btn btn-primary">Click here to create one</button></a></h3>
+                <div class="panel panel-default text-center">
+                    <h3>Before you start, you need a microblogging space.</h3>
+                    <p><a href="#newMBModal" role="button" data-toggle="modal"><button class="btn btn-primary">Click here to create one</button></a></p>
                 </div>
             </div>
         </div>
@@ -196,18 +198,24 @@
     <div id="setup" class="container" ng-show="user.webid && user.storagespace && user.mbspace && !user.channels">
         <div class="row">
             <div class="col-md-12">
-                <div class="panel panel-default">
-                    <h3 class="text-center">Oh snap, you don't have any uBlog channels! <a href="#newChannelModal" role="button" data-toggle="modal"><button class="btn btn-primary">Click here to create a channel</button></a></h3>
+                <div class="panel panel-default text-center">
+                    <h3>You're almost there! Now you just need to create a channel for your posts.</h3>
+                    <p><a href="#newChannelModal" role="button" data-toggle="modal"><button class="btn btn-primary">Click here to create a channel</button></a></p>
                 </div>
             </div>
         </div>
     </div>
+
+
 
     <!-- posts viewer -->
     <div id="posts" class="container">
         <div class="row">
             <div class="col-md-12">
                 <!-- All posts go into <posts-viewer> -->
+                <div class="panel panel-default text-center" ng-show="!posts || posts.length == 0">
+                    <h3>I couldn not find any posts. Try writing a new post or <a href="#subscribeModal" role="button" data-toggle="modal"><button class="btn btn-primary"><i class="fa fa-rss white"></i> subscribe</button></a> to someone's channels!</h3>
+                </div>
                 <posts-viewer ng-show="loggedin"></posts-viewer>
                 <div class="panel panel-default" ng-show="loading">
                     <div id="spinner"></div>
@@ -348,7 +356,7 @@
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                     <h2 class="text-center"><i class="fa fa-search"></i> Find channels</h2>
                     <form>
-                        <p>Please provide the channel owner's WebID.</p>
+                        <p>Please provide the WebID for the channel owner.</p>
                         <div class="input-group">
                             <div class="input-group-btn">
                               <input type="text" id="searchwebid" name="searchwebid" ng-model="searchwebid" autofocus required>

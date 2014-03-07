@@ -83,11 +83,17 @@ button {
   border-radius:3px;box-shadow:0 0 0;
   border-color:#d7d7d7;
 }
+input[type="text"] {
+  font-size: 1.8em;
+  width: 100%;
+  padding: 5px;
+}
+
 #searchbutton {
   position: absolute;
   height: 46px;
 }
-input[type="text"] {
+#searchwebid {
   font-size: 1.8em;
   width: auto;
   padding: 5px;
