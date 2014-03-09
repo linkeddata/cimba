@@ -848,13 +848,11 @@ function CimbaCtrl($scope, $filter) {
 			$scope.testwebid = false;
 			$scope.getInfo(webid, true);
 		} else {
-			if (mine) {
-				notify('Error', 'WebID-TLS authentication failed.');
-				$scope.testwebid = true;
-				// hide spinner
-				$scope.profileloading = false;
-				$scope.$apply();
-			}
+			notify('Error', 'WebID-TLS authentication failed.');
+			$scope.testwebid = true;
+			// hide spinner
+			$scope.profileloading = false;
+			$scope.$apply();
 		}
 	}
 
