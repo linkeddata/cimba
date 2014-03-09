@@ -240,10 +240,10 @@
               </div>
               <div class="modal-body">
                   <form class="m10">
-                      <input type="text" id="storageuri" name="storageuri" ng-model="storageuri" class="form-control" placeholder="Storage URI.." required>
+                      <input type="text" id="storageuri" name="storageuri" ng-model="storageuri" class="form-control" placeholder="Storage URI.." required autofocus>
                   </form>
                   <div ng-show="storageuri" class="text-center">
-                  <p>Alternatively, after providing the storage URI, you can manually add the following triple to your WebID profile:</p>
+                  <p>Alternatively, if your WebID profile is not Web writable, you can manually add the following triple at the end of your profile:</p>
                   <pre><code>&lt;{{user.webid}}&gt;
     &lt;http://www.w3.org/ns/pim/space#storage&gt;
         &lt;{{storageuri}}&gt; .
