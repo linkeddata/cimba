@@ -846,10 +846,8 @@ function CimbaCtrl($scope, $filter) {
 			$scope.user.webid = webid;
 			$scope.profileloading = true;
 			$scope.testwebid = false;
-			console.log('Found WebID: '+webid);
 			$scope.getInfo(webid, true);
 		} else {
-			console.log('No webid found!');
 			if (mine) {
 				notify('Error', 'WebID-TLS authentication failed.');
 				$scope.testwebid = true;
@@ -1115,8 +1113,15 @@ function CimbaCtrl($scope, $filter) {
 			$scope.authenticate(e.data.slice(5, e.data.length), true);
 			// clear previous posts
 	    	jQuery('posts-viewer').empty();
+	    	$('#loginModal').modal('hide');
 		}
-		$('#loginModal').modal('hide');
+		if (e.data.slice(0,7) == 'iframe=') {
+			var size = e.data.slice(7, e.data.length).split(':');
+			if (size.length > 0) {
+				// $('#signup').width(size[0]);
+				$('#signup').height(size[1]);
+			}
+		}
 	},false);
 
 	// init by retrieving user from localStorage

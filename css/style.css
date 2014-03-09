@@ -235,7 +235,10 @@ code {
   word-wrap: break-word;
   color: #c7254e !important;
 }
-
+#signup {
+  width:380px;
+  height:200px;
+}
 
 #spinner {
     width: 128px;

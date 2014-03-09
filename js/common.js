@@ -6,7 +6,7 @@ function notify(title, text) {
         text: text
     });
 }
-
+// search an array of objects based on the value of an object's attribute
 function findWithAttr(array, attr, value) {
     for(var i = 0; i < array.length; i += 1) {
         if(array[i][attr] === value) {
