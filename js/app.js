@@ -164,6 +164,9 @@ function CimbaCtrl($scope, $filter) {
 		        contentType: "text/turtle",
 		        data: s,
 		        processData: false,
+		        xhrFields: {
+					withCredentials: true
+				},
 		        statusCode: {
 		            201: function(data) {
 		                console.log("201 Created");
@@ -342,6 +345,9 @@ function CimbaCtrl($scope, $filter) {
 			$.ajax({
 				url: post.uri,
 		        type: "delete",
+				xhrFields: {
+					withCredentials: true
+				},
 		        success: function () {
 		        	console.log('Deleted '+post.uri);
 		        	notify('Success', 'Your post was removed from the server!')
@@ -433,6 +439,9 @@ function CimbaCtrl($scope, $filter) {
 	        type: "MKCOL",
 	        url: churi+'/',
 	        processData: false,
+	        xhrFields: {
+				withCredentials: true
+			},
 	        statusCode: {
 	            201: function(data) {
 	                console.log("201 Created");
@@ -478,6 +487,9 @@ function CimbaCtrl($scope, $filter) {
 				        contentType: "text/turtle",
 				        data: s,
 				        processData: false,
+				        xhrFields: {
+							withCredentials: true
+						},
 				        statusCode: {
 				            201: function(data) {
 				                console.log("201 Created");				                
@@ -529,6 +541,9 @@ function CimbaCtrl($scope, $filter) {
 	        type: "MKCOL",
 	        url: mburi+'/',
 	        processData: false,
+	        xhrFields: {
+					withCredentials: true
+			},
 	        statusCode: {
 	            201: function(data) {
 	                console.log("201 Created");
@@ -573,6 +588,9 @@ function CimbaCtrl($scope, $filter) {
 				        contentType: "text/turtle",
 				        data: s,
 				        processData: false,
+				        xhrFields: {
+							withCredentials: true
+						},
 				        statusCode: {
 				            201: function(data) {
 				                console.log("201 Created");
@@ -636,6 +654,9 @@ function CimbaCtrl($scope, $filter) {
 		        contentType: "text/turtle",
 		        data: s,
 		        processData: false,
+		        xhrFields: {
+					withCredentials: true
+				},
 		        statusCode: {
 		            200: function(data) {
 		                console.log("200 Created");
@@ -719,6 +740,9 @@ function CimbaCtrl($scope, $filter) {
 	        contentType: "text/turtle",
 	        data: data,
 	        processData: false,
+	        xhrFields: {
+				withCredentials: true
+			},
 	        statusCode: {
 	            201: function(data) {
 	                console.log("201 Created");
@@ -755,7 +779,7 @@ function CimbaCtrl($scope, $filter) {
 				$scope.publishing = false;
 				$scope.$apply();
 				$scope.savePosts();
-	        }
+	        },
 	    });
 	}	
 
