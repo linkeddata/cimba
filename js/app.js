@@ -94,8 +94,6 @@ function CimbaCtrl($scope, $filter) {
 				$scope.defaultChannel = $scope.user.channels[0];
 			// load users (following)
 			$scope.loadUsers();
-		} else {
-			console.log('Snap, localStorage is empty!');
 		}
 	}
 
@@ -848,13 +846,11 @@ function CimbaCtrl($scope, $filter) {
 			$scope.testwebid = false;
 			$scope.getInfo(webid, true);
 		} else {
-			if (mine) {
-				notify('Error', 'WebID-TLS authentication failed.');
-				$scope.testwebid = true;
-				// hide spinner
-				$scope.profileloading = false;
-				$scope.$apply();
-			}
+			notify('Error', 'WebID-TLS authentication failed.');
+			$scope.testwebid = true;
+			// hide spinner
+			$scope.profileloading = false;
+			$scope.$apply();
 		}
 	}
 
@@ -879,8 +875,11 @@ function CimbaCtrl($scope, $filter) {
 	        var depic = g.any(webidRes, FOAF('depiction'));
 	    	// get storage endpoints
 	    	var storage = g.any(webidRes, SPACE('storage'));
-	    	if (storage != undefined)
+	    	if (storage != undefined) {
 	    		storage = storage.value;
+	    		// get channels for user
+    			$scope.getChannels(storage, webid, mine);
+	    	}
 
 	    	// Clean up name
 	        name = (name)?name.value:'Unknown';
@@ -906,9 +905,6 @@ function CimbaCtrl($scope, $filter) {
     		// add to search object if it was the object of a search
     		if ($scope.searchwebid && $scope.searchwebid == webid)
 	   			$scope.search = _user;
-
-	   		// get channels for user
-	    	$scope.getChannels(storage, webid, mine);
 
 			if (mine) { // mine
 		        $scope.user.myname = name;
