@@ -30,9 +30,10 @@
 
 <script src="dev/js/angular.min.js"></script>
 <script src="dev/js/angular-ui.min.js"></script> 
+<script src="dev/js/rdflib.js"></script> 
 <!-- local -->
 <script type='text/javascript' src="js/jquery.notify.js"></script>
-<script type='text/javascript' src="js/rdflib.min.js"></script>
+<!-- <script type='text/javascript' src="js/rdflib.min.js"></script> -->
 <script type='text/javascript' src="js/common.js"></script>
 <script type="text/javascript" src="js/moment.min.js"></script>
 <script type='text/javascript' src="js/app.js"></script>
@@ -183,19 +184,19 @@
     </div>
 
     <!-- new uB modal -->
-    <div id="setup" class="container" ng-show="user.webid && user.mbspace == false">
+    <div id="setup" class="container" ng-show="user.webid && user.storagespace && user.mbspace == false">
         <div class="row">
             <div class="col-md-12">
                 <div class="panel panel-default text-center">
-                    <h3>Before you start, you need a microblogging space.</h3>
+                    <h3>To start using Cimba, you will need a microblogging space.</h3>
                     <p><a href="#newMBModal" role="button" data-toggle="modal"><button class="btn btn-primary">Click here to create one</button></a></p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- new channel modal -->
-    <div id="setup" class="container" ng-show="user.webid && user.storagespace && user.mbspace && (!user.channels || user.channels.length == 0)">
+    <!-- no channels found -->
+    <div id="setup" class="container" ng-show="user.webid && user.storagespace && user.mbspace && user.chspace == false">
         <div class="row">
             <div class="col-md-12">
                 <div class="panel panel-default text-center">
@@ -207,11 +208,11 @@
     </div>
 
     <!-- no posts found -->
-    <div id="setup" class="container" ng-show="user.webid && user.storagespace && user.mbspace && user.channels && (!posts || posts.length == 0)">
+    <div id="setup" class="container" ng-show="user.webid && user.storagespace && user.mbspace && user.chspace && user.gotposts == false">
         <div class="row">
             <div class="col-md-12">
                 <div class="panel panel-default text-center">
-                    <h3>I couldn not find any posts. Try writing a new post or <a href="#subscribeModal" role="button" data-toggle="modal"><button class="btn btn-primary"><i class="fa fa-rss white"></i> subscribe</button></a> to someone's channels!</h3>
+                    <h3>You haven't posted anything. Try writing a new post or <a href="#subscribeModal" role="button" data-toggle="modal"><button class="btn btn-primary"><i class="fa fa-rss white"></i> subscribe</button></a> to someone's channels!</h3>
                 </div>
             </div>
         </div>
