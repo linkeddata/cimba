@@ -466,7 +466,9 @@ $(document).ready(function() {
     // init tooltip plugin
     $('#audience').tooltip();
 
+    // login/signup widget source
     var providerURI = '//linkeddata.github.io/signup/index.html?ref=';
+    
     // set the parameter in the src of iframe
     document.getElementById('signup').src = providerURI+window.location.protocol+'//'+window.location.host;
     //document.getElementById('directLogin').href = providerURI+window.location.protocol+'//'+window.location.host+'#login';
