@@ -1,6 +1,6 @@
 <div ng-animate="{enter: 'animate'}" class="panel panel-default" custom ng-repeat="post in posts | orderBy:'date':true">
     <div class="panel-heading light-blue">
-        <a href="{{post.uri}}" class="link-post pull-right" target="_blank"><i class="fa fa-link"></i> Link to post</a> <h4>Posted {{post.date | fromNow}} by <a href="{{post.userwebid}}" class="link-white bold" target="_blank">{{post.username}}</a></h4>
+        <a href="{{post.uri}}" class="link-post pull-right" target="_blank"><i class="fa fa-link"></i> Link to post</a> <h4>Posted <span rel="tooltip" data-placement="top" title="{{post.date}}">{{post.date | fromNow}}</span> by <a href="{{post.userwebid}}" class="link-white bold" target="_blank">{{post.username}}</a></h4>
         <div class="pull-left">
             <a class="thumbnail pull-right" href="#{{post.$$hashKey}}" role="button" data-toggle="modal">
               <img class="media-object thumb-pic" ng-src="{{post.userpic}}" rel="tooltip" data-placement="top" title="{{post.username}}">

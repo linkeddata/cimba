@@ -52,7 +52,7 @@ function CimbaCtrl($scope, $filter) {
 	$scope.addstoragebtn = 'Add';
 	$scope.createbtn = 'Create';
 	$scope.searchbtn = 'Search';
-	$scope.audience = 'fa-globe';
+	$scope.audience = {icon: 'fa-globe', range: 'public'};
 	// user object
 	$scope.user = {};
 	$scope.user.webid = undefined;
@@ -302,6 +302,7 @@ function CimbaCtrl($scope, $filter) {
 
 	// update the view with new posts
 	$scope.updatePosts = function() {
+		$scope.loading = true;
 		if ($scope.user.channels.length > 0) {
 			// clear previous posts
 			$scope.posts = [];
@@ -310,12 +311,13 @@ function CimbaCtrl($scope, $filter) {
 				$scope.getPosts($scope.user.channels[c].uri);
 			}
 		}
+
 		// add posts from people I follow
 		if ($scope.users) {
-			for (i in $scope.users) {
-				_user = $scope.users[i];
-				for (j in _user.channels) {
-					var ch = _user.channels[j].uri;
+			for (webid in $scope.users) {
+				_user = $scope.users[webid];
+				for (c in _user.channels) {
+					var ch = _user.channels[c].uri;
 					if (ch)
 						$scope.getPosts(ch);
 				}
@@ -337,8 +339,9 @@ function CimbaCtrl($scope, $filter) {
 	// remove the given post by its URI
 	$scope.removePost = function (uri) {
 		for (i=$scope.posts.length - 1; i>=0; i--) {    
-		    if($scope.posts[i].uri == uri)
+		    if($scope.posts[i].uri == uri) {
 		    	$scope.posts.splice(i,1);
+		    }
 		}
 	}
 	
@@ -346,21 +349,33 @@ function CimbaCtrl($scope, $filter) {
 	$scope.deletePost = function (post, refresh) {
 		// check if the user matches the post owner
 		if ($scope.user.webid == post.userwebid) {
-			$scope.removePost(post.uri);
-			$scope.savePosts();
 			$.ajax({
 				url: post.uri,
 		        type: "delete",
 				xhrFields: {
 					withCredentials: true
 				},
-		        success: function () {
+		        success: function (d,s,r) {
 		        	console.log('Deleted '+post.uri);
 		        	notify('Success', 'Your post was removed from the server!')
-		        	// TODO: also delete from local posts
-					
+					// TODO: TEST THIS AGAIN!!!
+					$scope.removePost(post.uri);
 					$scope.savePosts();
-		        },
+					$scope.$apply();
+					// also remove the ACL file
+					var acl = parseLinkHeader(r.getResponseHeader('Link'));
+					var aclURI = acl['acl']['href'];
+					$.ajax({
+						url: aclURI,
+				        type: "delete",
+						xhrFields: {
+							withCredentials: true
+						},
+				        success: function (d,s,r) {
+				        	console.log('Deleted! ACL file was removed from the server.');
+						}
+				    });
+				},
 		        failure: function (r) {
 		            var status = r.status.toString();
 		            if (status == '403')
@@ -420,12 +435,16 @@ function CimbaCtrl($scope, $filter) {
 
 	// update the audience selector
 	$scope.setAudience = function(v) {
-		if (v=='public')
-			$scope.audience = 'fa-globe';
-		else if (v=='private')
-			$scope.audience = 'fa-lock';
-		else if (v=='friends')
-			$scope.audience = 'fa-user';
+		if (v=='public') {
+			$scope.audience.icon = 'fa-globe';
+			$scope.audience.range = 'public';
+		} else if (v=='private') {
+			$scope.audience.icon = 'fa-lock';
+			$scope.audience.range = 'private';
+		} else if (v=='friends') {
+			$scope.audience.icon = 'fa-user';
+			$scope.audience.range = 'friends';
+		}
 	}
 	
 	// create a new channel
@@ -775,18 +794,33 @@ function CimbaCtrl($scope, $filter) {
 	            },
 	        },
 	        success: function(d,s,r) {
-	            console.log('Success!');
+	            console.log('Success, new message was posted!');            
             	// clear form
 				$scope.postbody = '';
             	// also display new post
-	            newURI = r.getResponseHeader('Location');
-	            _newPost.uri = newURI;		
+	            var postURI = r.getResponseHeader('Location');
+	           	
+	            _newPost.uri = postURI;
 				if ($scope.posts) {
 					$scope.posts.push(_newPost);
 					$scope.user.gotposts = true;
 				} else {
 					notify('Error', 'Cannot append the new post to the viewer!');
 				}
+				// set the corresponding acl
+	    		$.ajax({
+					type: "HEAD",
+					url: postURI,
+					xhrFields: {
+						withCredentials: true
+					},
+					success: function(d,s,r) {
+			           	var acl = parseLinkHeader(r.getResponseHeader('Link'));
+						var aclURI = acl['acl']['href'];
+						$scope.setACL(postURI, aclURI);
+					}
+				});
+				// save to local posts
 				$scope.$apply();
 				$scope.savePosts();
 	        }
@@ -796,6 +830,75 @@ function CimbaCtrl($scope, $filter) {
         	$scope.$apply();
         });
 	}	
+
+	// set the corresponding ACLs for the given post, using the right ACL URI
+	$scope.setACL = function(postURI, aclURI) {
+		// get the type of audience
+		var type = $scope.audience.range;
+
+		var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+	    var WAC = $rdf.Namespace("http://www.w3.org/ns/auth/acl#");
+	    var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
+
+	    var g = $rdf.graph();
+	    // add document triples
+		g.add($rdf.sym(''), WAC('accessTo'), $rdf.sym(''));
+		g.add($rdf.sym(''), WAC('accessTo'), $rdf.sym(postURI));
+		g.add($rdf.sym(''),	WAC('agent'), $rdf.sym($scope.user.webid));
+		g.add($rdf.sym(''),	WAC('mode'), WAC('Read'));
+		g.add($rdf.sym(''),	WAC('mode'), WAC('Write'));
+
+		// add post triples
+		g.add($rdf.sym('#post'), WAC('accessTo'), $rdf.sym(postURI));
+		// public visibility
+		if (type == 'public' || type == 'friends') {
+			g.add($rdf.sym('#post'), WAC('agentClass'),	FOAF('Agent'));
+			g.add($rdf.sym('#post'), WAC('mode'), FOAF('Read'));
+		} else if (type == 'private') {
+			// private visibility
+			g.add($rdf.sym('#post'), WAC('agent'), $rdf.sym($scope.user.webid));
+			g.add($rdf.sym('#post'), WAC('mode'), WAC('Read'));
+			g.add($rdf.sym('#post'), WAC('mode'), WAC('Write'));
+		}
+		var s = new $rdf.Serializer(g).toN3(g);
+		
+		if (s && aclURI) {
+			$.ajax({
+		        type: "PUT", // overwrite just in case
+		        url: aclURI,
+		        contentType: "text/turtle",
+		        data: s,
+		        processData: false,
+		        xhrFields: {
+					withCredentials: true
+				},
+		        statusCode: {
+		            200: function(data) {
+		                console.log("200 Created");
+		            },
+		            401: function() {
+		                console.log("401 Unauthorized");
+		                notify('Error', 'Unauthorized! You need to authentify before posting.');
+		            },
+		            403: function() {
+		                console.log("403 Forbidden");
+		                notify('Error', 'Forbidden! You are not allowed to update the selected profile.');
+		            },
+		            406: function() {
+		                console.log("406 Contet-type unacceptable");
+		                notify('Error', 'Content-type unacceptable.');
+		            },
+		            507: function() {
+		                console.log("507 Insufficient storage");
+		                notify('Error', 'Insuffifient storage left! Check your server storage.');
+		            },
+		        },
+		        success: function(d,s,r) {
+		            console.log('Success! ACLs are now set.');
+		        }
+        	});
+    	}
+	}
 
 	// lookup a WebID to find channels
     $scope.drawSearchResults = function() {
@@ -908,7 +1011,15 @@ function CimbaCtrl($scope, $filter) {
 	    var webidRes = $rdf.sym(webid);
 
 	    // fetch user data
-	    var status = f.nowOrWhenFetched(docURI,undefined,function(){
+	    f.nowOrWhenFetched(docURI,undefined,function(ok, body){
+	    	console.log(status);
+			if (!ok) {
+				if ($scope.searchwebid && $scope.searchwebid == webid) {
+					notify('Warning', 'WebID profile not found.');
+					$scope.searchbtn = 'Search';
+					$scope.$apply();
+				}
+			}
 	        // get some basic info
 	        var name = g.any(webidRes, FOAF('name'));
 	        var pic = g.any(webidRes, FOAF('img'));
@@ -966,13 +1077,7 @@ function CimbaCtrl($scope, $filter) {
 	    		$scope.$apply();
 			}
 	    });
-
-		if (!status) {
-			if ($scope.searchwebid && $scope.searchwebid == webid) {
-				$scope.searchbtn = 'Search';
-				notify('Error', 'Could not fetch profile from URI.');
-			}
-		}
+		$scope.searchbtn = 'Search';
 	}
 
 	// get channel feeds based on a storage container

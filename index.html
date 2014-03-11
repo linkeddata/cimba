@@ -97,11 +97,11 @@
                           <form ng-hide="user.webid && !user.chspace">                               
                               <textarea name="message" ng-model="postbody" class="form-control message" placeholder="Type your message here.." required></textarea>
                               <div class="btn-group">
-                                  <button id="audience" ng-model="audience" class="btn btn-primary" disabled><i class="fa {{audience}} fa-2x white"></i></button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop" rel="tooltip" data-placement="top" title="Audience"><i class="fa fa-chevron-down fa-2x"></i></small></button>
+                                  <button id="audience" class="btn btn-primary" disabled><i class="fa {{audience.icon}} fa-2x white"></i></button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop" rel="tooltip" data-placement="top" title="Audience"><i class="fa fa-chevron-down fa-2x"></i></small></button>
                                   <ul class="dropdown-menu" role="menu" aria-labelledby="audience">
                                       <li><a href="#" ng-click="setAudience('public')"><i id="public" class="fa fa-globe fa-2x blue"></i> Public</a></li>
                                       <li><a href="#" ng-click="setAudience('private')">&nbsp;<i id="private" class="fa fa-lock fa-2x blue"></i>&nbsp; Private</a></li>
-                                      <li><a href="#" ng-click="setAudience('friends')"><i id="friends" class="fa fa-user fa-2x blue"></i> Friends</a></li>
+                                      <!-- <li><a href="#" ng-click="setAudience('friends')"><i id="friends" class="fa fa-user fa-2x blue"></i> Friends</a></li> -->
                                   </ul>
                               </div>
                               <div class="btn-group" ng-show="user.channels.length > 0" rel="tooltip" data-placement="top" title="Channels">
