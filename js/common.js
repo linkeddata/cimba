@@ -1,3 +1,13 @@
+// get the base name of a path (e.g. filename)
+// basename('/root/dir1/file') -> 'file'
+basename = function(path) {
+    if (path.substring(path.length - 1) == '/')
+        path = path.substring(0, path.length - 1);
+
+    var a = path.split('/');
+    return a[a.length - 1];
+}
+
 // Notifications
 function notify(title, text) {
     $("#notification").notify();

@@ -297,6 +297,14 @@
                   <p>The name you provide will be used to create a new channel inside your uBlog workspace.</p>
                   <p><input type="text" id="channeluri" name="channeluri" ng-model="channeluri" class="form-control" placeholder="Name (ch, default, etc.).." required></p>
                   <p><input type="text" id="channeltitle" name="channeltitle" ng-model="channeltitle" class="form-control" placeholder="Title (Main, Work, etc.).." required></p>
+                  <div class="btn-group">
+                      <button id="audience" class="btn btn-primary" disabled><i class="fa {{audience.icon}} fa-2x white"></i></button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop" rel="tooltip" data-placement="top" title="Audience"><i class="fa fa-chevron-down fa-2x"></i></small></button>
+                      <ul class="dropdown-menu" role="menu" aria-labelledby="audience">
+                          <li><a href="#" ng-click="setAudience('public')"><i id="public" class="fa fa-globe fa-2x blue"></i> Public</a></li>
+                          <li><a href="#" ng-click="setAudience('private')">&nbsp;<i id="private" class="fa fa-lock fa-2x blue"></i>&nbsp; Private</a></li>
+                          <!-- <li><a href="#" ng-click="setAudience('friends')"><i id="friends" class="fa fa-user fa-2x blue"></i> Friends</a></li> -->
+                      </ul>
+                  </div>
                   </form>
               </div>
               <div class="modal-footer">

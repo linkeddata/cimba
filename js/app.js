@@ -465,7 +465,7 @@ function CimbaCtrl($scope, $filter) {
 				withCredentials: true
 			},
 	        statusCode: {
-	            201: function(data) {
+	            201: function() {
 	                console.log("201 Created");
 	            },
 	            401: function() {
@@ -500,6 +500,7 @@ function CimbaCtrl($scope, $filter) {
 				// add uB triple (append trailing slash since we got dir)
 		        g.add($rdf.sym(churi+'/'), RDF('type'), SIOC('Container'));
 		        g.add($rdf.sym(churi+'/'), DCT('title'), $rdf.lit($scope.channeltitle));
+		        g.add($rdf.sym(churi+'/'), $rdf.sym('http://ns.rww.io/ldpx#LDPRprefix'), $rdf.lit('post_'));
 		        var s = new $rdf.Serializer(g).toN3(g);
 
 		        if (s.length > 0) {
@@ -513,7 +514,7 @@ function CimbaCtrl($scope, $filter) {
 							withCredentials: true
 						},
 				        statusCode: {
-				            201: function(data) {
+				            201: function() {
 				                console.log("201 Created");				                
 				            },
 				            401: function() {
@@ -534,6 +535,8 @@ function CimbaCtrl($scope, $filter) {
 				            },
 				        },
 				        success: function(d,s,r) {
+				        	// set default ACLs for channel
+				        	$scope.setACL(churi+'/', $scope.audience.range, true); // set defaultForNew too
 				            console.log('Success! New channel created.');
                         	notify('Success', 'Your new "'+$scope.channeltitle+'" channel was succesfully created!');
 			            	// clear form
@@ -570,7 +573,7 @@ function CimbaCtrl($scope, $filter) {
 				withCredentials: true
 			},
 	        statusCode: {
-	            201: function(data) {
+	            201: function() {
 	                console.log("201 Created");
 	            },
 	            401: function() {
@@ -617,7 +620,7 @@ function CimbaCtrl($scope, $filter) {
 							withCredentials: true
 						},
 				        statusCode: {
-				            201: function(data) {
+				            201: function() {
 				                console.log("201 Created");
 				            },
 				            401: function() {
@@ -639,7 +642,7 @@ function CimbaCtrl($scope, $filter) {
 				        },
 				        success: function(d,s,r) {
 				            console.log('Success! uBlog space created.');
-                        	notify('Success', 'uBlog space created.');                        	
+                        	notify('Success', 'uBlog space created.'); 
 			            	// clear form
 							$scope.mburi = '';
 							// close modal
@@ -808,18 +811,7 @@ function CimbaCtrl($scope, $filter) {
 					notify('Error', 'Cannot append the new post to the viewer!');
 				}
 				// set the corresponding acl
-	    		$.ajax({
-					type: "HEAD",
-					url: postURI,
-					xhrFields: {
-						withCredentials: true
-					},
-					success: function(d,s,r) {
-			           	var acl = parseLinkHeader(r.getResponseHeader('Link'));
-						var aclURI = acl['acl']['href'];
-						$scope.setACL(postURI, aclURI);
-					}
-				});
+				$scope.setACL(postURI, $scope.audience.range);
 				// save to local posts
 				$scope.$apply();
 				$scope.savePosts();
@@ -832,72 +824,88 @@ function CimbaCtrl($scope, $filter) {
 	}	
 
 	// set the corresponding ACLs for the given post, using the right ACL URI
-	$scope.setACL = function(postURI, aclURI) {
-		// get the type of audience
-		var type = $scope.audience.range;
+	$scope.setACL = function(uri, type, defaultForNew) {
+		// get the acl URI first
+		$.ajax({
+			type: "HEAD",
+			url: uri,
+			xhrFields: {
+				withCredentials: true
+			},
+			success: function(d,s,r) {
+	            // acl URI
+	           	var acl = parseLinkHeader(r.getResponseHeader('Link'));
+				var aclURI = acl['acl']['href'];
+				// frag identifier
+				var frag = '#'+basename(uri);
 
-		var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-	    var WAC = $rdf.Namespace("http://www.w3.org/ns/auth/acl#");
-	    var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
+				var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+			    var WAC = $rdf.Namespace("http://www.w3.org/ns/auth/acl#");
+			    var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
 
-	    var g = $rdf.graph();
-	    // add document triples
-		g.add($rdf.sym(''), WAC('accessTo'), $rdf.sym(''));
-		g.add($rdf.sym(''), WAC('accessTo'), $rdf.sym(postURI));
-		g.add($rdf.sym(''),	WAC('agent'), $rdf.sym($scope.user.webid));
-		g.add($rdf.sym(''),	WAC('mode'), WAC('Read'));
-		g.add($rdf.sym(''),	WAC('mode'), WAC('Write'));
+			    var g = $rdf.graph();
+			    // add document triples
+				g.add($rdf.sym(''), WAC('accessTo'), $rdf.sym(''));
+				g.add($rdf.sym(''), WAC('accessTo'), $rdf.sym(uri));
+				g.add($rdf.sym(''),	WAC('agent'), $rdf.sym($scope.user.webid));
+				g.add($rdf.sym(''),	WAC('mode'), WAC('Read'));
+				g.add($rdf.sym(''),	WAC('mode'), WAC('Write'));
 
-		// add post triples
-		g.add($rdf.sym('#post'), WAC('accessTo'), $rdf.sym(postURI));
-		// public visibility
-		if (type == 'public' || type == 'friends') {
-			g.add($rdf.sym('#post'), WAC('agentClass'),	FOAF('Agent'));
-			g.add($rdf.sym('#post'), WAC('mode'), FOAF('Read'));
-		} else if (type == 'private') {
-			// private visibility
-			g.add($rdf.sym('#post'), WAC('agent'), $rdf.sym($scope.user.webid));
-			g.add($rdf.sym('#post'), WAC('mode'), WAC('Read'));
-			g.add($rdf.sym('#post'), WAC('mode'), WAC('Write'));
-		}
-		var s = new $rdf.Serializer(g).toN3(g);
-		
-		if (s && aclURI) {
-			$.ajax({
-		        type: "PUT", // overwrite just in case
-		        url: aclURI,
-		        contentType: "text/turtle",
-		        data: s,
-		        processData: false,
-		        xhrFields: {
-					withCredentials: true
-				},
-		        statusCode: {
-		            200: function(data) {
-		                console.log("200 Created");
-		            },
-		            401: function() {
-		                console.log("401 Unauthorized");
-		                notify('Error', 'Unauthorized! You need to authentify before posting.');
-		            },
-		            403: function() {
-		                console.log("403 Forbidden");
-		                notify('Error', 'Forbidden! You are not allowed to update the selected profile.');
-		            },
-		            406: function() {
-		                console.log("406 Contet-type unacceptable");
-		                notify('Error', 'Content-type unacceptable.');
-		            },
-		            507: function() {
-		                console.log("507 Insufficient storage");
-		                notify('Error', 'Insuffifient storage left! Check your server storage.');
-		            },
-		        },
-		        success: function(d,s,r) {
-		            console.log('Success! ACLs are now set.');
-		        }
-        	});
-    	}
+				// add post triples
+				g.add($rdf.sym(frag), WAC('accessTo'), $rdf.sym(uri));
+				// public visibility
+				if (type == 'public' || type == 'friends') {
+					g.add($rdf.sym(frag), WAC('agentClass'), FOAF('Agent'));
+					g.add($rdf.sym(frag), WAC('mode'), FOAF('Read'));
+				} else if (type == 'private') {
+					// private visibility
+					g.add($rdf.sym(frag), WAC('agent'), $rdf.sym($scope.user.webid));
+					g.add($rdf.sym(frag), WAC('mode'), WAC('Read'));
+					g.add($rdf.sym(frag), WAC('mode'), WAC('Write'));
+				}
+				if (defaultForNew && uri.substring(uri.length - 1) == '/')
+					g.add($rdf.sym(frag), WAC('defaultForNew'), $rdf.sym(uri));
+
+				var s = new $rdf.Serializer(g).toN3(g);
+				
+				if (s && aclURI) {
+					$.ajax({
+				        type: "PUT", // overwrite just in case
+				        url: aclURI,
+				        contentType: "text/turtle",
+				        data: s,
+				        processData: false,
+				        xhrFields: {
+							withCredentials: true
+						},
+				        statusCode: {
+				            200: function(data) {
+				                console.log("200 Created");
+				            },
+				            401: function() {
+				                console.log("401 Unauthorized");
+				                notify('Error', 'Unauthorized! You need to authentify before posting.');
+				            },
+				            403: function() {
+				                console.log("403 Forbidden");
+				                notify('Error', 'Forbidden! You are not allowed to update the selected profile.');
+				            },
+				            406: function() {
+				                console.log("406 Contet-type unacceptable");
+				                notify('Error', 'Content-type unacceptable.');
+				            },
+				            507: function() {
+				                console.log("507 Insufficient storage");
+				                notify('Error', 'Insuffifient storage left! Check your server storage.');
+				            },
+				        },
+				        success: function(d,s,r) {
+				            console.log('Success! ACLs are now set.');
+				        }
+		        	});
+		    	}
+			}
+		});
 	}
 
 	// lookup a WebID to find channels
