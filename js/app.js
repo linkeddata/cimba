@@ -31,6 +31,23 @@ ngCimba.filter('orderObjectBy', function(){
 	return array;
  }
 });
+// filter array of objects by property
+ngCimba.filter('unique', function() {
+	return function(collection, keyname) {
+		var output = [], 
+		keys = [];
+
+		angular.forEach(collection, function(item) {
+			var key = item[keyname];
+			if(keys.indexOf(key) === -1) {
+				keys.push(key);
+				output.push(item);
+			}
+		});
+
+		return output;
+	};
+});
 
 // Main angular controller
 function CimbaCtrl($scope, $filter) {
@@ -733,8 +750,8 @@ function CimbaCtrl($scope, $filter) {
 		$scope.publishing = true;
 		// get the current date
 		var now = Date.now();
-		now = moment(now).format("YYYY-MM-DDTHH:mm:ssZZ");
-
+		now = moment(now).zone(now).format("YYYY-MM-DDTHH:mm:ssZZ");
+		
 		var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 		var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
 	    var FOAF = $rdf.Namespace('http://xmlns.com/foaf/0.1/');
