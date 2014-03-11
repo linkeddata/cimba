@@ -750,7 +750,7 @@ function CimbaCtrl($scope, $filter) {
 		$scope.publishing = true;
 		// get the current date
 		var now = Date.now();
-		now = moment(now).zone(now).format("YYYY-MM-DDTHH:mm:ssZZ");
+		now = moment(now).zone('00:00').format("YYYY-MM-DDTHH:mm:ssZZ");
 		
 		var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 		var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
@@ -873,7 +873,7 @@ function CimbaCtrl($scope, $filter) {
 				// public visibility
 				if (type == 'public' || type == 'friends') {
 					g.add($rdf.sym(frag), WAC('agentClass'), FOAF('Agent'));
-					g.add($rdf.sym(frag), WAC('mode'), FOAF('Read'));
+					g.add($rdf.sym(frag), WAC('mode'), WAC('Read'));
 				} else if (type == 'private') {
 					// private visibility
 					g.add($rdf.sym(frag), WAC('agent'), $rdf.sym($scope.user.webid));
@@ -1229,7 +1229,7 @@ function CimbaCtrl($scope, $filter) {
 					var post = g.statementsMatching(posts[p]['subject']);
 					if (g.any(uri, DCT('created'))) {
 						var d = g.any(uri, DCT('created')).value;
-						var date = moment(d).zone(d);
+						var date = moment(d).zone('00:00');
 					} else {
 						var date = undefined;
 					}
