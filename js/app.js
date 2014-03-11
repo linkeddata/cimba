@@ -1211,7 +1211,8 @@ function CimbaCtrl($scope, $filter) {
 					var useraccount = g.any(uri, SIOC('has_creator'));
 					var post = g.statementsMatching(posts[p]['subject']);
 					if (g.any(uri, DCT('created'))) {
-						var date = g.any(uri, DCT('created')).value;					
+						var d = g.any(uri, DCT('created')).value;
+						var date = moment(d).zone(d);
 					} else {
 						var date = undefined;
 					}
