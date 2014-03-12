@@ -414,7 +414,6 @@ function CimbaCtrl($scope, $filter) {
 				haschanged = true;
 			}
 		}
-		console.log($scope.posts);
 		if (haschanged)
 			$scope.savePosts();
 	}
