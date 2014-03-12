@@ -243,6 +243,7 @@ code {
 .spinner {
     width: 128px;
     height: 128px;
+    margin:80px auto;
     background-image: url(../img/load.gif);
     background-repeat: no-repeat;
     background-position: center;
@@ -448,4 +449,78 @@ iframe {border:0px;}
 @-webkit-keyframes spinoffPulse {
   0% { -webkit-transform:rotate(0deg); }
   100% { -webkit-transform:rotate(360deg); }
+}
+
+/*------------------------------------------------------------------------------
+Gear Loader  / prefixfree
+---------------------------------------------------------------------------------*/
+
+
+.gear{
+  width: 80px; height: 80px; 
+  border-radius:10%; margin:80px auto; 
+  border:5px solid  #3bafda;
+  position:relative;
+  box-shadow:  0 10px 0 0 rgba(0, 0, 0, .1);
+}
+
+.gear:after{
+  content:"";
+  width: 100px; height: 100px;
+  border-radius:100%; 
+  display:block; border:5px dashed  #3bafda;
+  position:absolute; top:-24px; left: -24px; 
+  box-shadow: inset 0px 0 0 20px #3bafda;
+ transform:scale(.5) rotate(0deg);
+ animation:gear 6s linear infinite;
+
+ -webkit-transform:scale(.5) rotate(0deg);
+ -webkit-animation:gear 6s linear infinite;
+
+ -moz-transform:scale(.5) rotate(0deg);
+ -moz-animation:gear 6s linear infinite;
+
+}
+
+.gear:before{
+  content:"";
+  width: 58px; height: 58px;
+  border-radius:100%; 
+  display:block; border:5px dashed  #3bafda ; 
+  position:absolute; top:26px; right: -14px; 
+  box-shadow: inset 0px 0 0 10px #3bafda;
+  transform:scale(.5) rotate(0deg);
+  animation:gear2 4s linear infinite;
+
+  -webkit-transform:scale(.5) rotate(0deg);
+  -webkit-animation:gear2 4s linear infinite;
+
+  -moz-transform:scale(.5) rotate(0deg);
+  -moz-animation:gear2 4s linear infinite;
+}
+
+@keyframes gear {
+   0%{
+    transform:scale(.5) rotate(0deg);
+    -webkit-transform:scale(.5) rotate(0deg);
+    -moz-transform:scale(.5) rotate(0deg);
+  }
+  100%{
+    transform:scale(.5) rotate(360deg);
+    -webkit-transform:scale(.5) rotate(360deg);
+    -moz-transform:scale(.5) rotate(360deg);
+  }
+}
+
+@keyframes gear2 {
+   0%{
+    transform:scale(.5) rotate(360deg);
+    -webkit-transform:scale(.5) rotate(360deg);
+    -moz-transform:scale(.5) rotate(360deg);
+  }
+  100%{
+    transform:scale(.5)  rotate(-360deg);
+    -webkit-transform:scale(.5)  rotate(-360deg);
+    -moz-transform:scale(.5)  rotate(-360deg);
+  }
 }
