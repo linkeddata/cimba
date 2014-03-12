@@ -70,6 +70,9 @@ function CimbaCtrl($scope, $filter) {
 	$scope.createbtn = 'Create';
 	$scope.searchbtn = 'Search';
 	$scope.audience = {icon: 'fa-globe', range: 'public'};
+	// filter flag
+	$scope.filterFlag = false;
+	$scope.languageFilter = 'International';
 	// user object
 	$scope.user = {};
 	$scope.user.webid = undefined;
@@ -289,6 +292,18 @@ function CimbaCtrl($scope, $filter) {
 		}
 	}
 
+	// toggle filter on/off
+	$scope.toggleFilter = function(){
+		if($scope.filterFlag) {
+			$scope.filterFlag = false;
+			$scope.languageFilter = 'International';
+		} else {
+			$scope.filterFlag = true;
+			$scope.languageFilter = 'English only';
+		}
+		$scope.updatePosts();
+	}
+	
 	// remove a given user from the people I follow
 	$scope.removeUser = function (webid) {
 		if (webid) {
@@ -1205,6 +1220,16 @@ function CimbaCtrl($scope, $filter) {
 	    });
 	}
 
+	// test if all roar in English or not
+	$scope.testIfAllEnglish = function (str) {
+		str = str.replace(/\s+/g, '');
+		var english = /^[A-Za-z0-9!@#$%^&*()_+\-=\[\]{}':"\\|,.<>\/?]*$/;
+		if(english.test(str))
+			return true;
+		else
+			return false;
+	}
+	
 	// get all posts for a given microblogging workspace
 	$scope.getPosts = function(channel) {
 		var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
@@ -1264,11 +1289,21 @@ function CimbaCtrl($scope, $filter) {
 						body : body
 					}
 					
-					// remove if it exists
-					$scope.removePost(post.uri);
-					// append post
-					$scope.posts.push(_newPost);
-					$scope.$apply();
+					if ($scope.filterFlag) {
+						if ($scope.testIfAllEnglish(_newPost.body)) {
+							// remove if it exists
+							$scope.removePost(post.uri);
+							// append post
+							$scope.posts.push(_newPost);
+							$scope.$apply();
+						}
+					} else {
+						// remove if it exists
+						$scope.removePost(post.uri);
+						// append post
+						$scope.posts.push(_newPost);
+						$scope.$apply();
+					}
 				}
 				// done loading, save posts to localStorage
 				$scope.savePosts();
