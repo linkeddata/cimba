@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<strong><!DOCTYPE html>
 <html lang="en" ng-app="CimbaApp">
 <head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8"> 
@@ -65,7 +65,10 @@
                   <li class="active"><a href="#"><i class="fa fa-home"></i> Home</a></li>
                   <li ng-show="loggedin"><a href="#subsModal" role="button" data-toggle="modal"><i class="fa fa-rss"></i> Channels</a></li>
                   <li ng-hide="!user.channels[0]"><a href="#" ng-click="updatePosts()"><i class="fa fa-refresh"></i> Refresh </a></li>
-                  <li ng-hide="loggedin"><a href="#loginModal" role="button" data-toggle="modal"><i class="fa fa-sign-in"></i> Login</a></li>
+                  <!-- QCRI Filtering Start -->
+				  <li ng-hide="!user.channels[0]"><a href="#" ng-click="updatePosts()"><i class="fa fa-refresh"></i> Filter On/Off </a></li>
+                  <!-- QCRI Filtering End -->
+				  <li ng-hide="loggedin"><a href="#loginModal" role="button" data-toggle="modal"><i class="fa fa-sign-in"></i> Login</a></li>
                   <li ng-show="loggedin"><a href="#" ng-click="clearSession()" role="button"><i class="fa fa-sign-out"></i> Logout</a></li>
               </ul>
             </div>
@@ -96,7 +99,8 @@
                           <h3 class="bold" ng-show="user.myname && user.chspace">What's new, {{user.myname}}?</h3>
                           <form ng-hide="user.webid && !user.chspace">                               
                               <textarea name="message" ng-model="postbody" class="form-control message" placeholder="Type your message here.." required></textarea>
-                              <div class="btn-group">
+                              
+<div class="btn-group">
                                   <button id="audience" ng-model="audience" class="btn btn-primary" disabled><i class="fa {{audience}} fa-2x white"></i></button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop" rel="tooltip" data-placement="top" title="Audience"><i class="fa fa-chevron-down fa-2x"></i></small></button>
                                   <ul class="dropdown-menu" role="menu" aria-labelledby="audience">
                                       <li><a href="#" ng-click="setAudience('public')"><i id="public" class="fa fa-globe fa-2x blue"></i> Public</a></li>
@@ -104,6 +108,7 @@
                                       <li><a href="#" ng-click="setAudience('friends')"><i id="friends" class="fa fa-user fa-2x blue"></i> Friends</a></li>
                                   </ul>
                               </div>
+
                               <div class="btn-group" ng-show="user.channels.length > 0" rel="tooltip" data-placement="top" title="Channels">
                                   <button id="chs" class="btn btn-primary" disabled>{{defaultChannel.title}}</button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop" rel="tooltip" data-placement="top" title="Channels"><i class="fa fa-chevron-down fa-2x"></i></small></button>
                                   <ul class="dropdown-menu" role="menu" aria-labelledby="chs">
@@ -118,6 +123,7 @@
                                     <div ng-show="publishing" class="dots"></div>
                                   </button>
                               </div>
+
                           </form>
                         </div>
                     </div>
@@ -479,3 +485,4 @@ $(document).ready(function() {
 
 </body>
 </html>
+</strong>
