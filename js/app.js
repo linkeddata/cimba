@@ -484,6 +484,9 @@ function CimbaCtrl($scope, $filter) {
 		$scope.createbtn = 'Creating...';
 
 		var churi = ($scope.channeluri)?$scope.channeluri:'ch';
+		// remove white spaces and force lowercase
+		churi = churi.toLowerCase().split(' ').join('_');
+
 		// append full URI (storage space URI)
 		// TODO: let the user select the uBlog workspace too
 		churi = $scope.user.mbspace+churi;
@@ -595,6 +598,8 @@ function CimbaCtrl($scope, $filter) {
 		var mburi = ($scope.mburi)?$scope.mburi:'mb';
 		// append full URI (storage space URI)
 		mburi = $scope.user.storagespace+mburi;
+		// replace whitespaces and force lowercase
+		mburi = mburi.toLowerCase().split(' ').join('_');
 
 	    $.ajax({
 	        type: "MKCOL",
@@ -696,6 +701,8 @@ function CimbaCtrl($scope, $filter) {
 		$scope.addstoragebtn = 'Adding...';
 
 		var storage = ($scope.storageuri)?$scope.storageuri:'shared/';
+		// replace whitespaces and force lowercase
+		storage = storage.toLowerCase().split(' ').join('_');
 
 		var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 		var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
