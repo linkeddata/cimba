@@ -8,6 +8,7 @@
         <div class="card-name">
             <strong class="white">{{u.name}}</strong>
             <button class="btn btn-default blue pull-right" ng-click="removeUser(u.webid)" rel="tooltip" data-placement="top" title="Remove user"><i class="fa fa-times fa-2x"></i></button>
+            <button class="btn btn-default blue pull-right btn-sep-right" ng-click="refreshUser(u.webid); u.refreshing=true" rel="tooltip" data-placement="top" title="Refresh user channels"><i class="fa fa-refresh fa-2x" ng-hide='u.refreshing'></i><div ng-show="u.refreshing"><div class="circle"></div><div class="circle1"></div></div></button>
         </div>
     </div>
     <div class="panel-body-text">

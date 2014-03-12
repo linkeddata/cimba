@@ -1,3 +1,14 @@
+
+// test if string is in English or not
+testIfAllEnglish = function (str) {
+	str = str.replace(/\s+/g, '');
+	var english = /^[A-Za-z0-9!@#$%^&*()_+\-=\[\]{}':"\\|,.<>\/?]*$/;
+	if(english.test(str))
+		return true;
+	else
+		return false;
+}
+
 // get the base name of a path (e.g. filename)
 // basename('/root/dir1/file') -> 'file'
 basename = function(path) {

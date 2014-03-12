@@ -63,6 +63,7 @@ function CimbaCtrl($scope, $filter) {
 	$scope.appuri = window.location.hostname+window.location.pathname;
 	$scope.loggedin = false;
 	$scope.profileloading = false;
+	$scope.found = true;
 	$scope.testwebid = false;
 	$scope.publishing = false;
 	$scope.gotresults = false;
@@ -211,7 +212,7 @@ function CimbaCtrl($scope, $filter) {
 		        },
 		        success: function(d,s,r) {
 		            console.log('Success! Your channel subscription has been updated.');
-		            notify('Success', 'Your channel subscription has been updated!');
+		            notify('Success', 'Your user and channel subscription has been updated!');
 		        }
 		    });
 		}
@@ -303,6 +304,12 @@ function CimbaCtrl($scope, $filter) {
 		}
 		$scope.updatePosts();
 	}
+
+	// refresh the channels for a given user
+	$scope.refreshUser = function(webid) {
+		$scope.getInfo(webid, false, true);
+	}
+
 	
 	// remove a given user from the people I follow
 	$scope.removeUser = function (webid) {
@@ -947,24 +954,31 @@ function CimbaCtrl($scope, $filter) {
 	}
 
 	// lookup a WebID to find channels
-    $scope.drawSearchResults = function() {
+    $scope.drawSearchResults = function(webid) {
 		$scope.gotresults = true;
-    	for (i=0;i<$scope.search.channels.length;i++) {
+		$scope.addChannelStyling(webid, $scope.search.channels);
+    	$scope.searchbtn = 'Search';
+    	$scope.$apply();
+    }
+    
+    // add html elements to channels 
+    $scope.addChannelStyling = function(webid, channels) {
+    	for (i=0;i<channels.length;i++) {
     		// find if we have the channel in our list already
-    		var ch = $scope.search.channels[i];
+    		var ch = channels[i];
     		// check if it's a known user
-			if ($scope.users && $scope.users[$scope.search.webid]) {
-	    		var idx = findWithAttr($scope.users[$scope.search.webid].channels, 'uri', ch.uri);
-	    		var c = $scope.users[$scope.search.webid].channels[idx];    		
+			if ($scope.users && $scope.users[webid]) {
+	    		var idx = findWithAttr($scope.users[webid].channels, 'uri', ch.uri);
+	    		var c = $scope.users[webid].channels[idx];
 	    		// set attributes
 	    		if (idx != undefined) {
-	    			ch.button = c.button;
-		    		ch.css = c.css;
-		    		ch.action = c.action;
+	    			ch.button = (c.button)?c.button:'fa-square-o';
+		    		ch.css = (c.css)?c.css:'btn-info';
+		    		ch.action = (c.action)?c.action:'Subscribe';
 	    		} else {
-		    		ch.button = 'blue fa-square-o';
-		    		ch.css = 'btn-info';
-		    		ch.action = 'Subscribe';
+		    		c.action = ch.action = 'Subscribe';
+					c.button = ch.button = 'fa-square-o';
+			    	c.css = ch.css = 'btn-info';
 	    		}
     		} else {
     			if (!ch.button)
@@ -975,9 +989,8 @@ function CimbaCtrl($scope, $filter) {
 	    			ch.action = 'Subscribe';
     		}
     	}
-    	$scope.searchbtn = 'Search';
-    	$scope.$apply();
-    }
+	}
+
     // toggle selected channel for user
 	$scope.channelToggle = function(ch, user) {
 		// we're following this user
@@ -1041,9 +1054,11 @@ function CimbaCtrl($scope, $filter) {
 	}
 
 	// get relevant info for a webid
-	$scope.getInfo = function(webid, mine) {
+	$scope.getInfo = function(webid, mine, update) {
 	    if (mine)
 	        $scope.loading = true;
+
+	    $scope.found = true;
 
 	    var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 	    var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
@@ -1057,11 +1072,11 @@ function CimbaCtrl($scope, $filter) {
 	    var webidRes = $rdf.sym(webid);
 
 	    // fetch user data
-	    f.nowOrWhenFetched(docURI,undefined,function(ok, body){
-	    	console.log(status);
+	    f.nowOrWhenFetched(docURI,undefined,function(ok, body) {
 			if (!ok) {
 				if ($scope.searchwebid && $scope.searchwebid == webid) {
 					notify('Warning', 'WebID profile not found.');
+					$scope.found = false;
 					$scope.searchbtn = 'Search';
 					$scope.$apply();
 				}
@@ -1072,13 +1087,6 @@ function CimbaCtrl($scope, $filter) {
 	        var depic = g.any(webidRes, FOAF('depiction'));
 	    	// get storage endpoints
 	    	var storage = g.any(webidRes, SPACE('storage'));
-	    	if (storage != undefined) {
-	    		storage = storage.value;
-	    		// get channels for user
-    			$scope.getChannels(storage, webid, mine);
-	    	} else {
-	    		$scope.gotstorage = false;
-	    	}
 
 	    	// Clean up name
 	        name = (name)?name.value:'Unknown';
@@ -1097,13 +1105,28 @@ function CimbaCtrl($scope, $filter) {
 					webid: webid,
 		    		name: name,
 					pic: pic,
-					storagespace: storage,
-					channels: new Array()
+					storagespace: storage
 		    	}
 
     		// add to search object if it was the object of a search
     		if ($scope.searchwebid && $scope.searchwebid == webid)
 	   			$scope.search = _user;
+
+	   		if (update) {
+	   			$scope.refreshinguser = true;
+	   			$scope.users[webid].name = name;
+	   			$scope.users[webid].pic = pic;
+	   			$scope.users[webid].storagespace = storage;
+	   		}
+
+	   		// get channels for the user
+	    	if (storage != undefined) {
+	    		storage = storage.value;
+	    		// get channels for user
+    			$scope.getChannels(storage, webid, mine, update);
+	    	} else {
+	    		$scope.gotstorage = false;
+	    	}
 
 			if (mine) { // mine
 		        $scope.user.myname = name;
@@ -1123,11 +1146,12 @@ function CimbaCtrl($scope, $filter) {
 	    		$scope.$apply();
 			}
 	    });
-		$scope.searchbtn = 'Search';
+		if ($scope.searchwebid && $scope.searchwebid == webid)
+			$scope.searchbtn = 'Search';
 	}
 
 	// get channel feeds based on a storage container
-	$scope.getChannels = function(uri, webid, mine) {
+	$scope.getChannels = function(uri, webid, mine, update) {
 		var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 		var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
 	    var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
@@ -1162,7 +1186,7 @@ function CimbaCtrl($scope, $filter) {
 				        	// clear list first
 				        	if (mine)
 				        		$scope.user.channels = [];
-			        	
+			        		console.log($scope.users[webid]);
 				        	for (var ch in chs) {
 		        				var channel = {};
 		        				channel.uri = chs[ch]['subject']['value'];
@@ -1182,10 +1206,26 @@ function CimbaCtrl($scope, $filter) {
 		        					$scope.getPosts(channel.uri);
 									$scope.user.chspace = true;
 								}
+
+								// update
+								if (update) {
+									var exists = findWithAttr($scope.users[webid].channels, 'uri', channel.uri);
+									if (exists == undefined) {
+										$scope.users[webid].channels.push(channel);
+									}
+								}
 				        	}
 
+				        	// set a default channel for the logged user
 	    					if (mine)
 					        	$scope.defaultChannel = $scope.user.channels[0];
+
+					        // done refreshing user information -> update view
+					        if (update) {
+					        	$scope.addChannelStyling(webid, $scope.users[webid].channels);
+					        	delete $scope.users[webid].refreshing;
+					        	$scope.$apply();
+					        }
 				        } else {
 				        	console.log('No channels found!');
 				        	if (mine) {
@@ -1194,6 +1234,10 @@ function CimbaCtrl($scope, $filter) {
 				        		$scope.user.chspace = false;
 				        	}
 				        }
+
+				        // also save updated users & channels list
+				        if (update)
+				        	$scope.saveUsers();
 						
 				        // if we were called by search
 			        	if ($scope.searchwebid && $scope.searchwebid == webid) {
@@ -1225,16 +1269,6 @@ function CimbaCtrl($scope, $filter) {
 				}
 			}
 	    });
-	}
-
-	// test if all roar in English or not
-	$scope.testIfAllEnglish = function (str) {
-		str = str.replace(/\s+/g, '');
-		var english = /^[A-Za-z0-9!@#$%^&*()_+\-=\[\]{}':"\\|,.<>\/?]*$/;
-		if(english.test(str))
-			return true;
-		else
-			return false;
 	}
 	
 	// get all posts for a given microblogging workspace
@@ -1297,7 +1331,7 @@ function CimbaCtrl($scope, $filter) {
 					}
 					
 					if ($scope.filterFlag) {
-						if ($scope.testIfAllEnglish(_newPost.body)) {
+						if (testIfAllEnglish(_newPost.body)) {
 							// remove if it exists
 							$scope.removePost(post.uri);
 							// append post
@@ -1315,7 +1349,8 @@ function CimbaCtrl($scope, $filter) {
 				// done loading, save posts to localStorage
 				$scope.savePosts();
 			} else {
-				$scope.user.gotposts = false;
+				if ($scope.posts.length == 0)
+					$scope.user.gotposts = false;
 			}
 			// hide spinner
 			$scope.loading = false;

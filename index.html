@@ -229,7 +229,7 @@
                 <!-- All posts go into <posts-viewer> -->
                 <posts-viewer ng-show="loggedin"></posts-viewer>
                 <div class="panel panel-default" ng-show="loading">
-                    <div id="spinner"></div>
+                    <div class="spinner"></div>
                 </div>
             </div>
         </div>
@@ -328,7 +328,7 @@
                 <div class="modal-header text-center">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                     <h2 class="text-center"><i class="fa fa-rss"></i>  Manage channels</h2>
-                    <a href="#newChannelModal" role="button" data-toggle="modal" onclick="$('#subsModal').modal('hide')"><button class="btn btn-primary btn-sep-right"><i class="fa fa-rss"></i> New channel</button></a>
+                    <a href="#newChannelModal" role="button" data-toggle="modal" onclick="$('#subsModal').modal('hide')"><button class="btn btn-primary btn-sep-right"><i class="fa fa-plus"></i> New channel</button></a>
                     <a href="#subscribeModal" role="button" data-toggle="modal" ><button class="btn btn-primary btn-sep-right"><i class="fa fa-search"></i> Search by WebID</button></a>
                     <h2 class="text-center">Available channels:</h2>
                 </div>
@@ -356,9 +356,11 @@
                         <div class="input-group">
                             <div class="input-group-btn">
                               <input type="search" id="searchwebid" name="searchwebid" class="form-control" ng-model="searchwebid" autofocus required>
-                              <button id="searchbutton" class="btn btn-primary" ng-click="getInfo(searchwebid); searchbtn='Searching...'" ng-disabled="!searchwebid"><i class="fa fa-search"></i> {{searchbtn}}</button>
+                              <button class="btn btn-default searchbutton pull-right" ng-click="searchwebid=''" ng-show="searchwebid"><i class="fa fa-times"></i></button>
+                              <button class="btn btn-primary searchbutton" ng-click="getInfo(searchwebid); searchbtn='Searching...'" ng-disabled="!searchwebid"><i class="fa fa-search"></i> {{searchbtn}}</button>
                             </div>
                         </div>
+                        <h4 class="black text-center" ng-show="!found">No WebID found at given location.</h4>
                     </form>
                 </div>
                 <div class="modal-body">
