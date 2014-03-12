@@ -66,7 +66,7 @@
                   <li ng-show="loggedin"><a href="#subsModal" role="button" data-toggle="modal"><i class="fa fa-rss"></i> Channels</a></li>
                   <li ng-hide="!user.channels[0]"><a href="#" ng-click="updatePosts()"><i class="fa fa-refresh"></i> Refresh </a></li>
                   <!-- QCRI Filtering Start -->
-				  <li ng-hide="!user.channels[0]"><a href="#" ng-click="updatePosts()"><i class="fa fa-refresh"></i> Filter On/Off </a></li>
+				  <li ng-hide="!user.channels[0]"><a href="#" ng-click="toggleFilter()"><i class="fa fa-refresh"></i> Filter On/Off </a></li>
                   <!-- QCRI Filtering End -->
 				  <li ng-hide="loggedin"><a href="#loginModal" role="button" data-toggle="modal"><i class="fa fa-sign-in"></i> Login</a></li>
                   <li ng-show="loggedin"><a href="#" ng-click="clearSession()" role="button"><i class="fa fa-sign-out"></i> Logout</a></li>
