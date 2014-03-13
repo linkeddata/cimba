@@ -82,6 +82,7 @@ button {
 .message {
   margin-bottom: 10px;  
   padding:15px;
+  margin-top: 85px;
   min-height: 100px;
   border-radius:3px;box-shadow:0 0 0;
   border-color:#d7d7d7;
@@ -268,8 +269,6 @@ code {
 #main {
 	padding-top:60px;
 }
-
-.message { margin-top: 50px;}
 
 .top-border {
   padding-top: 3px;
