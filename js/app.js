@@ -1318,16 +1318,22 @@ function CimbaCtrl($scope, $filter) {
 						var userwebid = undefined;
 					}
 					// try using the picture from the WebID first
-					if (userwebid && $scope.users[userwebid]) {
-						var userpic = $scope.users[userwebid].pic;
+					if (userwebid) {
+						if ($scope.me.webid && $scope.me.webid == userwebid)
+							var userpic = $scope.me.pic;
+						else if ($scope.users[userwebid])
+							var userpic = $scope.users[userwebid].pic;
 					} else if (g.any(useraccount, SIOC('avatar'))) {
 						var userpic = g.any(useraccount, SIOC('avatar')).value;
 					} else {
 						var userpic = undefined;
 					}
 					// try using the name from the WebID first
-					if (userwebid && $scope.users[userwebid]) {
-						var username = $scope.users[userwebid].name;
+					if (userwebid) {
+						if ($scope.me.webid && $scope.me.webid == userwebid)
+							var username = $scope.me.name;
+						else if ($scope.users[userwebid])
+							var username = $scope.users[userwebid].name;
 					} else if (g.any(useraccount, FOAF('name'))) {
 						var username = g.any(useraccount, FOAF('name')).value;
 					} else {
