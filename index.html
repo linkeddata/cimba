@@ -56,7 +56,7 @@
                     <i class="fa fa-bars fa-2x blue"></i>
                 </button>
 <!-- TODO!
-                <div ng-show="user.mypic" class="user-thumb"><a href="{{user.webid}}" target="_blank"><img class="r3" src="{{user.mypic}}" rel="tooltip" data-placement="top" title="{{user.myname}}"></a></div>
+                <div ng-show="me.pic" class="user-thumb"><a href="{{me.webid}}" target="_blank"><img class="r3" src="{{me.pic}}" rel="tooltip" data-placement="top" title="{{me.myname}}"></a></div>
 -->
             </div>
 
@@ -64,9 +64,9 @@
               <ul class="nav navbar-nav navbar-right">
                   <li class="active"><a href="#"><i class="fa fa-home"></i> Home</a></li>
                   <li ng-show="loggedin"><a href="#subsModal" role="button" data-toggle="modal"><i class="fa fa-rss"></i> Channels</a></li>
-                  <li ng-hide="!user.channels[0]"><a href="#" ng-click="updatePosts()"><i class="fa fa-refresh"></i> Refresh </a></li>
+                  <li ng-hide="!me.channels[0]"><a href="#" ng-click="updatePosts()"><i class="fa fa-refresh"></i> Refresh </a></li>
                   <!-- QCRI Filtering Start -->
-				          <li ng-hide="!user.channels[0]" ng-class="filterFlag==true?'active':''" rel="tooltip" data-placement="top" title="Toggle language filter"><a href="#" ng-click="toggleFilter()"><i class="fa fa-filter"></i> {{languageFilter}}</a></li>
+				          <li ng-hide="!me.channels[0]" ng-class="filterFlag==true?'active':''" rel="tooltip" data-placement="top" title="Toggle language filter"><a href="#" ng-click="toggleFilter()"><i class="fa fa-filter"></i> {{languageFilter}}</a></li>
                   <!-- QCRI Filtering End -->
 				          <li ng-hide="loggedin"><a href="#loginModal" role="button" data-toggle="modal"><i class="fa fa-sign-in"></i> Login</a></li>
                   <li ng-show="loggedin"><a href="#" ng-click="clearSession()" role="button"><i class="fa fa-sign-out"></i> Logout</a></li>
@@ -86,18 +86,18 @@
                 <div class="panel panel-default" ng-show="loggedin"> 
                     <div class="panel-heading dark-blue">
                         <div class="pull-left">
-                            <a id="mypic" class="thumbnail pull-right" href="#">
+                            <a id="pic" class="thumbnail pull-right" href="#">
                               <img class="media-object" src="" rel="tooltip" data-placement="top" title="Name">
                             </a>
                         </div>
                     </div>
                     <div class="panel-body">
                         <div class="panel-body-textmail">
-                          <div id="spinner" ng-hide="user.myname"></div>
+                          <div id="spinner" ng-hide="me.myname"></div>
                           <h3 class="bold" ng-show="profileloading">Loading profile...</h3>
-                          <h3 class="bold" ng-show="user.myname && !user.chspace">Hello {{user.myname}}...</h3>
-                          <h3 class="bold" ng-show="user.myname && user.chspace">What's new, {{user.myname}}?</h3>
-                          <form ng-hide="user.webid && !user.chspace">                               
+                          <h3 class="bold" ng-show="me.myname && !me.chspace">Hello {{me.myname}}...</h3>
+                          <h3 class="bold" ng-show="me.myname && me.chspace">What's new, {{me.myname}}?</h3>
+                          <form ng-hide="me.webid && !me.chspace">                               
                               <textarea name="message" ng-model="postbody" class="form-control message" placeholder="Type your message here.." required></textarea>
                               <div class="btn-group">
                                   <button id="audience" class="btn btn-primary" disabled><i class="fa {{audience.icon}} fa-2x white"></i></button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop" rel="tooltip" data-placement="top" title="Audience"><i class="fa fa-chevron-down fa-2x"></i></small></button>
@@ -108,10 +108,10 @@
                                   </ul>
                               </div>
 
-                              <div class="btn-group" ng-show="user.channels.length > 0" rel="tooltip" data-placement="top" title="Channels">
+                              <div class="btn-group" ng-show="me.channels.length > 0" rel="tooltip" data-placement="top" title="Channels">
                                   <button id="chs" class="btn btn-primary" disabled>{{defaultChannel.title}}</button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop" rel="tooltip" data-placement="top" title="Channels"><i class="fa fa-chevron-down fa-2x"></i></small></button>
                                   <ul class="dropdown-menu" role="menu" aria-labelledby="chs">
-                                      <li ng-repeat="channel in user.channels | orderBy:'title'">
+                                      <li ng-repeat="channel in me.channels | orderBy:'title'">
                                           <a href="#" ng-click="setChannel(channel.title)">{{channel.title}}</a>
                                       </li>
                                   </ul>
@@ -154,7 +154,7 @@
     </div>
 
     <!-- login/signup -->
-    <div id="setup" class="container" ng-show="!user.webid">
+    <div id="setup" class="container" ng-show="!me.webid">
         <div class="row">
             <div class="col-md-12">
                 <div class="panel panel-default"> 
@@ -176,11 +176,11 @@
     </div>
 
     <!-- new storage modal -->
-    <div id="setup" class="container" ng-show="user.webid && !user.storagespace">
+    <div id="setup" class="container" ng-show="me.webid && !me.storagespace">
         <div class="row">
             <div class="col-md-12">
                 <div class="panel panel-default text-center">
-                    <h3>Hi {{user.name}}! We could not find a shared storage space in your WebID profile.</h3>
+                    <h3>Hi {{me.name}}! We could not find a shared storage space in your WebID profile.</h3>
                     <p><a href="#newStorageModal" role="button" data-toggle="modal"><button class="btn btn-primary">Please provide one here</button></a></p>
                 </div>
             </div>
@@ -188,7 +188,7 @@
     </div>
 
     <!-- new uB modal -->
-    <div id="setup" class="container" ng-show="user.webid && user.storagespace && user.mbspace == false">
+    <div id="setup" class="container" ng-show="me.webid && me.storagespace && me.mbspace == false">
         <div class="row">
             <div class="col-md-12">
                 <div class="panel panel-default text-center">
@@ -200,7 +200,7 @@
     </div>
 
     <!-- no channels found -->
-    <div id="setup" class="container" ng-show="user.webid && user.storagespace && user.mbspace && user.chspace == false">
+    <div id="setup" class="container" ng-show="me.webid && me.storagespace && me.mbspace && me.chspace == false">
         <div class="row">
             <div class="col-md-12">
                 <div class="panel panel-default text-center">
@@ -212,7 +212,7 @@
     </div>
 
     <!-- no posts found -->
-    <div id="setup" class="container" ng-show="user.webid && user.storagespace && user.mbspace && user.chspace && user.gotposts == false">
+    <div id="setup" class="container" ng-show="me.webid && me.storagespace && me.mbspace && me.chspace && me.gotposts == false">
         <div class="row">
             <div class="col-md-12">
                 <div class="panel panel-default text-center">
@@ -226,12 +226,16 @@
     <div id="posts" class="container">
         <div class="row">
             <div class="col-md-12">
-                <!-- All posts go into <posts-viewer> -->
-                <posts-viewer ng-show="loggedin"></posts-viewer>
+                <!-- Loading animation -->
                 <div class="panel panel-default text-center" ng-show="loading">
-                    <div class="spinner"></div>
+                    <!-- <div class="spinner"> -->
+                    <div class="clear-40">
+                      <div class="circle circle-large"></div><div class="circle1 circle1-large"></div>
+                    </div>
                     <!-- <div class="gear"></div> -->
                 </div>
+                <!-- All posts go into <posts-viewer> -->
+                <posts-viewer ng-show="loggedin"></posts-viewer>
             </div>
         </div>
     </div>
@@ -250,7 +254,7 @@
                   </form>
                   <div ng-show="storageuri" class="text-center">
                   <p>Alternatively, if your WebID profile is not Web writable, you can manually add the following triple at the end of your profile:</p>
-                  <pre><code>&lt;{{user.webid}}&gt;
+                  <pre><code>&lt;{{me.webid}}&gt;
     &lt;http://www.w3.org/ns/pim/space#storage&gt;
         &lt;{{storageuri}}&gt; .
                   </code></pre>

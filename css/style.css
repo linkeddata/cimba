@@ -11,16 +11,19 @@ h4 {
   font-weight:400;
 }
 .clear-10 {
-    margin-top: 10px;
+  margin-top: 10px;
+}
+.clear-40 {
+  margin-top: 40px;
 }
 .clear-70 {
-    margin-top: 70px;
+  margin-top: 70px;
 }
 .logo {
-    position: absolute;
-    top: 5px;
-    left: 10px;
-    height: 40px;
+  position: absolute;
+  top: 5px;
+  left: 10px;
+  height: 40px;
 }
 .navbar {height: 56px;}
 .navbar-default {background-color:#f4f4f4;border-width:0;z-index:5;}
@@ -49,7 +52,7 @@ h4 {
 .drop { margin-top: -5px!important; }
 <!-- UI notification -->
 .notification { width:350px!important; position:fixed; top:80px; right:10px; }
-.ui-notify { width:350px!important; position:fixed; top:80px; right:10px; }
+.ui-notify { width:350px!important; position:fixed; top:80px; right:10px; z-index:2000;}
 .ui-notify-message { padding:10px; margin-bottom:15px; -moz-border-radius:8px; -webkit-border-radius:8px; border-radius:8px }
 .ui-notify-message h1 { font-size:14px; margin:0; padding:0 }
 .ui-notify-message p { margin:3px 0; padding:0; line-height:18px }
@@ -243,7 +246,7 @@ code {
 .spinner {
     width: 128px;
     height: 128px;
-    margin:80px auto;
+    margin: 80px auto;
     background-image: url(../img/load.gif);
     background-repeat: no-repeat;
     background-position: center;
@@ -409,9 +412,11 @@ iframe {border:0px;}
   border-left:5px solid rgba(0,0,0,0);
   border-radius:50px;
   box-shadow: 0 0 35px #2187e7;
+  margin:0 auto;
+
   width:30px;
   height:30px;
-  margin:0 auto;
+
   -moz-animation:spinPulse 1s infinite ease-in-out;
   -webkit-animation:spinPulse 1s infinite linear;
 }
@@ -423,11 +428,13 @@ iframe {border:0px;}
   border-right:5px solid rgba(0,0,0,0);
   border-radius:50px;
   box-shadow: 0 0 15px #2187e7; 
-  width:15px;
-  height:15px;
   margin:0 auto;
   position:relative;
+
+  width:15px;
+  height:15px;
   top:-22px;
+
   -moz-animation:spinoffPulse 1s infinite linear;
   -webkit-animation:spinoffPulse 1s infinite linear;
 }
@@ -451,76 +458,12 @@ iframe {border:0px;}
   100% { -webkit-transform:rotate(360deg); }
 }
 
-/*------------------------------------------------------------------------------
-Gear Loader  / prefixfree
----------------------------------------------------------------------------------*/
-
-
-.gear{
-  width: 80px; height: 80px; 
-  border-radius:10%; margin:80px auto; 
-  border:5px solid  #3bafda;
-  position:relative;
-  box-shadow:  0 10px 0 0 rgba(0, 0, 0, .1);
+.circle-large {
+  width:80px !important;
+  height:80px !important;
 }
-
-.gear:after{
-  content:"";
-  width: 100px; height: 100px;
-  border-radius:100%; 
-  display:block; border:5px dashed  #3bafda;
-  position:absolute; top:-24px; left: -24px; 
-  box-shadow: inset 0px 0 0 20px #3bafda;
- transform:scale(.5) rotate(0deg);
- animation:gear 6s linear infinite;
-
- -webkit-transform:scale(.5) rotate(0deg);
- -webkit-animation:gear 6s linear infinite;
-
- -moz-transform:scale(.5) rotate(0deg);
- -moz-animation:gear 6s linear infinite;
-
-}
-
-.gear:before{
-  content:"";
-  width: 58px; height: 58px;
-  border-radius:100%; 
-  display:block; border:5px dashed  #3bafda ; 
-  position:absolute; top:26px; right: -14px; 
-  box-shadow: inset 0px 0 0 10px #3bafda;
-  transform:scale(.5) rotate(0deg);
-  animation:gear2 4s linear infinite;
-
-  -webkit-transform:scale(.5) rotate(0deg);
-  -webkit-animation:gear2 4s linear infinite;
-
-  -moz-transform:scale(.5) rotate(0deg);
-  -moz-animation:gear2 4s linear infinite;
-}
-
-@keyframes gear {
-   0%{
-    transform:scale(.5) rotate(0deg);
-    -webkit-transform:scale(.5) rotate(0deg);
-    -moz-transform:scale(.5) rotate(0deg);
-  }
-  100%{
-    transform:scale(.5) rotate(360deg);
-    -webkit-transform:scale(.5) rotate(360deg);
-    -moz-transform:scale(.5) rotate(360deg);
-  }
-}
-
-@keyframes gear2 {
-   0%{
-    transform:scale(.5) rotate(360deg);
-    -webkit-transform:scale(.5) rotate(360deg);
-    -moz-transform:scale(.5) rotate(360deg);
-  }
-  100%{
-    transform:scale(.5)  rotate(-360deg);
-    -webkit-transform:scale(.5)  rotate(-360deg);
-    -moz-transform:scale(.5)  rotate(-360deg);
-  }
+.circle1-large {
+  width:40px !important;
+  height:40px !important;
+  top:-60px !important;
 }

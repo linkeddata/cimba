@@ -1,4 +1,11 @@
-
+// check if object is empty
+function isEmpty(obj) {
+	for(var prop in obj) {
+		if(obj.hasOwnProperty(prop))
+			return false;
+	}
+	return true;
+}
 // test if string is in English or not
 testIfAllEnglish = function (str) {
 	str = str.replace(/\s+/g, '');
