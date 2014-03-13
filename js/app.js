@@ -103,18 +103,23 @@ function CimbaCtrl($scope, $filter) {
 	$scope.loadCredentials = function () {
 		if (localStorage.getItem($scope.appuri)) {
 			var cimba = JSON.parse(localStorage.getItem($scope.appuri));
-			$scope.me.webid = cimba.me.webid;
-			$scope.me.name = cimba.me.name;
-			$scope.me.pic = cimba.me.pic;
-			$scope.me.storagespace = cimba.me.storagespace;
-			$scope.me.mbspace = cimba.me.mbspace;
-			$scope.me.chspace = cimba.me.chspace;
-			$scope.me.channels = cimba.me.channels;
-			$scope.loggedin = true;
-			if ($scope.me.channels)
-				$scope.defaultChannel = $scope.me.channels[0];
-			// load users (following)
-			$scope.loadUsers();
+			if (cimba.me) {
+				$scope.me.webid = cimba.me.webid;
+				$scope.me.name = cimba.me.name;
+				$scope.me.pic = cimba.me.pic;
+				$scope.me.storagespace = cimba.me.storagespace;
+				$scope.me.mbspace = cimba.me.mbspace;
+				$scope.me.chspace = cimba.me.chspace;
+				$scope.me.channels = cimba.me.channels;
+				$scope.loggedin = true;
+				if ($scope.me.channels)
+					$scope.defaultChannel = $scope.me.channels[0];
+				// load users (following)
+				$scope.loadUsers();
+			} else {
+				// clear localStorage in case there was a change to the data structure
+				localStorage.removeItem($scope.appuri);
+			}
 		}
 	}
 
