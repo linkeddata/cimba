@@ -121,6 +121,10 @@ pre {
   border: 0px;
   padding: 0px;
 }
+.triples {
+  width: 100%;
+  height: 100px;
+}
 .post-title {
   position: relative;
   padding-left: 100px;

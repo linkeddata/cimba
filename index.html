@@ -87,7 +87,7 @@
                     <div class="panel-heading dark-blue">
                         <div class="pull-left">
                             <a id="pic" class="thumbnail pull-right" href="#">
-                              <img class="media-object" src="" rel="tooltip" data-placement="top" title="Name">
+                              <img class="media-object" ng-src="{{me.pic}}" rel="tooltip" data-placement="top" title="{{me.name}}">
                             </a>
                         </div>
                     </div>
@@ -250,15 +250,17 @@
               </div>
               <div class="modal-body">
                   <form class="m10">
-                      <input type="text" id="storageuri" name="storageuri" ng-model="storageuri" class="form-control" placeholder="Storage URI.." required autofocus>
+                      <p><small>Full storage location URI. Must start with http(s)://</small></p>
+                      <input type="text" id="storageuri" name="storageuri" ng-model="storageuri" class="form-control" placeholder="http.." required ng-pattern="/^http[A-Za-z0-9_.:/]*$/">
+                      <div ng-show="storageuri" class="text-center">
+                        <br>
+                        <p>Alternatively, if your WebID profile is not Web writable, you can manually add the following triple at the end of your profile:</p>
+                        <br>
+                        <textarea class="triples"><{{me.webid}}>
+          <http://www.w3.org/ns/pim/space#storage>
+              <{{storageuri}}> .</textarea>
+                      </div>
                   </form>
-                  <div ng-show="storageuri" class="text-center">
-                  <p>Alternatively, if your WebID profile is not Web writable, you can manually add the following triple at the end of your profile:</p>
-                  <pre><code>&lt;{{me.webid}}&gt;
-    &lt;http://www.w3.org/ns/pim/space#storage&gt;
-        &lt;{{storageuri}}&gt; .
-                  </code></pre>
-                  </div>
               </div>
               <div class="modal-footer">
                   <div class="col-md-12">
@@ -280,7 +282,7 @@
               </div>
               <div class="modal-body">
                   <form class="m10">
-                      <input type="text" id="mburi" name="mburi" ng-model="mburi" class="form-control" placeholder="mb, blog, etc.." required>
+                      <input type="text" id="mburi" name="mburi" ng-model="mburi" class="form-control" placeholder="mb, blog, etc.." required ng-pattern="/^[A-Za-z0-9_ ]*$/">
                   </form>
               </div>
               <div class="modal-footer">
@@ -304,7 +306,7 @@
               <div class="modal-body">
                   <form class="m10">
                   <p>The name you provide will be used to create a new channel inside your microblog workspace.</p>
-                  <p><input type="text" id="channeluri" name="channeluri" ng-model="channeluri" class="form-control" placeholder="Name (ch, default, etc.).." required></p>
+                  <p><input type="text" id="channeluri" name="channeluri" ng-model="channeluri" class="form-control" placeholder="Name (ch, default, etc.).." required ng-pattern="/^[A-Za-z0-9_ ]*$/"></p>
                   <p><input type="text" id="channeltitle" name="channeltitle" ng-model="channeltitle" class="form-control" placeholder="Title (Main, Work, etc.).." required></p>
                   <div class="btn-group">
                       <button id="audience" class="btn btn-primary" disabled><i class="fa {{audience.icon}} fa-2x white"></i></button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop" rel="tooltip" data-placement="top" title="Audience"><i class="fa fa-chevron-down fa-2x"></i></small></button>
@@ -360,7 +362,7 @@
                         <p>Please provide the WebID for the channel owner.</p>
                         <div class="input-group">
                             <div class="input-group-btn">
-                              <input type="search" id="searchwebid" name="searchwebid" class="form-control" ng-model="searchwebid" autofocus required>
+                              <input type="search" id="searchwebid" name="searchwebid" class="form-control" ng-model="searchwebid" ng-pattern="/^http[A-Za-z0-9_#.:/]*$/">
                               <button class="btn btn-default searchbutton pull-right" ng-click="searchwebid=''" ng-show="searchwebid"><i class="fa fa-times"></i></button>
                               <button class="btn btn-primary searchbutton" ng-click="getInfo(searchwebid); searchbtn='Searching...'" ng-disabled="!searchwebid"><i class="fa fa-search"></i> {{searchbtn}}</button>
                             </div>
