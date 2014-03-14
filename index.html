@@ -126,7 +126,7 @@
                         <div class="panel-body">
                           <h2 class="text-center">Welcome to <img src="img/cimba-logo.png" height="50"></h2>
                           <div class="text-center">
-                            <h3>You must be authenticated in order to use this uBlogging application.</h3>
+                            <h3>You must be authenticated in order to use this microblogging application.</h3>
                             <a href="#loginModal" role="button" data-toggle="modal"><button class="btn btn-primary btn-sep-right">Login / Sign Up</button></a>
                           </div>
                         </div>
@@ -191,20 +191,22 @@
       <div class="modal-dialog">
           <div class="modal-content">
               <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                  <button type="button" class="close white" data-dismiss="modal" aria-hidden="true">x</button>
                   <h3 class="text-center">Provide a URI for your storage</h3>
               </div>
               <div class="modal-body">
                   <form class="m10">
-                      <input type="text" id="storageuri" name="storageuri" ng-model="storageuri" class="form-control" placeholder="Storage URI.." required ng-pattern="/^[A-Za-z0-9_]*$/">
+                      <p><small class="white">Full URI starting with http(s)://</small></p>
+                      <input type="text" id="storageuri" name="storageuri" ng-model="storageuri" class="form-control" placeholder="http.." required ng-pattern="/^http[A-Za-z0-9_.:/]*$/">
+                    <div ng-show="storageuri" class="text-center">
+                      <br>
+                      <p>Alternatively, if your WebID profile is not Web writable, you can manually add the following triple at the end of your profile:</p>
+                      <br>
+                      <textarea class="triples"><{{me.webid}}>
+        <http://www.w3.org/ns/pim/space#storage>
+            <{{storageuri}}> .</textarea>
+                    </div>
                   </form>
-                  <div ng-show="storageuri" class="text-center">
-                  <p>Alternatively, if your WebID profile is not Web writable, you can manually add the following triple at the end of your profile:</p>
-                  <pre><code>&lt;{{me.webid}}&gt;
-    &lt;http://www.w3.org/ns/pim/space#storage&gt;
-        &lt;{{storageuri}}&gt; .
-                  </code></pre>
-                  </div>
               </div>
               <div class="modal-footer">
                   <div class="col-md-12">
@@ -221,12 +223,12 @@
       <div class="modal-dialog">
           <div class="modal-content">
               <div class="modal-header">                 
-                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>              
-                  <h3 class="text-center">Create a new uBlog workspace</h3>
+                  <button type="button" class="close white" data-dismiss="modal" aria-hidden="true">x</button>              
+                  <h3 class="text-center">Create a new microblog</h3>
               </div>
               <div class="modal-body">
                   <form class="m10">
-                      <input type="text" id="mburi" name="mburi" ng-model="mburi" class="form-control" placeholder="mb, ublog, etc.." required ng-pattern="/^[A-Za-z0-9_]*$/">
+                      <input type="text" id="mburi" name="mburi" ng-model="mburi" class="form-control" placeholder="mb, blog, etc.." required ng-pattern="/^[A-Za-z0-9_]*$/">
                   </form>
               </div>
               <div class="modal-footer">
@@ -244,13 +246,13 @@
       <div class="modal-dialog">
           <div class="modal-content">
               <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                  <button type="button" class="close white" data-dismiss="modal" aria-hidden="true">x</button>
                   <h2 class="text-center">Create a new channel</h2>
               </div>
               <div class="modal-body">
                   <form class="m10">
-                  <p>The name you provide will be used to create a new channel inside your uBlog workspace.</p>                  
-                  <p><input type="text" id="channelname" name="channelname" ng-model="channelname" class="form-control" placeholder="Name (Main, Work, etc.).." required ng-pattern="/^[A-Za-z0-9_]*$/"></p>
+                  <p>The name you provide will be used to create a new channel inside your microblog.</p>                  
+                  <p><input type="text" id="channelname" name="channelname" ng-model="channelname" class="form-control" placeholder="Name (Main, Work, etc.).." required ng-pattern="/^[A-Za-z0-9_ ]*$/"></p>
                   <div class="btn-group">
                       <button id="audience" class="btn btn-primary" disabled><i class="fa {{audience.icon}} fa-2x white"></i></button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop" rel="tooltip" data-placement="top" title="Audience"><i class="fa fa-chevron-down fa-2x"></i></small></button>
                       <ul class="dropdown-menu" role="menu" aria-labelledby="audience">
@@ -275,7 +277,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header text-center">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <button type="button" class="close white" data-dismiss="modal" aria-hidden="true">x</button>
                     <h2 class="text-center"><i class="fa fa-rss"></i>  Manage channels</h2>
                     <a href="#newChannelModal" role="button" data-toggle="modal" onclick="$('#subsModal').modal('hide')"><button class="btn btn-primary btn-sep-right"><i class="fa fa-plus"></i> New channel</button></a>
                     <a href="#subscribeModal" role="button" data-toggle="modal" ><button class="btn btn-primary btn-sep-right"><i class="fa fa-search"></i> Search by WebID</button></a>
@@ -298,7 +300,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <button type="button" class="close white" data-dismiss="modal" aria-hidden="true">x</button>
                     <h2 class="text-center"><i class="fa fa-search"></i> Find channels</h2>
                     <form>
                         <p>Please provide the WebID for the channel owner.</p>
@@ -370,7 +372,7 @@
       </div>
       <div class="modal-body">
           <div class="col-md-12 text-center">
-            <h3>This uBlogging app is powered by Cimba v1.0 alpha</h3>
+            <h3>This microblogging app is powered by Cimba v1.0 alpha</h3>
             <br>
             <h3><a href="https://github.com/social-webarch/cimba" target="_blank">Fork on GitHub</a></h3>
           </div>

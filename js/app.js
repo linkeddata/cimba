@@ -429,13 +429,29 @@ function CimbaCtrl($scope, $filter) {
 		}
 	}
 
-	// remove all posts from viewer based on given WebID
+	// remove all posts from viewer based on the given WebID
 	$scope.removePostsByOwner = function(webid) {
 		var modified = false;
 		if ($scope.posts && !isEmpty($scope.posts)) {
 			for (var p in $scope.posts) {
 				var post = $scope.posts[p];
-				if (webid && post.userwebid == webid) {
+				if (webid && webid == post.userwebid) {
+					delete $scope.posts[p];
+					modified = true;
+				}
+			}
+			if (modified)
+				$scope.savePosts();
+		}
+	}
+
+	// remove all posts from viewer based on the given channel URI
+	$scope.removePostsByChannel = function(ch) {
+		var modified = false;
+		if ($scope.posts && !isEmpty($scope.posts)) {
+			for (var p in $scope.posts) {
+				var post = $scope.posts[p];
+				if (ch && ch == post.channel) {
 					delete $scope.posts[p];
 					modified = true;
 				}
@@ -487,234 +503,18 @@ function CimbaCtrl($scope, $filter) {
 		}
 	}
 	
-	// create a new channel
 	// prepare the triples for new storage
-	$scope.newChannel = function() {
-		$scope.createbtn = 'Creating...';
-
-		if ($scope.channelname && testIfAllEnglish($scope.channelname))
-			var churi = $scope.channelname;
-		else
-			var churi = 'ch';
-
-		// remove white spaces and force lowercase
-		churi = churi.toLowerCase().split(' ').join('_');
-
-		// append full URI (storage space URI)
-		// TODO: let the user select the uBlog workspace too
-		churi = $scope.me.mbspace+churi;
-
-	    $.ajax({
-	        type: "MKCOL",
-	        url: churi+'/',
-	        processData: false,
-	        xhrFields: {
-				withCredentials: true
-			},
-	        statusCode: {
-	            201: function() {
-	                console.log("201 Created");
-	            },
-	            401: function() {
-	                console.log("401 Unauthorized");
-	                notify('Error', 'Unauthorized! You need to authentify!');
-	            },
-	            403: function() {
-	                console.log("403 Forbidden");
-	                notify('Error', 'Forbidden! You are not allowed to create new channels.');
-	            },
-	            406: function() {
-	                console.log("406 Contet-type unacceptable");
-	                notify('Error', 'Content-type unacceptable.');
-	            },
-	            507: function() {
-	                console.log("507 Insufficient storage");
-	                notify('Error', 'Insuffifient storage left! Check your server storage.');
-	            },
-	        },
-	        success: function(d,s,r) {
-	            console.log('Success! Created new channel at '+churi+'/');
-	            // create the meta file
-	           	var meta = parseLinkHeader(r.getResponseHeader('Link'));
-				var metaURI = meta['meta']['href'];
-
-				var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-				var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
-			    var FOAF = $rdf.Namespace('http://xmlns.com/foaf/0.1/');
-			    var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
-				var g = $rdf.graph();
-				
-				// add uB triple (append trailing slash since we got dir)
-		        g.add($rdf.sym(churi+'/'), RDF('type'), SIOC('Container'));
-		        g.add($rdf.sym(churi+'/'), DCT('title'), $rdf.lit($scope.channelname));
-		        g.add($rdf.sym(churi+'/'), $rdf.sym('http://ns.rww.io/ldpx#LDPRprefix'), $rdf.lit('post_'));
-		        var s = new $rdf.Serializer(g).toN3(g);
-
-		        if (s.length > 0) {
-				    $.ajax({
-				        type: "POST",
-				        url: metaURI,
-				        contentType: "text/turtle",
-				        data: s,
-				        processData: false,
-				        xhrFields: {
-							withCredentials: true
-						},
-				        statusCode: {
-				            201: function() {
-				                console.log("201 Created");				                
-				            },
-				            401: function() {
-				                console.log("401 Unauthorized");
-				                notify('Error', 'Unauthorized! You need to authentify before posting.');
-				            },
-				            403: function() {
-				                console.log("403 Forbidden");
-				                notify('Error', 'Forbidden! You are not allowed to create new containers.');
-				            },
-				            406: function() {
-				                console.log("406 Contet-type unacceptable");
-				                notify('Error', 'Content-type unacceptable.');
-				            },
-				            507: function() {
-				                console.log("507 Insufficient storage");
-				                notify('Error', 'Insuffifient storage left! Check your server storage.');
-				            },
-				        },
-				        success: function(d,s,r) {
-				        	// set default ACLs for channel
-				        	$scope.setACL(churi+'/', $scope.audience.range, true); // set defaultForNew too
-				            console.log('Success! New channel created.');
-                        	notify('Success', 'Your new "'+$scope.channelname+'" channel was succesfully created!');
-			            	// clear form
-			            	$scope.channelname = '';
-							// close modal
-							$('#newChannelModal').modal('hide');
-							// reload user profile when done
-							$scope.getInfo($scope.me.webid, true);
-				        }
-				    });
-		        }
-	    	}
-	    }).always(function() {
-        	// revert button contents to previous state
-        	$scope.createbtn = 'Create';
-        	$scope.$apply();
-        });
-	}
-
-	// prepare the triples for new storage
-	$scope.newMB = function() {
-		$scope.createbtn = 'Creating...';
-
-		var mburi = ($scope.mburi)?$scope.mburi:'mb';
-		// append full URI (storage space URI)
-		mburi = $scope.me.storagespace+mburi;
-		// replace whitespaces and force lowercase
-		mburi = mburi.toLowerCase().split(' ').join('_');
-
-	    $.ajax({
-	        type: "MKCOL",
-	        url: mburi+'/',
-	        processData: false,
-	        xhrFields: {
-				withCredentials: true
-			},
-	        statusCode: {
-	            201: function() {
-	                console.log("201 Created");
-	            },
-	            401: function() {
-	                console.log("401 Unauthorized");
-	                notify('Error', 'Unauthorized! You need to authentify!');
-	            },
-	            403: function() {
-	                console.log("403 Forbidden");
-	                notify('Error', 'Forbidden! You are not allowed to create new resources.');
-	            },
-	            406: function() {
-	                console.log("406 Contet-type unacceptable");
-	                notify('Error', 'Content-type unacceptable.');
-	            },
-	            507: function() {
-	                console.log("507 Insufficient storage");
-	                notify('Error', 'Insuffifient storage left! Check your server storage.');
-	            },
-	        },
-	        success: function(d,s,r) {
-	            console.log('Success! Created new uB directory at '+mburi+'/');
-	            // create the meta file
-	           	var meta = parseLinkHeader(r.getResponseHeader('Link'));
-				var metaURI = meta['meta']['href'];
-
-				var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-				var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
-			    var FOAF = $rdf.Namespace('http://xmlns.com/foaf/0.1/');
-			    var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
-				var g = $rdf.graph();
-				
-				// add uB triple (append trailing slash since we got dir)
-		        g.add($rdf.sym(mburi+'/'), RDF('type'), SIOC('Space'));
-		        g.add($rdf.sym(mburi+'/'), DCT('title'), $rdf.lit("Microblogging workspace"));
-		        var s = new $rdf.Serializer(g).toN3(g);	        
-		        if (s.length > 0) {
-				    $.ajax({
-				        type: "POST",
-				        url: metaURI,
-				        contentType: "text/turtle",
-				        data: s,
-				        processData: false,
-				        xhrFields: {
-							withCredentials: true
-						},
-				        statusCode: {
-				            201: function() {
-				                console.log("201 Created");
-				            },
-				            401: function() {
-				                console.log("401 Unauthorized");
-				                notify('Error', 'Unauthorized! You need to authentify before posting.');
-				            },
-				            403: function() {
-				                console.log("403 Forbidden");
-				                notify('Error', 'Forbidden! You are not allowed to create new resources.');
-				            },
-				            406: function() {
-				                console.log("406 Contet-type unacceptable");
-				                notify('Error', 'Content-type unacceptable.');
-				            },
-				            507: function() {
-				                console.log("507 Insufficient storage");
-				                notify('Error', 'Insuffifient storage left! Check your server storage.');
-				            },
-				        },
-				        success: function(d,s,r) {
-				            console.log('Success! uBlog space created.');
-                        	notify('Success', 'uBlog space created.'); 
-			            	// clear form
-							$scope.mburi = '';
-							// close modal
-							$('#newMBModal').modal('hide');
-							// reload user profile when done
-							$scope.getInfo($scope.me.webid, true);
-				        }
-				    });
-		        }
-	    	}
-	    }).done(function() {
-        	// revert button contents to previous state
-        	$scope.createbtn = 'Create';
-        	$scope.$apply();
-        });
-	}
-
-	// prepare the triples for new storage
+	// do not actually create the space, we just point to it
 	$scope.newStorage = function() {
 		$scope.addstoragebtn = 'Adding...';
 
 		var storage = ($scope.storageuri)?$scope.storageuri:'shared/';
 		// replace whitespaces and force lowercase
 		storage = storage.toLowerCase().split(' ').join('_');
+
+		// add trailing slash since we have dir
+		if (storage.substring(storage.length - 1) != '/')
+        	storage = storage+'/';
 
 		var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 		var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
@@ -762,7 +562,8 @@ function CimbaCtrl($scope, $filter) {
 		        success: function(d,s,r) {
 		            console.log('Success! Added a new storage relation to your profile.');
 		            notify('Success', 'Your profile was succesfully updated!');
-	            	// clear form
+
+					// clear form
 					$scope.storageuri = '';
 					$scope.addstoragebtn = 'Add';
 					// close modal
@@ -776,6 +577,240 @@ function CimbaCtrl($scope, $filter) {
 	        	$scope.$apply();
         	});
 		}
+	}
+
+	// prepare the triples for new storage
+	$scope.newMB = function() {
+		$scope.createbtn = 'Creating...';
+
+		var mburi = ($scope.mburi)?$scope.mburi:'mb';
+		// replace whitespaces and force lowercase
+		mburi = mburi.toLowerCase().split(' ').join('_');
+
+	    $.ajax({
+	        type: "POST",
+	        url: $scope.me.storagespace,
+	        processData: false,
+	        headers: {
+	        	Slug: mburi,
+	        	Link: '<http://www.w3.org/ns/ldp#Container>; rel="type"'
+	        },
+	        contentType: 'text/turtle',
+	        xhrFields: {
+				withCredentials: true
+			},
+	        statusCode: {
+	            201: function() {
+	                console.log("201 Created");
+	            },
+	            401: function() {
+	                console.log("401 Unauthorized");
+	                notify('Error', 'Unauthorized! You need to authentify!');
+	            },
+	            403: function() {
+	                console.log("403 Forbidden");
+	                notify('Error', 'Forbidden! You are not allowed to create new resources.');
+	            },
+	            406: function() {
+	                console.log("406 Contet-type unacceptable");
+	                notify('Error', 'Content-type unacceptable.');
+	            },
+	            507: function() {
+	                console.log("507 Insufficient storage");
+	                notify('Error', 'Insuffifient storage left! Check your server storage.');
+	            },
+	        },
+	        success: function(d,s,r) {
+	            console.log('Success! Created new uB directory at '+mburi+'/');
+	            // create the meta file
+	           	var meta = parseLinkHeader(r.getResponseHeader('Link'));
+				var metaURI = meta['meta']['href'];
+
+				var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+				var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
+			    var FOAF = $rdf.Namespace('http://xmlns.com/foaf/0.1/');
+			    var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
+			    var LDPX = $rdf.Namespace("http://ns.rww.io/ldpx#");
+				var g = $rdf.graph();
+				
+				// add uB triple (append trailing slash since we got dir)
+		        g.add($rdf.sym(mburi+'/'), RDF('type'), SIOC('Space'));
+		        g.add($rdf.sym(mburi+'/'), DCT('title'), $rdf.lit("Microblogging workspace"));
+		        g.add($rdf.sym(mburi+'/'), LDPX('ldprPrefix'), $rdf.lit("ch"));
+		        var s = new $rdf.Serializer(g).toN3(g);	        
+		        if (s.length > 0) {
+				    $.ajax({
+				        type: "POST",
+				        url: metaURI,
+				        contentType: "text/turtle",
+				        data: s,
+				        processData: false,
+				        xhrFields: {
+							withCredentials: true
+						},
+				        statusCode: {
+				            201: function() {
+				                console.log("201 Created");
+				            },
+				            401: function() {
+				                console.log("401 Unauthorized");
+				                notify('Error', 'Unauthorized! You need to authentify before posting.');
+				            },
+				            403: function() {
+				                console.log("403 Forbidden");
+				                notify('Error', 'Forbidden! You are not allowed to create new resources.');
+				            },
+				            406: function() {
+				                console.log("406 Contet-type unacceptable");
+				                notify('Error', 'Content-type unacceptable.');
+				            },
+				            507: function() {
+				                console.log("507 Insufficient storage");
+				                notify('Error', 'Insuffifient storage left! Check your server storage.');
+				            },
+				        },
+				        success: function(d,s,r) {
+				            console.log('Success! Microblog space created.');
+                        	notify('Success', 'Microblog space created.'); 
+			            	// clear form
+							$scope.mburi = '';
+							// close modal
+							$('#newMBModal').modal('hide');
+							// reload user profile when done
+							$scope.getInfo($scope.me.webid, true);
+				        }
+				    });
+		        }
+	    	}
+	    }).done(function() {
+        	// revert button contents to previous state
+        	$scope.createbtn = 'Create';
+        	$scope.$apply();
+        });
+	}
+
+	// create a new channel
+	// prepare the triples for new storage
+	$scope.newChannel = function() {
+		$scope.createbtn = 'Creating...';
+
+		if ($scope.channelname && testIfAllEnglish($scope.channelname)) {
+			// remove white spaces and force lowercase
+			var title = $scope.channelname;
+			var churi = $scope.channelname.toLowerCase().split(' ').join('_');
+		} else {
+			var title = 'ch';
+			var churi = 'ch';
+		}
+
+		// TODO: let the user select the Microblog workspace too
+
+	    $.ajax({
+	        type: "POST",
+	        url: $scope.me.mbspace,
+	        processData: false,
+	        contentType: 'text/turtle',
+	        headers: {
+	        	Link: '<http://www.w3.org/ns/ldp#Container>; rel="type"'
+	        },
+	        xhrFields: {
+				withCredentials: true
+			},
+	        statusCode: {
+	            201: function() {
+	                console.log("201 Created");
+	            },
+	            401: function() {
+	                console.log("401 Unauthorized");
+	                notify('Error', 'Unauthorized! You need to authentify!');
+	            },
+	            403: function() {
+	                console.log("403 Forbidden");
+	                notify('Error', 'Forbidden! You are not allowed to create new channels.');
+	            },
+	            406: function() {
+	                console.log("406 Contet-type unacceptable");
+	                notify('Error', 'Content-type unacceptable.');
+	            },
+	            507: function() {
+	                console.log("507 Insufficient storage");
+	                notify('Error', 'Insuffifient storage left! Check your server storage.');
+	            },
+	        },
+	        success: function(d,s,r) {
+	            console.log('Success! Created new channel "'+title+'".');
+	            // create the meta file
+	           	var meta = parseLinkHeader(r.getResponseHeader('Link'));
+				var metaURI = meta['meta']['href'];
+
+				var chURI = r.getResponseHeader('Location');
+				// got the URI for the new channel
+				if (chURI && metaURI) {
+					var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+					var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
+				    var FOAF = $rdf.Namespace('http://xmlns.com/foaf/0.1/');
+				    var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
+				    var LDPX = $rdf.Namespace("http://ns.rww.io/ldpx#");
+					var g = $rdf.graph();
+					
+					// add uB triple (append trailing slash since we got dir)
+			        g.add($rdf.sym(chURI), RDF('type'), SIOC('Container'));
+			        g.add($rdf.sym(chURI), DCT('title'), $rdf.lit(title));
+			        g.add($rdf.sym(chURI), LDPX('ldprPrefix'), $rdf.lit('post'));
+			        var s = new $rdf.Serializer(g).toN3(g);
+
+			        if (s.length > 0) {
+					    $.ajax({
+					        type: "POST",
+					        url: metaURI,
+					        contentType: "text/turtle",
+					        data: s,
+					        processData: false,
+					        xhrFields: {
+								withCredentials: true
+							},
+					        statusCode: {
+					            201: function() {
+					                console.log("201 Created");				                
+					            },
+					            401: function() {
+					                console.log("401 Unauthorized");
+					                notify('Error', 'Unauthorized! You need to authentify before posting.');
+					            },
+					            403: function() {
+					                console.log("403 Forbidden");
+					                notify('Error', 'Forbidden! You are not allowed to create new containers.');
+					            },
+					            406: function() {
+					                console.log("406 Contet-type unacceptable");
+					                notify('Error', 'Content-type unacceptable.');
+					            },
+					            507: function() {
+					                console.log("507 Insufficient storage");
+					                notify('Error', 'Insuffifient storage left! Check your server storage.');
+					            },
+					        },
+					        success: function(d,s,r) {
+					        	// set default ACLs for channel
+					        	$scope.setACL(chURI, $scope.audience.range, true); // set defaultForNew too
+					            console.log('Success! New channel created.');
+	                        	notify('Success', 'Your new "'+title+'" channel was succesfully created!');
+				            	// clear form
+				            	$scope.channelname = '';
+								// close modal
+								$('#newChannelModal').modal('hide');
+								// reload user profile when done
+								$scope.getInfo($scope.me.webid, true);
+					        }
+					    });
+			        }
+		        }
+	    	}
+	    }).always(function() {
+        	// revert button contents to previous state
+        	$scope.createbtn = 'Create';
+        	$scope.$apply();
+        });
 	}
 
 	// post new message
@@ -807,6 +842,7 @@ function CimbaCtrl($scope, $filter) {
     	
 		var _newPost = {
 			uri : '',
+			channel: uri,
 			date : now,
 			timeago : moment(now).fromNow(),
 			userpic : $scope.me.pic,
@@ -1014,7 +1050,7 @@ function CimbaCtrl($scope, $filter) {
 					c.action = ch.action = 'Subscribe';
 					c.button = ch.button = 'fa-square-o';
 			    	c.css = ch.css = 'btn-info';
-			    	$scope.removePostsByOwner(user.webid);
+			    	$scope.removePostsByChannel(ch.uri);
 		    	} else {
 	    		// subscribe
 					c.action = ch.action = 'Unsubscribe';
@@ -1177,9 +1213,9 @@ function CimbaCtrl($scope, $filter) {
 	        var ws = g.statementsMatching(undefined, RDF('type'), SIOC('Space'));
 	        
 	        if (ws.length > 0) {
-				// set a default uBlog workspace
+				// set a default Microblog workspace
 				if (mine) {
-					// set default uBlog space
+					// set default Microblog space
 					$scope.me.mbspace = ws[0]['subject']['value'];
 					// get the list of people I'm following + channels + posts
 					$scope.getUsers(true);
@@ -1264,7 +1300,7 @@ function CimbaCtrl($scope, $filter) {
 				        }
 		        	});
 				}
-			} else { // no uBlogging workspaces found!
+			} else { // no Microblogging workspaces found!
 		        // we were called by search
 	        	if ($scope.searchwebid && $scope.searchwebid == webid) {
 					$scope.drawSearchResults();
@@ -1348,12 +1384,15 @@ function CimbaCtrl($scope, $filter) {
 					// check if we need to overwrite instead of pushing new item
 					var _newPost = {
 						uri : uri,
+						channel: channel,
 						date : date,
 						userwebid : userwebid,
 						userpic : userpic,
 						username : username,
 						body : body
 					}
+
+					console.log(_newPost);
 
 					if (!$scope.posts)
 						$scope.posts = {};

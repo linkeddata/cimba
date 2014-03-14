@@ -23,16 +23,15 @@
                     <div class="panel-body-text">
                         <pre>{{post.body}}</pre>
                     </div>
-                    <hr>
-                    <form>
+                    
+                    <div ng-show="me.webid == post.userwebid">
+                        <hr>
                         <div class="input-group">
                             <div class="input-group-btn">
-                                <button class="btn btn-success" rel="tooltip" data-placement="top" title="Read full message">More</button>
-                                <button class="btn btn-default" rel="tooltip" data-placement="top" title="Star message" ng-click="starPost()"><i class="fa fa-star fa-2x"></i></button>
-                                <button class="btn btn-default" data-placement="top" title="Delete message" ng-click="deletePost(post)" ng-show="me.webid == post.userwebid"><i class="fa fa-trash-o fa-2x"></i></button>
-                            </div>
+                                <button class="btn btn-danger" data-placement="top" title="Delete message" ng-click="deletePost(post)" ><i class="fa fa-times white"></i> Delete</button>
+                                </div>
                         </div>
-                    </form>
+                    </div>
                 </div>
                 <!-- user info modal -->
                 <div id="{{post.$$hashKey}}" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
