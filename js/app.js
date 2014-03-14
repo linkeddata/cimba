@@ -1197,7 +1197,7 @@ function CimbaCtrl($scope, $filter) {
 				        	// clear list first
 				        	if (mine)
 				        		$scope.me.channels = [];
-			        		console.log($scope.users[webid]);
+
 				        	for (var ch in chs) {
 		        				var channel = {};
 		        				channel.uri = chs[ch]['subject']['value'];
