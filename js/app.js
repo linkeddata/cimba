@@ -450,14 +450,11 @@ function CimbaCtrl($scope, $filter) {
 		localStorage.removeItem($scope.appuri);
 	}
 
-	// update my user picture	
-	$scope.updateUserDOM = function () {
-		$('#pic').html('<a href="'+$scope.me.webid+'" target="_blank">'+
-			'<img class="media-object thumb-pic" src="'+$scope.me.pic+'" rel="tooltip" data-placement="top" width="70" title="'+$scope.me.name+'"></a>');
-	}
-
 	// logout (clear localStorage)
 	$scope.clearSession = function () {
+		// try to logout certificate
+		logout();
+		// clear localStorage
 		$scope.clearLocalCredentials();
 		$scope.me = {};
 		$scope.posts = {};
@@ -495,7 +492,11 @@ function CimbaCtrl($scope, $filter) {
 	$scope.newChannel = function() {
 		$scope.createbtn = 'Creating...';
 
-		var churi = ($scope.channeluri)?$scope.channeluri:'ch';
+		if ($scope.channelname && testIfAllEnglish($scope.channelname))
+			var churi = $scope.channelname;
+		else
+			var churi = 'ch';
+
 		// remove white spaces and force lowercase
 		churi = churi.toLowerCase().split(' ').join('_');
 
@@ -545,7 +546,7 @@ function CimbaCtrl($scope, $filter) {
 				
 				// add uB triple (append trailing slash since we got dir)
 		        g.add($rdf.sym(churi+'/'), RDF('type'), SIOC('Container'));
-		        g.add($rdf.sym(churi+'/'), DCT('title'), $rdf.lit($scope.channeltitle));
+		        g.add($rdf.sym(churi+'/'), DCT('title'), $rdf.lit($scope.channelname));
 		        g.add($rdf.sym(churi+'/'), $rdf.sym('http://ns.rww.io/ldpx#LDPRprefix'), $rdf.lit('post_'));
 		        var s = new $rdf.Serializer(g).toN3(g);
 
@@ -584,10 +585,9 @@ function CimbaCtrl($scope, $filter) {
 				        	// set default ACLs for channel
 				        	$scope.setACL(churi+'/', $scope.audience.range, true); // set defaultForNew too
 				            console.log('Success! New channel created.');
-                        	notify('Success', 'Your new "'+$scope.channeltitle+'" channel was succesfully created!');
+                        	notify('Success', 'Your new "'+$scope.channelname+'" channel was succesfully created!');
 			            	// clear form
-			            	$scope.channeluri = '';
-							$scope.channeltitle = '';
+			            	$scope.channelname = '';
 							// close modal
 							$('#newChannelModal').modal('hide');
 							// reload user profile when done
@@ -1151,7 +1151,6 @@ function CimbaCtrl($scope, $filter) {
 		    	// also add myself to the users list
 		    	//$scope.users[webid] = _user;
 		    	// update DOM
-		    	$scope.updateUserDOM();
 		    	$scope.loggedin = true;
 		    	$scope.profileloading = false;
 	    		$scope.$apply();
@@ -1197,7 +1196,7 @@ function CimbaCtrl($scope, $filter) {
 				        	// clear list first
 				        	if (mine)
 				        		$scope.me.channels = [];
-			        		console.log($scope.users[webid]);
+
 				        	for (var ch in chs) {
 		        				var channel = {};
 		        				channel.uri = chs[ch]['subject']['value'];
@@ -1362,7 +1361,6 @@ function CimbaCtrl($scope, $filter) {
 						$scope.posts[uri] = _newPost;
 						$scope.$apply();
 					} else {
-						// append post
 						$scope.posts[uri] = _newPost;
 						$scope.$apply();
 					}
@@ -1406,8 +1404,16 @@ function CimbaCtrl($scope, $filter) {
 	// init by retrieving user from localStorage
 	$scope.loadCredentials();
 	$scope.loadPosts();
-	$scope.updateUserDOM();
 }
+
+//simple directive to display new post box
+ngCimba.directive('postBox',function(){
+  	return {
+		replace : true,
+		restrict : 'E',
+		templateUrl: 'tpl/new_post.html'
+    }; 
+})
 
 //simple directive to display each post
 ngCimba.directive('postsViewer',function(){

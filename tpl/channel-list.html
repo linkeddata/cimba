@@ -1,17 +1,19 @@
 <div class="searchresults" ng-repeat="u in users|orderObjectBy:'name'">
     <div class="panel-heading dark-blue">
         <div class="pull-left">
-            <a class="thumbnail thumbnail-sm pull-right" href="{{u.webid}}">
-              <img class="media-object" ng-src="{{u.pic}}" rel="tooltip" data-placement="top" title="{{u.name}}">
+            <a href="{{u.webid}}" target="_blank">
+                <img class="media-object thumb-pic" ng-src="{{u.pic}}" rel="tooltip" data-placement="top" title="{{u.name}}">
             </a>
         </div>
-        <div class="card-name">
-            <strong class="white">{{u.name}} <span ng-show="u.webid == me.webid">(me)</span></strong>
-            <button class="btn btn-default blue pull-right" ng-click="removeUser(u.webid)" rel="tooltip" data-placement="top" title="Remove user" ng-hide="u.webid == me.webid"><i class="fa fa-times fa-2x"></i></button>
-            <button class="btn btn-default blue pull-right btn-sep-right" ng-click="refreshUser(u.webid); u.refreshing=true" rel="tooltip" data-placement="top" title="Refresh user channels"><i class="fa fa-refresh fa-2x" ng-hide='u.refreshing'></i><div ng-show="u.refreshing"><div class="circle"></div><div class="circle1"></div></div></button>
+        <div class="pull-left user-name">
+            <h4>{{u.name}} <span ng-show="u.webid == me.webid">(me)</span></h4>
+        </div>
+        <div class="card-name pull-right">
+            <button class="btn btn-default blue btn-sep-right" ng-click="refreshUser(u.webid); u.refreshing=true" rel="tooltip" data-placement="top" title="Refresh user channels"><i class="fa fa-refresh fa-2x" ng-hide='u.refreshing'></i><div ng-show="u.refreshing"><div class="circle"></div><div class="circle1"></div></div></button>
+            <button class="btn btn-default blue " ng-click="removeUser(u.webid)" rel="tooltip" data-placement="top" title="Remove user" ng-hide="u.webid == me.webid"><i class="fa fa-times fa-2x"></i></button>
         </div>
     </div>
-    <div class="panel-body-text">
+    <div class="panel-body">
         <h4 class="black" ng-repeat="ch in u.channels|orderBy:'title'">
             <button class="btn" ng-class="ch.css" ng-click="channelToggle(ch, u)" rel="tooltip" data-placement="top" title="{{ch.action}}"><i class="fa {{ch.button}} fa-2x"></i></button>
             <a href="{{ch.uri}}" target="_blank">{{ch.title}}</a>

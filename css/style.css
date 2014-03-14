@@ -1,8 +1,9 @@
 body {
-  background-color:#e0e0e0;
+  background: #161616 url('../img/dark_pattern.gif') top left repeat;
   -webkit-font-smoothing: antialiased;
 
   font-family:proxima-nova,"Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-color: #fff;
   font-weight:400;
   line-height:1.28
 }
@@ -26,24 +27,24 @@ h4 {
   height: 40px;
 }
 .navbar {height: 56px;}
-.navbar-default {background-color:#f4f4f4;border-width:0;z-index:5;}
+.navbar-default {background-color:#161616;border-width:0;z-index:5;}
 .navbar-default .navbar-nav > .active > a,.navbar-default .navbar-nav > li:hover > a {
-    border:0 solid #4285f4;border-bottom-width:2px;background-color:transparent;
+    border:0 solid #4285f4;border-bottom-width:2px;background-color:#161616;color:#fff;
 }
-.navbar-default .dropdown-menu {background-color:#ffffff;}
+.navbar-default .dropdown-menu {background-color:#161616;}
 .navbar-default .dropdown-menu li > a {padding-left:30px;}
-.navbar-nav {background-color: #f4f4f4; margin-top:0px;}
+.navbar-nav {background-color: #161616; margin-top:0px;}
 .navbar-toggle{margin-top:5px!important;margin-right:0px !important;}
 
 .header {background-color:#ffffff;border-width:0;}
-.header .navbar-collapse {background-color:#ffffff;}
+.header .navbar-collapse {background-color:#161616;}
 .btn {height: 43px;}
-.btn,.form-control,.panel,.list-group,.well {border-radius:3px;box-shadow:0 0 0;}
+.btn,.form-control,.panel,.list-group,.well {border-radius:0px;box-shadow:0 0 0;}
 .form-control {border-color:#d7d7d7;height:43px!important;}
 .btn-primary {border-color:transparent;}
 .btn-primary,.label-primary,.list-group-item.active, .list-group-item.active:hover, .list-group-item.active:focus {background-color:#4285f4;}
-.btn-plus {background-color:#ffffff;border-width:1px;border-color:#dddddd;box-shadow:1px 1px 0 #999999;border-radius:3px;color:#666666;text-shadow:0 0 1px #bbbbbb;}
-.well,.panel {border-color:#d2d2d2;box-shadow:0 1px 0 #cfcfcf;}
+.btn-plus {background-color:#ffffff;border-width:1px;border-color:#dddddd;box-shadow:1px 1px 0 #999999;border-radius:0px;color:#666666;text-shadow:0 0 1px #bbbbbb;}
+.well,.panel {border-color: #4285f4; background-color: #494949; outline: 0; -webkit-box-shadow: inset 0 3px 3px rgba(0,0,0,0.075),0 0 8px rgba(102,175,233,0.6); box-shadow: inset 0 3px 1px rgba(0,0,0,0.075),0 0 8px rgba(102,175,233,0.6);}
 .btn-success,.label-success,.progress-bar-success{background-color:#65b045;}
 .btn-info,.label-info,.progress-bar-info{background-color:#a0c3ff,border-color:#a0c3ff;}
 .btn-danger,.label-danger,.progress-bar-danger{background-color:#dd4b39;}
@@ -57,10 +58,10 @@ h4 {
 .ui-notify-message h1 { font-size:14px; margin:0; padding:0 }
 .ui-notify-message p { margin:3px 0; padding:0; line-height:18px }
 .ui-notify-message:last-child { margin-bottom:0 }
-.ui-notify-message-style { background:#000; background:rgba(0,0,0,0.8); -moz-box-shadow: 0 0 6px #000; -webkit-box-shadow: 0 0 6px #000; box-shadow: 0 0 6px #000; }
+.ui-notify-message-style { background:#fff; background:rgba(0,0,0,0.8); -moz-box-shadow: 0 0 6px #fff; -webkit-box-shadow: 0 0 6px #fff; box-shadow: 0 0 6px #fff; }
 .ui-notify-message-style h1 { color:#fff; font-weight:bold }
 .ui-notify-message-style p { color:#fff }
-.ui-notify-close { color:#fff; text-decoration:underline }
+.ui-notify-close { color:#000; text-decoration:underline }
 .ui-notify-click { cursor:pointer }
 .ui-notify-cross { margin-top:-4px; float:right; cursor:pointer; text-decoration:none; font-size:12px; font-weight:bold; text-shadow:0 1px 1px #fff; padding:2px }
 .ui-notify-cross:hover { color:#ffffab }
@@ -70,6 +71,9 @@ h4 {
 .r5 { border-radius:5px; }
 
 v-spacer { margin-right: 5px!important;}
+
+p { color: #fff;}
+
 hr {
   border-color:#ececec;
   margin-top: 30px;
@@ -80,11 +84,11 @@ button {
   margin-top:0px!important;
 }
 .message {
-  margin-bottom: 10px;  
+  margin-bottom: 10px;
+  margin-top: 10px;
   padding:15px;
-  margin-top: 50px;
   min-height: 100px;
-  border-radius:3px;box-shadow:0 0 0;
+  border-radius:0px;box-shadow:0 0 0;
   border-color:#d7d7d7;
 }
 input[type="text"] {
@@ -114,7 +118,7 @@ pre {
   display: block;
   font-family: inherit;
   font-size: inherit;
-  color: inherit;
+  color: #fff;
   word-break: break-all;
   word-wrap: break-word;
   background-color: inherit;
@@ -128,24 +132,29 @@ pre {
   width: 70%;
 }
 .panel .btn i,.btn span{
-  color:#666666;
+  color:#666;
 }
 .panel .panel-heading {
-  background-color:#ffffff;
+  background-color:#fff;
   font-weight:700;
   font-size:16px;
   color:#262626;
-  border-color:#ffffff;
+  border-bottom: 0px;
 }
 .panel .panel-heading a {
   font-weight:400;
+}
+.panel-heading {
+  padding: 0px 5px 0px 0px!important;
+  height: 70px;
+  border-radius: 0px;
 }
 .panel-heading-small {
   margin:10px;
   padding: 2px 5px 0px 10px;
 }
 .panel .panel-default {
-  border-color:#cccccc;
+  border-color:#ccc;
 }
 .panel .panel-thumbnail {
   padding:0;
@@ -155,11 +164,11 @@ pre {
   height:50px;
 }
 .panel-body {
+  background: #494949;
   padding: 5px 15px 15px 15px;
 }
 .panel-body-text {
     min-height: 50px;
-    margin-left: 100px;
     margin-top: 15px;
 }
 .list-group-item:first-child,.list-group-item:last-child {
@@ -173,7 +182,14 @@ pre {
 }
 .thumb-pic {
   width:70px;
+  margin-left: -1px;
+  padding-right: 5px;
   min-height: 70px!important;
+}
+.user-name {
+  position:absolute;
+  margin-left:70px;
+  padding-top: 5px;
 }
 .user-thumb {
   margin-top: 7px;
@@ -184,11 +200,14 @@ pre {
   height: 40px;
 }
 .card-name {
-  margin-left: 80px;
+  margin-top:50px;
 }
 .panel-body-textmail h3 {
   margin-top: 10px;
   margin-left: 90px;
+}
+h2,h3 {
+  color: #fff;
 }
 h4,h5 {
   color: #fff;
@@ -196,25 +215,31 @@ h4,h5 {
   border-bottom-width:0px;
   padding-bottom:10px;
 }
+h4 a, a:hover, a:visited {
+  color: #fff;
+}
 .bold {
     font-weight: bold;
 }
 .modal-dialog {
- width: 420px!important;
+  width: 400px!important;
 }
 .modal-body {
   padding: 5px!important;
+  background: #161616 url('../img/dark_pattern.gif') top left repeat;
 }
 .modal-body p {
   font-size: 1.2em;
 }
 .modal-header {
+  background: #161616 url('../img/dark_pattern.gif') top left repeat;
   border-bottom: 0px!important;
 }
 .modal-footer {
   margin-top: 0px!important;
   padding: 0px 0px 20px 0px!important;
   border-top: 0px!important;
+  background: #161616 url('../img/dark_pattern.gif') top left repeat;
 }
 .center {
   width:50%;

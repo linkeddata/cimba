@@ -50,7 +50,7 @@
     <div class="navbar navbar-default" id="subnav">
         <div class="col-md-12">
             <div class="navbar-header">
-                <img src="img/cimba-logo.png" class="logo">                
+                <img src="img/cimba-logo-dark.png" class="logo">                
                 <button id="menuToggle" type="button" class="navbar-toggle pull-right" data-toggle="collapse" data-target="#navbar-collapse2">
                     <span class="sr-only">Toggle navigation</span>
                     <i class="fa fa-bars fa-2x blue"></i>
@@ -62,7 +62,6 @@
 
             <div class="collapse navbar-collapse" id="navbar-collapse2">
               <ul class="nav navbar-nav navbar-right">
-                  <li class="active"><a href="#"><i class="fa fa-home"></i> Home</a></li>
                   <li ng-show="loggedin"><a href="#subsModal" role="button" data-toggle="modal"><i class="fa fa-rss"></i> Channels</a></li>
                   <li ng-hide="!me.channels[0]"><a href="#" ng-click="updatePosts()"><i class="fa fa-refresh"></i> Refresh </a></li>
                   <!-- QCRI Filtering Start -->
@@ -77,60 +76,22 @@
 
     <!--main-->
 
-    <!-- new post  -->
-    <div class="container" id="newpost">
-        <div class="row">
-            <div class="clear-70"></div>
-            <div class="col-md-12">
-                <!-- new post -->
-                <div class="panel panel-default" ng-show="loggedin"> 
-                    <div class="panel-heading dark-blue">
-                        <div class="pull-left">
-                            <a id="pic" class="thumbnail pull-right" href="#">
-                              <img class="media-object" src="" rel="tooltip" data-placement="top" title="Name">
-                            </a>
-                        </div>
-                    </div>
-                    <div class="panel-body">
-                        <div class="panel-body-textmail">
-                          <div id="spinner" ng-hide="me.name"></div>
-                          <h3 class="bold" ng-show="profileloading">Loading profile...</h3>
-                          <h3 class="bold" ng-show="me.name && !me.chspace">Hello {{me.name}}...</h3>
-                          <h3 class="bold" ng-show="me.name && me.chspace">What's new, {{me.name}}?</h3>
-                          <form ng-hide="me.webid && !me.chspace">                               
-                              <textarea name="message" ng-model="postbody" class="form-control message" placeholder="Type your message here.." required></textarea>
-                              <div class="btn-group">
-                                  <button id="audience" class="btn btn-primary" disabled><i class="fa {{audience.icon}} fa-2x white"></i></button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop" rel="tooltip" data-placement="top" title="Audience"><i class="fa fa-chevron-down fa-2x"></i></small></button>
-                                  <ul class="dropdown-menu" role="menu" aria-labelledby="audience">
-                                      <li><a href="#" ng-click="setAudience('public')"><i id="public" class="fa fa-globe fa-2x blue"></i> Public</a></li>
-                                      <li><a href="#" ng-click="setAudience('private')">&nbsp;<i id="private" class="fa fa-lock fa-2x blue"></i>&nbsp; Private</a></li>
-                                      <!-- <li><a href="#" ng-click="setAudience('friends')"><i id="friends" class="fa fa-user fa-2x blue"></i> Friends</a></li> -->
-                                  </ul>
-                              </div>
+    <!-- new post box -->
+    <post-box></post-box>    
 
-                              <div class="btn-group" ng-show="me.channels.length > 0" rel="tooltip" data-placement="top" title="Channels">
-                                  <button id="chs" class="btn btn-primary" disabled>{{defaultChannel.title}}</button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop" rel="tooltip" data-placement="top" title="Channels"><i class="fa fa-chevron-down fa-2x"></i></small></button>
-                                  <ul class="dropdown-menu" role="menu" aria-labelledby="chs">
-                                      <li ng-repeat="channel in me.channels | orderBy:'title'">
-                                          <a href="#" ng-click="setChannel(channel.title)">{{channel.title}}</a>
-                                      </li>
-                                  </ul>
-                              </div>
-                              <div class="pull-right">
-                                  <button class="btn btn-primary pull-right w60" ng-click="newPost()" ng-disabled="!postbody">
-                                    <div ng-show="!publishing">Post</div>
-                                    <div ng-show="publishing" class="dots"></div>
-                                  </button>
-                              </div>
-                          </form>
-                        </div>
-                    </div>
+    <!-- spinner -->
+    <div id="loader" class="container" ng-show="loading">
+        <div class="row">
+            <div class="col-md-12">
+                <!-- Loading animation -->
+                <!-- <div class="spinner"> -->
+                <div class="clear-40">
+                  <div class="circle circle-large"></div><div class="circle1 circle1-large"></div>
                 </div>
-                <!-- end new post -->
             </div>
         </div>
     </div>
-    
+
     <!-- WebID authentication failed/missing -->
     <div id="setup" class="container" ng-show="testwebid">
         <div class="row">
@@ -222,24 +183,8 @@
         </div>
     </div>
 
-    <!-- posts viewer -->
-    <div id="posts" class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <!-- Loading animation -->
-                <div class="panel panel-default text-center" ng-show="loading">
-                    <!-- <div class="spinner"> -->
-                    <div class="clear-40">
-                      <div class="circle circle-large"></div><div class="circle1 circle1-large"></div>
-                    </div>
-                    <!-- <div class="gear"></div> -->
-                </div>
-            </div>
-
-            <!-- All posts go into <posts-viewer> -->
-            <posts-viewer ng-show="loggedin"></posts-viewer>
-        </div>
-    </div>
+    <!-- posts viewer - all posts go into <posts-viewer> -->
+    <posts-viewer ng-show="loggedin"></posts-viewer>
 
     <!--new storage modal-->
     <div id="newStorageModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
@@ -251,7 +196,7 @@
               </div>
               <div class="modal-body">
                   <form class="m10">
-                      <input type="text" id="storageuri" name="storageuri" ng-model="storageuri" class="form-control" placeholder="Storage URI.." required autofocus>
+                      <input type="text" id="storageuri" name="storageuri" ng-model="storageuri" class="form-control" placeholder="Storage URI.." required ng-pattern="/^[A-Za-z0-9_]*$/">
                   </form>
                   <div ng-show="storageuri" class="text-center">
                   <p>Alternatively, if your WebID profile is not Web writable, you can manually add the following triple at the end of your profile:</p>
@@ -281,7 +226,7 @@
               </div>
               <div class="modal-body">
                   <form class="m10">
-                      <input type="text" id="mburi" name="mburi" ng-model="mburi" class="form-control" placeholder="mb, ublog, etc.." required>
+                      <input type="text" id="mburi" name="mburi" ng-model="mburi" class="form-control" placeholder="mb, ublog, etc.." required ng-pattern="/^[A-Za-z0-9_]*$/">
                   </form>
               </div>
               <div class="modal-footer">
@@ -304,15 +249,13 @@
               </div>
               <div class="modal-body">
                   <form class="m10">
-                  <p>The name you provide will be used to create a new channel inside your uBlog workspace.</p>
-                  <p><input type="text" id="channeluri" name="channeluri" ng-model="channeluri" class="form-control" placeholder="Name (ch, default, etc.).." required></p>
-                  <p><input type="text" id="channeltitle" name="channeltitle" ng-model="channeltitle" class="form-control" placeholder="Title (Main, Work, etc.).." required></p>
+                  <p>The name you provide will be used to create a new channel inside your uBlog workspace.</p>                  
+                  <p><input type="text" id="channelname" name="channelname" ng-model="channelname" class="form-control" placeholder="Name (Main, Work, etc.).." required ng-pattern="/^[A-Za-z0-9_]*$/"></p>
                   <div class="btn-group">
                       <button id="audience" class="btn btn-primary" disabled><i class="fa {{audience.icon}} fa-2x white"></i></button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop" rel="tooltip" data-placement="top" title="Audience"><i class="fa fa-chevron-down fa-2x"></i></small></button>
                       <ul class="dropdown-menu" role="menu" aria-labelledby="audience">
                           <li><a href="#" ng-click="setAudience('public')"><i id="public" class="fa fa-globe fa-2x blue"></i> Public</a></li>
                           <li><a href="#" ng-click="setAudience('private')">&nbsp;<i id="private" class="fa fa-lock fa-2x blue"></i>&nbsp; Private</a></li>
-                          <!-- <li><a href="#" ng-click="setAudience('friends')"><i id="friends" class="fa fa-user fa-2x blue"></i> Friends</a></li> -->
                       </ul>
                   </div>
                   </form>
@@ -320,7 +263,7 @@
               <div class="modal-footer">
                   <div class="col-md-12">
                       <button class="btn btn-info btn-sep-right" data-dismiss="modal" aria-hidden="true">Close</button>
-                      <button class="btn btn-primary" ng-click="newChannel()" ng-disabled="!channeluri || !channeltitle">{{createbtn}}</button>
+                      <button class="btn btn-primary" ng-click="newChannel()" ng-disabled="!channelname">{{createbtn}}</button>
                   </div>  
               </div>
           </div>
@@ -373,17 +316,17 @@
                     <div class="searchresults" ng-show="gotresults">
                         <div class="panel-heading dark-blue">
                             <div class="pull-left">
-                                <a class="thumbnail thumbnail-sm pull-right" href="#">
-                                  <img class="media-object" ng-src="{{search.pic}}" rel="tooltip" data-placement="top" title="{{search.name}}">
+                                <a href="{{search.webid}}" target="_blank">
+                                    <img class="media-object thumb-pic" ng-src="{{search.pic}}" rel="tooltip" data-placement="top" title="{{search.name}}">
                                 </a>
                             </div>
-                        </div>
-                        <div class="panel-body-text">
-                            <h4 class="black bold">{{search.name}}</h4>
-                            <h4 class="black">Has {{search.channels.length}} channels.</h4>
+                            <div class="pull-left user-name">
+                                <h4>{{search.name}}</h4>
+                            </div>
                         </div>
                         <div class="panel-body">
-                            <h4 class="black" ng-repeat="ch in search.channels">
+                            <h4>Has {{search.channels.length}} channels.</h4>
+                            <h4 ng-repeat="ch in search.channels">
                                 <button class="btn" ng-class="ch.css" ng-click="channelToggle(ch, search)" rel="tooltip" data-placement="top" title="{{ch.action}}"><i class="fa {{ch.button}} fa-2x"></i></button>
                                 <a href="{{ch.uri}}" target="_blank">{{ch.title}}</a>
                             </h4>
