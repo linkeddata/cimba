@@ -1392,8 +1392,6 @@ function CimbaCtrl($scope, $filter) {
 						body : body
 					}
 
-					console.log(_newPost);
-
 					if (!$scope.posts)
 						$scope.posts = {};
 					// filter post by language (only show posts in English or show all)					
