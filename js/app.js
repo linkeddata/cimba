@@ -1356,6 +1356,8 @@ function CimbaCtrl($scope, $filter) {
 						body : body
 					}
 
+					if (!$scope.posts)
+						$scope.posts = {};
 					// filter post by language (only show posts in English or show all)					
 					if ($scope.filterFlag && testIfAllEnglish(_newPost.body)) {
 						// add/overwrite post

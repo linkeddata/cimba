@@ -212,7 +212,7 @@
     </div>
 
     <!-- no posts found -->
-    <div id="setup" class="container" ng-show="me.webid && me.storagespace && me.mbspace && me.chspace && me.gotposts == false">
+    <div id="setup" class="container" ng-show="me.webid && me.storagespace && me.mbspace && me.chspace && isEmpty(posts)">
         <div class="row">
             <div class="col-md-12">
                 <div class="panel panel-default text-center">
