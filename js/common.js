@@ -1,3 +1,21 @@
+// Logout WebID 
+function logout() {
+   if (document.all == null) {
+      if (window.crypto) {
+          try{
+              window.crypto.logout();
+              return false; //firefox ok -- no need to follow the link
+          } catch (err) {//Safari, Opera, Chrome -- try with tis session breaking
+          }
+      } else { //also try with session breaking
+      }
+   } else { // MSIE 6+
+      document.execCommand('ClearAuthenticationCache');
+      return false;
+   };
+   return true
+}
+
 // check if object is empty
 function isEmpty(obj) {
 	for(var prop in obj) {
