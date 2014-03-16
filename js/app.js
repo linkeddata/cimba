@@ -96,13 +96,13 @@ function CimbaCtrl($scope, $filter) {
 		_user.mbspace = $scope.me.mbspace;
 		_user.chspace = $scope.me.chspace;
 		cimba.me = _user;
-		localStorage.setItem($scope.appuri, JSON.stringify(cimba));
+		localStorage.setItem($scope.appuri+$scope.me.webid, JSON.stringify(cimba));
 	}
 
 	// retrieve from localStorage
 	$scope.loadCredentials = function () {
-		if (localStorage.getItem($scope.appuri)) {
-			var cimba = JSON.parse(localStorage.getItem($scope.appuri));
+		if (localStorage.getItem($scope.appuri+$scope.me.webid)) {
+			var cimba = JSON.parse(localStorage.getItem($scope.appuri+$scope.me.webid));
 			if (cimba.me) {
 				$scope.me.webid = cimba.me.webid;
 				$scope.me.name = cimba.me.name;
@@ -118,7 +118,7 @@ function CimbaCtrl($scope, $filter) {
 				$scope.loadUsers();
 			} else {
 				// clear localStorage in case there was a change to the data structure
-				localStorage.removeItem($scope.appuri);
+				localStorage.removeItem($scope.appuri+$scope.me.webid);
 			}
 		}
 	}
@@ -126,13 +126,13 @@ function CimbaCtrl($scope, $filter) {
 	// save the list of users + channels
 	$scope.saveUsers = function () {
 		// save to localStorage
-		if (localStorage.getItem($scope.appuri))
-			var cimba = JSON.parse(localStorage.getItem($scope.appuri));
+		if (localStorage.getItem($scope.appuri+$scope.me.webid))
+			var cimba = JSON.parse(localStorage.getItem($scope.appuri+$scope.me.webid));
 		else
 			var cimba = {};
 		
 		cimba.users = $scope.users;
-		localStorage.setItem($scope.appuri, JSON.stringify(cimba));
+		localStorage.setItem($scope.appuri+$scope.me.webid, JSON.stringify(cimba));
 
 		// also save to PDS
 		// TODO: try to discover the followURI instead?
@@ -227,8 +227,8 @@ function CimbaCtrl($scope, $filter) {
 	$scope.loadUsers = function () {
 		$scope.users = {};
 		// load from localStorage
-		if (localStorage.getItem($scope.appuri)) {
-			var cimba = JSON.parse(localStorage.getItem($scope.appuri));			
+		if (localStorage.getItem($scope.appuri+$scope.me.webid)) {
+			var cimba = JSON.parse(localStorage.getItem($scope.appuri+$scope.me.webid));			
 			$scope.users = cimba.users;
 		} 
 
@@ -333,13 +333,13 @@ function CimbaCtrl($scope, $filter) {
 	// save current posts in localStorage
 	$scope.savePosts = function () {
 		if ($scope.posts && !isEmpty($scope.posts)) {
-			if (localStorage.getItem($scope.appuri))
-				var cimba = JSON.parse(localStorage.getItem($scope.appuri));
+			if (localStorage.getItem($scope.appuri+$scope.me.webid))
+				var cimba = JSON.parse(localStorage.getItem($scope.appuri+$scope.me.webid));
 			else
 				var cimba = {};
 
 			cimba.posts = $scope.posts;
-			localStorage.setItem($scope.appuri, JSON.stringify(cimba));
+			localStorage.setItem($scope.appuri+$scope.me.webid, JSON.stringify(cimba));
 		} else {
 			$scope.me.gotposts = false;
 		}
@@ -372,8 +372,8 @@ function CimbaCtrl($scope, $filter) {
 	$scope.loadPosts = function () {
 		if (!$scope.posts)
 			$scope.posts = {};
-		if (localStorage.getItem($scope.appuri)) {
-			var cimba = JSON.parse(localStorage.getItem($scope.appuri));
+		if (localStorage.getItem($scope.appuri+$scope.me.webid)) {
+			var cimba = JSON.parse(localStorage.getItem($scope.appuri+$scope.me.webid));
 			$scope.posts = cimba.posts;
 			if (!$scope.posts || isEmpty($scope.posts))
 				$scope.me.gotposts = false;
@@ -463,7 +463,7 @@ function CimbaCtrl($scope, $filter) {
 
 	// clear localStorage
 	$scope.clearLocalCredentials = function () {
-		localStorage.removeItem($scope.appuri);
+		localStorage.removeItem($scope.appuri+$scope.me.webid);
 	}
 
 	// logout (clear localStorage)
@@ -1311,6 +1311,7 @@ function CimbaCtrl($scope, $filter) {
 					$scope.gotmb = false;
 					$scope.me.mbspace = false;
 					$scope.me.chspace = false;
+					$scope.me.channels = [];
 					$scope.saveCredentials();
 					// hide loader
 			        $scope.loading = false;
