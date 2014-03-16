@@ -124,7 +124,7 @@
                     </div>
                     <div class="panel-body">
                         <div class="panel-body">
-                          <h2 class="text-center">Welcome to <img src="img/cimba-logo.png" height="50"></h2>
+                          <h2 class="text-center">Welcome to <img src="img/cimba-logo-dark.png" height="50"></h2>
                           <div class="text-center">
                             <h3>You must be authenticated in order to use this microblogging application.</h3>
                             <a href="#loginModal" role="button" data-toggle="modal"><button class="btn btn-primary btn-sep-right">Login / Sign Up</button></a>
@@ -196,7 +196,7 @@
               </div>
               <div class="modal-body">
                   <form class="m10">
-                      <p><small class="white">Full URI starting with http(s)://</small></p>
+                      <p><small class="white">Full storage location URI. Must start with http(s)://</small></p>
                       <input type="text" id="storageuri" name="storageuri" ng-model="storageuri" class="form-control" placeholder="http.." required ng-pattern="/^http[A-Za-z0-9_.:/]*$/">
                     <div ng-show="storageuri" class="text-center">
                       <br>
@@ -306,7 +306,7 @@
                         <p>Please provide the WebID for the channel owner.</p>
                         <div class="input-group">
                             <div class="input-group-btn">
-                              <input type="search" id="searchwebid" name="searchwebid" class="form-control" ng-model="searchwebid" autofocus required>
+                              <input type="search" id="searchwebid" name="searchwebid" class="form-control" ng-model="searchwebid" ng-pattern="/^http[A-Za-z0-9_#.:/]*$/">
                               <button class="btn btn-default searchbutton pull-right" ng-click="searchwebid=''" ng-show="searchwebid"><i class="fa fa-times"></i></button>
                               <button class="btn btn-primary searchbutton" ng-click="getInfo(searchwebid); searchbtn='Searching...'" ng-disabled="!searchwebid"><i class="fa fa-search"></i> {{searchbtn}}</button>
                             </div>
@@ -392,7 +392,7 @@
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
           <h2 class="text-center">Login / Sign Up</h2>
       </div>
-      <div class="modal-body">         
+      <div class="modal-body text-center">         
           <iframe id="signup" src="" sandbox="allow-same-origin allow-scripts allow-forms" frameborder="0"></iframe>
       </div>
       <div class="modal-footer">
@@ -424,20 +424,15 @@ $(document).ready(function() {
         }
     });
 
-    // load login/signup
-    //$('#login-body').load("//example.org/onboard/signup.html");
-    //angular.bootstrap(document.getElementById('ob-app'), ['ob-app']);
-
     // init tooltip plugin
     $('#audience').tooltip();
 
     // login/signup widget source
     var providerURI = '//linkeddata.github.io/signup/index.html?ref=';
+    //var providerURI = '/signup/index.html?ref=';
     
     // set the parameter in the src of iframe
     document.getElementById('signup').src = providerURI+window.location.protocol+'//'+window.location.host;
-    //document.getElementById('directLogin').href = providerURI+window.location.protocol+'//'+window.location.host+'#login';
-    //document.getElementById('directSignup').href = providerURI+window.location.protocol+'//'+window.location.host+'#signup';
 });
 </script>
 
