@@ -305,9 +305,8 @@
               </div>
               <div class="modal-body">
                   <form class="m10">
-                  <p>The name you provide will be used to create a new channel inside your microblog workspace.</p>
-                  <p><input type="text" id="channeluri" name="channeluri" ng-model="channeluri" class="form-control" placeholder="Name (ch, default, etc.).." required ng-pattern="/^[A-Za-z0-9_ ]*$/"></p>
-                  <p><input type="text" id="channeltitle" name="channeltitle" ng-model="channeltitle" class="form-control" placeholder="Title (Main, Work, etc.).." required></p>
+                  <p>The name you provide will be used to create a new channel inside your microblog.</p>                  
+                  <p><input type="text" id="channelname" name="channelname" ng-model="channelname" class="form-control" placeholder="Name (Main, Work, etc.).." required ng-pattern="/^[A-Za-z0-9_ ]*$/"></p>
                   <div class="btn-group">
                       <button id="audience" class="btn btn-primary" disabled><i class="fa {{audience.icon}} fa-2x white"></i></button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop" rel="tooltip" data-placement="top" title="Audience"><i class="fa fa-chevron-down fa-2x"></i></small></button>
                       <ul class="dropdown-menu" role="menu" aria-labelledby="audience">
@@ -321,7 +320,7 @@
               <div class="modal-footer">
                   <div class="col-md-12">
                       <button class="btn btn-info btn-sep-right" data-dismiss="modal" aria-hidden="true">Close</button>
-                      <button class="btn btn-primary" ng-click="newChannel()" ng-disabled="!channeluri || !channeltitle">{{createbtn}}</button>
+                      <button class="btn btn-primary" ng-click="newChannel()" ng-disabled="!channelname">{{createbtn}}</button>
                   </div>  
               </div>
           </div>
