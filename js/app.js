@@ -863,7 +863,7 @@ function CimbaCtrl($scope, $filter) {
 	        statusCode: {
 	            201: function() {
 	                console.log("201 Created");
-	                notify('Post', 'Your post was succesfully submitted and created!');
+	                notify('Success', 'Your new post was succesfully created!');
 	            },
 	            401: function() {
 	                console.log("401 Unauthorized");
