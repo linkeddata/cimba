@@ -362,7 +362,6 @@
                         <div class="input-group">
                             <div class="input-group-btn">
                               <input type="search" id="searchwebid" name="searchwebid" class="form-control" ng-model="searchwebid" ng-pattern="/^http[A-Za-z0-9_#.:/]*$/">
-                              <button class="btn btn-default searchbutton pull-right" ng-click="searchwebid=''" ng-show="searchwebid"><i class="fa fa-times"></i></button>
                               <button class="btn btn-primary searchbutton" ng-click="getInfo(searchwebid); searchbtn='Searching...'" ng-disabled="!searchwebid"><i class="fa fa-search"></i> {{searchbtn}}</button>
                             </div>
                         </div>

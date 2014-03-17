@@ -84,7 +84,7 @@ function CimbaCtrl($scope, $filter) {
 	$scope.me.gotposts = true;
 	$scope.me.channels = [];
 
-	// cache user credentials in localStorage to avoid double sign in
+	// cache user credentials in sessionStorage to avoid double sign in
 	$scope.saveCredentials = function () {
 		var cimba = {};
 		var _user = {};
@@ -96,13 +96,13 @@ function CimbaCtrl($scope, $filter) {
 		_user.mbspace = $scope.me.mbspace;
 		_user.chspace = $scope.me.chspace;
 		cimba.me = _user;
-		localStorage.setItem($scope.appuri+$scope.me.webid, JSON.stringify(cimba));
+		sessionStorage.setItem($scope.appuri, JSON.stringify(cimba));
 	}
 
-	// retrieve from localStorage
+	// retrieve from sessionStorage
 	$scope.loadCredentials = function () {
-		if (localStorage.getItem($scope.appuri+$scope.me.webid)) {
-			var cimba = JSON.parse(localStorage.getItem($scope.appuri+$scope.me.webid));
+		if (sessionStorage.getItem($scope.appuri)) {
+			var cimba = JSON.parse(sessionStorage.getItem($scope.appuri));
 			if (cimba.me) {
 				$scope.me.webid = cimba.me.webid;
 				$scope.me.name = cimba.me.name;
@@ -114,27 +114,21 @@ function CimbaCtrl($scope, $filter) {
 				$scope.loggedin = true;
 				if ($scope.me.channels)
 					$scope.defaultChannel = $scope.me.channels[0];
-				// load users (following)
-				$scope.loadUsers();
+				// load from PDS (follows)
+				if ($scope.me.mbspace && (!$scope.users || $scope.users.length == 0))
+					$scope.getUsers();
+				// refresh data
+				$scope.getInfo(cimba.me.webid, true);
 			} else {
-				// clear localStorage in case there was a change to the data structure
-				localStorage.removeItem($scope.appuri+$scope.me.webid);
+				// clear sessionStorage in case there was a change to the data structure
+				sessionStorage.removeItem($scope.appuri);
 			}
 		}
 	}
 
 	// save the list of users + channels
 	$scope.saveUsers = function () {
-		// save to localStorage
-		if (localStorage.getItem($scope.appuri+$scope.me.webid))
-			var cimba = JSON.parse(localStorage.getItem($scope.appuri+$scope.me.webid));
-		else
-			var cimba = {};
-		
-		cimba.users = $scope.users;
-		localStorage.setItem($scope.appuri+$scope.me.webid, JSON.stringify(cimba));
-
-		// also save to PDS
+		// save to PDS
 		// TODO: try to discover the followURI instead?
 		var channels = []; // temporary channel list (will load posts from them once this is done)
 		var followURI = ''; // uri of the preferences file
@@ -222,19 +216,6 @@ function CimbaCtrl($scope, $filter) {
 		        }
 		    });
 		}
-	}
-	// load the list of users + channels from localStorage
-	$scope.loadUsers = function () {
-		$scope.users = {};
-		// load from localStorage
-		if (localStorage.getItem($scope.appuri+$scope.me.webid)) {
-			var cimba = JSON.parse(localStorage.getItem($scope.appuri+$scope.me.webid));			
-			$scope.users = cimba.users;
-		} 
-
-		// load from PDS
-		if ($scope.me.mbspace && (!$scope.users || $scope.users.length == 0))
-			$scope.getUsers();
 	}
 
 	// get list of users (that I'm following) + their channels
@@ -330,26 +311,11 @@ function CimbaCtrl($scope, $filter) {
 		}
 	}
 
-	// save current posts in localStorage
-	$scope.savePosts = function () {
-		if ($scope.posts && !isEmpty($scope.posts)) {
-			if (localStorage.getItem($scope.appuri+$scope.me.webid))
-				var cimba = JSON.parse(localStorage.getItem($scope.appuri+$scope.me.webid));
-			else
-				var cimba = {};
-
-			cimba.posts = $scope.posts;
-			localStorage.setItem($scope.appuri+$scope.me.webid, JSON.stringify(cimba));
-		} else {
-			$scope.me.gotposts = false;
-		}
-	}
-
 	// update the view with new posts
 	$scope.updatePosts = function() {
-		$scope.loading = true;
-		if ($scope.me.channels.length > 0) {
+		if ($scope.me && $scope.me.channels && $scope.me.channels.length > 0) {
 			// add my posts
+			$scope.loading = true;
 			for (c in $scope.me.channels) {
 				$scope.getPosts($scope.me.channels[c].uri);
 			}
@@ -365,18 +331,6 @@ function CimbaCtrl($scope, $filter) {
 						$scope.getPosts(ch);
 				}
 			}
-		}
-	}
-
-	// load the posts from localStorage
-	$scope.loadPosts = function () {
-		if (!$scope.posts)
-			$scope.posts = {};
-		if (localStorage.getItem($scope.appuri+$scope.me.webid)) {
-			var cimba = JSON.parse(localStorage.getItem($scope.appuri+$scope.me.webid));
-			$scope.posts = cimba.posts;
-			if (!$scope.posts || isEmpty($scope.posts))
-				$scope.me.gotposts = false;
 		}
 	}
 
@@ -402,7 +356,6 @@ function CimbaCtrl($scope, $filter) {
 		        	notify('Success', 'Your post was removed from the server!')
 					// TODO: TEST THIS AGAIN!!!
 					$scope.removePost(post.uri);
-					$scope.savePosts();
 					$scope.$apply();
 					// also remove the ACL file
 					var acl = parseLinkHeader(r.getResponseHeader('Link'));
@@ -440,8 +393,6 @@ function CimbaCtrl($scope, $filter) {
 					modified = true;
 				}
 			}
-			if (modified)
-				$scope.savePosts();
 		}
 	}
 
@@ -456,21 +407,19 @@ function CimbaCtrl($scope, $filter) {
 					modified = true;
 				}
 			}
-			if (modified)
-				$scope.savePosts();
 		}
 	}
 
-	// clear localStorage
+	// clear sessionStorage
 	$scope.clearLocalCredentials = function () {
-		localStorage.removeItem($scope.appuri+$scope.me.webid);
+		sessionStorage.removeItem($scope.appuri);
 	}
 
-	// logout (clear localStorage)
+	// logout (clear sessionStorage)
 	$scope.clearSession = function () {
 		// try to logout certificate
 		logout();
-		// clear localStorage
+		// clear sessionStorage
 		$scope.clearLocalCredentials();
 		$scope.me = {};
 		$scope.posts = {};
@@ -863,7 +812,7 @@ function CimbaCtrl($scope, $filter) {
 	        statusCode: {
 	            201: function() {
 	                console.log("201 Created");
-	                notify('Success', 'Your new post was succesfully created!');
+	                notify('Post', 'Your post was succesfully submitted and created!');
 	            },
 	            401: function() {
 	                console.log("401 Unauthorized");
@@ -900,7 +849,6 @@ function CimbaCtrl($scope, $filter) {
 					$scope.setACL(postURI, $scope.audience.range);
 					// save to local posts
 					$scope.$apply();
-					$scope.savePosts();
 				} else {
 					console.log('Error: posting on the server did not return a Location header');
 					notify('Error', 'Unable to save post on the server!');
@@ -1182,7 +1130,7 @@ function CimbaCtrl($scope, $filter) {
 		        if (!storage)
 		        	$scope.loading = false; // hide spinner
 
-		    	// cache user credentials in localStorage
+		    	// cache user credentials in sessionStorage
 		    	$scope.saveCredentials();
 		    	// also add myself to the users list
 		    	//$scope.users[webid] = _user;
@@ -1405,9 +1353,6 @@ function CimbaCtrl($scope, $filter) {
 						$scope.$apply();
 					}
 				}
-
-				// done loading, save posts to localStorage
-				$scope.savePosts();
 			} else {
 				if (isEmpty($scope.posts))
 					$scope.me.gotposts = false;
@@ -1441,9 +1386,8 @@ function CimbaCtrl($scope, $filter) {
 		}
 	},false);
 
-	// init by retrieving user from localStorage
+	// init by retrieving user from sessionStorage
 	$scope.loadCredentials();
-	$scope.loadPosts();
 }
 
 //simple directive to display new post box
