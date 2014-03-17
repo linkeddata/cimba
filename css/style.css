@@ -103,7 +103,7 @@ input:focus {
 }
 #searchwebid {
   font-size: 1.8em;
-  width: auto;
+  width: 250px;
   padding: 5px;
 }
 textarea {

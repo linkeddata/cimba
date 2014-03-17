@@ -86,7 +86,7 @@
                 <div class="panel panel-default" ng-show="loggedin"> 
                     <div class="panel-heading dark-blue">
                         <div class="pull-left">
-                            <a id="pic" class="thumbnail pull-right" href="#">
+                            <a id="pic" class="thumbnail pull-right" href="{{me.webid}}">
                               <img class="media-object" ng-src="{{me.pic}}" rel="tooltip" data-placement="top" title="{{me.name}}">
                             </a>
                         </div>
@@ -360,7 +360,7 @@
                     <form>
                         <p>Please provide the WebID for the channel owner.</p>
                         <div class="input-group">
-                            <div class="input-group-btn">
+                            <div class="input-group-btn text-center">
                               <input type="search" id="searchwebid" name="searchwebid" class="form-control" ng-model="searchwebid" ng-pattern="/^http[A-Za-z0-9_#.:/]*$/">
                               <button class="btn btn-primary searchbutton" ng-click="getInfo(searchwebid); searchbtn='Searching...'" ng-disabled="!searchwebid"><i class="fa fa-search"></i> {{searchbtn}}</button>
                             </div>
