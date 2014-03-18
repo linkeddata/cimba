@@ -101,7 +101,7 @@ input:focus {
 .searchbutton {
   position: absolute;
 }
-#searchwebid {
+#search {
   font-size: 1.8em;
   width: 250px;
   padding: 5px;
@@ -186,6 +186,10 @@ pre {
 }
 .user-thumb img {
   height: 40px;
+}
+.user-name {
+  color: #fff;
+  margin-left: 80px;
 }
 .card-name {
   margin-left: 80px;
@@ -305,7 +309,9 @@ a.link-white {
 .black {
   color: #000 !important;
 }
-
+.pointer {
+  cursor: pointer;
+}
 .animate-enter, 
 .animate-leave
 { 
@@ -338,7 +344,12 @@ a.link-white {
 .m10 {
   margin: 10px;
 }
-
+.mt20 {
+  margin-top: 20px;
+}
+.mt30 {
+  margin-top: 30px;
+}
 .w60 {
   width: 60px;
 }

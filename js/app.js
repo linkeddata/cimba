@@ -1,8 +1,3 @@
-/* TODO: 
-	* add ACLs!
-	* display the "Snap" messages only after we're sure there are no channels/posts.
-*/
-
 // some config
 var PROXY = "https://rww.io/proxy?uri={uri}";
 // add filters
@@ -13,6 +8,7 @@ ngCimba.filter('fromNow', function() {
     return moment(date).fromNow();
   }
 });
+
 // order function for ng-repeat using lists instead of arrays
 ngCimba.filter('orderObjectBy', function(){
  return function(input, attribute) {
@@ -50,7 +46,7 @@ ngCimba.filter('unique', function() {
 });
 
 // Main angular controller
-function CimbaCtrl($scope, $filter) {
+function CimbaCtrl($scope, $http, $filter) {
 	// default values
 	// show loading spinner
 	$scope.loading = false;
@@ -77,7 +73,7 @@ function CimbaCtrl($scope, $filter) {
 	$scope.me = {};
 	$scope.me.webid = undefined;
 	$scope.me.name = undefined;
-	$scope.me.pic = 'http://cimba.co/img/photo.png';
+	$scope.me.pic = '../img/photo.png';
 	$scope.me.storagespace = undefined;
 	$scope.me.mbspace = true;
 	$scope.me.chspace = true;
@@ -259,7 +255,7 @@ function CimbaCtrl($scope, $filter) {
 							    	_channel.css = ch.css = 'btn-success';
 									// also load the posts for this channel
 									if (loadposts && _channel.uri)
-										$scope.getPosts(_channel.uri);
+										$scope.getPosts(_channel.uri, _channel.title);
 								} else {
 							    	_channel.action = ch.action = 'Subscribe';
 									_channel.button = ch.button = 'fa-square-o';
@@ -278,6 +274,41 @@ function CimbaCtrl($scope, $filter) {
 				}
 			});
 		}
+	}
+
+	// attempt to find a person using webizen.org
+	$scope.lookupWebID = function(query) {
+		console.log(query);
+		if (query.length > 0) {
+			if (!$scope.search)
+				$scope.search;
+			$scope.gotresults = false;
+			$scope.search.selected = false;
+			// get results from server
+			$http.get('http://webizen.org/v1/search', {
+				params: {
+					q: query
+				}
+			}).then(function(res){
+				$scope.webidresults = [];
+				angular.forEach(res.data, function(value, key){
+					value.webid = key;
+					if (!value.image)
+						value.image = ['http://cimba.co/img/photo.png'];
+					value.host = getHostname(key);
+					$scope.webidresults.push(value);
+				});
+				return $scope.webidresults;
+			});
+		}
+	}
+	$scope.prepareSearch = function(webid, name) {
+		$scope.search.selected = true;
+		$scope.search.loading = true;
+		$scope.search.webid = webid;
+		$scope.search.query = name[0];
+		$scope.getInfo(webid);
+		$scope.webidresults = [];
 	}
 
 	// toggle filter on/off
@@ -317,7 +348,7 @@ function CimbaCtrl($scope, $filter) {
 			// add my posts
 			$scope.loading = true;
 			for (c in $scope.me.channels) {
-				$scope.getPosts($scope.me.channels[c].uri);
+				$scope.getPosts($scope.me.channels[c].uri, $scope.me.channels[c].title);
 			}
 		}
 
@@ -328,7 +359,7 @@ function CimbaCtrl($scope, $filter) {
 				for (c in _user.channels) {
 					var ch = _user.channels[c].uri;
 					if (ch)
-						$scope.getPosts(ch);
+						$scope.getPosts(ch, _user.channels[c].title);
 				}
 			}
 		}
@@ -951,6 +982,7 @@ function CimbaCtrl($scope, $filter) {
 		$scope.gotresults = true;
 		$scope.addChannelStyling(webid, $scope.search.channels);
     	$scope.searchbtn = 'Search';
+    	$scope.search.loading = false;
     	$scope.$apply();
     }
     
@@ -1004,14 +1036,14 @@ function CimbaCtrl($scope, $filter) {
 					c.action = ch.action = 'Unsubscribe';
 					c.button = ch.button = 'fa-check-square-o';
 			    	c.css = ch.css = 'btn-success';
-			    	$scope.getPosts(ch.uri);
+			    	$scope.getPosts(ch.uri, ch.title);
 		    	}
 	    	} else {
 	    		// subscribe
 	    		ch.action = 'Unsubscribe';
 				ch.button = 'fa-check-square-o';
 		    	ch.css = 'btn-success';
-		    	$scope.getPosts(ch.uri);
+		    	$scope.getPosts(ch.uri, ch.title);
 	    	}
 	    	// also update the users list in case there is a new channel
 	    	$scope.users[user.webid] = user;
@@ -1025,7 +1057,7 @@ function CimbaCtrl($scope, $filter) {
 				$scope.users = {};
 			$scope.users[user.webid] = user;
 			$scope.saveUsers();
-			$scope.getPosts(ch.uri);
+			$scope.getPosts(ch.uri, ch.title);
 		}
 	}
 
@@ -1067,7 +1099,7 @@ function CimbaCtrl($scope, $filter) {
 	    // fetch user data
 	    f.nowOrWhenFetched(docURI,undefined,function(ok, body) {
 			if (!ok) {
-				if ($scope.searchwebid && $scope.searchwebid == webid) {
+				if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
 					notify('Warning', 'WebID profile not found.');
 					$scope.found = false;
 					$scope.searchbtn = 'Search';
@@ -1102,7 +1134,7 @@ function CimbaCtrl($scope, $filter) {
 		    	}
 
     		// add to search object if it was the object of a search
-    		if ($scope.searchwebid && $scope.searchwebid == webid)
+    		if ($scope.search && $scope.search.webid && $scope.search.webid == webid)
 	   			$scope.search = _user;
 
 	   		if (update) {
@@ -1140,7 +1172,7 @@ function CimbaCtrl($scope, $filter) {
 	    		$scope.$apply();
 			}
 	    });
-		if ($scope.searchwebid && $scope.searchwebid == webid)
+		if ($scope.search && $scope.search.webid && $scope.search.webid == webid)
 			$scope.searchbtn = 'Search';
 	}
 
@@ -1175,11 +1207,13 @@ function CimbaCtrl($scope, $filter) {
 		        	f.nowOrWhenFetched(w+'.*', undefined,function(){
 			        	var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));
 			        	var channels = [];
-			        	
+
 			        	if (chs.length > 0) {
 				        	// clear list first
 				        	if (mine)
 				        		$scope.me.channels = [];
+							if (update)
+								$scope.users[webid].channels = [];
 
 				        	for (var ch in chs) {
 		        				var channel = {};
@@ -1198,14 +1232,12 @@ function CimbaCtrl($scope, $filter) {
 								if (mine) {
 									$scope.me.channels.push(channel);
 		        					// force get the posts for my channels
-		        					$scope.getPosts(channel.uri);
+		        					$scope.getPosts(channel.uri, channel.title);
 									$scope.me.chspace = true;
 								}
 
 								// update
 								if (update) {
-									if (!$scope.users[webid].channels)
-										$scope.users[webid].channels = [];
 									var exists = findWithAttr($scope.users[webid].channels, 'uri', channel.uri);
 									if (exists == undefined) {
 										$scope.users[webid].channels.push(channel);
@@ -1237,7 +1269,7 @@ function CimbaCtrl($scope, $filter) {
 				        	$scope.saveUsers();
 						
 				        // if we were called by search
-			        	if ($scope.searchwebid && $scope.searchwebid == webid) {
+			        	if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
 							$scope.search.channels = channels;
 							$scope.drawSearchResults();
 			        	}
@@ -1250,7 +1282,7 @@ function CimbaCtrl($scope, $filter) {
 				}
 			} else { // no Microblogging workspaces found!
 		        // we were called by search
-	        	if ($scope.searchwebid && $scope.searchwebid == webid) {
+	        	if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
 					$scope.drawSearchResults();
 				}
 
@@ -1270,7 +1302,7 @@ function CimbaCtrl($scope, $filter) {
 	}
 	
 	// get all posts for a given microblogging workspace
-	$scope.getPosts = function(channel) {
+	$scope.getPosts = function(channel, title) {
 		var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 		var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
 	    var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
@@ -1334,6 +1366,7 @@ function CimbaCtrl($scope, $filter) {
 					var _newPost = {
 						uri : uri,
 						channel: channel,
+						chtitle: title,
 						date : date,
 						userwebid : userwebid,
 						userpic : userpic,
@@ -1404,7 +1437,7 @@ ngCimba.directive('postsViewer',function(){
   	return {
 		replace : true,
 		restrict : 'E',
-		templateUrl: 'tpl/post.html'
+		templateUrl: 'tpl/posts.html'
     }; 
 })
 
@@ -1414,5 +1447,14 @@ ngCimba.directive('channelslist',function(){
 		replace : true,
 		restrict : 'E',
 		templateUrl: 'tpl/channel-list.html'
+    }; 
+})
+
+//simple directive to display list of search results
+ngCimba.directive('searchresults',function(){
+  	return {
+		replace : true,
+		restrict : 'E',
+		templateUrl: 'tpl/search_results.html'
     }; 
 })

@@ -1,3 +1,15 @@
+// parse an uri and get the hostname
+function getHostname(uri) {
+    var l = document.createElement("a");
+    l.href = uri;
+    return l.hostname;
+};
+
+// count number of properties in an object
+function objLength(obj) {
+	return Object.keys(obj).length;
+}
+
 // Logout WebID 
 function logout() {
    if (document.all == null) {

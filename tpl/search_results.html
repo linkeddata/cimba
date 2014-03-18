@@ -1,0 +1,19 @@
+<div class="webid-results" ng-show="!search.selected">
+    <div ng-repeat="w in webidresults | limitTo: 7" class="mt20">
+        <div class="panel-heading light-blue pointer" ng-click="prepareSearch(w.webid, w.name)" rel="tooltip" data-placement="top" title="Find channels for {{w.webid}}">
+            <div class="pull-left">
+                <div class="thumbnail thumbnail-sm pull-right">
+                  <img class="media-object" ng-src="{{w.image[0]}}">
+                </div>
+            </div>
+            <div class="user-name">
+                <strong>{{w.name[0]}}</strong>
+                <br>
+                <small>{{w.mbox[0].slice(w.mbox[0].indexOf(':')+1, w.mbox[0].length)}}</small>
+                <br>
+                <small>Hosted on: {{w.host}}</small>
+                </h4>
+            </div>
+        </div>    
+    </div>
+</div>

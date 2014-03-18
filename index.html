@@ -361,10 +361,14 @@
                         <p>Please provide the WebID for the channel owner.</p>
                         <div class="input-group">
                             <div class="input-group-btn text-center">
-                              <input type="search" id="searchwebid" name="searchwebid" class="form-control" ng-model="searchwebid" ng-pattern="/^http[A-Za-z0-9_#.:/]*$/">
-                              <button class="btn btn-primary searchbutton" ng-click="getInfo(searchwebid); searchbtn='Searching...'" ng-disabled="!searchwebid"><i class="fa fa-search"></i> {{searchbtn}}</button>
+                              <input type="search" id="search" name="search" class="form-control" ng-model="search.query" ng-change="lookupWebID(search.query)" ng-pattern="/^[A-Za-z0-9_#.:/]*$/">
+                              <button class="btn btn-primary searchbutton" ng-click="getInfo(search.webid); searchbtn='Searching...'" ng-disabled="!search.webid"><i class="fa fa-search"></i> {{searchbtn}}</button>
                             </div>
                         </div>
+                        <div ng-show="search.loading" class="mt30">
+                            <div class="circle circle-large"></div><div class="circle1 circle1-large"></div>
+                        </div>
+                        <searchResults></searchResults>
                         <h4 class="black text-center" ng-show="!found">No WebID found at given location.</h4>
                     </form>
                 </div>
