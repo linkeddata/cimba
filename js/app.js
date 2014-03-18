@@ -819,10 +819,12 @@ function CimbaCtrl($scope, $http, $filter) {
 
     	var s = new $rdf.Serializer(g).toN3(g);
     	var uri = $scope.defaultChannel.uri;
+    	var title = $scope.defaultChannel.title;
     	
 		var _newPost = {
 			uri : '',
 			channel: uri,
+			chtitle: title,
 			date : now,
 			timeago : moment(now).fromNow(),
 			userpic : $scope.me.pic,
