@@ -162,9 +162,9 @@ pre {
   padding: 5px 15px 15px 15px;
 }
 .panel-body-text {
-    min-height: 50px;
-    margin-left: 100px;
-    margin-top: 15px;
+  min-height: 50px;
+  margin-left: 100px;
+  margin-top: 15px;
 }
 .list-group-item:first-child,.list-group-item:last-child {
 	border-radius:0;
@@ -176,8 +176,12 @@ pre {
   max-width: 70px;
 }
 .thumb-pic {
-  width:70px;
-  min-height: 70px!important;
+  max-width:70px;
+  max-height: 70px!important;
+}
+.thumb-pic-sm {
+  max-width:60px;
+  max-height: 60px!important;
 }
 .user-thumb {
   margin-top: 7px;

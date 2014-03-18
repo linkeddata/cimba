@@ -335,7 +335,7 @@
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                     <h2 class="text-center"><i class="fa fa-rss"></i>  Manage channels</h2>
                     <a href="#newChannelModal" role="button" data-toggle="modal" onclick="$('#subsModal').modal('hide')"><button class="btn btn-primary btn-sep-right"><i class="fa fa-plus"></i> New channel</button></a>
-                    <a href="#subscribeModal" role="button" data-toggle="modal" ><button class="btn btn-primary btn-sep-right"><i class="fa fa-search"></i> Search by WebID</button></a>
+                    <a href="#subscribeModal" role="button" data-toggle="modal" ><button class="btn btn-primary btn-sep-right"><i class="fa fa-search"></i> Find channels</button></a>
                     <h2 class="text-center">Available channels:</h2>
                 </div>
                 <div class="modal-body">
@@ -358,7 +358,7 @@
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                     <h2 class="text-center"><i class="fa fa-search"></i> Find channels</h2>
                     <form>
-                        <p>Please provide the WebID for the channel owner.</p>
+                        <p class="text-center">Search by name, email or WebID..</p>
                         <div class="input-group">
                             <div class="input-group-btn text-center">
                               <input type="search" id="search" name="search" class="form-control" ng-model="search.query" ng-change="lookupWebID(search.query)" ng-pattern="/^[A-Za-z0-9_#.:/]*$/">
@@ -376,7 +376,7 @@
                     <div class="searchresults" ng-show="gotresults">
                         <div class="panel-heading dark-blue">
                             <div class="pull-left">
-                                <a class="thumbnail thumbnail-sm pull-right" href="#">
+                                <a class="thumbnail thumbnail-sm pull-right" href="{{search.webid}}">
                                   <img class="media-object" ng-src="{{search.pic}}" rel="tooltip" data-placement="top" title="{{search.name}}">
                                 </a>
                             </div>
