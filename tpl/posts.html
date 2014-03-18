@@ -9,9 +9,11 @@
                         </a>
                     </div>
                     <div class="user-name pull-left">
-                        <a href="{{post.userwebid}}" class="link-white bold" target="_blank">{{post.username}}</a>
+                        <a href="{{post.userwebid}}" class="link-white" target="_blank"><strong>{{post.username}}</strong></a>
                         <br>
                         <small class="white" rel="tooltip" data-placement="top" title="{{post.date}}">{{post.date | fromNow}}</small>
+                        <br>
+                        <small class="white" rel="tooltip" data-placement="top" title="Channel">in {{post.chtitle}}</small>
                     </div>
                     <div class="pull-right">
                         <a href="{{post.uri}}" class="link-post pull-right" target="_blank">

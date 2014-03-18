@@ -108,10 +108,13 @@ input:focus {
 .searchbutton {
   position: absolute;
 }
-#searchwebid {
+#search {
   font-size: 1.8em;
-  width: auto;
+  width: 250px;
   padding: 5px;
+}
+.pointer {
+  cursor: pointer;
 }
 textarea {
   resize: none;
@@ -150,6 +153,9 @@ pre {
   border-bottom: 0px;
 }
 .panel .panel-heading a {
+  font-weight:400;
+}
+.panel .panel-heading small {
   font-weight:400;
 }
 .panel-heading {
@@ -191,7 +197,7 @@ pre {
 .thumb-pic {
   width:70px;
   padding-right: 5px;
-  min-height: 70px!important;
+  height: 70px!important;
 }
 .user-name {
   position:absolute;
@@ -221,6 +227,9 @@ h4,h5 {
   border:0 solid #efefef; 
   border-bottom-width:0px;
   padding-bottom:10px;
+}
+h4 small {
+  color: #fff;
 }
 h4 a, a:hover, a:visited {
   color: #fff;
@@ -366,7 +375,9 @@ a.link-white {
 .m10 {
   margin: 10px;
 }
-
+.mt30 {
+  margin-top: 30px;
+}
 .w60 {
   width: 60px;
 }
