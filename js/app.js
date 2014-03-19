@@ -1071,6 +1071,12 @@ function CimbaCtrl($scope, $http, $filter) {
 			$scope.profileloading = true;
 			$scope.testwebid = false;
 			$scope.getInfo(webid, true);
+			// add/refresh WebID on webizen.org
+			$http.get('http://webizen.org/v1/search', {
+				params: {
+					q: webid
+				}
+			});
 		} else {
 			notify('Error', 'WebID-TLS authentication failed.');
 			$scope.testwebid = true;
