@@ -23,7 +23,7 @@
                 </div>
                 <div class="panel-body">
                     <div class="panel-body-text">
-                        <pre>{{post.body}}</pre>
+                        <pre ng-bind-html="post.body | makeLinks"></pre>
                     </div>
                     
                     <div ng-show="me.webid == post.userwebid">
