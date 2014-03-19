@@ -1,11 +1,12 @@
 <div class="webid-results" ng-show="!search.selected">
-    <div ng-repeat="person in webidresults | limitTo: 5">
-        <br/>
-        <div class="panel-heading light-blue pointer" ng-click="prepareSearch(webid, person.name[0])" rel="tooltip" data-placement="top" title="Find channels for {{person.webid}}">
+    <div ng-repeat="person in webidresults | limitTo: 7" class="mt20">
+        <div class="panel-heading light-blue pointer" ng-click="prepareSearch(person.webid, person.name[0])" rel="tooltip" data-placement="top" title="Find channels for {{person.webid}}">
             <div class="pull-left">
-                <img class="media-object thumb-pic" ng-src="{{person.img[0]}}">
+                <div class="thumbnail thumbnail-sm pull-right">
+                  <img class="media-object thumb-pic-sm" ng-src="{{person.img[0]}}">
+                </div>
             </div>
-            <div class="user-name pull-left white">
+            <div class="user-name">
                 <strong>{{person.name[0]}}</strong>
                 <br>
                 <small>{{person.mbox[0]}}</small>
@@ -13,6 +14,6 @@
                 <small>Hosted on: {{person.host}}</small>
                 </h4>
             </div>
-        </div>
+        </div>    
     </div>
 </div>
