@@ -8,7 +8,15 @@ ngCimba.filter('fromNow', function() {
     return moment(date).fromNow();
   }
 });
-
+ngCimba.filter('makeLinks', function ($sce) {
+    return function (str) {
+        return $sce.trustAsHtml(str.
+                                replace(/</g, '&lt;').
+                                replace(/>/g, '&gt;').
+                                replace(/(http[^\s]+)/g, '<a href="$1" target="_blank">$1</a>')
+                               );
+    }
+});
 // order function for ng-repeat using lists instead of arrays
 ngCimba.filter('orderObjectBy', function(){
  return function(input, attribute) {
