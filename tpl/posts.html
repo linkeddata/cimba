@@ -23,7 +23,7 @@
                 </div>
                 <div class="panel-body">
                     <div class="panel-body-text">
-                        <pre>{{post.body}}</pre>
+                        <pre ng-bind-html="post.body | makeLinks"></pre>
                     </div>
                     
                     <div ng-show="me.webid == post.userwebid">
@@ -31,7 +31,7 @@
                         <div class="input-group">
                             <div class="input-group-btn">
                                 <button class="btn btn-danger" data-placement="top" title="Delete message" ng-click="deletePost(post)" ><i class="fa fa-times white"></i> Delete</button>
-                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
