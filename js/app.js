@@ -1,13 +1,20 @@
 // some config
 var PROXY = "https://rww.io/proxy?uri={uri}";
 // add filters
-var ngCimba = angular.module('CimbaApp', ['ui','ui.filters']);
+var ngCimba = angular.module('CimbaApp', ['ui','ui.filters','ngSanitize']);
 // replace dates with moment's "time ago" style
 ngCimba.filter('fromNow', function() {
   return function(date) {
     return moment(date).fromNow();
   }
 });
+// parse markdown text to html
+ngCimba.filter('markdown', function ($sce) {
+    var converter = new Showdown.converter();
+	return function (str) {
+        return converter.makeHtml(str);
+    }
+})
 ngCimba.filter('makeLinks', function ($sce) {
     return function (str) {
         return $sce.trustAsHtml(str.
