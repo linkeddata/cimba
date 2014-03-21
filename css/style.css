@@ -137,7 +137,7 @@ pre {
   border: 0px;
   padding: 0px;
 }
-.post a, a:hover, a:visited {
+.post a, .post a:hover, .post a:visited {
   color: #3bafda!important;
 }
 .post-title {
