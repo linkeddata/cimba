@@ -299,7 +299,7 @@ function CimbaCtrl($scope, $http, $filter) {
 			$scope.gotresults = false;
 			$scope.search.selected = false;
 			// get results from server
-			$http.get('http://webizen.org/v1/search', {
+			$http.get('http://api.webizen.org/v1/search', {
 				params: {
 					q: query
 				}
