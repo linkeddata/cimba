@@ -130,11 +130,15 @@ pre {
   font-family: inherit;
   font-size: inherit;
   color: #fff;
-  word-break: break-all;
+  word-break: break-word;
   word-wrap: break-word;
+  white-space: pre-line;
   background-color: inherit;
   border: 0px;
   padding: 0px;
+}
+.post a, a:hover, a:visited {
+  color: #3bafda!important;
 }
 .post-title {
   position: relative;
@@ -319,7 +323,7 @@ a.link-post {
   color: #fff;
 }
 a.link-white {
-  color: #fff;
+  color: #fff!important;
 }
 .thumb {
   height: 20px;
