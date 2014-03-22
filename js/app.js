@@ -15,7 +15,7 @@ ngCimba.filter('markdown', function ($sce) {
         return converter.makeHtml(str);
     }
 });
-ngCimba.filter('makeLinks', function ($sce) {
+ngCimba.filter('makelinks', function ($sce) {
     return function (str) {
         return $sce.trustAsHtml(str.
                                 replace(/</g, '&lt;').
