@@ -90,7 +90,7 @@ function CimbaCtrl($scope, $http, $filter) {
 	$scope.me = {};
 	$scope.me.webid = undefined;
 	$scope.me.name = undefined;
-	$scope.me.pic = 'img/generic-photo.png';
+	$scope.me.pic = 'img/generic_photo.png';
 	$scope.me.storagespace = undefined;
 	$scope.me.mbspace = true;
 	$scope.me.chspace = true;
@@ -255,7 +255,7 @@ function CimbaCtrl($scope, $http, $filter) {
 						var _user = {};
 						_user.webid = g.any(u, SIOC('account_of')).value;
 						_user.name = (g.any(u, SIOC('name')))?g.any(u, SIOC('name')).value:'Unknown';
-						_user.pic = (g.any(u, SIOC('avatar')))?g.any(u, SIOC('avatar')).value:'img/generic-photo.png';
+						_user.pic = (g.any(u, SIOC('avatar')))?g.any(u, SIOC('avatar')).value:'img/generic_photo.png';
 						_user.channels = [];
 						// add channels
 						var channels = g.statementsMatching(u, SIOC('feed'), undefined);
@@ -310,7 +310,7 @@ function CimbaCtrl($scope, $http, $filter) {
 				angular.forEach(res.data, function(value, key){
 					value.webid = key;
 					if (!value.img)
-						value.img = ['img/generic-photo.png'];
+						value.img = ['img/generic_photo.png'];
 					value.host = getHostname(key);
 					$scope.webidresults.push(value);
 				});
@@ -1147,7 +1147,7 @@ function CimbaCtrl($scope, $http, $filter) {
 	            if (depic)
 	                pic = depic.value;
 	            else
-	                pic = 'img/generic-photo.png';
+	                pic = 'img/generic_photo.png';
 	        }
 
 	        var _user = {
