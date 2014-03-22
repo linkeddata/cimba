@@ -137,6 +137,13 @@ pre {
   border: 0px;
   padding: 0px;
 }
+pre img {
+  display: block;
+  max-width: 320px;
+  max-height: 320px;
+  width: auto;
+  height: auto;
+}
 .post a, .post a:hover, .post a:visited {
   color: #3bafda!important;
 }
