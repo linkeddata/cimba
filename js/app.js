@@ -15,7 +15,8 @@ ngCimba.filter('markdown', function ($sce) {
         return converter.makeHtml(str);
     }
 });
-ngCimba.filter('makelinks', function ($sce) {
+// turn http links in text to hyperlinks
+ngCimba.filter('makeLinks', function ($sce) {
     return function (str) {
         return $sce.trustAsHtml(str.
                                 replace(/</g, '&lt;').
@@ -1364,7 +1365,7 @@ function CimbaCtrl($scope, $http, $filter) {
 					} else if (g.any(useraccount, SIOC('avatar'))) {
 						var userpic = g.any(useraccount, SIOC('avatar')).value;
 					} else {
-						var userpic = undefined;
+						var userpic = 'img/generic_photo.png';
 					}
 					// try using the name from the WebID first
 					if (userwebid) {
@@ -1375,7 +1376,7 @@ function CimbaCtrl($scope, $http, $filter) {
 					} else if (g.any(useraccount, FOAF('name'))) {
 						var username = g.any(useraccount, FOAF('name')).value;
 					} else {
-						var username = userwebid;
+						var username = 'Unknown';
 					}
 					if (g.any(uri, SIOC('content'))) {
 						var body = g.any(uri, SIOC('content')).value;
