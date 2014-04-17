@@ -178,7 +178,7 @@ function CimbaCtrl($scope, $http, $filter) {
 		        	// add the channel reference back to the user
 		        	g.add($rdf.sym(uid), SIOC('feed'), $rdf.sym(ch_id));
 		        	// add channel details
-		        	g.add($rdf.sym(ch_id), RDF('type'), SIOC('Container'));
+		        	g.add($rdf.sym(ch_id), RDF('type'), SIOC('BasicContainer'));
 					g.add($rdf.sym(ch_id), SIOC('link'), $rdf.sym(ch.uri));
 					g.add($rdf.sym(ch_id), DCT('title'), $rdf.lit(ch.title));
 					// add my WebID if I'm subscribed to this channel
@@ -588,7 +588,7 @@ function CimbaCtrl($scope, $http, $filter) {
 	        processData: false,
 	        headers: {
 	        	Slug: mburi,
-	        	Link: '<http://www.w3.org/ns/ldp#Container>; rel="type"'
+	        	Link: '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"'
 	        },
 	        contentType: 'text/turtle',
 	        xhrFields: {
@@ -706,7 +706,7 @@ function CimbaCtrl($scope, $http, $filter) {
 	        processData: false,
 	        contentType: 'text/turtle',
 	        headers: {
-	        	Link: '<http://www.w3.org/ns/ldp#Container>; rel="type"'
+	        	Link: '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"'
 	        },
 	        xhrFields: {
 				withCredentials: true
@@ -749,7 +749,7 @@ function CimbaCtrl($scope, $http, $filter) {
 					var g = $rdf.graph();
 					
 					// add uB triple (append trailing slash since we got dir)
-			        g.add($rdf.sym(chURI), RDF('type'), SIOC('Container'));
+			        g.add($rdf.sym(chURI), RDF('type'), SIOC('BasicContainer'));
 			        g.add($rdf.sym(chURI), DCT('title'), $rdf.lit(title));
 			        g.add($rdf.sym(chURI), LDPX('ldprPrefix'), $rdf.lit('post'));
 			        var s = new $rdf.Serializer(g).toN3(g);
@@ -1228,7 +1228,7 @@ function CimbaCtrl($scope, $http, $filter) {
 
 					// find the channels info for the user (from .meta files)
 		        	f.nowOrWhenFetched(w+'.*', undefined,function(){
-			        	var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));
+			        	var chs = g.statementsMatching(undefined, RDF('type'), SIOC('BasicContainer'));
 			        	var channels = [];
 
 			        	if (chs.length > 0) {
