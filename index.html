@@ -96,8 +96,8 @@
                         <div class="panel-body-textmail">
                           <div id="spinner" ng-hide="me.name"></div>
                           <h3 class="bold" ng-show="profileloading">Loading profile...</h3>
-                          <h3 class="bold" ng-show="me.name && !me.chspace">Hello {{me.name}}...</h3>
-                          <h3 class="bold" ng-show="me.name && me.chspace">What's new, {{me.name}}?</h3>
+                          <h3 class="bold" ng-show="me.name && !me.chspace">Hello {{me.name}}!</h3>
+                          <h3 class="bold" ng-show="me.chspace">What's new<span ng-show="me.name != ''">, {{me.name}}</span>?</h3>
                           <form ng-hide="me.webid && !me.chspace">                               
                               <textarea name="message" ng-model="postbody" class="form-control message" placeholder="Type your message here.." required></textarea>
                               <div class="btn-group">

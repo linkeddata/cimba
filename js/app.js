@@ -253,7 +253,7 @@ function CimbaCtrl($scope, $http, $filter) {
 						var u = users[i]['subject'];
 						var _user = {};
 						_user.webid = g.any(u, SIOC('account_of')).value;
-						_user.name = (g.any(u, SIOC('name')))?g.any(u, SIOC('name')).value:'Unknown';
+						_user.name = (g.any(u, SIOC('name')))?g.any(u, SIOC('name')).value:'';
 						_user.pic = (g.any(u, SIOC('avatar')))?g.any(u, SIOC('avatar')).value:'img/generic_photo.png';
 						_user.channels = [];
 						// add channels
@@ -1137,7 +1137,7 @@ function CimbaCtrl($scope, $http, $filter) {
 	    	var storage = g.any(webidRes, SPACE('storage'));
 
 	    	// Clean up name
-	        name = (name)?name.value:'Unknown';
+	        name = (name)?name.value:'';
 
 	        // set avatar picture
 	        if (pic) {
@@ -1376,7 +1376,7 @@ function CimbaCtrl($scope, $http, $filter) {
 					} else if (g.any(useraccount, FOAF('name'))) {
 						var username = g.any(useraccount, FOAF('name')).value;
 					} else {
-						var username = 'Unknown';
+						var username = '';
 					}
 					if (g.any(uri, SIOC('content'))) {
 						var body = g.any(uri, SIOC('content')).value;
