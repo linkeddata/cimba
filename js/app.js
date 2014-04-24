@@ -500,7 +500,8 @@ function CimbaCtrl($scope, $http, $filter) {
 	
 	// prepare the triples for new storage
 	// do not actually create the space, we just point to it
-	$scope.newStorage = function() {
+	$scope.newStorage = function(express) {
+		$scope.loading = true;
 		$scope.addstoragebtn = 'Adding...';
 
 		var storage = ($scope.storageuri)?$scope.storageuri:'shared/';
@@ -561,21 +562,34 @@ function CimbaCtrl($scope, $http, $filter) {
 					// clear form
 					$scope.storageuri = '';
 					$scope.addstoragebtn = 'Add';
+					$scope.me.storagespace = storage;
 					// close modal
 					$('#newStorageModal').modal('hide');
 					// reload user profile when done
-					$scope.getInfo($scope.me.webid, true);
-		        }
-		    }).done(function() {
-	        	// revert button contents to previous state
-	        	$scope.addstoragebtn = 'Add';
-	        	$scope.$apply();
+					if (express && express == true) {
+						$scope.mburi = "mb";
+						$scope.newMB(express);
+					} else {
+						$scope.getInfo($scope.me.webid, true);
+			        	// revert button contents to previous state
+			        	$scope.addstoragebtn = 'Add';
+						$scope.loading = false;
+			        	$scope.$apply();
+					}
+		        },
+		        error: function() {
+		        	// revert button contents to previous state
+		        	$scope.addstoragebtn = 'Add';
+		        	$scope.loading = false;
+		        	$scope.$apply();
+	        	}
         	});
 		}
 	}
 
 	// prepare the triples for new storage
-	$scope.newMB = function() {
+	$scope.newMB = function(express) {
+		$scope.loading = true;
 		$scope.createbtn = 'Creating...';
 
 		var mburi = ($scope.mburi)?$scope.mburi:'mb';
@@ -620,7 +634,7 @@ function CimbaCtrl($scope, $http, $filter) {
 	            // create the meta file
 	           	var meta = parseLinkHeader(r.getResponseHeader('Link'));
 				var metaURI = meta['meta']['href'];
-
+				var ldpresource = r.getResponseHeader("Location");
 				var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 				var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
 			    var FOAF = $rdf.Namespace('http://xmlns.com/foaf/0.1/');
@@ -666,27 +680,46 @@ function CimbaCtrl($scope, $http, $filter) {
 				        },
 				        success: function(d,s,r) {
 				            console.log('Success! Microblog space created.');
-                        	notify('Success', 'Microblog space created.'); 
+                        	notify('Success', 'Microblog space created.');
+                        	$scope.me.mbspace = ldpresource;
 			            	// clear form
 							$scope.mburi = '';
 							// close modal
 							$('#newMBModal').modal('hide');
-							// reload user profile when done
-							$scope.getInfo($scope.me.webid, true);
-				        }
-				    });
-		        }
+							if (express && express == true) {
+								$scope.channelname = "main";
+								$scope.newChannel();
+							} else {
+								// reload user profile when done
+								$scope.getInfo($scope.me.webid, true);
+					        	// revert button contents to previous state
+					        	$scope.createbtn = 'Create';
+								$scope.loading = false;
+					        	$scope.$apply();
+				        	}
+				        },
+				        error: function() {
+				        	// revert button contents to previous state
+				        	$scope.createbtn = 'Create';
+				        	$scope.loading = false;
+				        	$scope.$apply();
+				        }		        	
+			        });
+				}
+	    	},
+	    	error: function() {
+	        	// revert button contents to previous state
+	        	$scope.createbtn = 'Create';
+	        	$scope.loading = false;
+	        	$scope.$apply();
 	    	}
-	    }).done(function() {
-        	// revert button contents to previous state
-        	$scope.createbtn = 'Create';
-        	$scope.$apply();
         });
 	}
 
 	// create a new channel
 	// prepare the triples for new storage
 	$scope.newChannel = function() {
+		$scope.loading = true;
 		$scope.createbtn = 'Creating...';
 
 		if ($scope.channelname && testIfAllEnglish($scope.channelname)) {
@@ -804,6 +837,7 @@ function CimbaCtrl($scope, $http, $filter) {
 	    }).always(function() {
         	// revert button contents to previous state
         	$scope.createbtn = 'Create';
+        	$scope.loading = false;
         	$scope.$apply();
         });
 	}
@@ -1335,7 +1369,7 @@ function CimbaCtrl($scope, $http, $filter) {
 	    var f = $rdf.fetcher(g);
 	    // add CORS proxy
 	    $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
-
+		console.log("empty before? "+$scope.posts.length);
 		// get all SIOC:Post (using globbing)
 		f.nowOrWhenFetched(channel+'*', undefined,function(){
 			var posts = g.statementsMatching(undefined, RDF('type'), SIOC('Post'));
@@ -1408,6 +1442,8 @@ function CimbaCtrl($scope, $http, $filter) {
 						$scope.posts[uri] = _newPost;
 						$scope.$apply();
 					}
+
+					$scope.me.gotposts = true
 				}
 			} else {
 				if (isEmpty($scope.posts))

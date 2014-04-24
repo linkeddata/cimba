@@ -212,7 +212,7 @@
     </div>
 
     <!-- no posts found -->
-    <div id="setup" class="container" ng-show="me.webid && me.storagespace && me.mbspace && me.chspace && isEmpty(posts)">
+    <div id="setup" class="container" ng-show="me.gotposts == false">
         <div class="row">
             <div class="col-md-12">
                 <div class="panel panel-default text-center">
@@ -264,8 +264,9 @@
               </div>
               <div class="modal-footer">
                   <div class="col-md-12">
+                      <button class="btn btn-primary" ng-click="newStorage(true)" ng-disabled="!storageuri" tooltip="Skip all configuration">{{addstoragebtn}} (simple)</button>
+                      <button class="btn btn-primary" ng-click="newStorage()" ng-disabled="!storageuri" rel="tooltip" data-placement="top" title="Choose configuration options">{{addstoragebtn}} (advanced)</button>
                       <button class="btn btn-info btn-sep-right" data-dismiss="modal" aria-hidden="true">Close</button>
-                      <button class="btn btn-primary" ng-click="newStorage()" ng-disabled="!storageuri">{{addstoragebtn}}</button>
                   </div>  
               </div>      
           </div>
@@ -287,8 +288,8 @@
               </div>
               <div class="modal-footer">
                   <div class="col-md-12">
-                      <button class="btn btn-info btn-sep-right" data-dismiss="modal" aria-hidden="true">Close</button>
                       <button class="btn btn-primary" ng-click="newMB()" ng-disabled="!mburi">{{createbtn}}</button>
+                      <button class="btn btn-info btn-sep-right" data-dismiss="modal" aria-hidden="true">Close</button>
                   </div>  
               </div>
           </div>
@@ -319,8 +320,8 @@
               </div>
               <div class="modal-footer">
                   <div class="col-md-12">
-                      <button class="btn btn-info btn-sep-right" data-dismiss="modal" aria-hidden="true">Close</button>
                       <button class="btn btn-primary" ng-click="newChannel()" ng-disabled="!channelname">{{createbtn}}</button>
+                      <button class="btn btn-info btn-sep-right" data-dismiss="modal" aria-hidden="true">Close</button>
                   </div>  
               </div>
           </div>
