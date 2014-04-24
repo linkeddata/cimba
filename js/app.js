@@ -1087,7 +1087,7 @@ function CimbaCtrl($scope, $http, $filter) {
 			$scope.testwebid = false;
 			$scope.getInfo(webid, true);
 			// add/refresh WebID on webizen.org
-			$http.get('http://webizen.org/v1/search', {
+			$http.get('http://api.webizen.org/v1/search', {
 				params: {
 					q: webid
 				}

@@ -63,9 +63,8 @@
 
             <div class="collapse navbar-collapse" id="navbar-collapse2">
               <ul class="nav navbar-nav navbar-right">
-                  <li class="active"><a href="#"><i class="fa fa-home"></i> Home</a></li>
-                  <li ng-show="loggedin"><a href="#subsModal" role="button" data-toggle="modal"><i class="fa fa-rss"></i> Channels</a></li>
                   <li ng-hide="!me.channels[0]"><a href="#" ng-click="updatePosts()"><i class="fa fa-refresh"></i> Refresh </a></li>
+                  <li ng-show="loggedin"><a href="#subsModal" role="button" data-toggle="modal"><i class="fa fa-rss"></i> Channels</a></li>
                   <!-- QCRI Filtering Start -->
 				          <li ng-hide="!me.channels[0]" ng-class="filterFlag==true?'active':''" rel="tooltip" data-placement="top" title="Toggle language filter"><a href="#" ng-click="toggleFilter()"><i class="fa fa-filter"></i> {{languageFilter}}</a></li>
                   <!-- QCRI Filtering End -->
