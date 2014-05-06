@@ -1,5 +1,5 @@
 // some config
-var PROXY = "https://rww.io/proxy?uri={uri}";
+var PROXY = "https://rww.io/auth-proxy?uri={uri}";
 // add filters
 var ngCimba = angular.module('CimbaApp', ['ui','ui.filters','ngSanitize']);
 // replace dates with moment's "time ago" style
