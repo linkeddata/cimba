@@ -1,5 +1,7 @@
 // some config
 var PROXY = "https://rww.io/proxy?uri={uri}";
+var AUTH_PROXY = "https://rww.io/auth-proxy?uri={uri}";
+var TIMEOUT = 90000;
 // add filters
 var ngCimba = angular.module('CimbaApp', ['ui','ui.filters','ngSanitize']);
 // replace dates with moment's "time ago" style
@@ -240,7 +242,7 @@ function CimbaCtrl($scope, $http, $filter) {
 			var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
 		    var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
 		    var g = $rdf.graph();
-		    var f = $rdf.fetcher(g);
+		    var f = $rdf.fetcher(g, TIMEOUT);
 		    // add CORS proxy
 		    $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
 
@@ -1145,8 +1147,9 @@ function CimbaCtrl($scope, $http, $filter) {
 	    var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 	    var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
 	    var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
+	    var ACL = $rdf.Namespace("http://www.w3.org/ns/auth/acl#");
 	    var g = $rdf.graph();
-	    var f = $rdf.fetcher(g);
+	    var f = $rdf.fetcher(g, TIMEOUT);
 	    // add CORS proxy
 	    $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
 
@@ -1167,8 +1170,14 @@ function CimbaCtrl($scope, $http, $filter) {
 	        var name = g.any(webidRes, FOAF('name'));
 	        var pic = g.any(webidRes, FOAF('img'));
 	        var depic = g.any(webidRes, FOAF('depiction'));
-	    	// get storage endpoints
-	    	var storage = g.any(webidRes, SPACE('storage'));
+			// get storage endpoints
+			var storage = g.any(webidRes, SPACE('storage'));
+			// get list of delegatees
+			var delegs = g.statementsMatching(webidRes, ACL('delegatee'), undefined);
+			if (delegs.length > 0) {
+				PROXY = AUTH_PROXY;
+				$rdf.Fetcher.forceProxy = true;
+			}
 
 	    	// Clean up name
 	        name = (name)?name.value:'';
@@ -1241,7 +1250,7 @@ function CimbaCtrl($scope, $http, $filter) {
 	    var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
 	    var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
 	    var g = $rdf.graph();
-	    var f = $rdf.fetcher(g);
+	    var f = $rdf.fetcher(g, TIMEOUT);
 	    // add CORS proxy
 	    $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
 	    // fetch user data: SIOC:Space -> SIOC:Container -> SIOC:Post
@@ -1366,10 +1375,10 @@ function CimbaCtrl($scope, $http, $filter) {
 	    var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
 	    var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
 	    var g = $rdf.graph();
-	    var f = $rdf.fetcher(g);
+	    var f = $rdf.fetcher(g, TIMEOUT);
 	    // add CORS proxy
 	    $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
-		console.log("empty before? "+$scope.posts.length);
+
 		// get all SIOC:Post (using globbing)
 		f.nowOrWhenFetched(channel+'*', undefined,function(){
 			var posts = g.statementsMatching(undefined, RDF('type'), SIOC('Post'));
