@@ -1,6 +1,6 @@
 // some config
 var PROXY = "https://rww.io/proxy?uri={uri}";
-var AUTH_PROXY = "https://rww.io/auth-proxy?uri={uri}";
+var AUTH_PROXY = "https://rww.io/auth-proxy?uri=";
 var TIMEOUT = 90000;
 // add filters
 var ngCimba = angular.module('CimbaApp', ['ui','ui.filters','ngSanitize']);
@@ -1175,8 +1175,9 @@ function CimbaCtrl($scope, $http, $filter) {
 			// get list of delegatees
 			var delegs = g.statementsMatching(webidRes, ACL('delegatee'), undefined);
 			if (delegs.length > 0) {
-				PROXY = AUTH_PROXY;
-				$rdf.Fetcher.forceProxy = true;
+				jQuery.ajaxPrefilter(function(options) {
+			        options.url = AUTH_PROXY + encodeURIComponent(options.url);
+				});
 			}
 
 	    	// Clean up name
