@@ -13,24 +13,22 @@
                         <br>
                         <small class="white" rel="tooltip" data-placement="top" title="{{post.date}}">{{post.date | fromNow}}</small>
                         <br>
-                        <small class="white" rel="tooltip" data-placement="top" title="Channel">in {{post.chtitle}}</small>
+                        <small class="white" rel="tooltip" data-placement="top" title="Channel">in <a href="{{post.channel}}" class="link-white" target="_blank">{{post.chtitle}}</a></small>
                     </div>
                     <div class="pull-right">
-                        <a href="{{post.uri}}" class="link-post pull-right" target="_blank">
-                            <i class="fa fa-link"></i> Link to post
-                        </a>
+                        <a href="{{post.uri}}" class="link-post pull-right" target="_blank"><i class="fa fa-link"></i> Link</a>
                     </div>
                 </div>
                 <div class="panel-body">
                     <div class="panel-body-text">
-                        <pre class="post" ng-bind-html="post.body | markdown"></pre>
-                    </div>
-                    
-                    <div ng-show="me.webid == post.userwebid">
+                        <pre class="post" ng-bind-html="post.body | makeLinks:240"></pre>
+                    </div> 
+                    <div>
                         <hr>
                         <div class="input-group">
                             <div class="input-group-btn">
-                                <button class="btn btn-danger" data-placement="top" title="Delete message" ng-click="deletePost(post)" ><i class="fa fa-times white"></i> Delete</button>
+                                <button class="btn btn-danger pull-right" data-placement="top" title="Delete message" ng-click="deletePost(post)" ng-show="me.webid == post.userwebid"><i class="fa fa-times white"></i> Delete</button>
+                                <button class="btn btn-success" data-placement="top" title="View message" ng-click="viewPost(post)"><i class="fa fa-arrows-alt white"></i> View post</button>
                             </div>
                         </div>
                     </div>
@@ -40,23 +38,29 @@
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                              <button type="button" class="white close" data-dismiss="modal" aria-hidden="true">x</button>
                               <div class="text-center">
                                     <a class="thumbnail center" href="{{post.userwebid}}" target="_blank">
                                         <img class="media-object thumb-pic" ng-src="{{post.userpic}}" rel="tooltip" data-placement="top" title="{{post.username}}">
                                     </a>
-                                    <h3><a href="{{post.userwebid}}" target="_blank">{{post.username}}</a></h3>
+                                    <h3><a href="{{post.userwebid}}" class="link-white" target="_blank">{{post.username}}</a></h3>
                               </div>
                             </div>
                             <div class="modal-body">
-                                <div class="text-center">
-                                    <button class="btn btn-info"><i class="{{sub.icon}} white"></i> {{sub.text}}</button>
-                                </div>
+                                <h3 class="m10">Channels
+                                    <div class="pull-right">
+                                        <button class="btn btn-default blue btn-sep-right" ng-click="refreshUser(post.userwebid); users[post.userwebid].refreshing=true" rel="tooltip" data-placement="top" title="Refresh user channels"><i class="fa fa-refresh fa-2x" ng-hide='users[post.userwebid].refreshing'></i><div ng-show="users[post.userwebid].refreshing"><div class="circle"></div><div class="circle1"></div></div></button>
+                                        <button class="btn btn-default blue " ng-click="removeUser(post.userwebid)" rel="tooltip" data-placement="top" title="Remove user" ng-hide="post.userwebid == me.webid"><i class="fa fa-times fa-2x"></i></button>
+                                    </div>
+                                </h3>
                             </div>
                             <div class="modal-footer">
-                              <div class="col-md-12">
-                                  <button class="btn btn-info btn-sep-right" data-dismiss="modal" aria-hidden="true">Close</button>
-                              </div>  
+                                <div class="pull-left ml20" align="left">
+                                    <h4 class="black" ng-repeat="ch in users[post.userwebid].channels|orderBy:'title'">
+                                        <button class="btn" ng-class="ch.css" ng-click="channelToggle(ch, users[post.userwebid])" rel="tooltip" data-placement="top" title="{{ch.action}}"><i class="fa {{ch.button}} fa-2x"></i></button>
+                                        <a href="{{ch.uri}}" target="_blank">{{ch.title}}</a>
+                                    </h4>
+                                </div>
                             </div>      
                         </div>
                     </div>

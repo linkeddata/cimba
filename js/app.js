@@ -1,5 +1,6 @@
 // some config
 var PROXY = "https://rww.io/proxy?uri={uri}";
+var AUTH_PROXY = "https://rww.io/auth-proxy?uri=";
 // add filters
 var ngCimba = angular.module('CimbaApp', ['ui','ui.filters','ngSanitize']);
 // replace dates with moment's "time ago" style
@@ -8,7 +9,6 @@ ngCimba.filter('fromNow', function() {
     return moment(date).fromNow();
   }
 });
-
 // parse markdown text to html
 ngCimba.filter('markdown', function ($sce) {
     var converter = new Showdown.converter();
@@ -16,14 +16,84 @@ ngCimba.filter('markdown', function ($sce) {
         return converter.makeHtml(str);
     }
 });
-// turn http links in text to hyperlinks
+// truncate text and turn http links in text to hyperlinks
 ngCimba.filter('makeLinks', function ($sce) {
-    return function (str) {
-        return $sce.trustAsHtml(str.
-                                replace(/</g, '&lt;').
-                                replace(/>/g, '&gt;').
-                                replace(/(http[^\s]+)/g, '<a href="$1" target="_blank">$1</a>')
-                               );
+    return function (str, length, end) {
+	    if (isNaN(length))
+	        length = 240;
+
+	    // a \n is worth 30 chars
+	    var newline = 45;
+
+	    if (end === undefined)
+	        end = "[...]";
+	    var ret = "";
+	    if (str) {
+	        if (str.indexOf("\n") > 0) {
+	            var splits = str.split("\n");
+	            var stop = false;
+	            for (s in splits) {
+                    var words = splits[s].split(" ");
+                    for (w in words) {
+                    	var space = (w == 0)?"":" ";
+                    	word = words[w];
+                    	if (word.substr(0, 4) == 'http') {
+                    		var link = word;
+                			word = word.substr(0, newline);
+                			if (link.length > word.length)
+                				word = word + end;
+                    		if ((ret.length + word.length) > length - end.length || (ret.length + word.length) - end.length > length - newline) {
+                    			stop = true;
+                    		}
+		                	ret = ret + space + $sce.trustAsHtml('<a href="'+link+'" target="_blank">'+word+'</a>');
+		                	if (stop) {
+		                		break;
+		                	}
+                		} else {
+                			if ((ret.length + word.length) <= length - end.length  || (ret.length + word.length) - end.length <= length - newline) {
+                				ret = ret + space + word;
+                			} else {
+                				ret = ret + space + end;
+                				stop = true;
+                				break;
+                			}
+                		}
+	                }
+	                ret = ret + "\n";
+	                if (stop) {
+                		break;
+	                }
+	            }
+	        } else {
+	            var words = str.split(" ");
+                for (w in words) {
+                	var space = (w == 0)?"":" ";
+                	word = words[w];
+                	if (word.substr(0, 4) == 'http') {
+                		var link = word;
+            			word = word.substr(0, newline);
+            			if (link.length > word.length)
+            				word = word + end;
+                		if ((ret.length + word.length) > length - end.length || (ret.length + word.length) - end.length > length - newline) {
+                			stop = true;
+                		}
+	                	ret = ret + space + $sce.trustAsHtml('<a href="'+link+'" target="_blank">'+word+'</a>');
+	                	if (stop) {
+	                		break;
+	                	}
+            		} else {
+            			if ((ret.length + word.length) <= length - end.length  || (ret.length + word.length) - end.length <= length - newline) {
+            				ret = ret + space + word;
+            			} else {
+            				ret = ret + space + end;
+            				stop = true;
+            				break;
+            			}
+            		}
+                }
+	        }
+	    }            
+        return ret 
     }
 });
 // order function for ng-repeat using lists instead of arrays
@@ -1088,7 +1158,7 @@ function CimbaCtrl($scope, $http, $filter) {
 			$scope.testwebid = false;
 			$scope.getInfo(webid, true);
 			// add/refresh WebID on webizen.org
-			$http.get('http://webizen.org/v1/search', {
+			$http.get('http://api.webizen.org/v1/search', {
 				params: {
 					q: webid
 				}
@@ -1112,6 +1182,7 @@ function CimbaCtrl($scope, $http, $filter) {
 	    var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 	    var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
 	    var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
+	    var ACL = $rdf.Namespace("http://www.w3.org/ns/auth/acl#");
 	    var g = $rdf.graph();
 	    var f = $rdf.fetcher(g);
 	    // add CORS proxy
@@ -1136,6 +1207,13 @@ function CimbaCtrl($scope, $http, $filter) {
 	        var depic = g.any(webidRes, FOAF('depiction'));
 	    	// get storage endpoints
 	    	var storage = g.any(webidRes, SPACE('storage'));
+	    	// get list of delegatees
+			// var delegs = g.statementsMatching(webidRes, ACL('delegatee'), undefined);
+			// if (delegs.length > 0) {
+			// 	jQuery.ajaxPrefilter(function(options) {
+			//         options.url = AUTH_PROXY + encodeURIComponent(options.url);
+			// 	});
+			// }
 
 	    	// Clean up name
 	        name = (name)?name.value:'Unknown';

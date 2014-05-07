@@ -193,7 +193,8 @@ pre img {
   padding: 5px 15px 15px 15px;
 }
 .panel-body-text {
-    min-height: 50px;
+
+    height: 70px;
     margin-top: 15px;
 }
 .list-group-item:first-child,.list-group-item:last-child {
@@ -388,6 +389,9 @@ a.link-white {
 }
 .mt30 {
   margin-top: 30px;
+}
+.ml20 {
+  margin-left: 20px;
 }
 .w60 {
   width: 60px;
