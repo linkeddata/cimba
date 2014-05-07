@@ -107,6 +107,51 @@ When we started designing CIMBA, we wanted it to work in a very generic way, to 
 
     CIMBA used LDP to create a new container, which is the microblogging workspace. A very interesting feature is the rel=acl Link header. This header is returned by the server to indicate where the client (CIMBA) can POST access control policies for the newly created resource.
  
- * Unlike Twitter, CIMBA introduces the concept of *channels*, to be used as categories for different kinds of content (i.e. personal posts, work-related, family, etc.). CIMBA encourages users to have multiple channels, for which users can define different ACL policies. The ACL policies apply by default to all posts (content) created within. However, CIMBA allows users to override the default ACLs by setting a specific policy for new posts.
+ * Unlike Twitter, CIMBA introduces the concept of *channels*, to be used as categories for different kinds of content (i.e. personal posts, work-related, family, etc.). To create channels, the same procedure is used as was the case earlier for the microblog workspace.
+
+    REQUEST:
+    ```
+    POST /data/microblog/ HTTP/1.1
+    Host: example.org
+    Content-Type: text/turtle
+    Slug: channel
+    Link: <http://www.w3.org/ns/ldp#BasicContainer>; rel="type"
+    
+    <>  a ldp:BasicContainer;
+        dc:title "Main channel" .
+    ```
+
+    RESPONSE:
+    ```
+    HTTP/1.1 201 Created
+    Location: https://example.org/data/microblog/channel/
+    Link: <https://example.org/data/microblog/channel/.acl>; rel=acl
+    Link: <https://example.org/data/microblog/channel/.meta>; rel=meta
+    ```
  
+ * Because CIMBA encourages users to have multiple channels, users can then define different ACL policies as they sit fit. The ACL policies apply by default to all posts (content) created within. However, CIMBA allows users to override the default ACLs by setting a specific policy for new posts. Using the link in the rel=acl Link header, CIMBA can easily post a default ACL policy:
+    REQUEST:
+    ```
+    POST /data/microblog/channel/.acl HTTP/1.1
+    Host: example.org
+    Content-Type: text/turtle
+
+    <>
+        <http://www.w3.org/ns/auth/acl#accessTo> <>, <.> ;
+        <http://www.w3.org/ns/auth/acl#agent> <https://user.name/card#me> ;
+        <http://www.w3.org/ns/auth/acl#mode> <http://www.w3.org/ns/auth/acl#Read>, <http://www.w3.org/ns/auth/acl#Write> .
+    
+    <#channel>
+        <http://www.w3.org/ns/auth/acl#accessTo> <.> ;
+        <http://www.w3.org/ns/auth/acl#agentClass> foaf:Agent ;
+        <http://www.w3.org/ns/auth/acl#defaultForNew> <.> ;
+        <http://www.w3.org/ns/auth/acl#mode> <http://www.w3.org/ns/auth/acl#Read> .
+    ```
+    RESPONSE:
+    ```
+    HTTP/1.1 200 OK
+    ```
+
+    This policy basically states that user ```https://user.name/card#me``` can Read/Write the *.acl* resource, while anyone that is a foaf:Agent (any user) can Read resources from ```https://example.org/data/microblog/channel/```.
+
  * A user can subscribe to other users' channels. To do so, CIMBA basically follows the same procedure as it did for the owner. At the end, if it finds any channels, it will save them in a resource called *follows*, under the microblogging workspace: ```https://example.org/data/microblog/follows```. Finally, it will proceed to fech posts from each remote channel.
