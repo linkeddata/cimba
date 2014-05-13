@@ -1174,12 +1174,12 @@ function CimbaCtrl($scope, $http, $filter) {
 			var storage = g.any(webidRes, SPACE('storage'));
 			// get list of delegatees
 			var delegs = g.statementsMatching(webidRes, ACL('delegatee'), undefined);
-			if (delegs.length > 0) {
+/*			if (delegs.length > 0) {
 				jQuery.ajaxPrefilter(function(options) {
 			        options.url = AUTH_PROXY + encodeURIComponent(options.url);
 				});
 			}
-
+*/
 	    	// Clean up name
 	        name = (name)?name.value:'';
 
