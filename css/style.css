@@ -208,12 +208,11 @@ pre img {
 }
 .thumb-pic {
   width:70px;
-  padding-right: 5px;
   height: 70px!important;
 }
 .user-name {
   position:absolute;
-  margin-left:70px;
+  margin-left:75px;
   padding-top: 5px;
 }
 .user-thumb {
