@@ -37,7 +37,6 @@ describe('login section', function() {
     expect($scope.userProfile.webid).toEqual('https:'+webid);
     expect($location.$$path).toEqual('/home');
     expect($scope.showLogin).toBeFalsy();
-
     httpBackend.flush();
   }));
 
