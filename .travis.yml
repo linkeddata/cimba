@@ -11,3 +11,6 @@ before_script:
 
 script: grunt
 
+branches:
+  only:
+    - next
