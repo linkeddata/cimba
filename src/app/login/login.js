@@ -35,7 +35,7 @@ angular.module( 'Cimba.login', [
   $scope.signupWidget = $sce.trustAsResourceUrl(providerURI+window.location.protocol+'//'+window.location.host);
 
   // login user into the app
-  $scope.authenticate = function(webid) {   
+  $scope.login = function(webid) {
     if (webid && (webid.substr(0, 4) == 'http')) {
       $scope.userProfile = {};
       $scope.userProfile.webid = webid;
@@ -50,7 +50,7 @@ angular.module( 'Cimba.login', [
       $scope.$parent.userProfile = $scope.userProfile;
       $location.path('/home');
     } else {
-      notify('Error', 'WebID-TLS authentication failed.');
+      // notify('Error', 'WebID-TLS authentication failed.');
     }
     $scope.showLogin = false;
     $scope.$apply();
