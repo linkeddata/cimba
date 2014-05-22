@@ -1,379 +1,159 @@
-# [ngBoilerplate](http://joshdmiller.github.com/ng-boilerplate) [![Build Status](https://api.travis-ci.org/ngbp/ngbp.png?branch=v0.3.2-release)](https://travis-ci.org/ngbp/ngbp)
+[![Build Status](https://travis-ci.org/linkeddata/cimba.png)](https://travis-ci.org/linkeddata/cimba)
 
-An opinionated kickstarter for [AngularJS](http://angularjs.org) projects.
+<img src="http://social-webarch.github.io/cimba/img/cimba-logo.png">
 
-***
+Client-Integrated Micro-Blogging Architecture application
+------
 
-## Quick Start
+Note: if you just want to get down to business, you can skip directly to the [dev section](#Components).
 
-Install Node.js and then:
 
-```sh
-$ git clone git://github.com/joshdmiller/ng-boilerplate
-$ cd ng-boilerplate
-$ sudo npm -g install grunt-cli karma bower
-$ npm install
-$ bower install
-$ grunt watch
-```
+CIMBA for End-Users
+====
+CIMBA is a privacy-friendly, decentralized microblogging application that runs in your browser. It is built using the latest HTML5 technologies and Web standards. With CIMBA, people get a microblogging app that behaves like Twitter, built entirely out of parts they can control.
 
-Finally, open `file:///path/to/ng-boilerplate/build/index.html` in your browser.
+To use CIMBA, people must have an account at some Data Server (also called a “personal data store”) which implements the [Linked Data Platform](http://www.w3.org/TR/ldp/) (LDP) Web standard with appropriate extensions. Users may choose to run their own Data Server, use one provided by an employer/school/government, or even pay for a Data Server service. Whatever their choice, they can easily switch to another Data Server whenever they want or even concurrently use different Data Servers for different aspects of their life.
 
-Happy hacking!
+Basically, if you don't like CIMBA anymore, or if there is a better microblogging Web app that you want to use, you just need to replace the Web app, which only acts as the UI component of the system. The data you have created will not be affected by the change!
 
-## Purpose
+Once the app has been loaded into your browser, all communications will take place between you (the actual app running in the browser) and your personal Data Server, or the Data Servers of the people to which you have subscribed. Whatever data/content CIMBA produces will also be stored on your Data Server.
 
-`ngBoilerplate` is designed to make life easy by providing a basic framework
-with which to kickstart AngularJS projects. It contains a best-practice
-directory structure to ensure code reusability and maximum scalability.
-ngBoilerplate also comes prepackaged with the most popular design frameworks
-around: [Twitter Bootstrap](http://getbootstrap.com),
-[Angular UI](http://angular-ui.github.io),
-[Angular Bootstrap](http://angular-ui.github.io/bootstrap),
-[Font Awesome](http://fortawesome.github.com/Font-Awesome), and
-[LESS](http://lesscss.org). Lastly, it contains a sophisticated
-[Grunt](http://gruntjs.org)-based build system to ensure maximum productivity.
-All you have to do is clone it and start coding!
+In other words:
 
-## Philosophy
+ * open protocol: CIMBA clients and servers communicate entirely using open standard protocols, formats, and vocabularies. New elements may not yet have been standardized, but we fully support them becoming open standards. This means anyone can read the specs and make a drop-in replacement client or server.
 
-The principal goal of `ngBoilerplate` is to set projects up for long-term
-success.  So `ngBoilerplate` tries to follow best practices everywhere it can.
-These are:
+ * open source: our implementation of CIMBA, including all its libraries and the Data Server code, are available under an Open Source license (MIT). Creating your own fork is easy and also encouraged!
 
-- Properly orchestrated modules to encourage drag-and-drop component re-use.
-- Tests exist alongside the component they are testing with no separate `test`
-  directory required; the build process should be sophisticated enough to handle
-  this.
-- Speaking of which, the build system should work automagically, without
-  involvement from the developer. It should do what needs to be done, while
-  staying out of the way. Components should end up tested, linted, compiled,
-  and minified, ready for use in a production environment.
-- Integration with popular tools like Bower, Karma, and LESS.
-- *Encourages* test-driven development. It's the only way to code.
-- A directory structure that is cogent, meaningful to new team members, and
-  supporting of the above points.
-- Well-documented, to show new developers *why* things are set up the way they
-  are.
-- It should be responsive to evidence. Community feedback is therefore crucial
-  to the success of `ngBoilerplate`.
+ * open data: as a Crosscloud application, CIMBA stores its data under user control, so if the user runs an alternative client, they have access to exactly the same data. Users can even use multiple compatible clients at the same time, seeing the same content.
 
-But `ngBoilerplate` is not an example of an AngularJS app: this is a
-kickstarter. If you're looking for an example of what a complete, non-trivial
-AngularJS app that does something real looks like, complete with a REST backend
-and authentication and authorization, then take a look at
-[`angular-app`](http://github.com/angular-app/angular-app), which does just
-that - and does it well.
+ * open network: since social connections are modeled as more data, when users switch clients, they keep their social networks. New CIMBA-compatible applications start off already having a critical mass of users, instead of starting as a “ghost town”, populated only by the most intrepid early adopters. 
 
-## Learn
+ * open platform: because the essential functionality is provided by the (application-agnostic) Data Servers, new clients can be deployed as just static files (html, css, js). Developers do not need to code up any back-end or have any operational support -- any generic web hosting is fine.
 
-### Overall Directory Structure
+ * extensible: because CIMBA’s data model is RDF triples, modified versions can extend the model with their own arbitrary data, such a geographic or demographic data. When necessary, modified versions can also use LDP extensions. If properly designed, these extension will be available to the people using the extended software, but have a graceful fall-back for everyone else.
 
-At a high level, the structure looks roughly like this:
+ * independent: CIMBA forks and CIMBA-compatible applications are not subject to the control of any 3rd party, such as a company that might come to view your software as competition, or a foreign government. You don’t need anyone’s permission to run your own CIMBA-compatible clients or Data Management servers.
+
+
+CIMBA for Developers
+====
+For software developers, CIMBA presents a *radically open* alternative to platforms like Twitter and Facebook.
+
+<a name="Components"></a>Components
+-----
+
+* Being 100% decentralized and free of application-specific back-ends, CIMBA uses HTTP to communicate with generic Data Servers, though HTTPS support on the Data Servers is strongly recommended.
+
+* The client is built using the latest HTML5 technologies. We're also using [AngularJS](http://www.angularjs.org/)!
+
+* To identify users, CIMBA relies on [WebID](www.w3.org/2005/Incubator/webid/spec/identity/) (a work-in-progress open standard at W3C).
+
+* For authentication, a mix between [WebID-TLS](http://www.w3.org/2005/Incubator/webid/spec/tls) and WebID delegated access ([link to paper](http://hal.archives-ouvertes.fr/docs/00/74/53/55/PDF/paper.pdf)) is used.
+
+* Access control policies on the Data Server are written using [WebAccessControl](http://www.w3.org/wiki/WebAccessControl), a decentralized system for allowing different users and groups various forms of access to resources where users and groups are identified by HTTP URIs (WebIDs in our case).
+
+
+Architecture - overview
+-----
+
+CIMBA only requires one starting point, the user's WebID. Here is an example WebID: ```https://user.name/card#me```. From the WebID, CIMBA follows [Linked Data principles](http://www.w3.org/DesignIssues/LinkedData.html) to discover where the user's posts are, as well as where to fetch posts from the people the user has subscribed to. You can use the following pseudo-algorithm as reference:
 
 ```
-ng-boilerplate/
-  |- grunt-tasks/
-  |- karma/
-  |- src/
-  |  |- app/
-  |  |  |- <app logic>
-  |  |- assets/
-  |  |  |- <static files>
-  |  |- common/
-  |  |  |- <reusable code>
-  |  |- less/
-  |  |  |- main.less
-  |- vendor/
-  |  |- angular-bootstrap/
-  |  |- bootstrap/
-  |  |- placeholders/
-  |- .bowerrc
-  |- bower.json
-  |- build.config.js
-  |- Gruntfile.js
-  |- module.prefix
-  |- module.suffix
-  |- package.json
+Get WebID -> find <Storage endpoint>
+    |-> from <Storage endpoint> -> get all [Workspaces]
+        |-> for each <workspace> in [Worspaces] -> is sioc:Space?
+            |-> if True
+                |-> from <workspace> -> get all [Channels]
+                    |-> for each <channel> in [Channels] -> get [Posts]
+                        |-> display [Posts] and allow new posts from user
+            |-> if all False (no microblogging workspaces found)
+                |-> suggest (create) <new workspace> under <Storage endpoint>
+                |-> suggest (create) <new channel> under <new workspace>
+                    |-> set <new channel> as default and allow new posts from user
 ```
 
-What follows is a brief description of each entry, but most directories contain
-their own `README.md` file with additional documentation, so browse around to
-learn more.
+Architecture - detailed
+-----
 
-- `karma/` - test configuration.
-- `src/` - our application sources. [Read more &raquo;](src/README.md)
-- `vendor/` - third-party libraries. [Bower](http://bower.io) will install
-  packages here. Anything added to this directory will need to be manually added
-  to `build.config.js` and `karma/karma-unit.js` to be picked up by the build
-  system.
-- `.bowerrc` - the Bower configuration file. This tells Bower to install
-  components into the `vendor/` directory.
-- `bower.json` - this is our project configuration for Bower and it contains the
-  list of Bower dependencies we need.
-- `build.config.js` - our customizable build settings; see "The Build System"
-  below.
-- `Gruntfile.js` - our build script; see "The Build System" below.
-- `module.prefix` and `module.suffix` - our compiled application script is
-  wrapped in these, which by default are used to place the application inside a
-  self-executing anonymous function to ensure no clashes with other libraries.
-- `package.json` - metadata about the app, used by NPM and our build script. Our
-  NPM dependencies are listed here.
+When we started designing CIMBA, we wanted it to work in a very generic way, to allow it to be more interoperable. Here are some very important concepts we came up with:
+ 
+ * All content (data) generated by CIMBA will be stored on the user's Data Server in a workspace dedicated to microblogging. The [Space](http://www.w3.org/ns/pim/space) vocabulary is used to describe workspaces.
+ 
+ * CIMBA uses the SIOC vocabulary to express microblogging posts and to save the feeds that it has to follow in order to fetch data from outside sources (i.e. people you subscribe to).
 
-### Detailed Installation
+ * Linked Data principles are used to link from the profile to the actual Data Server that is used as generic storage. In other words, CIMBA will then look for a specific relation which indicates that the user has attached a Data Server to his/her profile. The triple looks like this: 
 
-This section provides a little more detailed understanding of what goes into
-getting `ngBoilerplate` up and running. Though `ngBoilerplate` is really simple
-to use, it might help to have an understanding of the tools involved here, like
-Node.js and Grunt and Bower. If you're completely new to highly organized,
-modern JavaScript development, take a few short minutes to read [this overview
-of the tools](tools.md) before continuing with this section.
+  ```<#me> <http://www.w3.org/ns/pim/space#storage> <https://example.org/data/> .```
+  
+ * From the generic storage space, CIMBA will try to find the workspace dedicated to microblogging by doing an ```HTTP GET``` on ```https://example.org/data/```. If no microblogging workspace is found, CIMBA assumes the user does not use microblogging and it will automatically create a workspace by doing an ```HTTP POST``` to ```https://example.org/data/```, which is an LDP Container. Here is an example of the request (abstracting prefixes):
 
-Okay, ready to go? Here it is:
+    REQUEST:
+    ```
+    POST /data/ HTTP/1.1
+    Host: example.org
+    Content-Type: text/turtle
+    Slug: microblog
+    Link: <http://www.w3.org/ns/ldp#BasicContainer>; rel="type"
+    
+    <>  a ldp:BasicContainer;
+        dc:title "Microblogging workspace" .
+    ```
 
-`ngBoilerplate` uses [Grunt](http://gruntjs.org) as its build system, so
-[Node.js](http://nodejs.org) is required. Also, Grunt by default no longer comes
-with a command-line utility and Karma and Bower must end up in your global path
-for the build system to find it, so they must be installed independently. Once
-you have Node.js installed, you can simply use `npm` to make it all happen:
+    RESPONSE:
+    ```
+    HTTP/1.1 201 Created
+    Location: https://example.org/data/microblog/
+    Link: <https://example.org/data/microblog/.acl>; rel=acl
+    Link: <https://example.org/data/microblog/.meta>; rel=meta
+    ```
 
-```sh
-$ npm -g install grunt-cli karma bower
-```
+    CIMBA used LDP to create a new container, which is the microblogging workspace. A very interesting feature is the rel=acl Link header. This header is returned by the server to indicate where the client (CIMBA) can POST access control policies for the newly created resource.
+ 
+ * Unlike Twitter, CIMBA introduces the concept of *channels*, to be used as categories for different kinds of content (i.e. personal posts, work-related, family, etc.). To create channels, the same procedure is used as was the case earlier for the microblog workspace.
 
-If you're on Linux (like I am) then throw `sudo` in front of that command.  If
-you're on Windows, then you're on your own.
+    REQUEST:
+    ```
+    POST /data/microblog/ HTTP/1.1
+    Host: example.org
+    Content-Type: text/turtle
+    Slug: channel
+    Link: <http://www.w3.org/ns/ldp#BasicContainer>; rel="type"
+    
+    <>  a ldp:BasicContainer;
+        dc:title "Main channel" .
+    ```
 
-Next, you can either clone this repository using Git, download it as a zip file
-from GitHub, or merge the branch into your existing repository. Assuming you're
-starting from scratch, simply clone this repository using git:
+    RESPONSE:
+    ```
+    HTTP/1.1 201 Created
+    Location: https://example.org/data/microblog/channel/
+    Link: <https://example.org/data/microblog/channel/.acl>; rel=acl
+    Link: <https://example.org/data/microblog/channel/.meta>; rel=meta
+    ```
+ 
+ * Because CIMBA encourages users to have multiple channels, users can then define different ACL policies as they sit fit. The ACL policies apply by default to all posts (content) created within. However, CIMBA allows users to override the default ACLs by setting a specific policy for new posts. Using the link in the rel=acl Link header, CIMBA can easily post a default ACL policy:
+    REQUEST:
+    ```
+    POST /data/microblog/channel/.acl HTTP/1.1
+    Host: example.org
+    Content-Type: text/turtle
 
-```sh
-$ git clone git://github.com/joshdmiller/ng-boilerplate my-project-name
-$ cd my-project-name
-```
+    <>
+        <http://www.w3.org/ns/auth/acl#accessTo> <>, <.> ;
+        <http://www.w3.org/ns/auth/acl#agent> <https://user.name/card#me> ;
+        <http://www.w3.org/ns/auth/acl#mode> <http://www.w3.org/ns/auth/acl#Read>, <http://www.w3.org/ns/auth/acl#Write> .
+    
+    <#channel>
+        <http://www.w3.org/ns/auth/acl#accessTo> <.> ;
+        <http://www.w3.org/ns/auth/acl#agentClass> foaf:Agent ;
+        <http://www.w3.org/ns/auth/acl#defaultForNew> <.> ;
+        <http://www.w3.org/ns/auth/acl#mode> <http://www.w3.org/ns/auth/acl#Read> .
+    ```
+    RESPONSE:
+    ```
+    HTTP/1.1 200 OK
+    ```
 
-And then install the remaining build dependencies locally:
+    This policy basically states that user ```https://user.name/card#me``` can Read/Write the *.acl* resource, while anyone that is a foaf:Agent (any user) can Read resources from ```https://example.org/data/microblog/channel/```.
 
-```sh
-$ npm install
-```
-
-This will read the `dependencies` (empty by default) and the `devDependencies`
-(which contains our build requirements) from `package.json` and install
-everything needed into a folder called `node_modules/`.
-
-There are many Bower packages used by `ngBoilerplate`, like Twitter Bootstrap
-and Angular UI, which are listed in `bower.js`. To install them into the
-`vendor/` directory, simply run:
-
-```sh
-$ bower install
-```
-
-In the future, should you want to add a new Bower package to your app, run the
-`install` command:
-
-```sh
-$ bower install packagename --save-dev
-```
-
-The `--save-dev` flag tells Bower to add the package at its current version to
-our project's `bower.js` file so should another developer download our
-application (or we download it from a different computer), we can simply run the
-`bower install` command as above and all our dependencies will be installed for
-us. Neat!
-
-Technically, `ngBoilerplate` is now ready to go.
-
-However, prior to hacking on your application, you will want to modify the
-`package.json` file to contain your project's information. Do not remove any
-items from the `devDependencies` array as all are needed for the build process
-to work.
-
-To ensure your setup works, launch grunt:
-
-```sh
-$ grunt watch
-```
-
-The built files are placed in the `build/` directory by default. Open the
-`build/index.html` file in your browser and check it out! Because everything is
-compiled, no XHR requests are needed to retrieve templates, so until this needs
-to communicate with your backend there is no need to run it from a web server.
-
-`watch` is actually an alias of the `grunt-contrib-watch` that will first run a
-partial build before watching for file changes. With this setup, any file that
-changes will trigger only those build tasks necessary to bring the app up to
-date. For example, when a template file changes, the templates are recompiled
-and concatenated, but when a test/spec file changes, only the tests are run.
-This allows the watch command to complete in a fraction of the time it would
-ordinarily take.
-
-In addition, if you're running a Live Reload plugin in your browser (see below),
-you won't even have to refresh to see the changes! When the `watch` task detects
-a file change, it will reload the page for you. Sweet.
-
-When you're ready to push your app into production, just run the `compile`
-command:
-
-```sh
-$ grunt compile
-```
-
-This will concatenate and minify your sources and place them by default into the
-`bin/` directory. There will only be three files: `index.html`,
-`your-app-name.js`, and `your-app-name.css`. All of the vendor dependencies like
-Bootstrap styles and AngularJS itself have been added to them for super-easy
-deploying. If you use any assets (`src/assets/`) then they will be copied to
-`bin/` as is.
-
-Lastly, a complete build is always available by simply running the default
-task, which runs `build` and then `compile`:
-
-```sh
-$ grunt
-```
-
-### The Build System
-
-The best way to learn about the build system is by familiarizing yourself with
-Grunt and then reading through the heavily documented build script,
-`Gruntfile.js`. But you don't need to do that to be very productive with
-`ngBoilerplate`. What follows in this section is a quick introduction to the
-tasks provided and should be plenty to get you started.
-
-The driver of the process is the `delta` multi-task, which watches for file
-changes using `grunt-contrib-watch` and executes one of nine tasks when a file
-changes:
-
-* `delta:gruntfile` - When `Gruntfile.js` changes, this task runs the linter
-  (`jshint`) on that one file and reloads the configuration.
-* `delta:assets` - When any file within `src/assets/` changes, all asset files
-  are copied to `build/assets/`.
-* `delta:html` - When `src/index.html` changes, it is compiled as a Grunt
-  template, so script names, etc., are dynamically replaced with the correct
-  values configured dynamically by Grunt.
-* `delta:less` - When any `*.less` file within `src/` changes, the
-  `src/less/main.less` file is linted and copied into
-  `build/assets/ng-boilerplate.css`.
-* `delta:jssrc` - When any JavaScript file within `src/` that does not end in
-  `.spec.js` changes, all JavaScript sources are linted, all unit tests are run,
-  and the all source files are re-copied to `build/src`.
-* `delta:coffeesrc` - When any `*.coffee` file in `src/` that doesn't match
-  `*.spec.coffee` changes, the Coffee scripts are compiled independently into
-  `build/src` in a structure mirroring where they were in `src/` so it's easy to
-  locate problems. For example, the file
-  `src/common/titleService/titleService.coffee` is compiled to
-  `build/src/common/titleService/titleService.js`.
-* `delta:tpls` - When any `*.tpl.html` file within `src/` changes, all templates
-  are put into strings in a JavaScript file (technically two, one for
-  `src/common/` and another for `src/app/`) that will add the template to
-  AngularJS's
-  [`$templateCache`](http://docs.angularjs.org/api/ng.$templateCache) so
-  template files are part of the initial JavaScript payload and do not require
-  any future XHR.  The template cache files are `build/template-app.js` and
-  `build/template-common.js`.
-* `delta:jsunit` - When any `*.spec.js` file in `src/` changes, the test files
-  are linted and the unit tests are executed.
-* `delta:coffeeunit` - When any `*.spec.coffee` file in `src/` changes, the test
-  files are linted, compiled their tests executed.
-
-As covered in the previous section, `grunt watch` will execute a full build
-up-front and then run any of the aforementioned `delta:*` tasks as needed to
-ensure the fastest possible build. So whenever you're working on your project,
-start with:
-
-```sh
-$ grunt watch
-```
-
-And everything will be done automatically!
-
-### Build vs. Compile
-
-To make the build even faster, tasks are placed into two categories: build and
-compile. The build tasks (like those we've been discussing) are the minimal
-tasks required to run your app during development.
-
-Compile tasks, however, get your app ready for production. The compile tasks
-include concatenation, minification, compression, etc. These tasks take a little
-bit longer to run and are not at all necessary for development so are not called
-automatically during build or watch.
-
-To initiate a full compile, you simply run the default task:
-
-```sh
-$ grunt
-```
-
-This will perform a build and then a compile. The compiled site - ready for
-uploading to the server! - is located in `bin/`, taking a cue from
-traditional software development. To test that your full site works as
-expected, open the `bin/index.html` file in your browser. Voila!
-
-### Live Reload!
-
-`ngBoilerplate` also includes [Live Reload](http://livereload.com/), so you no
-longer have to refresh your page after making changes! You need a Live Reload
-browser plugin for this:
-
-- Chrome - [Chrome Webstore](https://chrome.google.com/webstore/detail/livereload/jnihajbhpnppcggbcgedagnkighmdlei)
-- Firefox - [Download from Live Reload](http://download.livereload.com/2.0.8/LiveReload-2.0.8.xpi)
-- Safari - [Download from Live Reload](http://download.livereload.com/2.0.9/LiveReload-2.0.9.safariextz)
-- Internet Explorer - Surely you jest.
-
-Note that if you're using the Chrome version with `file://` URLs (as is the
-default with `ngBoilerplate`) you need to tell Live Reload to allow it. Go to
-`Menu -> Tools -> Extensions` and check the "Allow access to file URLs" box next
-to the Live Reload plugin.
-
-When you load your page, click the Live Reload icon in your toolbar and
-everything should work magically. w00t!
-
-If you'd prefer to not install a browser extension, then you must add the
-following to the end of the `body` tag in `index.html`:
-
-```html
-<script src="http://localhost:35729/livereload.js"></script>
-```
-
-Boom!
-
-## Roadmap
-
-This is a project that is not broad in scope, so there's not really much of a
-wish list here. But I would like to see a couple of things:
-
-I'd like it to be a little simpler. I want this to be a universal starting
-point. If someone is starting a new AngularJS project, she should be able to
-clone, merge, or download its source and immediately start doing what she needs
-without renaming a bunch of files and methods or deleting spare parts. What I
-have works for a first release, but I just think there is a little too much here
-right now.
-
-I'd also like to see a simple generator. Nothing like Yeoman, as there already
-is one of those, but just something that allows the user to say "I want
-Bootstrap but not Font Awesome and my app is called 'coolApp'. Gimme." Perhaps a
-custom download builder like UI Bootstrap has. Like that. Then again, perhaps
-some Yeoman generators wouldn't be out of line. I don't know. What do you think?
-
-Naturally, I am open to all manner of ideas and suggestions. See the
-"Contributing" section below.
-
-### To Do
-
-See the [issues list](http://github.com/joshdmiller/ng-boilerplate/issues). And
-feel free to submit your own!
-
-### Contributing
-
-This is an opinionated kickstarter, but the opinions are fluid and
-evidence-based. Don't like the way I did something? Think you know of a better
-way? Have an idea to make this more useful? Let me know! You can contact me
-through all the usual channels or you can open an issue on the GitHub page. If
-you're feeling ambitious, you can even submit a pull request - how thoughtful
-of you!
-
-So join the team! We're good people.
-
+ * A user can subscribe to other users' channels. To do so, CIMBA basically follows the same procedure as it did for the owner. At the end, if it finds any channels, it will save them in a resource called *follows*, under the microblogging workspace: ```https://example.org/data/microblog/follows```. Finally, it will proceed to fech posts from each remote channel.
