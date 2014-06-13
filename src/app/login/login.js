@@ -29,7 +29,7 @@ angular.module( 'Cimba.login', [
 .controller( 'LoginCtrl', function LoginController( $scope, $http, $location, $sce ) {
  
   // login/signup widget source
-  var providerURI = 'http://localhost/signup/index.html?ref=';
+  var providerURI = '//linkeddata.github.io/signup/index.html?ref=';
     
   // set the parameter in the src of iframe
   $scope.signupWidget = $sce.trustAsResourceUrl(providerURI+window.location.protocol+'//'+window.location.host);
@@ -69,7 +69,7 @@ angular.module( 'Cimba.login', [
   eventListener(messageEvent,function(e) {
     if (e.data.slice(0,5) == 'User:') {
       console.log(e.data);
-      $scope.authenticate(e.data.slice(5, e.data.length), true);
+      $scope.login(e.data.slice(5, e.data.length), true);
     }
     if (e.data.slice(0,6) == "cancel") {
       $scope.showLogin = false;

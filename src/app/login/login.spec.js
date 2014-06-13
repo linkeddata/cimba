@@ -6,10 +6,11 @@
  */
 describe('login section', function() {
   beforeEach(module('Cimba.login'));
-  var LoginCtrl, $location, $scope, $http, $sce, httpBackend;
+  var LoginCtrl, $location, $root, $scope, $http, $sce, httpBackend;
 
   beforeEach(inject(function($controller, _$location_, $http, $sce, $rootScope, $httpBackend) {
     $location = _$location_;
+    $root = $rootScope;
     $scope = $rootScope.$new();
     httpBackend = $httpBackend;
     LoginCtrl = $controller('LoginCtrl', {
@@ -37,6 +38,7 @@ describe('login section', function() {
     expect($scope.userProfile.webid).toEqual('https:'+webid);
     expect($location.$$path).toEqual('/home');
     expect($scope.showLogin).toBeFalsy();
+    expect($root.loginSuccess).toBeTruthy();
     httpBackend.flush();
   }));
 
