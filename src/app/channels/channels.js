@@ -24,5 +24,6 @@ angular.module('Cimba.channels',['ui.router'])
         $scope.channelKeys = $scope.$parent.getChannels(storage, webid, true, false);
 
     }
+    console.log("printing channel keys");
     console.log($scope.channelKeys);
 });
