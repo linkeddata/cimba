@@ -460,12 +460,10 @@ angular.module( 'Cimba', [
                     }
                 }
                 else if (g.any(useraccount, SIOC('avatar'))) {
-
-                  userpic = g.any(useraccount, SIOC('avatar')).value;
-
+                    userpic = g.any(useraccount, SIOC('avatar')).value;
                 }
                 else {
-                  userpic = 'img/generic_photo.png';
+                    userpic = 'img/generic_photo.png';
                 }
 
                 // try using the name from the WebID first
