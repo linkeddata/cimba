@@ -298,6 +298,7 @@ angular.module( 'Cimba', [
               }
 
               channel["owner"] = webid;
+              channel["uri"] = channeluri;
 
               // add channel to the list
               $scope.channels[channeluri] = channel;

@@ -1,12 +1,9 @@
 <div ng-click="hideMenu()">
-	<div class = "panel-body">
-        <ul>
+	<div class = "panel-body" overflow='auto'>
+        <ul style='list-style-type:none;'>
 	        <h1> Channels </h1>
 	        <li ng-repeat="channel in channelKeys">
-		        <blockquote>
-		    	    <strong>{{channel}}</strong>
-		    	    test
-		        </blockquote>
+		        <a href = "{{channel.uri}}">{{channel.title}}</a>
 	        </li>
         </ul>
     </div>
