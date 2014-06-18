@@ -150,6 +150,7 @@ angular.module( 'Cimba', [
 
       // get storage endpoints
       var storage = g.any(webidRes, SPACE('storage')).value;
+
       // get list of delegatees
       var delegs = g.statementsMatching(webidRes, ACL('delegatee'), undefined);
       /*
@@ -200,6 +201,7 @@ angular.module( 'Cimba', [
       if (storage !== undefined) { 
         // get channels for user
         // $scope.getChannels(storage, webid, mine, update);
+
       } else {
         $scope.gotstorage = false;
       }
