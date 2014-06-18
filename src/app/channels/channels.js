@@ -34,5 +34,4 @@ angular.module('Cimba.channels',[
         $scope.$parent.gotstorage = false;
     }
     $scope.$parent.loading = false;
-
 });
