@@ -162,6 +162,7 @@ angular.module( 'Cimba', [
                 });
             }
             */
+
             // Clean up name
             name = (name) ? name.value : 'No name found';
 
