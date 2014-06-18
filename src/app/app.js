@@ -142,6 +142,7 @@ angular.module( 'Cimba', [
                   $scope.$apply();
                 }
             } 
+
             // get some basic info
             var name = g.any(webidRes, FOAF('name'));
             var pic = g.any(webidRes, FOAF('img'));
@@ -464,9 +465,7 @@ angular.module( 'Cimba', [
 
                 }
                 else {
-
                   userpic = 'img/generic_photo.png';
-
                 }
 
                 // try using the name from the WebID first
@@ -512,7 +511,6 @@ angular.module( 'Cimba', [
                     body : body
 
                 };
-  
 
                 if (!$scope.posts) {
                     $scope.posts = {};
@@ -540,6 +538,7 @@ angular.module( 'Cimba', [
         // hide spinner
         $scope.loading = false;
         $scope.$apply();
-    });
-};
+
+        });
+    };
 });
