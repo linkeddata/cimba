@@ -144,6 +144,8 @@ angular.module( 'Cimba', [
       var pic = g.any(webidRes, FOAF('img'));
       var depic = g.any(webidRes, FOAF('depiction'));
       // get storage endpoints
+      console.log(webidRes);
+      console.log(SPACE("storage"));
       var storage = g.any(webidRes, SPACE('storage')).value;
       // get list of delegatees
       var delegs = g.statementsMatching(webidRes, ACL('delegatee'), undefined);
