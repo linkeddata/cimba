@@ -120,7 +120,6 @@ angular.module( 'Cimba', [
     var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
     var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
     var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
-    console.log(SPACE);
     var ACL = $rdf.Namespace("http://www.w3.org/ns/auth/acl#");
     var g = $rdf.graph();
     var f = $rdf.fetcher(g, TIMEOUT);
@@ -502,9 +501,6 @@ angular.module( 'Cimba', [
             if (g.any(uri, SIOC('content'))) {
 
               body = g.any(uri, SIOC('content')).value;
-
-              console.log("body: "); //debug
-              console.log(body); //debug
 
             } else {
 
