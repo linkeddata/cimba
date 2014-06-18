@@ -58,7 +58,6 @@ angular.module( 'Cimba', [
         $location.path('/login');
     };
 
-
     // cache user credentials in sessionStorage to avoid double sign in
     $scope.saveCredentials = function () {
         var cimba = {};
@@ -261,10 +260,8 @@ angular.module( 'Cimba', [
 
         // fetch user data: SIOC:Space -> SIOC:Container -> SIOC:Post
         f.nowOrWhenFetched(uri,undefined,function(){
-
             // find all SIOC:Container
             var ws = g.statementsMatching(undefined, RDF('type'), SIOC('Space'));
-
             if (ws.length > 0) {
                 // set a default Microblog workspace
                 if (mine) {
@@ -473,7 +470,6 @@ angular.module( 'Cimba', [
                 }
 
                 // try using the name from the WebID first
-
                 if (userwebid) {
                     if ($scope.me.webid && $scope.me.webid == userwebid) {
                         username = $scope.me.name;
@@ -544,6 +540,6 @@ angular.module( 'Cimba', [
         // hide spinner
         $scope.loading = false;
         $scope.$apply();
-
     });
 };
+});
