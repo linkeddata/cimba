@@ -234,6 +234,7 @@ angular.module( 'Cimba', [
 
 
   $scope.getChannels = function(uri, webid, mine, update) {
+<<<<<<< HEAD
 
     var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 
@@ -281,9 +282,182 @@ angular.module( 'Cimba', [
         var func = function(){
 
           var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));
+=======
+
+    var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+
+    var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
+
+    var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
+
+    var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
+
+    var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
+
+    var g = $rdf.graph();
+
+    var f = $rdf.fetcher(g, TIMEOUT);
+    
+    // add CORS proxy
+
+    $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
+
+    // fetch user data: SIOC:Space -> SIOC:Container -> SIOC:Post
+
+    console.log(uri);
+    f.nowOrWhenFetched(uri,undefined,function(){
+
+      // find all SIOC:Container
+      var ws = g.statementsMatching(undefined, RDF('type'), SIOC('Space'));
+
+      if (ws.length > 0) {
+        // set a default Microblog workspace
+        if (mine) {
+          // set default Microblog space
+          $scope.me.mbspace = ws[0]['subject']['value'];
+        }
+
+        var func = function() {
+
+          var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));
+          
+          if (chs.length > 0) {
+            // clear list first
+            if (mine) {
+              $scope.me.channels = [];
+            }
+
+            if (update) { 
+              $scope.users[webid].channels = [];
+            }
+  
+            for (var ch in chs) {
+              var channel = {};
+              var channeluri = chs[ch]['subject']['value'];
+              var title = g.any(chs[ch]['subject'], DCT('title')).value;
+             
+              if (title) {
+                channel['title'] = title;
+              } else {
+                channel['title'] = channeluri;
+              }
+
+              channel["owner"] = webid;
+
+              // add channel to the list
+              $scope.channels[channeluri] = channel;
+  
+              // mine
+              if (mine) {
+                $scope.me.channels.push(channel);
+
+                //this dictionary pairs channels with their owner and the posts they contain
+                $scope.me.chspace = true;
+              }
+
+              // update
+              if (update) {
+                var exists = findWithAttr($scope.users[webid].channels, 'uri', channeluri);
+                if (exists === undefined) {
+                  $scope.users[webid].channels.push(channel);
+                }
+              }
+
+            }
+
+            // set a default channel for the logged user
+            if (mine) {
+              $scope.defaultChannel = $scope.me.channels[0];
+            }
+
+            // done refreshing user information -> update view
+            if (update) {
+              $scope.addChannelStyling(webid, $scope.users[webid].channels);
+              delete $scope.users[webid].refreshing;
+              $scope.$apply();
+            }
+          } else {
+            console.log('No channels found!');
+            if (mine) {
+              // hide loader
+              $scope.loading = false;
+              $scope.me.chspace = false;
+            }
+          }
+
+          // also save updated users & channels list
+          if (update) { 
+            $scope.saveUsers();
+          }
+
+          // if we were called by search
+          if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
+              $scope.search.channels = channels;
+              $scope.drawSearchResults();
+          }
+                
+          if (mine) {
+            $scope.saveCredentials();
+            $scope.$apply();
+          }
+        };
+
+        for (var i in ws) {
+          w = ws[i]['subject']['value'];
+
+          // find the channels info for the user (from .meta files)
+          f.nowOrWhenFetched(w+'.*', undefined,func);
+        }
+
+      } else { // no Microblogging workspaces found!
+
+        // we were called by search
+        if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
+          $scope.drawSearchResults();
+        }
+
+        if (mine) {
+          console.log('No microblog found!');
+          $scope.gotmb = false;
+          $scope.me.mbspace = false;
+          $scope.me.chspace = false;
+          $scope.me.channels = [];
+          $scope.saveCredentials();
+
+          // hide loader
+          $scope.loading = false;
+
+          $scope.$apply();
+        }
+      }
+    });
+    return $scope.channels;
+  };
+
+  $scope.getPosts = function(channel, title) {
+
+      var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+
+      var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
+
+        var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
+
+        var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
+
+        var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
+
+        var g = $rdf.graph();
+
+        var f = $rdf.fetcher(g, TIMEOUT);
+
+        // add CORS proxy
+
+        $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
+>>>>>>> e26fc5ad2e57f77f4d783e1a5b4303bd9728bffd
 
           if (chs.length > 0) {
 
+<<<<<<< HEAD
               // clear list first
 
             if (mine)
@@ -291,8 +465,16 @@ angular.module( 'Cimba', [
             
             if (update)
               {$scope.users[webid].channels = [];}
+=======
+      // get all SIOC:Post (using globbing)
+
+      f.nowOrWhenFetched(channel+'*', undefined,function(){
+
+        var posts = g.statementsMatching(undefined, RDF('type'), SIOC('Post'));
+>>>>>>> e26fc5ad2e57f77f4d783e1a5b4303bd9728bffd
 
 
+<<<<<<< HEAD
 
               for (var ch in chs) {
 
@@ -345,11 +527,43 @@ angular.module( 'Cimba', [
                   if (exists === undefined) {
 
                     $scope.users[webid].channels.push(channel);
+=======
+        if (posts.length > 0) {
 
-                  }
+          for (var p in posts) {
 
-                }
+            var uri = posts[p]['subject'];
 
+            var useraccount = g.any(uri, SIOC('has_creator'));
+
+            var post = g.statementsMatching(posts[p]['subject']);
+
+            var body = '';
+            var username = '';
+            var userpic = 'img/generic_photo';
+            var userwebid;
+            if (g.any(uri, DCT('created'))) {
+
+              var d = g.any(uri, DCT('created')).value;
+
+              $scope.date = moment(d).zone('00:00');
+
+            } else {
+
+              $scope.date = undefined;
+
+            }
+
+            if (g.any(useraccount, SIOC('account_of'))) {
+
+              userwebid = g.any(useraccount, SIOC('account_of')).value;
+>>>>>>> e26fc5ad2e57f77f4d783e1a5b4303bd9728bffd
+
+            } else {
+
+              userwebid = undefined;
+
+<<<<<<< HEAD
               }
 
 
@@ -391,9 +605,69 @@ angular.module( 'Cimba', [
           }
 
           // also save updated users & channels list
+=======
+            }
+
+            // try using the picture from the WebID first
+
+            if (userwebid) {
+
+              if ($scope.me.webid && $scope.me.webid == userwebid)
+
+                {userpic = $scope.me.pic;
+}
+              else if ($scope.users[userwebid])
+
+                {userpic = $scope.users[userwebid].pic;
+}
+            } else if (g.any(useraccount, SIOC('avatar'))) {
+
+              userpic = g.any(useraccount, SIOC('avatar')).value;
+
+            } else {
+
+              userpic = 'img/generic_photo.png';
+
+            }
+
+            // try using the name from the WebID first
+
+            if (userwebid) {
+
+              if ($scope.me.webid && $scope.me.webid == userwebid)
+
+                {username = $scope.me.name;}
+
+              else if ($scope.users[userwebid])
+
+                {username = $scope.users[userwebid].name;}
+
+            } else if (g.any(useraccount, FOAF('name'))) {
+
+              username = g.any(useraccount, FOAF('name')).value;
+
+            } else {
+
+              username = '';
+
+            }
+
+            if (g.any(uri, SIOC('content'))) {
+
+              body = g.any(uri, SIOC('content')).value;
+
+            } else {
+
+              body = '';
+
+            }
+
+            uri = uri.value;
+>>>>>>> e26fc5ad2e57f77f4d783e1a5b4303bd9728bffd
 
           if (update)
 
+<<<<<<< HEAD
             {$scope.saveUsers();}
 
 
@@ -493,6 +767,76 @@ angular.module( 'Cimba', [
     f.nowOrWhenFetched(channel+'*', undefined,function(){
 
       var posts = g.statementsMatching(undefined, RDF('type'), SIOC('Post'));
+=======
+            // check if we need to overwrite instead of pushing new item
+
+            var _newPost = {
+
+              uri : uri,
+
+              channel: channel,
+
+              chtitle: title,
+
+              date : date,
+
+              userwebid : userwebid,
+
+              userpic : userpic,
+
+              username : username,
+
+              body : body
+
+            }
+;
+  
+
+            if (!$scope.posts)
+
+              {$scope.posts = {};}
+            // filter post by language (only show posts in English or show all)         
+
+            if ($scope.filterFlag && testIfAllEnglish(_newPost.body)) {
+
+              // add/overwrite post
+
+              $scope.posts[uri] = _newPost;
+
+              $scope.$apply();
+
+            } else {
+
+              $scope.posts[uri] = _newPost;
+
+              $scope.$apply();
+
+            }
+
+  
+
+            $scope.me.gotposts = true
+;
+          }
+
+        } else {
+
+          if (isEmpty($scope.posts))
+
+            {$scope.me.gotposts = false;}
+
+        }
+
+        // hide spinner
+
+        $scope.loading = false;
+
+        $scope.$apply();
+
+      });
+
+    };
+>>>>>>> e26fc5ad2e57f77f4d783e1a5b4303bd9728bffd
 
 
 
