@@ -20,10 +20,6 @@ angular.module('Cimba.channels',['ui.router'])
         $scope.$parent.loading = true;
         var storage = $scope.$parent.userProfile.storagespace;
         var webid = $scope.$parent.userProfile.webid;
-<<<<<<< HEAD
-        $scope.$parent.getChannels(storage, webid, true, false, false);
-    }
-=======
 
         $scope.channelKeys = $scope.$parent.getChannels(storage, webid, true, false);
 
@@ -31,5 +27,4 @@ angular.module('Cimba.channels',['ui.router'])
         $scope.$parent.gotstorage = false;
     }
     $scope.$parent.loading = false;
->>>>>>> 9858ad3b8df6d66056914cb09655c5a35246c913
 });

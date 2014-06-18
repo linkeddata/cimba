@@ -149,16 +149,8 @@ angular.module( 'Cimba', [
 
 
       // get storage endpoints
-<<<<<<< HEAD
-      var storage = g.any(webidRes, SPACE('storage'));
-      storage = storage.value;
-
-=======
-      console.log(SPACE);
-      console.log(webidRes);
-      console.log(SPACE("storage"));
       var storage = g.any(webidRes, SPACE('storage')).value;
->>>>>>> 9858ad3b8df6d66056914cb09655c5a35246c913
+
       // get list of delegatees
       var delegs = g.statementsMatching(webidRes, ACL('delegatee'), undefined);
       /*
@@ -208,11 +200,8 @@ angular.module( 'Cimba', [
       // get channels for the user
       if (storage !== undefined) { 
         // get channels for user
-<<<<<<< HEAD
         //$scope.getChannels(storage, webid, mine, update);
-=======
-        // $scope.getChannels(storage, webid, mine, update);
->>>>>>> 9858ad3b8df6d66056914cb09655c5a35246c913
+
       } else {
         $scope.gotstorage = false;
       }
