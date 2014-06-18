@@ -148,6 +148,8 @@ angular.module( 'Cimba', [
 
 
       // get storage endpoints
+      console.log(webidRes);
+      console.log(SPACE("storage"));
       var storage = g.any(webidRes, SPACE('storage')).value;
 
       // get list of delegatees
