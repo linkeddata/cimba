@@ -1,3 +1,12 @@
 <div ng-click="hideMenu()">
-
+	<div class = "panel-body">
+        <ul>
+	        <h1> Posts </h1>
+	        <li ng-repeat="post in posts">
+		        <blockquote>
+		    	    <strong>{{post}}</strong>
+		        </blockquote>
+	        </li>
+        </ul>
+    </div>
 </div>

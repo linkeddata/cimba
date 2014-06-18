@@ -15,6 +15,9 @@
     <link rel="shortcut icon" type="img/png" href="assets/cimba-logo.png">
 
     <!-- compiled JavaScript --><% scripts.forEach( function ( file ) { %>
+
+    <script type='text/javascript' src="http://momentjs.com/downloads/moment.min.js"></script>
+
     <script type="text/javascript" src="<%= file %>"></script><% }); %>
   </head>
   <body>
@@ -28,9 +31,9 @@
       <div ng-show="userProfile.webid" ng-click="showMenu=false">
 
         <div class="menu-item avatar-frame">
-          <a href ui-sref="profile">
+          <a href="{{userProfile.uri}}" ui-sref="profile" alt="{{userProfile.name}}">
             <span class="badge">42</span>
-            <img ng-src="{{userProfile.picture}}" class="profile-img" />
+            <img ng-src="{{userProfile.picture}}" class="profile-img" alt="{{userProfile.name}}" title="{{userProfile.name}}" />
           </a>
         </div>
 

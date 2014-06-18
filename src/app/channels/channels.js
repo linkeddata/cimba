@@ -16,7 +16,6 @@ angular.module('Cimba.channels',['ui.router'])
 })
 
 .controller('ChannelsCtrl', function ChannelsController($scope, $http, $location, $sce){
-    $scope.channelKeys = {};
     if ($scope.$parent.userProfile.storagespace !== undefined) {
         $scope.$parent.loading = true;
         var storage = $scope.$parent.userProfile.storagespace;
