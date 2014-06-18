@@ -29,7 +29,9 @@ angular.module( 'Cimba', [
   $scope.loginSuccess = false;
   $scope.userProfile = {};
   $scope.userProfile.picture = 'assets/generic_photo.png';
-  $scope.channels = {};
+  $scope.channels = [];
+  $scope.posts = {};
+  $scope.users = {};
   $scope.me = {};
 
   $scope.login = function () {
@@ -143,19 +145,25 @@ angular.module( 'Cimba', [
       var name = g.any(webidRes, FOAF('name'));
       var pic = g.any(webidRes, FOAF('img'));
       var depic = g.any(webidRes, FOAF('depiction'));
+
+
       // get storage endpoints
-      var storage = g.any(webidRes, SPACE('storage')).value;
+      var storage = g.any(webidRes, SPACE('storage'));
+      storage = storage.value;
+
       // get list of delegatees
       var delegs = g.statementsMatching(webidRes, ACL('delegatee'), undefined);
       /*
       if (delegs.length > 0) {
         jQuery.ajaxPrefilter(function(options) {
           options.url = AUTH_PROXY + encodeURIComponent(options.url);
+          options.crossDomain = true;
+          options.accepts = "text/turtle";
         });
       }
       */
       // Clean up name
-      name = (name)?name.value:'';
+      name = (name)?name.value:'No name found';
 
       // set avatar picture
       if (pic) {
@@ -175,7 +183,6 @@ angular.module( 'Cimba', [
         storagespace: storage
 
       };
-      console.log(_user);
 
       // add to search object if it was the object of a search
       if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
@@ -193,12 +200,13 @@ angular.module( 'Cimba', [
       // get channels for the user
       if (storage !== undefined) { 
         // get channels for user
-        $scope.getChannels(storage, webid, mine, update);
+        //$scope.getChannels(storage, webid, mine, update);
       } else {
         $scope.gotstorage = false;
       }
 
       if (mine) { // mine
+        $scope.userProfile.uri = webid;
         $scope.userProfile.name = name;
         $scope.userProfile.picture = pic;
         $scope.userProfile.storagespace = storage;
@@ -233,7 +241,7 @@ angular.module( 'Cimba', [
   $scope.loadCredentials();
 
 
-  $scope.getChannels = function(uri, webid, mine, update) {
+  $scope.getChannels = function(uri, webid, mine, update, loadposts) {
 
     var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 
@@ -254,8 +262,6 @@ angular.module( 'Cimba', [
     $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
 
     // fetch user data: SIOC:Space -> SIOC:Container -> SIOC:Post
-
-    console.log(uri);
     f.nowOrWhenFetched(uri,undefined,function(){
 
       // find all SIOC:Container
@@ -284,7 +290,7 @@ angular.module( 'Cimba', [
   
             for (var ch in chs) {
               var channel = {};
-              var channeluri = chs[ch]['subject']['value'];
+              channel['uri'] = chs[ch]['subject']['value'];
               var title = g.any(chs[ch]['subject'], DCT('title')).value;
              
               if (title) {
@@ -296,10 +302,21 @@ angular.module( 'Cimba', [
               channel["owner"] = webid;
 
               // add channel to the list
-              $scope.channels[channeluri] = channel;
+              $scope.channels.push(channel);
+
+              /* uncomment to get posts for any channel (not just my own)
+              // get posts for that channel
+              if (loadposts === true) {
+                $scope.getPosts(channel.uri, channel.title);
+              }
+              */
   
               // mine
               if (mine) {
+                //get posts for my channel
+                if (loadposts === true) {
+                  $scope.getPosts(channel.uri, channel.title);
+                }
                 $scope.me.channels.push(channel);
 
                 //this dictionary pairs channels with their owner and the posts they contain
@@ -382,62 +399,48 @@ angular.module( 'Cimba', [
         }
       }
     });
-    return $scope.channels;
   };
 
   $scope.getPosts = function(channel, title) {
-
       var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 
       var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
 
-        var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
+      var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
 
-        var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
+      var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
 
-        var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
+      var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
 
-        var g = $rdf.graph();
+      var g = $rdf.graph();
 
-        var f = $rdf.fetcher(g, TIMEOUT);
+      var f = $rdf.fetcher(g, TIMEOUT);
 
-        // add CORS proxy
-
-        $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
-
-  
+      // add CORS proxy
+      $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
 
       // get all SIOC:Post (using globbing)
+      f.nowOrWhenFetched(channel+'*', undefined, function(){
 
-      f.nowOrWhenFetched(channel+'*', undefined,function(){
-
-        var posts = g.statementsMatching(undefined, RDF('type'), SIOC('Post'));
-
-  
+        posts = g.statementsMatching(undefined, RDF('type'), SIOC('Post'));
 
         if (posts.length > 0) {
 
           for (var p in posts) {
 
             var uri = posts[p]['subject'];
-
             var useraccount = g.any(uri, SIOC('has_creator'));
-
             var post = g.statementsMatching(posts[p]['subject']);
-
             var body = '';
             var username = '';
             var userpic = 'img/generic_photo';
             var userwebid;
+            var date = '';
+
             if (g.any(uri, DCT('created'))) {
 
               var d = g.any(uri, DCT('created')).value;
-
-              $scope.date = moment(d).zone('00:00');
-
-            } else {
-
-              $scope.date = undefined;
+              date = moment(d).zone('00:00');
 
             }
 
@@ -455,19 +458,19 @@ angular.module( 'Cimba', [
 
             if (userwebid) {
 
-              if ($scope.me.webid && $scope.me.webid == userwebid)
-
-                {userpic = $scope.me.pic;
-}
-              else if ($scope.users[userwebid])
-
-                {userpic = $scope.users[userwebid].pic;
-}
-            } else if (g.any(useraccount, SIOC('avatar'))) {
+              if ($scope.me.webid && $scope.me.webid == userwebid) {
+                userpic = $scope.me.pic;
+              }
+              else if ($scope.users[userwebid]) {
+                userpic = $scope.users[userwebid].pic;
+              }
+            }
+            else if (g.any(useraccount, SIOC('avatar'))) {
 
               userpic = g.any(useraccount, SIOC('avatar')).value;
 
-            } else {
+            }
+            else {
 
               userpic = 'img/generic_photo.png';
 
@@ -499,6 +502,9 @@ angular.module( 'Cimba', [
 
               body = g.any(uri, SIOC('content')).value;
 
+              console.log("body: "); //debug
+              console.log(body); //debug
+
             } else {
 
               body = '';
@@ -507,9 +513,9 @@ angular.module( 'Cimba', [
 
             uri = uri.value;
 
-  
-
             // check if we need to overwrite instead of pushing new item
+
+
 
             var _newPost = {
 
@@ -529,8 +535,7 @@ angular.module( 'Cimba', [
 
               body : body
 
-            }
-;
+            };
   
 
             if (!$scope.posts)
@@ -554,18 +559,14 @@ angular.module( 'Cimba', [
 
             }
 
-  
-
-            $scope.me.gotposts = true
-;
+            $scope.me.gotposts = true;
           }
 
-        } else {
-
-          if (isEmpty($scope.posts))
-
-            {$scope.me.gotposts = false;}
-
+        }
+        else {
+          if (isEmpty($scope.posts)) {
+            $scope.me.gotposts = false;
+          }
         }
 
         // hide spinner
@@ -575,7 +576,6 @@ angular.module( 'Cimba', [
         $scope.$apply();
 
       });
-
     };
 
 });

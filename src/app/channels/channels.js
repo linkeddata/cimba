@@ -16,14 +16,9 @@ angular.module('Cimba.channels',['ui.router'])
 })
 
 .controller('ChannelsCtrl', function ChannelsController($scope, $http, $location, $sce){
-    $scope.channelKeys = {};
     if ($scope.$parent.userProfile.storagespace !== undefined) {
         var storage = $scope.$parent.userProfile.storagespace;
         var webid = $scope.$parent.userProfile.webid;
-
-        $scope.channelKeys = $scope.$parent.getChannels(storage, webid, true, false);
-
+        $scope.$parent.getChannels(storage, webid, true, false, false);
     }
-    console.log("printing channel keys");
-    console.log($scope.channelKeys);
 });
