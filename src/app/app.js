@@ -118,6 +118,7 @@ angular.module( 'Cimba', [
     var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
     var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
     var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
+    console.log(SPACE);
     var ACL = $rdf.Namespace("http://www.w3.org/ns/auth/acl#");
     var g = $rdf.graph();
     var f = $rdf.fetcher(g, TIMEOUT);
@@ -144,6 +145,9 @@ angular.module( 'Cimba', [
       var pic = g.any(webidRes, FOAF('img'));
       var depic = g.any(webidRes, FOAF('depiction'));
       // get storage endpoints
+      console.log(SPACE);
+      console.log(webidRes);
+      console.log(SPACE("storage"));
       var storage = g.any(webidRes, SPACE('storage')).value;
       // get list of delegatees
       var delegs = g.statementsMatching(webidRes, ACL('delegatee'), undefined);
@@ -193,7 +197,7 @@ angular.module( 'Cimba', [
       // get channels for the user
       if (storage !== undefined) { 
         // get channels for user
-        $scope.getChannels(storage, webid, mine, update);
+        // $scope.getChannels(storage, webid, mine, update);
       } else {
         $scope.gotstorage = false;
       }
