@@ -4,6 +4,7 @@
 	        <h1> Channels </h1>
 	        <li ng-repeat="channel in channelKeys">
 		        <a ui-sref="view({channelName: channel.title, channelUri: channel.uri} )" >{{channel.title}}</a>
+
 	        </li>
         </ul>
     </div>
