@@ -41,12 +41,13 @@ angular.module( 'Cimba', [
     $scope.logout = function () {
         // Logout WebID (only works in Firefox and IE)
         if (document.all == null) {
-          if (window.crypto) {
-              try{
-                  window.crypto.logout(); //firefox ok -- no need to follow the link
-              } catch (err) {//Safari, Opera, Chrome -- try with tis session breaking
-              }
-          }
+            if (window.crypto) {
+                try {
+                    window.crypto.logout(); //firefox ok -- no need to follow the link
+                } catch (err) {//Safari, Opera, Chrome -- try with tis session breaking
+               
+                }
+            }
         } else { // MSIE 6+dsd
             document.execCommand('ClearAuthenticationCache');
         }
@@ -69,26 +70,26 @@ angular.module( 'Cimba', [
     // retrieve from sessionStorage
     $scope.loadCredentials = function () {
         if (sessionStorage.getItem($scope.appuri)) {
-          var cimba = JSON.parse(sessionStorage.getItem($scope.appuri));
-          if (cimba.userProfile) {
-            if (!$scope.userProfile) {
-              $scope.userProfile = {};
+            var cimba = JSON.parse(sessionStorage.getItem($scope.appuri));
+            if (cimba.userProfile) {
+                if (!$scope.userProfile) {
+                    $scope.userProfile = {};
+                }
+                $scope.userProfile = cimba.userProfile;
+                $scope.loggedin = true;
+                if ($scope.userProfile.channels) {
+                    $scope.defaultChannel = $scope.userProfile.channels[0];
+                }
+                // load from PDS (follows)
+                if ($scope.userProfile.mbspace && (!$scope.users || $scope.users.length === 0)) {
+                    //$scope.getUsers();
+                }
+                // refresh data
+                $scope.getInfo(cimba.userProfile.webid, true);
+            } else {
+                // clear sessionStorage in case there was a change to the data structure
+                sessionStorage.removeItem($scope.appuri);
             }
-            $scope.userProfile = cimba.userProfile;
-            $scope.loggedin = true;
-            if ($scope.userProfile.channels) {
-              $scope.defaultChannel = $scope.userProfile.channels[0];
-            }
-            // load from PDS (follows)
-            if ($scope.userProfile.mbspace && (!$scope.users || $scope.users.length === 0)) {
-              //$scope.getUsers();
-            }
-            // refresh data
-            $scope.getInfo(cimba.userProfile.webid, true);
-          } else {
-            // clear sessionStorage in case there was a change to the data structure
-            sessionStorage.removeItem($scope.appuri);
-          }
         }
     };
 
@@ -99,20 +100,20 @@ angular.module( 'Cimba', [
 
     $scope.$watch('loginSuccess', function(newVal, oldVal) {
         if (newVal === true && $scope.userProfile.webid) {
-          $scope.getInfo($scope.userProfile.webid, true, false);
+            $scope.getInfo($scope.userProfile.webid, true, false);
         }
     });
 
     // get relevant info for a webid
     $scope.getInfo = function(webid, mine, update) {
         if (DEBUG) {
-          console.log("Getting user info for: "+webid);
+            console.log("Getting user info for: "+webid);
         }
         // start progress bar
         ngProgress.start();
 
         if (mine) {
-          $scope.loading = true;
+            $scope.loading = true;
         }
 
         $scope.found = true;
@@ -132,105 +133,101 @@ angular.module( 'Cimba', [
 
         // fetch user data
         f.nowOrWhenFetched(docURI,undefined,function(ok, body) {
-          if (!ok) {
-            if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
-              notify('Warning', 'WebID profile not found.');
-              $scope.found = false;
-              $scope.searchbtn = 'Search';
-              // reset progress bar
-              ngProgress.reset();
-              $scope.$apply();
+            if (!ok) {
+                if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
+                  notify('Warning', 'WebID profile not found.');
+                  $scope.found = false;
+                  $scope.searchbtn = 'Search';
+                  // reset progress bar
+                  ngProgress.reset();
+                  $scope.$apply();
+                }
+            } 
+            // get some basic info
+            var name = g.any(webidRes, FOAF('name'));
+            var pic = g.any(webidRes, FOAF('img'));
+            var depic = g.any(webidRes, FOAF('depiction'));
+
+            // get storage endpoints
+            var storage = g.any(webidRes, SPACE('storage')).value;
+
+            // get list of delegatees
+            var delegs = g.statementsMatching(webidRes, ACL('delegatee'), undefined);
+            /*
+            if (delegs.length > 0) {
+                jQuery.ajaxPrefilter(function(options) {
+                options.url = AUTH_PROXY + encodeURIComponent(options.url);
+                options.crossDomain = true;
+                options.accepts = "text/turtle";
+                });
             }
-          }
-          // get some basic info
-          var name = g.any(webidRes, FOAF('name'));
-          var pic = g.any(webidRes, FOAF('img'));
-          var depic = g.any(webidRes, FOAF('depiction'));
+            */
+            // Clean up name
+            name = (name) ? name.value : 'No name found';
 
-
-          // get storage endpoints
-          console.log(SPACE);
-          console.log(webidRes);
-          console.log(SPACE("storage"));
-          var storage = g.any(webidRes, SPACE('storage')).value;
-
-          // get list of delegatees
-          var delegs = g.statementsMatching(webidRes, ACL('delegatee'), undefined);
-          /*
-          if (delegs.length > 0) {
-            jQuery.ajaxPrefilter(function(options) {
-              options.url = AUTH_PROXY + encodeURIComponent(options.url);
-              options.crossDomain = true;
-              options.accepts = "text/turtle";
-            });
-          }
-          */
-          // Clean up name
-          name = (name)?name.value:'No name found';
-
-          // set avatar picture
-          if (pic) {
-            pic = pic.value;
-          } else {
-            if (depic) {
-              pic = depic.value;
+            // set avatar picture
+            if (pic) {
+                pic = pic.value;
             } else {
-              pic = 'assets/generic_photo.png';
-            }
-          }
-
-          var _user = {
-            webid: webid,
-            name: name,
-            picture: pic,
-            storagespace: storage
-
-          };
-
-          // add to search object if it was the object of a search
-          if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
-            $scope.search = _user;
-          }
-
-          if (update) {
-            $scope.refreshinguser = true;
-            $scope.users[webid].name = name;
-            $scope.users[webid].picture = pic;
-            $scope.users[webid].storagespace = storage;
-          }
-          ///$scope.getChannels('https://asnoakes.rww.io/storage','https://asnoakes.rww.io',mine, update)
-
-          // get channels for the user
-          if (storage !== undefined) { 
-            // get channels for user
-            // $scope.getChannels(storage, webid, mine, update);
-          } else {
-            $scope.gotstorage = false;
-          }
-
-          if (mine) { // mine
-            $scope.userProfile.uri = webid;
-            $scope.userProfile.name = name;
-            $scope.userProfile.picture = pic;
-            $scope.userProfile.storagespace = storage;
-
-            // find microblogging feeds/channels
-            if (!storage) {
-              $scope.loading = false; // hide spinner
+                if (depic) {
+                    pic = depic.value;
+                } else {
+                    pic = 'assets/generic_photo.png';
+                }
             }
 
-            // cache user credentials in sessionStorage
-            $scope.saveCredentials();
+            var _user = {
+                webid: webid,
+                name: name,
+                picture: pic,
+                storagespace: storage
 
-            // update DOM
-            $scope.loggedin = true;
-            $scope.profileloading = false;
-            ngProgress.complete();
-            $scope.$apply();
-          }
+            };
+
+            // add to search object if it was the object of a search
+            if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
+                $scope.search = _user;
+            }
+
+            if (update) {
+                $scope.refreshinguser = true;
+                $scope.users[webid].name = name;
+                $scope.users[webid].picture = pic;
+                $scope.users[webid].storagespace = storage;
+            }
+            ///$scope.getChannels('https://asnoakes.rww.io/storage','https://asnoakes.rww.io',mine, update)
+
+            // get channels for the user
+            if (storage !== undefined) { 
+                // get channels for user
+                // $scope.getChannels(storage, webid, mine, update);
+            } else {
+                $scope.gotstorage = false;
+            }
+
+            if (mine) { // mine
+                $scope.userProfile.uri = webid;
+                $scope.userProfile.name = name;
+                $scope.userProfile.picture = pic;
+                $scope.userProfile.storagespace = storage;
+
+                // find microblogging feeds/channels
+                if (!storage) {
+                  $scope.loading = false; // hide spinner
+                }
+
+                // cache user credentials in sessionStorage
+                $scope.saveCredentials();
+
+                // update DOM
+                $scope.loggedin = true;
+                $scope.profileloading = false;
+                ngProgress.complete();
+                $scope.$apply();
+            }
         });
         if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
-          $scope.searchbtn = 'Search';
+            $scope.searchbtn = 'Search';
         }
     };
 
@@ -259,7 +256,6 @@ angular.module( 'Cimba', [
         var f = $rdf.fetcher(g, TIMEOUT);
         
         // add CORS proxy
-
         $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
 
         // fetch user data: SIOC:Space -> SIOC:Container -> SIOC:Post
