@@ -241,7 +241,6 @@ angular.module( 'Cimba', [
   $scope.loadCredentials();
 
     $scope.getChannels = function(uri, webid, mine, update, loadposts) {
-
         var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 
         var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
@@ -269,114 +268,115 @@ angular.module( 'Cimba', [
             if (ws.length > 0) {
                 // set a default Microblog workspace
                 if (mine) {
-                  // set default Microblog space
-                  $scope.me.mbspace = ws[0]['subject']['value'];
+                    // set default Microblog space
+                    $scope.me.mbspace = ws[0]['subject']['value'];
                 }
 
                 var func = function() {
 
-                  var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));
+                    var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));
                   
-                  if (chs.length > 0) {
-                    // clear list first
-                    if (mine) {
-                      $scope.me.channels = [];
+                    if (chs.length > 0) {
+                        // clear list first
+                        if (mine) {
+                            $scope.me.channels = [];
+                        }
+
+                        if (update) { 
+                            $scope.users[webid].channels = [];
+                        }
+          
+                        for (var ch in chs) {
+                            var channel = {};
+                            var uri = chs[ch]['subject']['value'];
+                            channel['uri'] = uri;
+                            var safeUri = uri.replace(/^https?:\/\//,'');
+                            channel['safeUri'] = safeUri.replace("/\/", "_");
+                            var title = g.any(chs[ch]['subject'], DCT('title')).value;
+
+                            if (title) {
+                            channel['title'] = title;
+                            } else {
+                            channel['title'] = channeluri;
+                            }
+
+                            channel["owner"] = webid;
+
+                            // add channel to the list
+                            $scope.channels.push(channel);
+
+                            /* uncomment to get posts for any channel (not just my own)
+                            // get posts for that channel
+                            if (loadposts === true) {
+                            $scope.getPosts(channel.uri, channel.title);
+                            }
+                            */
+
+                            // mine
+                            if (mine) {
+                                //get posts for my channel
+                                if (loadposts === true) {
+                                    $scope.getPosts(channel.uri, channel.title);
+                                }
+
+                                $scope.me.channels.push(channel);
+
+                                //this dictionary pairs channels with their owner and the posts they contain
+                                $scope.me.chspace = true;
+                            }
+
+                            // update
+                            if (update) {
+                                var exists = findWithAttr($scope.users[webid].channels, 'uri', channeluri);
+                                if (exists === undefined) {
+                                    $scope.users[webid].channels.push(channel);
+                                }
+                            }
+
+                        }
+
+                        // set a default channel for the logged user
+                        if (mine) {
+                            $scope.defaultChannel = $scope.me.channels[0];
+                        }
+
+                        // done refreshing user information -> update view
+                        if (update) {
+                            $scope.addChannelStyling(webid, $scope.users[webid].channels);
+                            delete $scope.users[webid].refreshing;
+                            $scope.$apply();
+                        }
+                    } else {
+                        console.log('No channels found!');
+                        if (mine) {
+                            // hide loader
+                            $scope.loading = false;
+                            $scope.me.chspace = false;
+                        }
                     }
 
+                    // also save updated users & channels list
                     if (update) { 
-                      $scope.users[webid].channels = [];
-                    }
-          
-                    for (var ch in chs) {
-                      var channel = {};
-                      var uri = chs[ch]['subject']['value'];
-                      channel['uri'] = uri;
-                      var safeUri = uri.replace(/^https?:\/\//,'');
-                      channel['safeUri'] = safeUri.replace("/\/", "_");
-                      var title = g.any(chs[ch]['subject'], DCT('title')).value;
-                     
-                      if (title) {
-                        channel['title'] = title;
-                      } else {
-                        channel['title'] = channeluri;
-                      }
-
-                      channel["owner"] = webid;
-
-                      // add channel to the list
-                      $scope.channels.push(channel);
-
-                      /* uncomment to get posts for any channel (not just my own)
-                      // get posts for that channel
-                      if (loadposts === true) {
-                        $scope.getPosts(channel.uri, channel.title);
-                      }
-                      */
-          
-                      // mine
-                      if (mine) {
-                        //get posts for my channel
-                        if (loadposts === true) {
-                          $scope.getPosts(channel.uri, channel.title);
-                        }
-                        $scope.me.channels.push(channel);
-
-                        //this dictionary pairs channels with their owner and the posts they contain
-                        $scope.me.chspace = true;
-                      }
-
-                      // update
-                      if (update) {
-                        var exists = findWithAttr($scope.users[webid].channels, 'uri', channeluri);
-                        if (exists === undefined) {
-                          $scope.users[webid].channels.push(channel);
-                        }
-                      }
-
+                        $scope.saveUsers();
                     }
 
-                    // set a default channel for the logged user
+                    // if we were called by search
+                    if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
+                        $scope.search.channels = channels;
+                        $scope.drawSearchResults();
+                    }
+                           
                     if (mine) {
-                      $scope.defaultChannel = $scope.me.channels[0];
+                        $scope.saveCredentials();
+                        $scope.$apply();
                     }
-
-                    // done refreshing user information -> update view
-                    if (update) {
-                      $scope.addChannelStyling(webid, $scope.users[webid].channels);
-                      delete $scope.users[webid].refreshing;
-                      $scope.$apply();
-                    }
-                  } else {
-                    console.log('No channels found!');
-                    if (mine) {
-                      // hide loader
-                      $scope.loading = false;
-                      $scope.me.chspace = false;
-                    }
-                  }
-
-                  // also save updated users & channels list
-                  if (update) { 
-                    $scope.saveUsers();
-                  }
-
-                  // if we were called by search
-                  if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
-                      $scope.search.channels = channels;
-                      $scope.drawSearchResults();
-                  }
-                        
-                  if (mine) {
-                    $scope.saveCredentials();
-                    $scope.$apply();
-                  }
                 };
 
                 for (var i in ws) {
-                  w = ws[i]['subject']['value'];
+                    w = ws[i]['subject']['value'];
 
-                  // find the channels info for the user (from .meta files)
-                  f.nowOrWhenFetched(w+'.*', undefined,func);
+                    // find the channels info for the user (from .meta files)
+                    f.nowOrWhenFetched(w+'.*', undefined,func);
                 }
 
             } else { // no Microblogging workspaces found!
@@ -487,80 +487,63 @@ angular.module( 'Cimba', [
                 }
 
                 if (g.any(uri, SIOC('content'))) {
-
                     body = g.any(uri, SIOC('content')).value;
-
                     console.log("body: "); //debug
-
                 } else {
-
-                  body = '';
-
+                    body = '';
                 }
 
-            uri = uri.value;
+                uri = uri.value;
 
             // check if we need to overwrite instead of pushing new item
 
-            var _newPost = {
+                var _newPost = {
 
-                uri : uri,
+                    uri : uri,
 
-                channel: channel,
+                    channel: channel,
 
-                chtitle: title,
+                    chtitle: title,
 
-                date : date,
+                    date : date,
 
-                userwebid : userwebid,
+                    userwebid : userwebid,
 
-                userpic : userpic,
+                    userpic : userpic,
 
-                username : username,
+                    username : username,
 
-                body : body
+                    body : body
 
-            };
+                };
   
 
-            if (!$scope.posts)
-
-                {$scope.posts = {};}
+                if (!$scope.posts) {
+                    $scope.posts = {};
+                }
+                
                 // filter post by language (only show posts in English or show all)         
+                if ($scope.filterFlag && testIfAllEnglish(_newPost.body)) {
+                    // add/overwrite post
+                    $scope.posts[uri] = _newPost;
+                    $scope.$apply();
+                } else {
+                    $scope.posts[uri] = _newPost;
+                    $scope.$apply();
+                }
 
-            if ($scope.filterFlag && testIfAllEnglish(_newPost.body)) {
-
-              // add/overwrite post
-
-              $scope.posts[uri] = _newPost;
-
-              $scope.$apply();
-
-            } else {
-
-              $scope.posts[uri] = _newPost;
-
-              $scope.$apply();
-
+                $scope.me.gotposts = true;
             }
 
-            $scope.me.gotposts = true;
-          }
-
-        }
-        else {
+        } else {
             if (isEmpty($scope.posts)) {
                 $scope.me.gotposts = false;
             }
         }
 
         // hide spinner
-
         $scope.loading = false;
-
         $scope.$apply();
 
-      });
-    };
-
-});
+    });
+};
