@@ -11,12 +11,12 @@
         </div>
     </div>
 
-    <div id="newpost" class="container">
+    <div id="newpost" class="container" ng-controller="PostsController as postCtrl">
         <div class="row">
-            <div class="clear-70"></div>
+            <!-- <div class="clear-70"></div> -->
             <div class="col-md-12">
                 <!-- new post -->
-                <div class="panel panel-default" ng-show="!loggedin"> <!-- debug -->
+                <div class="panel panel-default" ng-show="loggedin"> <!-- debug -->
                     <div class="panel-heading dark-blue">
                         <div class="pull-left">
                             <a id="pic" class="thumbnail pull-right" href="{{me.webid}}">
@@ -27,7 +27,6 @@
                     <div class="panel-body">
                         <div class="panel-body-textmail">
                           <div id="spinner" ng-hide="me.name"></div>
-                          lol
                           <h3 class="bold" ng-show="profileloading">Loading profile...</h3>
                           <h3 class="bold" ng-show="me.name && !me.chspace">Hello {{me.name}}!</h3>
                           <h3 class="bold" ng-show="me.chspace">What's new<span ng-show="me.name != ''">, {{me.name}}</span>?</h3>

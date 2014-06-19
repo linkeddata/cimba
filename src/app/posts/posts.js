@@ -27,11 +27,9 @@ angular.module('Cimba.posts',[
 
 	// update account
     $scope.setChannel = function(ch) {
-		console.log(webid);
-		console.log($scope.users[webid]);
-        for (var i in $scope.users[webid].channels) {
-			if ($scope.users[webid].channels[i].title == ch) {
-				$scope.defaultChannel = $scope.users[webid].channels[i];
+        for (var i in $scope.me.channels) {
+			if ($scope.me.channels[i].title == ch) {
+				$scope.defaultChannel = $scope.me.channels[i];
 				break;
 			}
 		}

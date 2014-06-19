@@ -8,6 +8,8 @@ var DEBUG = true;
 angular.module( 'Cimba', [
   'templates-app',
   'templates-common',
+  'Cimba.tab',
+  'Cimba.posts',
   'Cimba.home',
   'Cimba.login',
   'Cimba.about',
