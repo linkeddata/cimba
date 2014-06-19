@@ -276,6 +276,7 @@ angular.module( 'Cimba', [
         $scope.userProfile.picture = pic;
         $scope.userProfile.storagespace = storage;
         $scope.me.webid = webid; //for displaying delete button in posts.tpl.html
+        $scope.me.pic = pic; //resolves issue of not displaying profile picture that the above line creates
 
         // find microblogging feeds/channels
         if (!storage) {
