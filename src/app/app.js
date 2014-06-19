@@ -8,6 +8,8 @@ var DEBUG = true;
 angular.module( 'Cimba', [
   'templates-app',
   'templates-common',
+  'Cimba.tab',
+  'Cimba.posts',
   'Cimba.home',
   'Cimba.login',
   'Cimba.about',
@@ -277,6 +279,7 @@ angular.module( 'Cimba', [
         $scope.userProfile.storagespace = storage;
         $scope.me.webid = webid; //for displaying delete button in posts.tpl.html
         $scope.me.pic = pic; //resolves issue of not displaying profile picture that the above line creates
+        $scope.me.name = name;
 
         // find microblogging feeds/channels
         if (!storage) {
@@ -546,13 +549,12 @@ angular.module( 'Cimba', [
 
             if (userwebid) {
 
-              if ($scope.me.webid && $scope.me.webid == userwebid)
-
-                {username = $scope.me.name;}
-
-              else if ($scope.users[userwebid])
-
-                {username = $scope.users[userwebid].name;}
+              if ($scope.me.webid && $scope.me.webid == userwebid) {
+                username = $scope.me.name;
+              }
+              else if ($scope.users[userwebid]) {
+                username = $scope.users[userwebid].name;
+              }
 
             } else if (g.any(useraccount, FOAF('name'))) {
 
