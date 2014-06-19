@@ -47,7 +47,7 @@ angular.module( 'Cimba', [
           } catch (err) {//Safari, Opera, Chrome -- try with tis session breaking
           }
       }
-    } else { // MSIE 6+
+    } else { // MSIE 6+dsd
       document.execCommand('ClearAuthenticationCache');
     }
 
@@ -120,7 +120,6 @@ angular.module( 'Cimba', [
     var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
     var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
     var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
-    console.log(SPACE);
     var ACL = $rdf.Namespace("http://www.w3.org/ns/auth/acl#");
     var g = $rdf.graph();
     var f = $rdf.fetcher(g, TIMEOUT);
@@ -291,7 +290,10 @@ angular.module( 'Cimba', [
   
             for (var ch in chs) {
               var channel = {};
-              channel['uri'] = chs[ch]['subject']['value'];
+              var uri = chs[ch]['subject']['value'];
+              channel['uri'] = uri;
+              var safeUri = uri.replace(/^https?:\/\//,'');
+              channel['safeUri'] = safeUri.replace("/\/", "_");
               var title = g.any(chs[ch]['subject'], DCT('title')).value;
              
               if (title) {
@@ -400,7 +402,13 @@ angular.module( 'Cimba', [
         }
       }
     });
+    return $scope.channels;
   };
+
+  $scope.viewChannel = function(channel) {
+        console.log("view executed");
+        $state.transitionTo("view", {channelId: channel.safeUri});
+    };
 
   $scope.getPosts = function(channel, title) {
       var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
@@ -504,7 +512,6 @@ angular.module( 'Cimba', [
               body = g.any(uri, SIOC('content')).value;
 
               console.log("body: "); //debug
-              console.log(body); //debug
 
             } else {
 
