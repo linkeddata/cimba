@@ -1,0 +1,47 @@
+<!--<div ng-click="hideMenu()">
+	<form name = "channelCreate" ng-controller='CreateCtrl'>
+		<blockquote>
+			{{CreateCtrl.newChannel.title}}
+		</blockquote>
+		<fieldset>
+			<textarea ng-model = 'CreateCtrl.newChannel.title' placeholder="What's the title of your channel?" title="Channel Name" required>
+	        </textarea>
+		</fieldset>
+		<fieldset>
+			<input type = "submit" value = 'Create Channel'></input>
+		</fieldset>
+	</form>
+	<script type="text/javascript">console.log(newChannel.title)</script>
+</div>
+-->
+
+<div id="newChannelModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                  <h2 class="text-center">Create a new channel</h2>
+              </div>
+              <div class="modal-body">
+                  <form class="m10">
+                  <p>The name you provide will be used to create a new channel inside your microblog.</p>                  
+                  <p><input type="text" id="channelname" name="channelname" ng-model="channelname" class="form-control" placeholder="Name (Main, Work, etc.).." required ng-pattern="/^[A-Za-z0-9_ ]*$/"></p>
+                  <div class="btn-group">
+                      <button id="audience" class="btn btn-primary" disabled><i class="fa {{audience.icon}} fa-2x white"></i></button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop" rel="tooltip" data-placement="top" title="Audience"><i class="fa fa-chevron-down fa-2x"></i></small></button>
+                      <ul class="dropdown-menu" role="menu" aria-labelledby="audience">
+                          <li><a href="#" ng-click="setAudience('public')"><i id="public" class="fa fa-globe fa-2x blue"></i> Public</a></li>
+                          <li><a href="#" ng-click="setAudience('private')">&nbsp;<i id="private" class="fa fa-lock fa-2x blue"></i>&nbsp; Private</a></li>
+                          <!-- <li><a href="#" ng-click="setAudience('friends')"><i id="friends" class="fa fa-user fa-2x blue"></i> Friends</a></li> -->
+                      </ul>
+                  </div>
+                  </form>
+              </div>
+              <div class="modal-footer">
+                  <div class="col-md-12">
+                      <button class="btn btn-primary" ng-click="newChannel()" ng-disabled="!channelname">{{createbtn}}</button>
+                      <button class="btn btn-info btn-sep-right" data-dismiss="modal" aria-hidden="true">Close</button>
+                  </div>  
+              </div>
+          </div>
+      </div>
+    </div>

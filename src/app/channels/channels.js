@@ -1,4 +1,7 @@
-angular.module('Cimba.channels',['ui.router'])
+angular.module('Cimba.channels',[
+    'ui.router',
+    'Cimba.channels.manage'
+    ])
 
 .config(function ChannelsConfig($stateProvider){
     $stateProvider.state('list', {
