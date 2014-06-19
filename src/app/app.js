@@ -23,6 +23,71 @@ angular.module( 'Cimba', [
 .run( function run () {
 })
 
+// replace dates with moment's "time ago" style
+.filter('fromNow', function() {
+  return function(date) {
+    return moment(date).fromNow();
+  };
+})
+
+// parse markdown text to html
+.filter('markdown', function ($sce) {
+    var converter = new Showdown.converter();
+  return function (str) {
+        return converter.makeHtml(str);
+    };
+})
+
+// turn http links in text to hyperlinks
+.filter('makeLinks', function ($sce) {
+    return function (str) {
+        return $sce.trustAsHtml(str.
+                                replace(/</g, '&lt;').
+                                replace(/>/g, '&gt;').
+                                replace(/(http[^\s]+)/g, '<a href="$1" target="_blank">$1</a>')
+                               );
+    };
+})
+
+// order function for ng-repeat using lists instead of arrays
+.filter('orderObjectBy', function(){
+ return function(input, attribute) {
+    if (!angular.isObject(input)) {
+      return input;
+    }
+
+    var array = [];
+    for(var objectKey in input) {
+        array.push(input[objectKey]);
+    }
+
+  array.sort(function(a, b){
+    var alc = a[attribute].toLowerCase();
+    var blc = b[attribute].toLowerCase();
+    return alc > blc ? 1 : alc < blc ? -1 : 0;
+  });
+  return array;
+ };
+})
+
+// filter array of objects by property
+.filter('unique', function() {
+  return function(collection, keyname) {
+    var output = [], 
+    keys = [];
+
+    angular.forEach(collection, function(item) {
+      var key = item[keyname];
+      if(keys.indexOf(key) === -1) {
+        keys.push(key);
+        output.push(item);
+      }
+    });
+
+    return output;
+  };
+})
+
 .controller( 'MainCtrl', function MainCtrl ( $scope, $location, $timeout, ngProgress ) {
   // Some default values
   $scope.appuri = window.location.hostname+window.location.pathname;
@@ -210,6 +275,7 @@ angular.module( 'Cimba', [
         $scope.userProfile.name = name;
         $scope.userProfile.picture = pic;
         $scope.userProfile.storagespace = storage;
+        $scope.me.webid = webid; //for displaying delete button in posts.tpl.html
 
         // find microblogging feeds/channels
         if (!storage) {
@@ -433,7 +499,7 @@ angular.module( 'Cimba', [
             var post = g.statementsMatching(posts[p]['subject']);
             var body = '';
             var username = '';
-            var userpic = 'img/generic_photo';
+            var userpic = '../assets/generic_photo';
             var userwebid;
             var date = '';
 
@@ -471,8 +537,7 @@ angular.module( 'Cimba', [
 
             }
             else {
-
-              userpic = 'img/generic_photo.png';
+              userpic = '../assets/generic_photo.png';
 
             }
 
@@ -575,4 +640,44 @@ angular.module( 'Cimba', [
       });
     };
 
+})
+
+/*
+//simple directive to display new post box
+ngCimba.directive('postBox',function(){
+    return {
+    replace : true,
+    restrict : 'E',
+    templateUrl: 'tpl/new_post.html'
+    }; 
+})
+*/
+
+//simple directive to display each post
+.directive('postsViewer',function(){
+    return {
+    replace : true,
+    restrict : 'E',
+    templateUrl: 'posts/posts.tpl.html'
+    }; 
 });
+
+/*
+//simple directive to display list of channels
+ngCimba.directive('channelslist',function(){
+    return {
+    replace : true,
+    restrict : 'E',
+    templateUrl: 'tpl/channel-list.html'
+    }; 
+})
+
+//simple directive to display list of search results
+ngCimba.directive('searchresults',function(){
+    return {
+    replace : true,
+    restrict : 'E',
+    templateUrl: 'tpl/search_results.html'
+    }; 
+})
+*/

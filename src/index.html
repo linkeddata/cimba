@@ -21,7 +21,7 @@
     <script type="text/javascript" src="<%= file %>"></script><% }); %>
   </head>
   <body>
-    <div ng-class="showMenu?'slide-out':''" class="sidebar left-menu">
+    <div ng-class="showMenu?'slide-out':''" class="sidebar left-menu" style="z-index: 999; position: absolute">
       <button type="button" ng-click="showMenu=!showMenu" class="btn icon-bars-button" alt="Toggle navigation">
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
