@@ -1,7 +1,9 @@
 angular.module('Cimba.channels',[
     'ui.router',
     'Cimba.channels.view',
-    'Cimba.channels.viewPost'])
+    'Cimba.channels.viewPost',
+    'Cimba.channels.manage'
+    ])
 
 .config(function ChannelsConfig($stateProvider){
     $stateProvider
