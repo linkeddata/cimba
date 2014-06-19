@@ -1,0 +1,59 @@
+<div ng-animate="{enter: 'animate'}" class="panel panel-default" custom ng-repeat="post in posts | unique:'uri' | orderBy:'date':true">
+    <div class="panel-heading" style="background-color:#3BAFDA;">
+        <a href="{{post.uri}}" class="link-post pull-right" target="_blank" style="color:white; font-size:16px"><i class="fa fa-link"></i> Link to post</a>
+        <h4 style="color:white; margin-top:10px; margin-bottom:10px; font-weight:400px; border:0px solid #EFEFEF">
+        	<span class="pull-left" rel="tooltip" data-placement="top" title="{{post.date}}">{{post.date | fromNow}}</span><div class="pull-left">&nbsp;by <a href="{{post.userwebid}}" class="link-white bold" target="_blank">{{post.username}}</a> </div>
+        	<br style="line-height:150%"/>
+        	<small style="color:white"><a href="{{post.channel}}" class="link-white pull-left" target="_blank" style="color:white">In {{post.chtitle}}</a></small>
+        </h4>
+        <br/>
+        <div class="pull-left" style="height:86px;">
+            <a class="thumbnail pull-right" href="#{{post.$$hashKey}}" role="button" data-toggle="modal" style="height:86px;">
+              <img class="media-object thumb-pic" ng-src="{{post.userpic}}" rel="tooltip" data-placement="top" title="{{post.username}}" style="height:76px; width: 76px">
+            </a>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div class="panel-body-text" align="left">
+            <p>
+                <pre ng-bind-html="post.body | makeLinks" style="border: 0px none; padding: 5px; margin: 0px 0px 10px border-radius: 4px; background-color: white;"></pre>
+            </p>
+        </div>
+        <hr>
+        <form>
+            <div class="input-group">
+                <div class="input-group-btn pull-left">
+                    <button class="btn btn-success" rel="tooltip" data-placement="top" title="Read full message" style="height:43px">More</button>
+                    <button class="btn btn-default" rel="tooltip" data-placement="top" title="Star message" ng-click="starPost()" style="height:43px"><i class="fa fa-star fa-2x"></i></button>
+                    <button class="btn btn-default" data-placement="top" title="Delete message" ng-click="deletePost(post)" ng-show="me.webid == post.userwebid" style="height:43px"><i class="fa fa-trash-o fa-2x"></i></button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <!-- user info modal -->
+    <div id="{{post.$$hashKey}}" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                  <div class="text-center">
+                        <a class="thumbnail center" href="{{post.userwebid}}" target="_blank">
+                            <img class="media-object thumb-pic" ng-src="{{post.userpic}}" rel="tooltip" data-placement="top" title="{{post.username}}">
+                        </a>
+                        <h3><a href="{{post.userwebid}}" target="_blank">{{post.username}}</a></h3>
+                  </div>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center">
+                        <button class="btn btn-info"><i class="{{sub.icon}} white"></i> {{sub.text}}</button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                  <div class="col-md-12">
+                      <button class="btn btn-info btn-sep-right" data-dismiss="modal" aria-hidden="true">Close</button>
+                  </div>  
+                </div>      
+                </div>
+        </div>
+    </div>
+</div>

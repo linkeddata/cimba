@@ -23,20 +23,85 @@ angular.module( 'Cimba', [
 .run( function run () {
 })
 
-.controller( 'MainCtrl', function MainCtrl ($scope, $location, $timeout, ngProgress ) {
-    // Some default values
-    $scope.appuri = window.location.hostname+window.location.pathname;
-    $scope.loginSuccess = false;
-    $scope.userProfile = {};
-    $scope.userProfile.picture = 'assets/generic_photo.png';
-    $scope.channels = [];
-    $scope.posts = {};
-    $scope.users = {};
-    $scope.me = {};
+// replace dates with moment's "time ago" style
+.filter('fromNow', function() {
+  return function(date) {
+    return moment(date).fromNow();
+  };
+})
 
-    $scope.login = function () {
-        $location.path('/login');
+// parse markdown text to html
+.filter('markdown', function ($sce) {
+    var converter = new Showdown.converter();
+  return function (str) {
+        return converter.makeHtml(str);
     };
+})
+
+// turn http links in text to hyperlinks
+.filter('makeLinks', function ($sce) {
+    return function (str) {
+        return $sce.trustAsHtml(str.
+                                replace(/</g, '&lt;').
+                                replace(/>/g, '&gt;').
+                                replace(/(http[^\s]+)/g, '<a href="$1" target="_blank">$1</a>')
+                               );
+    };
+})
+
+// order function for ng-repeat using lists instead of arrays
+.filter('orderObjectBy', function(){
+ return function(input, attribute) {
+    if (!angular.isObject(input)) {
+      return input;
+    }
+
+    var array = [];
+    for(var objectKey in input) {
+        array.push(input[objectKey]);
+    }
+
+  array.sort(function(a, b){
+    var alc = a[attribute].toLowerCase();
+    var blc = b[attribute].toLowerCase();
+    return alc > blc ? 1 : alc < blc ? -1 : 0;
+  });
+  return array;
+ };
+})
+
+// filter array of objects by property
+.filter('unique', function() {
+  return function(collection, keyname) {
+    var output = [], 
+    keys = [];
+
+    angular.forEach(collection, function(item) {
+      var key = item[keyname];
+      if(keys.indexOf(key) === -1) {
+        keys.push(key);
+        output.push(item);
+      }
+    });
+
+    return output;
+  };
+})
+
+.controller( 'MainCtrl', function MainCtrl ( $scope, $location, $timeout, ngProgress ) {
+  // Some default values
+  $scope.appuri = window.location.hostname+window.location.pathname;
+  $scope.loginSuccess = false;
+  $scope.userProfile = {};
+  $scope.userProfile.picture = 'assets/generic_photo.png';
+  $scope.channels = [];
+  $scope.posts = {};
+  $scope.users = {};
+  $scope.me = {};
+
+  $scope.login = function () {
+    $location.path('/login');
+  };
 
     $scope.logout = function () {
         // Logout WebID (only works in Firefox and IE)
@@ -539,4 +604,45 @@ angular.module( 'Cimba', [
 
         });
     };
+
+})
+
+/*
+//simple directive to display new post box
+ngCimba.directive('postBox',function(){
+    return {
+    replace : true,
+    restrict : 'E',
+    templateUrl: 'tpl/new_post.html'
+    }; 
+})
+*/
+
+//simple directive to display each post
+.directive('postsViewer',function(){
+    return {
+    replace : true,
+    restrict : 'E',
+    templateUrl: 'posts/posts.tpl.html'
+    }; 
 });
+
+/*
+//simple directive to display list of channels
+ngCimba.directive('channelslist',function(){
+    return {
+    replace : true,
+    restrict : 'E',
+    templateUrl: 'tpl/channel-list.html'
+    }; 
+})
+
+//simple directive to display list of search results
+ngCimba.directive('searchresults',function(){
+    return {
+    replace : true,
+    restrict : 'E',
+    templateUrl: 'tpl/search_results.html'
+    }; 
+})
+*/

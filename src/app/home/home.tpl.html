@@ -1,89 +1,85 @@
 <div ng-click="hideMenu()">
-	<!--
-	<div class = "panel-body">
-        <ul>
-	        <h1> Posts </h1>
-	        <li ng-repeat="post in posts">
-		        <blockquote>
-		    	    <strong>{{post}}</strong>
-		        </blockquote>
-	        </li>
-        </ul>
+
+	<!-- no posts found -->
+    <div id="setup" class="container" ng-show="me.gotposts == false">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default text-center">
+                    <h3>You haven't posted anything. Try writing a new post or <a href="#subscribeModal" role="button" data-toggle="modal"><button class="btn btn-primary"><i class="fa fa-rss white"></i> subscribe</button></a> to someone's channels!</h3>
+                </div>
+            </div>
+        </div>
     </div>
-	-->
-	<posts-viewer ng-show="loggedin">
-	    <div id="posts" class="container">
-	        <div class="row">
-	            <div class="col-md-12">
-	                <!-- Loading animation -->
-	                <div class="panel panel-default text-center" ng-show="loading">
-	                    <!-- <div class="spinner"> -->
-	                    <div class="clear-40">
-	                      <div class="circle circle-large"></div><div class="circle1 circle1-large"></div>
-	                    </div>
-	                    <!-- <div class="gear"></div> -->
+
+    <div id="newpost" class="container">
+        <div class="row">
+            <div class="clear-70"></div>
+            <div class="col-md-12">
+                <!-- new post -->
+                <div class="panel panel-default" ng-show="!loggedin"> <!-- debug -->
+                    <div class="panel-heading dark-blue">
+                        <div class="pull-left">
+                            <a id="pic" class="thumbnail pull-right" href="{{me.webid}}">
+                              <img class="media-object" ng-src="{{me.pic}}" rel="tooltip" data-placement="top" title="{{me.name}}">
+                            </a>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <div class="panel-body-textmail">
+                          <div id="spinner" ng-hide="me.name"></div>
+                          lol
+                          <h3 class="bold" ng-show="profileloading">Loading profile...</h3>
+                          <h3 class="bold" ng-show="me.name && !me.chspace">Hello {{me.name}}!</h3>
+                          <h3 class="bold" ng-show="me.chspace">What's new<span ng-show="me.name != ''">, {{me.name}}</span>?</h3>
+                          <form ng-hide="me.webid && !me.chspace">                               
+                              <textarea name="message" ng-model="postbody" class="form-control message" placeholder="Type your message here.." required></textarea>
+                              <div class="btn-group">
+                                  <button id="audience" class="btn btn-primary" disabled><i class="fa {{audience.icon}} fa-2x white"></i></button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop" rel="tooltip" data-placement="top" title="Audience"><i class="fa fa-chevron-down fa-2x"></i></small></button>
+                                  <ul class="dropdown-menu" role="menu" aria-labelledby="audience">
+                                      <li><a href="#" ng-click="setAudience('public')"><i id="public" class="fa fa-globe fa-2x blue"></i> Public</a></li>
+                                      <li><a href="#" ng-click="setAudience('private')">&nbsp;<i id="private" class="fa fa-lock fa-2x blue"></i>&nbsp; Private</a></li>
+                                      <!-- <li><a href="#" ng-click="setAudience('friends')"><i id="friends" class="fa fa-user fa-2x blue"></i> Friends</a></li> -->
+                                  </ul>
+                              </div>
+
+                              <div class="btn-group" ng-show="me.channels.length > 0" rel="tooltip" data-placement="top" title="Channels">
+                                  <button id="chs" class="btn btn-primary" disabled>{{defaultChannel.title}}</button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop" rel="tooltip" data-placement="top" title="Channels"><i class="fa fa-chevron-down fa-2x"></i></small></button>
+                                  <ul class="dropdown-menu" role="menu" aria-labelledby="chs">
+                                      <li ng-repeat="channel in me.channels | orderBy:'title'">
+                                          <a href="#" ng-click="setChannel(channel.title)">{{channel.title}}</a>
+                                      </li>
+                                  </ul>
+                              </div>
+                              <div class="pull-right">
+                                  <button class="btn btn-primary pull-right w60" ng-click="newPost()" ng-disabled="!postbody">
+                                    <div ng-show="!publishing">Post</div>
+                                    <div ng-show="publishing" class="dots"></div>
+                                  </button>
+                              </div>
+                          </form>
+                        </div>
+                    </div>
+                </div>
+                <!-- end new post -->
+            </div>
+        </div>
+    </div>
+
+	<div id="posts" class="container">
+	    <div class="row">
+	        <div class="col-md-12">
+	            <!-- Loading animation -->
+	            <div class="panel panel-default text-center" ng-show="loading">
+	                <!-- <div class="spinner"> -->
+	                <div class="clear-40">
+	                  <div class="circle circle-large"></div><div class="circle1 circle1-large"></div>
 	                </div>
-	                <!-- All posts go into <posts-viewer> -->
-	                <!-- ngRepeat: post in posts | unique:'uri' | orderBy:'date':true -->
-	                <div ng-animate="{enter: 'animate'}" class="panel panel-default" custom ng-repeat="post in posts | unique:'uri' | orderBy:'date':true">
-					    <div class="panel-heading light-blue">
-					        <a href="{{post.uri}}" class="link-post pull-right" target="_blank"><i class="fa fa-link"></i> Link to post</a>
-					        <h4><span rel="tooltip" data-placement="top" title="{{post.date}}">{{post.date | fromNow}}</span> by <a href="{{post.userwebid}}" class="link-white bold" target="_blank">{{post.username}}</a>
-					        <br/>
-					        <small><a href="{{post.channel}}" class="link-white" target="_blank">In {{post.chtitle}}</a></small>
-					        </h4>
-					        <div class="pull-left">
-					            <a class="thumbnail pull-right" href="#{{post.$$hashKey}}" role="button" data-toggle="modal">
-					              <img class="media-object thumb-pic" ng-src="{{post.userpic}}" rel="tooltip" data-placement="top" title="{{post.username}}">
-					            </a>
-					        </div>
-					    </div>
-					    <div class="panel-body">
-					        <div class="panel-body-text">
-					            <p>
-					                <pre ng-bind-html="post.body | makeLinks"></pre>
-					            </p>
-					        </div>
-					        <hr>
-					        <form>
-					            <div class="input-group">
-					                <div class="input-group-btn">
-					                    <button class="btn btn-success" rel="tooltip" data-placement="top" title="Read full message">More</button>
-					                    <button class="btn btn-default" rel="tooltip" data-placement="top" title="Star message" ng-click="starPost()"><i class="fa fa-star fa-2x"></i></button>
-					                    <button class="btn btn-default" data-placement="top" title="Delete message" ng-click="deletePost(post)" ng-show="me.webid == post.userwebid"><i class="fa fa-trash-o fa-2x"></i></button>
-					                </div>
-					            </div>
-					        </form>
-					    </div>
-					    <!-- user info modal -->
-					    <div id="{{post.$$hashKey}}" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-					        <div class="modal-dialog">
-					            <div class="modal-content">
-					                <div class="modal-header">
-					                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-					                  <div class="text-center">
-					                        <a class="thumbnail center" href="{{post.userwebid}}" target="_blank">
-					                            <img class="media-object thumb-pic" ng-src="{{post.userpic}}" rel="tooltip" data-placement="top" title="{{post.username}}">
-					                        </a>
-					                        <h3><a href="{{post.userwebid}}" target="_blank">{{post.username}}</a></h3>
-					                  </div>
-					                </div>
-					                <div class="modal-body">
-					                    <div class="text-center">
-					                        <button class="btn btn-info"><i class="{{sub.icon}} white"></i> {{sub.text}}</button>
-					                    </div>
-					                </div>
-					                <div class="modal-footer">
-					                  <div class="col-md-12">
-					                      <button class="btn btn-info btn-sep-right" data-dismiss="modal" aria-hidden="true">Close</button>
-					                  </div>  
-					                </div>      
-					                </div>
-					        </div>
-					    </div>
-					</div>
+	                <!-- <div class="gear"></div> -->
 	            </div>
+	            <!-- All posts go into <posts-viewer> -->
+	            <!-- ngRepeat: post in posts | unique:'uri' | orderBy:'date':true -->
+	            <posts-viewer ng-show="loggedin"></posts-viewer>
 	        </div>
 	    </div>
-	</posts-viewer>
+	</div>
 </div>
