@@ -610,4 +610,3 @@ angular.module( 'Cimba', [
         }         
     });
 });
-
