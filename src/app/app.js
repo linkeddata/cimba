@@ -19,10 +19,7 @@ angular.module( 'Cimba', [
 ])
 
 .config( function CimbaConfig ( $stateProvider, $urlRouterProvider ) {
-  $urlRouterProvider.otherwise( '/login' );
-})
-
-.run( function run () {
+  $urlRouterProvider.otherwise( '/home' );
 })
 
 // replace dates with moment's "time ago" style
@@ -90,7 +87,7 @@ angular.module( 'Cimba', [
   };
 })
 
-.controller( 'MainCtrl', function MainCtrl ($scope, $location, $timeout, ngProgress ) {
+.controller( 'MainCtrl', function MainCtrl ($scope, $rootScope, $location, $timeout, ngProgress ) {
     // Some default values
     $scope.appuri = window.location.hostname+window.location.pathname;
     $scope.loginSuccess = false;
@@ -99,7 +96,8 @@ angular.module( 'Cimba', [
     $scope.channels = [];
     $scope.posts = {};
     $scope.users = {};
-    $scope.me = {};
+    $scope.me = {};    
+    $rootScope.userProfile = $scope.userProfile;
 
     $scope.login = function () {
         $location.path('/login');
@@ -122,6 +120,7 @@ angular.module( 'Cimba', [
         // clear sessionStorage
         $scope.clearLocalCredentials();
         $scope.userProfile = {};
+        $rootScope.userProfile = {};
         $location.path('/login');
     };
 
@@ -139,7 +138,7 @@ angular.module( 'Cimba', [
             var cimba = JSON.parse(sessionStorage.getItem($scope.appuri));
             if (cimba.userProfile) {
                 if (!$scope.userProfile) {
-                    $scope.userProfile = {};
+                    $scope.userProfile = {};                    
                 }
                 $scope.userProfile = cimba.userProfile;
                 $scope.loggedin = true;
@@ -151,12 +150,13 @@ angular.module( 'Cimba', [
                     //$scope.getUsers();
                 }
                 // refresh data
-                $scope.getInfo(cimba.userProfile.webid, true);
+                $scope.getInfo(cimba.userProfile.webid, true);                
             } else {
                 // clear sessionStorage in case there was a change to the data structure
-                sessionStorage.removeItem($scope.appuri);
+                sessionStorage.removeItem($scope.appuri);                
             }
         }
+        $rootScope.userProfile = $scope.userProfile;
     };
 
     // clear sessionStorage
@@ -614,6 +614,22 @@ angular.module( 'Cimba', [
 
         });
     };
+})
+
+.run( function run ($rootScope, $location) {    
+    $rootScope.userProfile = {};
+    // register listener to watch route changes
+    $rootScope.$on( "$locationChangeStart", function(event, next, current) {        
+        if ( !$rootScope.userProfile.webid) {
+            // no logged user, we should be going to #login
+            if ( next.templateUrl == "login/login.tpl.html" ) {
+              // already going to #login, no redirect needed
+            } else {
+              // not going to #login, we should redirect now
+              $location.path( "/login" );
+            }
+        }         
+    });
 })
 
 /*
