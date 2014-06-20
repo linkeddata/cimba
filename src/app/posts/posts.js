@@ -234,4 +234,78 @@ angular.module( 'Cimba.posts', [
 		});
 	};
 
+	// delete post
+	$scope.deletePost = function (post, refresh) {
+		// check if the user matches the post owner
+		if ($scope.me.webid == post.userwebid) {
+			$.ajax({
+				url: post.uri,
+				type: "delete",
+				xhrFields: {
+					withCredentials: true
+				},
+				success: function (d,s,r) {
+					console.log('Deleted '+post.uri);
+					notify('Success', 'Your post was removed from the server!');
+
+					/*
+					// TODO: TEST THIS AGAIN!!!
+					$scope.removePost(post.uri);
+					$scope.$apply();
+					*/
+					// also remove the ACL file
+					var acl = parseLinkHeader(r.getResponseHeader('Link'));
+					var aclURI = acl['acl']['href'];
+					$.ajax({
+						url: aclURI,
+						ype: "delete",
+						xhrFields: {
+							withCredentials: true
+						},
+						success: function (d,s,r) {
+							console.log('Deleted! ACL file was removed from the server.');
+						}
+					});
+				},
+				failure: function (r) {
+					var status = r.status.toString();
+					if (status == '403') {
+						notify('Error', 'Could not delete post, access denied!');
+					}
+					if (status == '404') {
+						notify('Error', 'Could not delete post, no such resource on the server!');
+					}
+				}
+			});
+		}
+	};
+
+	// remove all posts from viewer based on the given WebID
+	$scope.removePostsByOwner = function(webid) {
+		var modified = false;
+		if ($scope.posts && !isEmpty($scope.posts)) {
+			for (var p in $scope.posts) {
+				var post = $scope.posts[p];
+				if (webid && webid == post.userwebid) {
+					delete $scope.posts[p];
+					modified = true;
+				}
+			}
+		}
+	};
+
+	// remove all posts from viewer based on the given channel URI
+	$scope.removePostsByChannel = function(ch) {
+		var modified = false;
+		if ($scope.posts && !isEmpty($scope.posts)) {
+			for (var p in $scope.posts) {
+				var post = $scope.posts[p];
+				if (ch && ch == post.channel) {
+					delete $scope.posts[p];
+					modified = true;
+				}
+			}
+		}
+	};
+
 });
