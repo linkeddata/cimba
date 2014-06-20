@@ -95,8 +95,7 @@ angular.module( 'Cimba', [
     $scope.userProfile.picture = 'assets/generic_photo.png';
     $scope.channels = [];
     $scope.posts = {};
-    $scope.users = {};
-    $scope.me = {};    
+    $scope.users = {};  
     $rootScope.userProfile = $scope.userProfile;
 
     $scope.login = function () {
@@ -257,27 +256,28 @@ angular.module( 'Cimba', [
                 $scope.search = _user;
             }
 
+            $scope.users[webid] = {};
+            $scope.users[webid].mine = mine;
+
             if (update) {
                 $scope.refreshinguser = true;
                 $scope.users[webid].name = name;
                 $scope.users[webid].picture = pic;
                 $scope.users[webid].storagespace = storage;
             }
-            ///$scope.getChannels('https://asnoakes.rww.io/storage','https://asnoakes.rww.io',mine, update)
 
-            // get channels for the user
-            if (storage !== undefined) { 
-                // get channels for user
-                // $scope.getChannels(storage, webid, mine, update);
-            } else {
+            if (storage === undefined) { 
                 $scope.gotstorage = false;
             }
 
             if (mine) { // mine
-                $scope.userProfile.uri = webid;
+                $scope.userProfile.webid = webid;
                 $scope.userProfile.name = name;
                 $scope.userProfile.picture = pic;
                 $scope.userProfile.storagespace = storage;
+
+                $scope.users[webid].name = name; //for displaying delete button in posts.tpl.html
+                $scope.users[webid].picture = pic; //resolves issue of not displaying profile picture that the above line creates
 
                 // find microblogging feeds/channels
                 if (!storage) {
@@ -334,7 +334,7 @@ angular.module( 'Cimba', [
                 // set a default Microblog workspace
                 if (mine) {
                     // set default Microblog space
-                    $scope.me.mbspace = ws[0]['subject']['value'];
+                    $scope.users[webid].mbspace = ws[0]['subject']['value'];
                 }
 
                 var func = function() {
@@ -343,11 +343,7 @@ angular.module( 'Cimba', [
                   
                     if (chs.length > 0) {
                         // clear list first
-                        if (mine) {
-                            $scope.me.channels = [];
-                        }
-
-                        if (update) { 
+                        if (mine || update) {
                             $scope.users[webid].channels = [];
                         }
           
@@ -384,10 +380,10 @@ angular.module( 'Cimba', [
                                     $scope.getPosts(channel.uri, channel.title);
                                 }
 
-                                $scope.me.channels.push(channel);
+                                $scope.users[webid].channels.push(channel);
 
                                 //this dictionary pairs channels with their owner and the posts they contain
-                                $scope.me.chspace = true;
+                                $scope.users[webid].chspace = true;
                             }
 
                             // update
@@ -402,7 +398,7 @@ angular.module( 'Cimba', [
 
                         // set a default channel for the logged user
                         if (mine) {
-                            $scope.defaultChannel = $scope.me.channels[0];
+                            $scope.defaultChannel = $scope.users[webid].channels[0];
                         }
 
                         // done refreshing user information -> update view
@@ -416,7 +412,7 @@ angular.module( 'Cimba', [
                         if (mine) {
                             // hide loader
                             $scope.loading = false;
-                            $scope.me.chspace = false;
+                            $scope.users[webid].chspace = false;
                         }
                     }
 
@@ -454,9 +450,9 @@ angular.module( 'Cimba', [
                 if (mine) {
                     console.log('No microblog found!');
                     $scope.gotmb = false;
-                    $scope.me.mbspace = false;
-                    $scope.me.chspace = false;
-                    $scope.me.channels = [];
+                    $scope.users[webid].mbspace = false;
+                    $scope.users[webid].chspace = false;
+                    $scope.users[webid].channels = [];
                     $scope.saveCredentials();
 
                     // hide loader
@@ -490,123 +486,103 @@ angular.module( 'Cimba', [
         // get all SIOC:Post (using globbing)
         f.nowOrWhenFetched(channel+'*', undefined, function(){
 
-        var posts = g.statementsMatching(undefined, RDF('type'), SIOC('Post'));
+            var posts = g.statementsMatching(undefined, RDF('type'), SIOC('Post'));
 
-        if (posts.length > 0) {
+            if (posts.length > 0) {
 
-            for (var p in posts) {
+                for (var p in posts) {
 
-                var uri = posts[p]['subject'];
-                var useraccount = g.any(uri, SIOC('has_creator'));
-                var post = g.statementsMatching(posts[p]['subject']);
-                var body = '';
-                var username = '';
-                var userpic = 'img/generic_photo';
-                var userwebid;
-                var date = '';
+                    var uri = posts[p]['subject'];
+                    var useraccount = g.any(uri, SIOC('has_creator'));
+                    var post = g.statementsMatching(posts[p]['subject']);
+                    var body = '';
+                    var username = '';
+                    var userpic = 'img/generic_photo';
+                    var userwebid;
+                    var date = '';
 
-                if (g.any(uri, DCT('created'))) {
-                    var d = g.any(uri, DCT('created')).value;
-                    date = moment(d).zone('00:00');
-                }
-
-                if (g.any(useraccount, SIOC('account_of'))) {
-                    userwebid = g.any(useraccount, SIOC('account_of')).value;
-                } else {
-                    userwebid = undefined;
-                }
-
-                // try using the picture from the WebID first
-
-                if (userwebid) {
-
-                    if ($scope.me.webid && $scope.me.webid == userwebid) {
-                        userpic = $scope.me.pic;
-                    } else if ($scope.users[userwebid]) {
-                        userpic = $scope.users[userwebid].pic;
+                    if (g.any(uri, DCT('created'))) {
+                        var d = g.any(uri, DCT('created')).value;
+                        date = moment(d).zone('00:00');
                     }
-                }
-                else if (g.any(useraccount, SIOC('avatar'))) {
-                    userpic = g.any(useraccount, SIOC('avatar')).value;
-                }
-                else {
-                    userpic = 'img/generic_photo.png';
-                }
 
-                // try using the name from the WebID first
-                if (userwebid) {
-                    if ($scope.me.webid && $scope.me.webid == userwebid) {
-                        username = $scope.me.name;
-                    } else if ($scope.users[userwebid]) {
+                    if (g.any(useraccount, SIOC('account_of'))) {
+                        userwebid = g.any(useraccount, SIOC('account_of')).value;
+                    } else {
+                        userwebid = undefined;
+                    }
+
+                    // try using the picture from the WebID first
+
+                    if (userwebid) {
+                        userpic = $scope.users[userwebid].picture;
+                    }
+                    else if (g.any(useraccount, SIOC('avatar'))) {
+                        userpic = g.any(useraccount, SIOC('avatar')).value;
+                    }
+                    else {
+                        userpic = 'img/generic_photo.png';
+                    }
+
+                    // try using the name from the WebID first
+                    if (userwebid) {
                         username = $scope.users[userwebid].name;
+                    } else if (g.any(useraccount, FOAF('name'))) {
+                        username = g.any(useraccount, FOAF('name')).value;
+                    } else {
+                        username = '';
                     }
-                } else if (g.any(useraccount, FOAF('name'))) {
-                    username = g.any(useraccount, FOAF('name')).value;
-                } else {
-                    username = '';
+
+                    if (g.any(uri, SIOC('content'))) {
+                        body = g.any(uri, SIOC('content')).value;
+                        console.log("body: "); //debug
+                    } else {
+                        body = '';
+                    }
+
+                    uri = uri.value;
+
+                    // check if we need to overwrite instead of pushing new item
+
+                    var _newPost = {
+                        uri : uri,
+                        channel: channel,
+                        chtitle: title,
+                        date : date,
+                        userwebid : userwebid,
+                        userpic : userpic,
+                        username : username,
+                        body : body
+                    };
+      
+                    //create an empty object of posts if its undefined
+                    if (!$scope.posts) {
+                        $scope.posts = {};
+                    }
+                    
+                    // filter post by language (only show posts in English or show all)         
+                    if ($scope.filterFlag && testIfAllEnglish(_newPost.body)) {
+                        // add/overwrite post
+                        $scope.posts[uri] = _newPost;
+                        $scope.$apply();
+                    } else {
+                        $scope.posts[uri] = _newPost;
+                        $scope.$apply();
+                    }
+
+                    $scope.users[$scope.userProfile.webid].gotposts = true;
                 }
-
-                if (g.any(uri, SIOC('content'))) {
-                    body = g.any(uri, SIOC('content')).value;
-                    console.log("body: "); //debug
-                } else {
-                    body = '';
+            } else {
+                if (isEmpty($scope.allPosts || $scope.posts)) {
+                    $scope.users[$scope.userProfile.webid].gotposts = false;
                 }
-
-                uri = uri.value;
-
-            // check if we need to overwrite instead of pushing new item
-
-                var _newPost = {
-
-                    uri : uri,
-
-                    channel: channel,
-
-                    chtitle: title,
-
-                    date : date,
-
-                    userwebid : userwebid,
-
-                    userpic : userpic,
-
-                    username : username,
-
-                    body : body
-
-                };
-
-                if (!$scope.posts) {
-                    $scope.posts = {};
-                }
-                
-                // filter post by language (only show posts in English or show all)         
-                if ($scope.filterFlag && testIfAllEnglish(_newPost.body)) {
-                    // add/overwrite post
-                    $scope.posts[uri] = _newPost;
-                    $scope.$apply();
-                } else {
-                    $scope.posts[uri] = _newPost;
-                    $scope.$apply();
-                }
-
-                $scope.me.gotposts = true;
             }
 
-        } else {
-            if (isEmpty($scope.posts)) {
-                $scope.me.gotposts = false;
-            }
-        }
-
-        // hide spinner
-        $scope.loading = false;
-        $scope.$apply();
-
+            // hide spinner
+            $scope.loading = false;
+            $scope.$apply();
         });
     };
-
 })
 
 .run( function run ($rootScope, $location) {    
@@ -618,8 +594,8 @@ angular.module( 'Cimba', [
             if ( next.templateUrl == "login/login.tpl.html" ) {
               // already going to #login, no redirect needed
             } else {
-              // not going to #login, we should redirect now
-              $location.path( "/login" );
+                // not going to #login, we should redirect now
+                $location.path( "/login" );
             }
         }         
     });

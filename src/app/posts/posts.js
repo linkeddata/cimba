@@ -17,8 +17,11 @@ angular.module('Cimba.posts',[
 	});
 })
 
-.controller("PostsController", function PostsController( $scope, $http, $location, $sce ) {
+.controller("PostsController", function PostsCtrl( $scope, $http, $location, $sce ) {
+	console.log($scope.$parent.userProfile.webid);
+	console.log($scope.userProfile.webid);
 	var webid = $scope.$parent.userProfile.webid;
+	console.log(webid);
 	$scope.audience = {};
 	$scope.audience.icon = "fa-globe"; //default value
 	$scope.hideMenu = function() {
@@ -27,9 +30,11 @@ angular.module('Cimba.posts',[
 
 	// update account
     $scope.setChannel = function(ch) {
-        for (var i in $scope.me.channels) {
-			if ($scope.me.channels[i].title == ch) {
-				$scope.defaultChannel = $scope.me.channels[i];
+		console.log(webid);
+		console.log($scope.users[webid]);
+        for (var i in $scope.users[webid].channels) {
+			if ($scope.users[webid].channels[i].title == ch) {
+				$scope.defaultChannel = $scope.users[webid].channels[i];
 				break;
 			}
 		}
