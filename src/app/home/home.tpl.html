@@ -1,5 +1,5 @@
 <div ng-click="hideMenu()">
-
+	//
 	<!-- no posts found -->
     <div id="setup" class="container" ng-show="me.gotposts == false">
         <div class="row">
@@ -35,8 +35,8 @@
                               <div class="btn-group">
                                   <button id="audience" class="btn btn-primary" disabled><i class="fa {{audience.icon}} fa-2x white"></i></button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop" rel="tooltip" data-placement="top" title="Audience"><i class="fa fa-chevron-down fa-2x"></i></small></button>
                                   <ul class="dropdown-menu" role="menu" aria-labelledby="audience">
-                                      <li><a href="#" ng-click="setAudience('public')"><i id="public" class="fa fa-globe fa-2x blue"></i> Public</a></li>
-                                      <li><a href="#" ng-click="setAudience('private')">&nbsp;<i id="private" class="fa fa-lock fa-2x blue"></i>&nbsp; Private</a></li>
+                                      <li><a href="#home" ng-click="setAudience('public')"><i id="public" class="fa fa-globe fa-2x blue"></i> Public</a></li>
+                                      <li><a href="#home" ng-click="setAudience('private')">&nbsp;<i id="private" class="fa fa-lock fa-2x blue"></i>&nbsp; Private</a></li>
                                       <!-- <li><a href="#" ng-click="setAudience('friends')"><i id="friends" class="fa fa-user fa-2x blue"></i> Friends</a></li> -->
                                   </ul>
                               </div>
@@ -45,7 +45,7 @@
                                   <button id="chs" class="btn btn-primary" disabled>{{defaultChannel.title}}</button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop" rel="tooltip" data-placement="top" title="Channels"><i class="fa fa-chevron-down fa-2x"></i></small></button>
                                   <ul class="dropdown-menu" role="menu" aria-labelledby="chs">
                                       <li ng-repeat="channel in me.channels | orderBy:'title'">
-                                          <a href="#" ng-click="setChannel(channel.title)">{{channel.title}}</a>
+                                          <a href="#home" ng-click="setChannel(channel.title)">{{channel.title}}</a>
                                       </li>
                                   </ul>
                               </div>

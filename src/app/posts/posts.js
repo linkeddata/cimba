@@ -16,6 +16,8 @@ angular.module( 'Cimba.posts', [
 })
 
 .controller("PostsController", function PostsCtrl( $scope, $http, $location, $sce ) {
+	$scope.audience = {};
+	$scope.audience.icon = "fa-globe"; //default value
 	$scope.hideMenu = function() {
 		$scope.$parent.showMenu = false;
 	};
