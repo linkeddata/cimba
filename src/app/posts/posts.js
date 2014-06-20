@@ -346,20 +346,6 @@ angular.module('Cimba.posts',[
     }; 
 })
 
-<<<<<<< HEAD
-=======
-})
-
-//simple directive to display new post box
-.directive('postBox',function(){
-    return {
-    replace : true,
-    restrict : 'E',
-    templateUrl: 'posts/new_post.tpl.html'
-    }; 
-})
-
->>>>>>> moved newPost module template to separate html; backup prior to deprecating .me
 //simple directive to display each post
 .directive('postsViewer',function(){
     return {
