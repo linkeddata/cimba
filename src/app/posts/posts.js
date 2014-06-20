@@ -2,7 +2,7 @@ angular.module( 'Cimba.posts', [
   'ui.router'
 ])
 
-.config(function TabConfig( $stateProvider ) {
+.config(function PostsConfig( $stateProvider ) {
   $stateProvider.state( 'posts', {
     url: '/',
     views: {
@@ -308,4 +308,22 @@ angular.module( 'Cimba.posts', [
 		}
 	};
 
+})
+
+//simple directive to display new post box
+.directive('postBox',function(){
+    return {
+    replace : true,
+    restrict : 'E',
+    templateUrl: 'posts/new_post.tpl.html'
+    }; 
+})
+
+//simple directive to display each post
+.directive('postsViewer',function(){
+    return {
+    replace : true,
+    restrict : 'E',
+    templateUrl: 'posts/posts.tpl.html'
+    }; 
 });

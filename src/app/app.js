@@ -614,26 +614,6 @@ angular.module( 'Cimba', [
 
         });
     };
-})
-
-/*
-//simple directive to display new post box
-ngCimba.directive('postBox',function(){
-    return {
-    replace : true,
-    restrict : 'E',
-    templateUrl: 'tpl/new_post.html'
-    }; 
-})
-*/
-
-//simple directive to display each post
-.directive('postsViewer',function(){
-    return {
-    replace : true,
-    restrict : 'E',
-    templateUrl: 'posts/posts.tpl.html'
-    }; 
 });
 
 /*
