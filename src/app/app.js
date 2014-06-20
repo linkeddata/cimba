@@ -99,7 +99,6 @@ angular.module( 'Cimba', [
     $scope.channels = [];
     $scope.posts = {};
     $scope.users = {};
-    $scope.me = {};
 
     $scope.login = function () {
         $location.path('/login');
@@ -255,30 +254,27 @@ angular.module( 'Cimba', [
                 $scope.search = _user;
             }
 
+            $scope.users[webid] = {};
+            $scope.users[webid].mine = mine;
+
             if (update) {
                 $scope.refreshinguser = true;
                 $scope.users[webid].name = name;
                 $scope.users[webid].picture = pic;
                 $scope.users[webid].storagespace = storage;
             }
-            ///$scope.getChannels('https://asnoakes.rww.io/storage','https://asnoakes.rww.io',mine, update)
 
-            // get channels for the user
-            if (storage !== undefined) { 
-                // get channels for user
-                // $scope.getChannels(storage, webid, mine, update);
-            } else {
+            if (storage === undefined) { 
                 $scope.gotstorage = false;
             }
 
             if (mine) { // mine
-                $scope.userProfile.uri = webid;
+                $scope.userProfile.webid = webid;
                 $scope.userProfile.name = name;
                 $scope.userProfile.picture = pic;
                 $scope.userProfile.storagespace = storage;
-                $scope.me.webid = webid; //for displaying delete button in posts.tpl.html
-                $scope.me.pic = pic; //resolves issue of not displaying profile picture that the above line creates
-                $scope.me.name = name;
+                $scope.users[webid].name = name; //for displaying delete button in posts.tpl.html
+                $scope.users[webid].picture = pic; //resolves issue of not displaying profile picture that the above line creates
 
                 // find microblogging feeds/channels
                 if (!storage) {
@@ -337,7 +333,7 @@ angular.module( 'Cimba', [
                 // set a default Microblog workspace
                 if (mine) {
                     // set default Microblog space
-                    $scope.me.mbspace = ws[0]['subject']['value'];
+                    $scope.users[webid].mbspace = ws[0]['subject']['value'];
                 }
 
                 var func = function() {
@@ -346,11 +342,7 @@ angular.module( 'Cimba', [
                   
                     if (chs.length > 0) {
                         // clear list first
-                        if (mine) {
-                            $scope.me.channels = [];
-                        }
-
-                        if (update) { 
+                        if (mine || update) {
                             $scope.users[webid].channels = [];
                         }
           
@@ -387,10 +379,10 @@ angular.module( 'Cimba', [
                                     $scope.getPosts(channel.uri, channel.title);
                                 }
 
-                                $scope.me.channels.push(channel);
+                                $scope.users[webid].channels.push(channel);
 
                                 //this dictionary pairs channels with their owner and the posts they contain
-                                $scope.me.chspace = true;
+                                $scope.users[webid].chspace = true;
                             }
 
                             // update
@@ -405,7 +397,7 @@ angular.module( 'Cimba', [
 
                         // set a default channel for the logged user
                         if (mine) {
-                            $scope.defaultChannel = $scope.me.channels[0];
+                            $scope.defaultChannel = $scope.users[webid].channels[0];
                         }
 
                         // done refreshing user information -> update view
@@ -419,7 +411,7 @@ angular.module( 'Cimba', [
                         if (mine) {
                             // hide loader
                             $scope.loading = false;
-                            $scope.me.chspace = false;
+                            $scope.users[webid].chspace = false;
                         }
                     }
 
@@ -457,9 +449,9 @@ angular.module( 'Cimba', [
                 if (mine) {
                     console.log('No microblog found!');
                     $scope.gotmb = false;
-                    $scope.me.mbspace = false;
-                    $scope.me.chspace = false;
-                    $scope.me.channels = [];
+                    $scope.users[webid].mbspace = false;
+                    $scope.users[webid].chspace = false;
+                    $scope.users[webid].channels = [];
                     $scope.saveCredentials();
 
                     // hide loader
@@ -522,12 +514,7 @@ angular.module( 'Cimba', [
                     // try using the picture from the WebID first
 
                     if (userwebid) {
-
-                        if ($scope.me.webid && $scope.me.webid == userwebid) {
-                            userpic = $scope.me.pic;
-                        } else if ($scope.users[userwebid]) {
-                            userpic = $scope.users[userwebid].pic;
-                        }
+                        userpic = $scope.users[userwebid].picture;
                     }
                     else if (g.any(useraccount, SIOC('avatar'))) {
 
@@ -543,11 +530,7 @@ angular.module( 'Cimba', [
                     // try using the name from the WebID first
 
                     if (userwebid) {
-                        if ($scope.me.webid && $scope.me.webid == userwebid) {
-                            username = $scope.me.name;
-                        } else if ($scope.users[userwebid]) {
-                            username = $scope.users[userwebid].name;
-                        }
+                        username = $scope.users[userwebid].name;
                     } else if (g.any(useraccount, FOAF('name'))) {
                         username = g.any(useraccount, FOAF('name')).value;
                     } else {
@@ -562,29 +545,20 @@ angular.module( 'Cimba', [
 
                     uri = uri.value;
 
-                // check if we need to overwrite instead of pushing new item
+                    // check if we need to overwrite instead of pushing new item
 
                     var _newPost = {
-
                         uri : uri,
-
                         channel: channel,
-
                         chtitle: title,
-
                         date : date,
-
                         userwebid : userwebid,
-
                         userpic : userpic,
-
                         username : username,
-
                         body : body
-
                     };
       
-
+                    //create an empty object of posts if its undefined
                     if (!$scope.posts) {
                         $scope.posts = {};
                     }
@@ -599,12 +573,12 @@ angular.module( 'Cimba', [
                         $scope.$apply();
                     }
 
-                    $scope.me.gotposts = true;
+                    $scope.users[$scope.userProfile.webid].gotposts = true;
                 }
 
             } else {
                 if (isEmpty($scope.posts)) {
-                    $scope.me.gotposts = false;
+                    $scope.users[$scope.userProfile.webid].gotposts = false;
                 }
             }
 
