@@ -25,7 +25,7 @@
                 <div class="input-group-btn pull-left">
                     <button class="btn btn-success" rel="tooltip" data-placement="top" title="Read full message">More</button>
                     <button class="btn btn-default" rel="tooltip" data-placement="top" title="Star message" ng-click="starPost()"><i class="fa fa-star fa-2x"></i></button>
-                    <button class="btn btn-default" data-placement="top" title="Delete message" ng-click="deletePost(post)" ng-show="me.webid == post.userwebid"><i class="fa fa-trash-o fa-2x"></i></button>
+                    <button class="btn btn-default" data-placement="top" title="Delete message" ng-click="deletePost(post,true)" ng-show="me.webid == post.userwebid"><i class="fa fa-trash-o fa-2x"></i></button>
                 </div>
             </div>
         </form>
