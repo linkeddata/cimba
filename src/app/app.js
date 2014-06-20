@@ -8,6 +8,8 @@ var DEBUG = true;
 angular.module( 'Cimba', [
   'templates-app',
   'templates-common',
+  'Cimba.tab',
+  'Cimba.posts',
   'Cimba.home',
   'Cimba.login',
   'Cimba.about',
@@ -21,6 +23,71 @@ angular.module( 'Cimba', [
 })
 
 .run( function run () {
+})
+
+// replace dates with moment's "time ago" style
+.filter('fromNow', function() {
+  return function(date) {
+    return moment(date).fromNow();
+  };
+})
+
+// parse markdown text to html
+.filter('markdown', function ($sce) {
+    var converter = new Showdown.converter();
+  return function (str) {
+        return converter.makeHtml(str);
+    };
+})
+
+// turn http links in text to hyperlinks
+.filter('makeLinks', function ($sce) {
+    return function (str) {
+        return $sce.trustAsHtml(str.
+                                replace(/</g, '&lt;').
+                                replace(/>/g, '&gt;').
+                                replace(/(http[^\s]+)/g, '<a href="$1" target="_blank">$1</a>')
+                               );
+    };
+})
+
+// order function for ng-repeat using lists instead of arrays
+.filter('orderObjectBy', function(){
+ return function(input, attribute) {
+    if (!angular.isObject(input)) {
+      return input;
+    }
+
+    var array = [];
+    for(var objectKey in input) {
+        array.push(input[objectKey]);
+    }
+
+  array.sort(function(a, b){
+    var alc = a[attribute].toLowerCase();
+    var blc = b[attribute].toLowerCase();
+    return alc > blc ? 1 : alc < blc ? -1 : 0;
+  });
+  return array;
+ };
+})
+
+// filter array of objects by property
+.filter('unique', function() {
+  return function(collection, keyname) {
+    var output = [], 
+    keys = [];
+
+    angular.forEach(collection, function(item) {
+      var key = item[keyname];
+      if(keys.indexOf(key) === -1) {
+        keys.push(key);
+        output.push(item);
+      }
+    });
+
+    return output;
+  };
 })
 
 .controller( 'MainCtrl', function MainCtrl ($scope, $location, $timeout, ngProgress ) {
@@ -57,7 +124,6 @@ angular.module( 'Cimba', [
         $scope.userProfile = {};
         $location.path('/login');
     };
-
 
     // cache user credentials in sessionStorage to avoid double sign in
     $scope.saveCredentials = function () {
@@ -120,8 +186,7 @@ angular.module( 'Cimba', [
 
         var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
-        var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
-        console.log(SPACE);
+        var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");        
         var ACL = $rdf.Namespace("http://www.w3.org/ns/auth/acl#");
         var g = $rdf.graph();
         var f = $rdf.fetcher(g, TIMEOUT);
@@ -211,6 +276,9 @@ angular.module( 'Cimba', [
                 $scope.userProfile.name = name;
                 $scope.userProfile.picture = pic;
                 $scope.userProfile.storagespace = storage;
+                $scope.me.webid = webid; //for displaying delete button in posts.tpl.html
+                $scope.me.pic = pic; //resolves issue of not displaying profile picture that the above line creates
+                $scope.me.name = name;
 
                 // find microblogging feeds/channels
                 if (!storage) {
@@ -425,125 +493,165 @@ angular.module( 'Cimba', [
         // get all SIOC:Post (using globbing)
         f.nowOrWhenFetched(channel+'*', undefined, function(){
 
-        var posts = g.statementsMatching(undefined, RDF('type'), SIOC('Post'));
+            var posts = g.statementsMatching(undefined, RDF('type'), SIOC('Post'));
 
-        if (posts.length > 0) {
+            if (posts.length > 0) {
 
-            for (var p in posts) {
+                for (var p in posts) {
 
-                var uri = posts[p]['subject'];
-                var useraccount = g.any(uri, SIOC('has_creator'));
-                var post = g.statementsMatching(posts[p]['subject']);
-                var body = '';
-                var username = '';
-                var userpic = 'img/generic_photo';
-                var userwebid;
-                var date = '';
+                    var uri = posts[p]['subject'];
+                    var useraccount = g.any(uri, SIOC('has_creator'));
+                    var post = g.statementsMatching(posts[p]['subject']);
+                    var body = '';
+                    var username = '';
+                    var userpic = 'img/generic_photo';
+                    var userwebid;
+                    var date = '';
 
-                if (g.any(uri, DCT('created'))) {
-                    var d = g.any(uri, DCT('created')).value;
-                    date = moment(d).zone('00:00');
-                }
-
-                if (g.any(useraccount, SIOC('account_of'))) {
-                    userwebid = g.any(useraccount, SIOC('account_of')).value;
-                } else {
-                    userwebid = undefined;
-                }
-
-                // try using the picture from the WebID first
-
-                if (userwebid) {
-
-                    if ($scope.me.webid && $scope.me.webid == userwebid) {
-                        userpic = $scope.me.pic;
-                    } else if ($scope.users[userwebid]) {
-                        userpic = $scope.users[userwebid].pic;
+                    if (g.any(uri, DCT('created'))) {
+                        var d = g.any(uri, DCT('created')).value;
+                        date = moment(d).zone('00:00');
                     }
-                }
-                else if (g.any(useraccount, SIOC('avatar'))) {
 
-                  userpic = g.any(useraccount, SIOC('avatar')).value;
-
-                }
-                else {
-
-                  userpic = 'img/generic_photo.png';
-
-                }
-
-                // try using the name from the WebID first
-
-                if (userwebid) {
-                    if ($scope.me.webid && $scope.me.webid == userwebid) {
-                        username = $scope.me.name;
-                    } else if ($scope.users[userwebid]) {
-                        username = $scope.users[userwebid].name;
+                    if (g.any(useraccount, SIOC('account_of'))) {
+                        userwebid = g.any(useraccount, SIOC('account_of')).value;
+                    } else {
+                        userwebid = undefined;
                     }
-                } else if (g.any(useraccount, FOAF('name'))) {
-                    username = g.any(useraccount, FOAF('name')).value;
-                } else {
-                    username = '';
+
+                    // try using the picture from the WebID first
+
+                    if (userwebid) {
+
+                        if ($scope.me.webid && $scope.me.webid == userwebid) {
+                            userpic = $scope.me.pic;
+                        } else if ($scope.users[userwebid]) {
+                            userpic = $scope.users[userwebid].pic;
+                        }
+                    }
+                    else if (g.any(useraccount, SIOC('avatar'))) {
+
+                      userpic = g.any(useraccount, SIOC('avatar')).value;
+
+                    }
+                    else {
+
+                      userpic = 'img/generic_photo.png';
+
+                    }
+
+                    // try using the name from the WebID first
+
+                    if (userwebid) {
+                        if ($scope.me.webid && $scope.me.webid == userwebid) {
+                            username = $scope.me.name;
+                        } else if ($scope.users[userwebid]) {
+                            username = $scope.users[userwebid].name;
+                        }
+                    } else if (g.any(useraccount, FOAF('name'))) {
+                        username = g.any(useraccount, FOAF('name')).value;
+                    } else {
+                        username = '';
+                    }
+
+                    if (g.any(uri, SIOC('content'))) {
+                        body = g.any(uri, SIOC('content')).value;                    
+                    } else {
+                        body = '';
+                    }
+
+                    uri = uri.value;
+
+                // check if we need to overwrite instead of pushing new item
+
+                    var _newPost = {
+
+                        uri : uri,
+
+                        channel: channel,
+
+                        chtitle: title,
+
+                        date : date,
+
+                        userwebid : userwebid,
+
+                        userpic : userpic,
+
+                        username : username,
+
+                        body : body
+
+                    };
+      
+
+                    if (!$scope.posts) {
+                        $scope.posts = {};
+                    }
+                    
+                    // filter post by language (only show posts in English or show all)         
+                    if ($scope.filterFlag && testIfAllEnglish(_newPost.body)) {
+                        // add/overwrite post
+                        $scope.posts[uri] = _newPost;
+                        $scope.$apply();
+                    } else {
+                        $scope.posts[uri] = _newPost;
+                        $scope.$apply();
+                    }
+
+                    $scope.me.gotposts = true;
                 }
 
-                if (g.any(uri, SIOC('content'))) {
-                    body = g.any(uri, SIOC('content')).value;
-                    console.log("body: "); //debug
-                } else {
-                    body = '';
+            } else {
+                if (isEmpty($scope.posts)) {
+                    $scope.me.gotposts = false;
                 }
-
-                uri = uri.value;
-
-            // check if we need to overwrite instead of pushing new item
-
-                var _newPost = {
-
-                    uri : uri,
-
-                    channel: channel,
-
-                    chtitle: title,
-
-                    date : date,
-
-                    userwebid : userwebid,
-
-                    userpic : userpic,
-
-                    username : username,
-
-                    body : body
-
-                };
-  
-
-                if (!$scope.posts) {
-                    $scope.posts = {};
-                }
-                
-                // filter post by language (only show posts in English or show all)         
-                if ($scope.filterFlag && testIfAllEnglish(_newPost.body)) {
-                    // add/overwrite post
-                    $scope.posts[uri] = _newPost;
-                    $scope.$apply();
-                } else {
-                    $scope.posts[uri] = _newPost;
-                    $scope.$apply();
-                }
-
-                $scope.me.gotposts = true;
             }
 
-        } else {
-            if (isEmpty($scope.posts)) {
-                $scope.me.gotposts = false;
-            }
-        }
+            // hide spinner
+            $scope.loading = false;
+            $scope.$apply();
 
-        // hide spinner
-        $scope.loading = false;
-        $scope.$apply();
+        });
+    };
+})
 
-    });
-};
+/*
+//simple directive to display new post box
+ngCimba.directive('postBox',function(){
+    return {
+    replace : true,
+    restrict : 'E',
+    templateUrl: 'tpl/new_post.html'
+    }; 
+})
+*/
+
+//simple directive to display each post
+.directive('postsViewer',function(){
+    return {
+    replace : true,
+    restrict : 'E',
+    templateUrl: 'posts/posts.tpl.html'
+    }; 
+});
+
+/*
+//simple directive to display list of channels
+ngCimba.directive('channelslist',function(){
+    return {
+    replace : true,
+    restrict : 'E',
+    templateUrl: 'tpl/channel-list.html'
+    }; 
+})
+
+//simple directive to display list of search results
+ngCimba.directive('searchresults',function(){
+    return {
+    replace : true,
+    restrict : 'E',
+    templateUrl: 'tpl/search_results.html'
+    }; 
+})
+*/
