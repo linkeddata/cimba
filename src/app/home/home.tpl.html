@@ -20,49 +20,7 @@
             <!-- <div class="clear-70"></div> -->
             <div class="col-md-12">
                 <!-- new post -->
-                <div class="panel panel-default" ng-show="loggedin"> <!-- debug -->
-                    <div class="panel-heading dark-blue">
-                        <div class="pull-left">
-                            <a id="pic" class="thumbnail pull-right" href="{{me.webid}}">
-                              <img class="media-object" ng-src="{{me.pic}}" rel="tooltip" data-placement="top" title="{{me.name}}">
-                            </a>
-                        </div>
-                    </div>
-                    <div class="panel-body">
-                        <div class="panel-body-textmail">
-                          <div id="spinner" ng-hide="me.name"></div>
-                          <h3 class="bold" ng-show="profileloading">Loading profile...</h3>
-                          <h3 class="bold" ng-show="me.name && !me.chspace">Hello {{me.name}}!</h3>
-                          <h3 class="bold" ng-show="me.chspace">What's new<span ng-show="me.name != ''">, {{me.name}}</span>?</h3>
-                          <form ng-hide="me.webid && !me.chspace">                               
-                              <textarea name="message" ng-model="postbody" class="form-control message" placeholder="Type your message here.." required></textarea>
-                              <div class="btn-group">
-                                  <button id="audience" class="btn btn-primary" disabled><i class="fa {{audience.icon}} fa-2x white"></i></button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop" rel="tooltip" data-placement="top" title="Audience"><i class="fa fa-chevron-down fa-2x"></i></small></button>
-                                  <ul class="dropdown-menu" role="menu" aria-labelledby="audience">
-                                      <li><a href="#home" ng-click="setAudience('public')"><i id="public" class="fa fa-globe fa-2x blue"></i> Public</a></li>
-                                      <li><a href="#home" ng-click="setAudience('private')">&nbsp;<i id="private" class="fa fa-lock fa-2x blue"></i>&nbsp; Private</a></li>
-                                      <!-- <li><a href="#" ng-click="setAudience('friends')"><i id="friends" class="fa fa-user fa-2x blue"></i> Friends</a></li> -->
-                                  </ul>
-                              </div>
-
-                              <div class="btn-group" ng-show="me.channels.length > 0" rel="tooltip" data-placement="top" title="Channels">
-                                  <button id="chs" class="btn btn-primary" disabled>{{defaultChannel.title}}</button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop" rel="tooltip" data-placement="top" title="Channels"><i class="fa fa-chevron-down fa-2x"></i></small></button>
-                                  <ul class="dropdown-menu" role="menu" aria-labelledby="chs">
-                                      <li ng-repeat="channel in me.channels | orderBy:'title'">
-                                          <a href="#home" ng-click="setChannel(channel.title)">{{channel.title}}</a>
-                                      </li>
-                                  </ul>
-                              </div>
-                              <div class="pull-right">
-                                  <button class="btn btn-primary pull-right w60" ng-click="newPost()" ng-disabled="!postbody">
-                                    <div ng-show="!publishing">Post</div>
-                                    <div ng-show="publishing" class="dots"></div>
-                                  </button>
-                              </div>
-                          </form>
-                        </div>
-                    </div>
-                </div>
+                <post-box ng-show="loggedin"></postBox>
                 <!-- end new post -->
             </div>
         </div>
