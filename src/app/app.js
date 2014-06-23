@@ -95,11 +95,10 @@ angular.module( 'Cimba', [
     $scope.userProfile = {};
     $scope.userProfile.picture = 'assets/generic_photo.png';
     $scope.channels = [];
-
     $scope.allPosts = {};//aggregate list of all posts by channel uri
     $scope.posts = []; //aggregate list of all posts (flat list)
-    $scope.users = {};   
-
+    $scope.users = {};
+    
     $rootScope.userProfile = {};
 
     $scope.login = function () {
