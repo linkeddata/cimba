@@ -14,9 +14,10 @@
 	            <!-- ngRepeat: post in posts | unique:'uri' | orderBy:'date':true -->
 	            <!-- <list-posts ng-show="loggedin"></list-posts> -->
 
-	            <li ng-animate="{enter: 'animate'}" class-"panel panel-default" custom ng-repeat="post in allPosts.channelUri | unique:'uri' | orderBy:'date':true">
-	            	{{post.body}}</li>
-	        </div>
+	            <h1>{{channelTitle}}</h1>
+	            
+            	<list-posts ng-show="loggedin"></list-posts>
+            </div>
 	    </div>
 	</div>
 </div>

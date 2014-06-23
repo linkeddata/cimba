@@ -34,6 +34,6 @@ angular.module('Cimba.channels.view', ['ui.router'])
 	return {
 		replace: true,
 		restrict: 'E',
-		templateUrl: 'posts/posts.tpl.html'
+		templateUrl: 'channels/view/posts.tpl.html'
 	};
 });

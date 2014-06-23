@@ -342,8 +342,7 @@ angular.module( 'Cimba', [
 
                     var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));
                   
-                    if (chs.length > 0) {
-                        console.log("channels found");
+                    if (chs.length > 0) {                        
                         $scope.channels = [];
                         // clear list first
                         if (mine || update) {
@@ -364,8 +363,7 @@ angular.module( 'Cimba', [
                             channel["owner"] = webid;
 
                             // add channel to the list
-                            $scope.channels.push(channel);
-                            console.log($scope.channels.length);
+                            $scope.channels.push(channel);                            
 
                             /* uncomment to get posts for any channel (not just my own)
                             // get posts for that channel
@@ -615,4 +613,3 @@ angular.module( 'Cimba', [
         }         
     });
 });
-
