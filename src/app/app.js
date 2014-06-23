@@ -340,8 +340,9 @@ angular.module( 'Cimba', [
                 var func = function() {
 
                     var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));
-                  
-                    if (chs.length > 0) {
+
+                    if (chs.length > 0) {                        
+                        $scope.channels = [];
                         // clear list first
                         if (mine || update) {
                             $scope.users[webid].channels = [];
@@ -364,7 +365,7 @@ angular.module( 'Cimba', [
                             channel["owner"] = webid;
 
                             // add channel to the list
-                            $scope.channels.push(channel);
+                            $scope.channels.push(channel);                            
 
                             /* uncomment to get posts for any channel (not just my own)
                             // get posts for that channel
@@ -599,44 +600,4 @@ angular.module( 'Cimba', [
             }
         }         
     });
-})
-
-/*
-//simple directive to display new post box
-ngCimba.directive('postBox',function(){
-    return {
-    replace : true,
-    restrict : 'E',
-    templateUrl: 'tpl/new_post.html'
-    }; 
-})
-*/
-
-//simple directive to display each post
-.directive('postsViewer',function(){
-    return {
-    replace : true,
-    restrict : 'E',
-    templateUrl: 'posts/posts.tpl.html'
-    }; 
 });
-
-/*
-//simple directive to display list of channels
-ngCimba.directive('channelslist',function(){
-    return {
-    replace : true,
-    restrict : 'E',
-    templateUrl: 'tpl/channel-list.html'
-    }; 
-})
-
-//simple directive to display list of search results
-ngCimba.directive('searchresults',function(){
-    return {
-    replace : true,
-    restrict : 'E',
-    templateUrl: 'tpl/search_results.html'
-    }; 
-})
-*/
