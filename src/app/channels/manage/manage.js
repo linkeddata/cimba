@@ -16,7 +16,5 @@ angular.module('Cimba.channels.manage',['ui.router'])
 })
 
 .controller('ManageCtrl', function ManageController($scope, $http, $location, $sce){
-	$scope.newChannel = {};
-	$scope.newChannel.title = 'test';
-
+	$scope.channels = $scope.$parent.channels;
 });
