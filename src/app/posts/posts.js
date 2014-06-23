@@ -2,7 +2,7 @@ angular.module( 'Cimba.posts', [
   'ui.router'
 ])
 
-.config(function TabConfig( $stateProvider ) {
+.config(function PostsConfig( $stateProvider ) {
   $stateProvider.state( 'posts', {
     url: '/',
     views: {
@@ -16,6 +16,10 @@ angular.module( 'Cimba.posts', [
 })
 
 .controller("PostsController", function PostsCtrl( $scope, $http, $location, $sce ) {
+	console.log($scope.$parent.userProfile.webid);
+	console.log($scope.userProfile.webid);
+	var webid = $scope.$parent.userProfile.webid;
+	console.log(webid);
 	$scope.audience = {};
 	$scope.audience.icon = "fa-globe"; //default value
 	$scope.hideMenu = function() {
@@ -24,9 +28,11 @@ angular.module( 'Cimba.posts', [
 
 	// update account
     $scope.setChannel = function(ch) {
-        for (var i in $scope.me.channels) {
-			if ($scope.me.channels[i].title == ch) {
-				$scope.defaultChannel = $scope.me.channels[i];
+		console.log(webid);
+		console.log($scope.users[webid]);
+        for (var i in $scope.users[webid].channels) {
+			if ($scope.users[webid].channels[i].title == ch) {
+				$scope.defaultChannel = $scope.users[webid].channels[i];
 				break;
 			}
 		}
@@ -66,9 +72,9 @@ angular.module( 'Cimba.posts', [
 		g.add($rdf.sym(''), DCT('created'), $rdf.lit(now, '', $rdf.Symbol.prototype.XSDdateTime));
 		// add author triples
 		g.add($rdf.sym('#author'), RDF('type'), SIOC('UserAccount'));
-		g.add($rdf.sym('#author'), SIOC('account_of'), $rdf.sym($scope.me.webid));
-		g.add($rdf.sym('#author'), SIOC('avatar'), $rdf.sym($scope.me.pic));
-		g.add($rdf.sym('#author'), FOAF('name'), $rdf.lit($scope.me.name));
+		g.add($rdf.sym('#author'), SIOC('account_of'), $rdf.sym(webid));
+		g.add($rdf.sym('#author'), SIOC('avatar'), $rdf.sym($scope.userProfile.picture));
+		g.add($rdf.sym('#author'), FOAF('name'), $rdf.lit($scope.userProfile.name));
 
 		var s = new $rdf.Serializer(g).toN3(g);
 		var uri = $scope.defaultChannel.uri;
@@ -80,9 +86,9 @@ angular.module( 'Cimba.posts', [
 			chtitle: title,
 			date : now,
 			timeago : moment(now).fromNow(),
-			userpic : $scope.me.pic,
-			userwebid : $scope.me.webid,
-			username : $scope.me.name,
+			userpic : $scope.userProfile.picture,
+			userwebid : webid,
+			username : $scope.userProfile.name,
 			body : $scope.postbody.trim()
 		};
 
@@ -130,7 +136,7 @@ angular.module( 'Cimba.posts', [
 					}
 					// append post to the local list
 					$scope.posts[postURI] = _newPost;
-					$scope.me.gotposts = true;
+					$scope.users[webid].gotposts = true;
 
 					// set the corresponding acl
 					$scope.setACL(postURI, $scope.audience.range);
@@ -172,7 +178,7 @@ angular.module( 'Cimba.posts', [
 				// add document triples
 				g.add($rdf.sym(''), WAC('accessTo'), $rdf.sym(''));
 				g.add($rdf.sym(''), WAC('accessTo'), $rdf.sym(uri));
-				g.add($rdf.sym(''),	WAC('agent'), $rdf.sym($scope.me.webid));
+				g.add($rdf.sym(''),	WAC('agent'), $rdf.sym(webid));
 				g.add($rdf.sym(''),	WAC('mode'), WAC('Read'));
 				g.add($rdf.sym(''),	WAC('mode'), WAC('Write'));
 
@@ -184,7 +190,7 @@ angular.module( 'Cimba.posts', [
 					g.add($rdf.sym(frag), WAC('mode'), WAC('Read'));
 				} else if (type == 'private') {
 					// private visibility
-					g.add($rdf.sym(frag), WAC('agent'), $rdf.sym($scope.me.webid));
+					g.add($rdf.sym(frag), WAC('agent'), $rdf.sym(webid));
 					g.add($rdf.sym(frag), WAC('mode'), WAC('Read'));
 					g.add($rdf.sym(frag), WAC('mode'), WAC('Write'));
 				}
@@ -234,4 +240,96 @@ angular.module( 'Cimba.posts', [
 		});
 	};
 
+	// delete post
+	$scope.deletePost = function (post, refresh) {
+		// check if the user matches the post owner
+		if (webid == post.userwebid) {
+			$.ajax({
+				url: post.uri,
+				type: "delete",
+				xhrFields: {
+					withCredentials: true
+				},
+				success: function (d,s,r) {
+					console.log('Deleted '+post.uri);
+					notify('Success', 'Your post was removed from the server!');
+
+					/*
+					// TODO: TEST THIS AGAIN!!!
+					$scope.removePost(post.uri);
+					$scope.$apply();
+					*/
+					// also remove the ACL file
+					var acl = parseLinkHeader(r.getResponseHeader('Link'));
+					var aclURI = acl['acl']['href'];
+					$.ajax({
+						url: aclURI,
+						ype: "delete",
+						xhrFields: {
+							withCredentials: true
+						},
+						success: function (d,s,r) {
+							console.log('Deleted! ACL file was removed from the server.');
+						}
+					});
+				},
+				failure: function (r) {
+					var status = r.status.toString();
+					if (status == '403') {
+						notify('Error', 'Could not delete post, access denied!');
+					}
+					if (status == '404') {
+						notify('Error', 'Could not delete post, no such resource on the server!');
+					}
+				}
+			});
+		}
+	};
+
+	// remove all posts from viewer based on the given WebID
+	$scope.removePostsByOwner = function(webid) {
+		var modified = false;
+		if ($scope.posts && !isEmpty($scope.posts)) {
+			for (var p in $scope.posts) {
+				var post = $scope.posts[p];
+				if (webid && webid == post.userwebid) {
+					delete $scope.posts[p];
+					modified = true;
+				}
+			}
+		}
+	};
+
+	// remove all posts from viewer based on the given channel URI
+	$scope.removePostsByChannel = function(ch) {
+		var modified = false;
+		if ($scope.posts && !isEmpty($scope.posts)) {
+			for (var p in $scope.posts) {
+				var post = $scope.posts[p];
+				if (ch && ch == post.channel) {
+					delete $scope.posts[p];
+					modified = true;
+				}
+			}
+		}
+	};
+
+})
+
+//simple directive to display new post box
+.directive('postBox',function(){
+    return {
+    replace : true,
+    restrict : 'E',
+    templateUrl: 'posts/new_post.tpl.html'
+    }; 
+})
+
+//simple directive to display each post
+.directive('postsViewer',function(){
+    return {
+    replace : true,
+    restrict : 'E',
+    templateUrl: 'posts/posts.tpl.html'
+    }; 
 });

@@ -94,10 +94,11 @@ angular.module( 'Cimba', [
     $scope.userProfile = {};
     $scope.userProfile.picture = 'assets/generic_photo.png';
     $scope.channels = [];
-    $scope.posts = {};
+    $scope.allPosts = {};
     $scope.users = {};
     $scope.me = {};    
-    $rootScope.userProfile = $scope.userProfile;
+
+    $rootScope.userProfile = {};
 
     $scope.login = function () {
         $location.path('/login');
@@ -120,7 +121,7 @@ angular.module( 'Cimba', [
         // clear sessionStorage
         $scope.clearLocalCredentials();
         $scope.userProfile = {};
-        $rootScope.userProfile = {};
+        $rootScope.userProfile = $scope.userProfile;
         $location.path('/login');
     };
 
@@ -255,30 +256,27 @@ angular.module( 'Cimba', [
                 $scope.search = _user;
             }
 
+            $scope.users[webid] = {};
+            $scope.users[webid].mine = mine;
+
             if (update) {
                 $scope.refreshinguser = true;
                 $scope.users[webid].name = name;
                 $scope.users[webid].picture = pic;
                 $scope.users[webid].storagespace = storage;
             }
-            ///$scope.getChannels('https://asnoakes.rww.io/storage','https://asnoakes.rww.io',mine, update)
 
-            // get channels for the user
-            if (storage !== undefined) { 
-                // get channels for user
-                // $scope.getChannels(storage, webid, mine, update);
-            } else {
+            if (storage === undefined) { 
                 $scope.gotstorage = false;
             }
 
             if (mine) { // mine
-                $scope.userProfile.uri = webid;
+                $scope.userProfile.webid = webid;
                 $scope.userProfile.name = name;
                 $scope.userProfile.picture = pic;
                 $scope.userProfile.storagespace = storage;
-                $scope.me.webid = webid; //for displaying delete button in posts.tpl.html
-                $scope.me.pic = pic; //resolves issue of not displaying profile picture that the above line creates
-                $scope.me.name = name;
+                $scope.users[webid].name = name; //for displaying delete button in posts.tpl.html
+                $scope.users[webid].picture = pic; //resolves issue of not displaying profile picture that the above line creates
 
                 // find microblogging feeds/channels
                 if (!storage) {
@@ -337,7 +335,7 @@ angular.module( 'Cimba', [
                 // set a default Microblog workspace
                 if (mine) {
                     // set default Microblog space
-                    $scope.me.mbspace = ws[0]['subject']['value'];
+                    $scope.users[webid].mbspace = ws[0]['subject']['value'];
                 }
 
                 var func = function() {
@@ -345,38 +343,34 @@ angular.module( 'Cimba', [
                     var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));
                   
                     if (chs.length > 0) {
+                        console.log("channels found");
+                        $scope.channels = [];
                         // clear list first
-                        if (mine) {
-                            $scope.me.channels = [];
-                        }
-
-                        if (update) { 
+                        if (mine || update) {
                             $scope.users[webid].channels = [];
                         }
           
                         for (var ch in chs) {
-                            var channel = {};
-                            var uri = chs[ch]['subject']['value'];
-                            channel['uri'] = uri;
-                            var safeUri = uri.replace(/^https?:\/\//,'');
-                            channel['safeUri'] = safeUri.replace("/\/", "_");
+                            var channel = {};                            
+                            channel['uri'] = chs[ch]['subject']['value'];
                             var title = g.any(chs[ch]['subject'], DCT('title')).value;
 
                             if (title) {
-                            channel['title'] = title;
+                                channel['title'] = title;
                             } else {
-                            channel['title'] = channeluri;
+                                channel['title'] = channeluri;
                             }
 
                             channel["owner"] = webid;
 
                             // add channel to the list
                             $scope.channels.push(channel);
+                            console.log($scope.channels.length);
 
                             /* uncomment to get posts for any channel (not just my own)
                             // get posts for that channel
                             if (loadposts === true) {
-                            $scope.getPosts(channel.uri, channel.title);
+                                $scope.getPosts(channel.uri, channel.title);
                             }
                             */
 
@@ -387,10 +381,10 @@ angular.module( 'Cimba', [
                                     $scope.getPosts(channel.uri, channel.title);
                                 }
 
-                                $scope.me.channels.push(channel);
+                                $scope.users[webid].channels.push(channel);
 
                                 //this dictionary pairs channels with their owner and the posts they contain
-                                $scope.me.chspace = true;
+                                $scope.users[webid].chspace = true;
                             }
 
                             // update
@@ -405,7 +399,7 @@ angular.module( 'Cimba', [
 
                         // set a default channel for the logged user
                         if (mine) {
-                            $scope.defaultChannel = $scope.me.channels[0];
+                            $scope.defaultChannel = $scope.users[webid].channels[0];
                         }
 
                         // done refreshing user information -> update view
@@ -419,7 +413,7 @@ angular.module( 'Cimba', [
                         if (mine) {
                             // hide loader
                             $scope.loading = false;
-                            $scope.me.chspace = false;
+                            $scope.users[webid].chspace = false;
                         }
                     }
 
@@ -457,9 +451,9 @@ angular.module( 'Cimba', [
                 if (mine) {
                     console.log('No microblog found!');
                     $scope.gotmb = false;
-                    $scope.me.mbspace = false;
-                    $scope.me.chspace = false;
-                    $scope.me.channels = [];
+                    $scope.users[webid].mbspace = false;
+                    $scope.users[webid].chspace = false;
+                    $scope.users[webid].channels = [];
                     $scope.saveCredentials();
 
                     // hide loader
@@ -469,7 +463,7 @@ angular.module( 'Cimba', [
                 }
             }
         });
-        return $scope.channels;
+        
     };
 
     $scope.getPosts = function(channel, title) {
@@ -487,6 +481,8 @@ angular.module( 'Cimba', [
 
         var f = $rdf.fetcher(g, TIMEOUT);
 
+        $scope.allPosts[channel] = [];
+
         // add CORS proxy
         $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
 
@@ -496,7 +492,8 @@ angular.module( 'Cimba', [
             var posts = g.statementsMatching(undefined, RDF('type'), SIOC('Post'));
 
             if (posts.length > 0) {
-
+                // console.log("found some posts");
+                // console.log(posts.length);
                 for (var p in posts) {
 
                     var uri = posts[p]['subject'];
@@ -522,12 +519,7 @@ angular.module( 'Cimba', [
                     // try using the picture from the WebID first
 
                     if (userwebid) {
-
-                        if ($scope.me.webid && $scope.me.webid == userwebid) {
-                            userpic = $scope.me.pic;
-                        } else if ($scope.users[userwebid]) {
-                            userpic = $scope.users[userwebid].pic;
-                        }
+                        userpic = $scope.users[userwebid].picture;
                     }
                     else if (g.any(useraccount, SIOC('avatar'))) {
 
@@ -543,11 +535,7 @@ angular.module( 'Cimba', [
                     // try using the name from the WebID first
 
                     if (userwebid) {
-                        if ($scope.me.webid && $scope.me.webid == userwebid) {
-                            username = $scope.me.name;
-                        } else if ($scope.users[userwebid]) {
-                            username = $scope.users[userwebid].name;
-                        }
+                        username = $scope.users[userwebid].name;
                     } else if (g.any(useraccount, FOAF('name'))) {
                         username = g.any(useraccount, FOAF('name')).value;
                     } else {
@@ -562,49 +550,44 @@ angular.module( 'Cimba', [
 
                     uri = uri.value;
 
-                // check if we need to overwrite instead of pushing new item
+                    // check if we need to overwrite instead of pushing new item
 
                     var _newPost = {
-
                         uri : uri,
-
                         channel: channel,
-
                         chtitle: title,
-
                         date : date,
-
                         userwebid : userwebid,
-
                         userpic : userpic,
-
                         username : username,
-
                         body : body
-
                     };
-      
 
-                    if (!$scope.posts) {
-                        $scope.posts = {};
-                    }
+
+                    // console.log("new post created");
+                    // console.log(_newPost);
+
+                    // if (!$scope.posts) {
+                    //     $scope.posts = {};
+                    // }
                     
                     // filter post by language (only show posts in English or show all)         
                     if ($scope.filterFlag && testIfAllEnglish(_newPost.body)) {
                         // add/overwrite post
-                        $scope.posts[uri] = _newPost;
+                        $scope.allPosts[channel].push(_newPost);
+                        // $scope.posts[uri] = _newPost;                        
                         $scope.$apply();
                     } else {
-                        $scope.posts[uri] = _newPost;
+                        $scope.allPosts[channel].push(_newPost);
                         $scope.$apply();
                     }
 
-                    $scope.me.gotposts = true;
+                    $scope.users[$scope.userProfile.webid].gotposts = true;
                 }
 
             } else {
                 if (isEmpty($scope.posts)) {
-                    $scope.me.gotposts = false;
+                    $scope.users[$scope.userProfile.webid].gotposts = false;
                 }
             }
 
@@ -614,6 +597,7 @@ angular.module( 'Cimba', [
 
         });
     };
+
 })
 
 .run( function run ($rootScope, $location) {    
@@ -630,44 +614,5 @@ angular.module( 'Cimba', [
             }
         }         
     });
-})
-
-/*
-//simple directive to display new post box
-ngCimba.directive('postBox',function(){
-    return {
-    replace : true,
-    restrict : 'E',
-    templateUrl: 'tpl/new_post.html'
-    }; 
-})
-*/
-
-//simple directive to display each post
-.directive('postsViewer',function(){
-    return {
-    replace : true,
-    restrict : 'E',
-    templateUrl: 'posts/posts.tpl.html'
-    }; 
 });
 
-/*
-//simple directive to display list of channels
-ngCimba.directive('channelslist',function(){
-    return {
-    replace : true,
-    restrict : 'E',
-    templateUrl: 'tpl/channel-list.html'
-    }; 
-})
-
-//simple directive to display list of search results
-ngCimba.directive('searchresults',function(){
-    return {
-    replace : true,
-    restrict : 'E',
-    templateUrl: 'tpl/search_results.html'
-    }; 
-})
-*/
