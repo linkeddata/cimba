@@ -1,25 +1,24 @@
-angular.module( 'Cimba.posts', [
-  'ui.router'
+angular.module('Cimba.posts',[
+	'ui.router'
 ])
 
 .config(function PostsConfig( $stateProvider ) {
-  $stateProvider.state( 'posts', {
-    url: '/',
-    views: {
-      "main": {
-        controller: 'PostsController',
-        templateUrl: ''
-      }
-    },
-    data:{ pageTitle: 'Posts' }
-  });
+	$stateProvider.state( 'posts', {
+		url: '/',
+		views: {
+			"main": {
+				controller: 'PostsController',
+				templateUrl: ''
+			}
+		},
+		data:{
+			pageTitle: 'Posts'
+		}
+	});
 })
 
-.controller("PostsController", function PostsCtrl( $scope, $http, $location, $sce ) {
-	console.log($scope.$parent.userProfile.webid);
-	console.log($scope.userProfile.webid);
+.controller("PostsController", function PostsController( $scope, $http, $location, $sce ) {
 	var webid = $scope.$parent.userProfile.webid;
-	console.log(webid);
 	$scope.audience = {};
 	$scope.audience.icon = "fa-globe"; //default value
 	$scope.hideMenu = function() {
@@ -254,11 +253,10 @@ angular.module( 'Cimba.posts', [
 					console.log('Deleted '+post.uri);
 					notify('Success', 'Your post was removed from the server!');
 
-					/*
 					// TODO: TEST THIS AGAIN!!!
 					$scope.removePost(post.uri);
 					$scope.$apply();
-					*/
+
 					// also remove the ACL file
 					var acl = parseLinkHeader(r.getResponseHeader('Link'));
 					var aclURI = acl['acl']['href'];
@@ -283,6 +281,20 @@ angular.module( 'Cimba.posts', [
 					}
 				}
 			});
+		}
+	};
+
+	//remove the post with the given post uri
+	$scope.removePost = function(uri) {
+		var modified = false;
+		if ($scope.posts && !isEmpty($scope.posts)) {
+			for (var p in $scope.posts) {
+				var post = $scope.posts[p];
+				if (uri && uri == post.uri) {
+					delete $scope.posts[p];
+					modified = true;
+				}
+			}
 		}
 	};
 

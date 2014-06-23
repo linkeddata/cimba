@@ -14,6 +14,7 @@ angular.module( 'Cimba', [
   'Cimba.login',
   'Cimba.about',
   'Cimba.channels',
+  'Cimba.find',
   'ui.router',
   'ngProgress'
 ])
@@ -597,15 +598,6 @@ ngCimba.directive('channelslist',function(){
     replace : true,
     restrict : 'E',
     templateUrl: 'tpl/channel-list.html'
-    }; 
-})
-
-//simple directive to display list of search results
-ngCimba.directive('searchresults',function(){
-    return {
-    replace : true,
-    restrict : 'E',
-    templateUrl: 'tpl/search_results.html'
     }; 
 })
 */
