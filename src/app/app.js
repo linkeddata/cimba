@@ -20,10 +20,7 @@ angular.module( 'Cimba', [
 ])
 
 .config( function CimbaConfig ( $stateProvider, $urlRouterProvider ) {
-  $urlRouterProvider.otherwise( '/login' );
-})
-
-.run( function run () {
+  $urlRouterProvider.otherwise( '/home' );
 })
 
 // replace dates with moment's "time ago" style
@@ -91,15 +88,18 @@ angular.module( 'Cimba', [
   };
 })
 
-.controller( 'MainCtrl', function MainCtrl ($scope, $location, $timeout, ngProgress ) {
+.controller( 'MainCtrl', function MainCtrl ($scope, $rootScope, $location, $timeout, ngProgress ) {
     // Some default values
     $scope.appuri = window.location.hostname+window.location.pathname;
     $scope.loginSuccess = false;
     $scope.userProfile = {};
     $scope.userProfile.picture = 'assets/generic_photo.png';
     $scope.channels = [];
-    $scope.posts = {};
+    $scope.allPosts = {};
     $scope.users = {};
+    $scope.me = {};    
+
+    $rootScope.userProfile = {};
 
     $scope.login = function () {
         $location.path('/login');
@@ -122,6 +122,7 @@ angular.module( 'Cimba', [
         // clear sessionStorage
         $scope.clearLocalCredentials();
         $scope.userProfile = {};
+        $rootScope.userProfile = $scope.userProfile;
         $location.path('/login');
     };
 
@@ -139,7 +140,7 @@ angular.module( 'Cimba', [
             var cimba = JSON.parse(sessionStorage.getItem($scope.appuri));
             if (cimba.userProfile) {
                 if (!$scope.userProfile) {
-                    $scope.userProfile = {};
+                    $scope.userProfile = {};                    
                 }
                 $scope.userProfile = cimba.userProfile;
                 $scope.loggedin = true;
@@ -151,12 +152,13 @@ angular.module( 'Cimba', [
                     //$scope.getUsers();
                 }
                 // refresh data
-                $scope.getInfo(cimba.userProfile.webid, true);
+                $scope.getInfo(cimba.userProfile.webid, true);                
             } else {
                 // clear sessionStorage in case there was a change to the data structure
-                sessionStorage.removeItem($scope.appuri);
+                sessionStorage.removeItem($scope.appuri);                
             }
         }
+        $rootScope.userProfile = $scope.userProfile;
     };
 
     // clear sessionStorage
@@ -341,35 +343,33 @@ angular.module( 'Cimba', [
 
                     var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));
                   
-                    if (chs.length > 0) {
+                    if (chs.length > 0) {                        
+                        $scope.channels = [];
                         // clear list first
                         if (mine || update) {
                             $scope.users[webid].channels = [];
                         }
           
                         for (var ch in chs) {
-                            var channel = {};
-                            var uri = chs[ch]['subject']['value'];
-                            channel['uri'] = uri;
-                            var safeUri = uri.replace(/^https?:\/\//,'');
-                            channel['safeUri'] = safeUri.replace("/\/", "_");
+                            var channel = {};                            
+                            channel['uri'] = chs[ch]['subject']['value'];
                             var title = g.any(chs[ch]['subject'], DCT('title')).value;
 
                             if (title) {
-                            channel['title'] = title;
+                                channel['title'] = title;
                             } else {
-                            channel['title'] = channeluri;
+                                channel['title'] = channeluri;
                             }
 
                             channel["owner"] = webid;
 
                             // add channel to the list
-                            $scope.channels.push(channel);
+                            $scope.channels.push(channel);                            
 
                             /* uncomment to get posts for any channel (not just my own)
                             // get posts for that channel
                             if (loadposts === true) {
-                            $scope.getPosts(channel.uri, channel.title);
+                                $scope.getPosts(channel.uri, channel.title);
                             }
                             */
 
@@ -462,7 +462,7 @@ angular.module( 'Cimba', [
                 }
             }
         });
-        return $scope.channels;
+        
     };
 
     $scope.getPosts = function(channel, title) {
@@ -480,6 +480,8 @@ angular.module( 'Cimba', [
 
         var f = $rdf.fetcher(g, TIMEOUT);
 
+        $scope.allPosts[channel] = [];
+
         // add CORS proxy
         $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
 
@@ -489,7 +491,8 @@ angular.module( 'Cimba', [
             var posts = g.statementsMatching(undefined, RDF('type'), SIOC('Post'));
 
             if (posts.length > 0) {
-
+                // console.log("found some posts");
+                // console.log(posts.length);
                 for (var p in posts) {
 
                     var uri = posts[p]['subject'];
@@ -558,19 +561,23 @@ angular.module( 'Cimba', [
                         username : username,
                         body : body
                     };
-      
-                    //create an empty object of posts if its undefined
-                    if (!$scope.posts) {
-                        $scope.posts = {};
-                    }
+
+
+                    // console.log("new post created");
+                    // console.log(_newPost);
+
+                    // if (!$scope.posts) {
+                    //     $scope.posts = {};
+                    // }
                     
                     // filter post by language (only show posts in English or show all)         
                     if ($scope.filterFlag && testIfAllEnglish(_newPost.body)) {
                         // add/overwrite post
-                        $scope.posts[uri] = _newPost;
+                        $scope.allPosts[channel].push(_newPost);
+                        // $scope.posts[uri] = _newPost;                        
                         $scope.$apply();
                     } else {
-                        $scope.posts[uri] = _newPost;
+                        $scope.allPosts[channel].push(_newPost);
                         $scope.$apply();
                     }
 
@@ -589,15 +596,20 @@ angular.module( 'Cimba', [
 
         });
     };
-});
-
-/*
-//simple directive to display list of channels
-ngCimba.directive('channelslist',function(){
-    return {
-    replace : true,
-    restrict : 'E',
-    templateUrl: 'tpl/channel-list.html'
-    }; 
 })
-*/
+
+.run( function run ($rootScope, $location) {    
+    $rootScope.userProfile = {};
+    // register listener to watch route changes
+    $rootScope.$on( "$locationChangeStart", function(event, next, current) {        
+        if ( !$rootScope.userProfile.webid) {
+            // no logged user, we should be going to #login
+            if ( next.templateUrl == "login/login.tpl.html" ) {
+              // already going to #login, no redirect needed
+            } else {
+              // not going to #login, we should redirect now
+              $location.path( "/login" );
+            }
+        }         
+    });
+});

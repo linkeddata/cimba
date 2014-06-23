@@ -15,7 +15,25 @@ angular.module('Cimba.channels.view', ['ui.router'])
 })
 
 .controller('ChannelViewCtrl', function ChannelViewController($scope, $stateParams, $location, $http) {	
+	
 	$scope.$parent.pageTitle = $stateParams.channelName;
 	$scope.channelUri = $stateParams.channelUri;
-	$location.url($location.path());
+	$scope.channelTitle = $stateParams.channelName;	
+
+	console.log("channel info");
+	console.log($scope.channelUri);
+	console.log($scope.channelTitle);
+
+	//get posts
+	$scope.$parent.getPosts($scope.channelUri, $scope.channelName);
+
+	// $location.url($location.path());
+})
+
+.directive('listPosts', function () {
+	return {
+		replace: true,
+		restrict: 'E',
+		templateUrl: 'channels/view/posts.tpl.html'
+	};
 });

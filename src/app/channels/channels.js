@@ -21,15 +21,14 @@ angular.module('Cimba.channels',[
     });
 })
 
-.controller('ChannelsCtrl', function ChannelsController($scope, $http, $location, $sce){
-    $scope.channelKeys = [];
-    if ($scope.$parent.userProfile.storagespace !== undefined) {        
+.controller('ChannelsCtrl', function ChannelsController($scope, $http, $location, $sce){    
+    if ($scope.$parent.userProfile.storagespace !== undefined) {
+        console.log("beginning channel fetch");    
         $scope.$parent.loading = true;
         var storage = $scope.$parent.userProfile.storagespace;
         var webid = $scope.$parent.userProfile.webid;
-
-        $scope.channelKeys = $scope.$parent.getChannels(storage, webid, true, false, false);
-
+        console.log(webid);
+        $scope.$parent.getChannels(storage, webid, true, false, false);        
     } else {
         $scope.$parent.gotstorage = false;
     }
