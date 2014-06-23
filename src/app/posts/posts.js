@@ -17,11 +17,8 @@ angular.module('Cimba.posts',[
 	});
 })
 
-.controller("PostsController", function PostsCtrl( $scope, $http, $location, $sce ) {
-	console.log($scope.$parent.userProfile.webid);
-	console.log($scope.userProfile.webid);
+.controller("PostsController", function PostsController( $scope, $http, $location, $sce ) {
 	var webid = $scope.$parent.userProfile.webid;
-	console.log(webid);
 	$scope.audience = {};
 	$scope.audience.icon = "fa-globe"; //default value
 	$scope.hideMenu = function() {

@@ -14,6 +14,7 @@ angular.module( 'Cimba', [
   'Cimba.login',
   'Cimba.about',
   'Cimba.channels',
+  'Cimba.find',
   'ui.router',
   'ngProgress'
 ])
@@ -601,3 +602,4 @@ angular.module( 'Cimba', [
         }         
     });
 });
+

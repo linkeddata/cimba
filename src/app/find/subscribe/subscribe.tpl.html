@@ -1,0 +1,62 @@
+<div class="panel panel-default" style="width: 80%">
+    <div class="panel-heading dark-blue"> </div>
+    <div class="panel-body">
+        <h2 class="text-center"><i class="fa fa-search"></i> Find channels</h2>
+        <form>
+            <p class="text-center">Search by name, email or WebID..</p>
+            <div class="input-group">
+                <div class="input-group-btn text-center">
+                    <input type="search" id="search" name="search" class="form-control" ng-model="search.query" ng-change="lookupWebID(search.query)" ng-pattern="/^[A-Za-z0-9_#.:/]*$/">
+                    <button class="btn btn-primary searchbutton" ng-click="getInfo(search.webid); searchbtn='Searching...'" ng-disabled="!search.webid"><i class="fa fa-search"></i> {{searchbtn}}</button>
+                </div>
+            </div>
+            <div ng-show="search.loading" class="mt30">
+                <div class="circle circle-large"></div><div class="circle1 circle1-large"></div>
+            </div>
+            <!--
+            <search-results></search-results>
+            -->
+            <div class="webid-results" ng-show="!search.selected">
+                <div ng-repeat="person in webidresults | limitTo: 7" class="mt20">
+                    <div class="panel-heading light-blue pointer" ng-click="prepareSearch(person.webid, person.name[0])" rel="tooltip" data-placement="top" title="Find channels for {{person.webid}}">
+                        <div class="pull-left">
+                            <div class="thumbnail thumbnail-sm pull-right">
+                              <img class="media-object thumb-pic-sm" ng-src="{{person.img[0]}}">
+                            </div>
+                        </div>
+                        <div class="user-name">
+                            <strong>{{person.name[0]}}</strong>
+                            <br>
+                            <small>{{person.mbox[0]}}</small>
+                            <br>
+                            <small>Hosted on: {{person.host}}</small>
+                            </h4>
+                        </div>
+                    </div>    
+                </div>
+            </div>
+
+
+            <h4 class="black text-center" ng-show="!found">No WebID found at given location.</h4>
+        </form>
+        <div class="searchresults" ng-show="gotresults">
+            <div class="panel-heading dark-blue">
+                <div class="pull-left">
+                    <a class="thumbnail thumbnail-sm pull-right" href="{{search.webid}}">
+                      <img class="media-object" ng-src="{{search.pic}}" rel="tooltip" data-placement="top" title="{{search.name}}">
+                    </a>
+                </div>
+            </div>
+            <div class="panel-body-text">
+                <h4 class="black bold">{{search.name}}</h4>
+                <h4 class="black">Has {{search.channels.length}} channels.</h4>
+            </div>
+            <div class="panel-body">
+                <h4 class="black" ng-repeat="ch in search.channels">
+                    <button class="btn" ng-class="ch.css" ng-click="channelToggle(ch, search)" rel="tooltip" data-placement="top" title="{{ch.action}}"><i class="fa {{ch.button}} fa-2x"></i></button>
+                    <a href="{{ch.uri}}" target="_blank">{{ch.title}}</a>
+                </h4>
+            </div>
+        </div>
+    </div>
+</div>
