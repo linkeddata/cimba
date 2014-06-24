@@ -155,6 +155,6 @@ angular.module('Cimba.channels',[
             $scope.createbtn = 'Create';
             $scope.loading = false;
             $scope.$apply();
-        });
+        });channelname='';
     };
 });
