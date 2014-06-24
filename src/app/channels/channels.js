@@ -27,7 +27,6 @@ angular.module('Cimba.channels',[
         var storage = $scope.$parent.userProfile.storagespace;
         var webid = $scope.$parent.userProfile.webid;
         $scope.$parent.getChannels(storage, webid, true, false, false);
-
     } else {
         $scope.$parent.gotstorage = false;
     }

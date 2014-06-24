@@ -26,7 +26,7 @@ angular.module( 'Cimba.login', [
 /**
  * And of course we define a controller for our route.
  */
-.controller( 'LoginCtrl', function LoginController( $scope, $http, $location, $sce ) {
+.controller( 'LoginCtrl', function LoginController( $scope, $rootScope, $http, $location, $sce ) {
  
   // login/signup widget source
   var providerURI = '//linkeddata.github.io/signup/index.html?ref=';
@@ -36,9 +36,11 @@ angular.module( 'Cimba.login', [
 
   // login user into the app
   $scope.login = function(webid) {
+    console.log("login beginning");
     if (webid && (webid.substr(0, 4) == 'http')) {
       $scope.userProfile = {};
       $scope.userProfile.webid = webid;
+
       $scope.$parent.loginSuccess = true;
       // index or update current WebID on webizen.org
       $http.get('http://api.webizen.org/v1/search', {
@@ -46,14 +48,26 @@ angular.module( 'Cimba.login', [
           q: webid
         }
       });
+
       // set the user in the main controller and redirect to home page
       $scope.$parent.userProfile = $scope.userProfile;
-      $location.path('/home');
+      $rootScope.userProfile = $scope.userProfile;
+
+      $scope.showLogin = false;
+      // $scope.$parent.loadCredentials();
+      
+      $location.path("/home");
+
+      $scope.$apply();
+      
     } else {
       // notify('Error', 'WebID-TLS authentication failed.');
+      $scope.showLogin = false;
+      $scope.$apply();
     }
-    $scope.showLogin = false;
-    $scope.$apply();
+
+    
+    
   };
 
   $scope.hideMenu = function() {

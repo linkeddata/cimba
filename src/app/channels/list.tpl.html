@@ -1,11 +1,17 @@
 <div ng-click="hideMenu()">
 	<div class = "panel-body" overflow='auto'>
-        <ul style='list-style-type:none;'>
-	        <h1> Channels </h1>
-	        <li ng-repeat="channel in channelKeys">
-		        <a ui-sref="view({channelName: channel.title, channelUri: channel.uri} )" >{{channel.title}}</a>
-	        </li>
-        </ul>
+		<h1> All Channels </h1>
+		<div id="channels" ng-repeat="channel in channels">
+			<div class="channelItem row">
+				<div class="channel-title pull-left"> 
+					<a ui-sref="view({channelName: channel.title, channelUri: channel.uri} )" >{{channel.title}}</a>
+				</div>
+				<div class="channel-owner pull-left">by 
+					<a href="{{post.userwebid}}" class="link-white bold" target="_blank">{{channel.owner}}</a> 
+				</div>
+ 
+			</div>
+		</div>
     </div>
     <a href ui-sref="manage">
 		<div>

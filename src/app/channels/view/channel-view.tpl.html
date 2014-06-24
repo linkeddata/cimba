@@ -1,4 +1,17 @@
-<div class="panel-body" overflow='auto'>
+<div class="panel-body" ng-click="hideMenu()">
+	<h1 class="page-header">{{channelTitle}}</h1>
+
+	<div id="newpost" class="container">
+        <div class="row">
+            <!-- <div class="clear-70"></div> -->
+            <div class="col-md-12">
+                <!-- new post -->
+                <post-box ng-show="loggedin" ng-controller="PostsController as postCtrl"></post-box>
+                <!-- end new post -->
+            </div>
+        </div>
+    </div>
+
 	<div id="posts" class="container">
 	    <div class="row">
 	        <div class="col-md-12">
@@ -14,8 +27,6 @@
 	            <!-- ngRepeat: post in posts | unique:'uri' | orderBy:'date':true -->
 	            <!-- <list-posts ng-show="loggedin"></list-posts> -->
 
-	            <h1>{{channelTitle}}</h1>
-	            
             	<list-posts ng-show="loggedin"></list-posts>
             </div>
 	    </div>

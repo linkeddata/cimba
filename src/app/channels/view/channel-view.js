@@ -20,10 +20,6 @@ angular.module('Cimba.channels.view', ['ui.router'])
 
 	$scope.channelTitle = $stateParams.channelName;	
 
-	console.log("channel info");
-	console.log($scope.channelUri);
-	console.log($scope.channelTitle);
-
 	//get posts
 	$scope.$parent.getPosts($scope.channelUri, $scope.channelName);
 

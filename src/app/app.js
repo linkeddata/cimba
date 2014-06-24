@@ -89,6 +89,8 @@ angular.module( 'Cimba', [
 })
 
 .controller( 'MainCtrl', function MainCtrl ($scope, $rootScope, $location, $timeout, ngProgress ) {
+    console.log("main controller executed");
+
     // Some default values
     $scope.appuri = window.location.hostname+window.location.pathname;
     $scope.loginSuccess = false;
@@ -166,7 +168,7 @@ angular.module( 'Cimba', [
         sessionStorage.removeItem($scope.appuri);
     };
 
-    $scope.$watch('loginSuccess', function(newVal, oldVal) {
+    $scope.$watch('loginSuccess', function(newVal, oldVal) {        
         if (newVal === true && $scope.userProfile.webid) {
             $scope.getInfo($scope.userProfile.webid, true, false);
         }
@@ -593,16 +595,16 @@ angular.module( 'Cimba', [
     };
 })
 
-
-.run( function run ($rootScope, $location) {    
-    $rootScope.userProfile = {};
+.run( function run ($rootScope, $location) {     
+    if (!$rootScope.userProfile) {
+        $rootScope.userProfile = {};    
+    }
     // register listener to watch route changes
-    $rootScope.$on( "$locationChangeStart", function(event, next, current) {        
+    $rootScope.$on( "$locationChangeStart", function(event, next, current) { 
+        // event.preventDefault();    
         if ( !$rootScope.userProfile.webid) {
             // no logged user, we should be going to #login
-            if ( next.templateUrl == "login/login.tpl.html" ) {
-              // already going to #login, no redirect needed
-            } else {
+            if ( next.templateUrl != "login/login.tpl.html" ) {
                 // not going to #login, we should redirect now
                 $location.path( "/login" );
             }
