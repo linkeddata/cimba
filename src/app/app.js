@@ -89,8 +89,6 @@ angular.module( 'Cimba', [
 })
 
 .controller( 'MainCtrl', function MainCtrl ($scope, $rootScope, $location, $timeout, ngProgress ) {
-    console.log("main controller executed");
-
     // Some default values
     $scope.appuri = window.location.hostname+window.location.pathname;
     $scope.loginSuccess = false;
@@ -100,7 +98,7 @@ angular.module( 'Cimba', [
     $scope.allPosts = {};//aggregate list of all posts by channel uri
     $scope.posts = []; //aggregate list of all posts (flat list)
     $scope.users = {};
-    
+
     $rootScope.userProfile = {};
 
     $scope.login = function () {
@@ -190,8 +188,7 @@ angular.module( 'Cimba', [
 
         var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
-        var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
-        console.log(SPACE);
+        var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");        
         var ACL = $rdf.Namespace("http://www.w3.org/ns/auth/acl#");
         var g = $rdf.graph();
         var f = $rdf.fetcher(g, TIMEOUT);
@@ -280,6 +277,8 @@ angular.module( 'Cimba', [
                 $scope.userProfile.name = name;
                 $scope.userProfile.picture = pic;
                 $scope.userProfile.storagespace = storage;
+                $scope.users[webid].name = name; //for displaying delete button in posts.tpl.html
+                $scope.users[webid].picture = pic; //resolves issue of not displaying profile picture that the above line creates
 
                 $scope.users[webid].name = name; //for displaying delete button in posts.tpl.html
                 $scope.users[webid].picture = pic; //resolves issue of not displaying profile picture that the above line creates
@@ -354,17 +353,14 @@ angular.module( 'Cimba', [
                         }
           
                         for (var ch in chs) {
-                            var channel = {};
-                            var uri = chs[ch]['subject']['value'];
-                            channel['uri'] = uri;
-                            var safeUri = uri.replace(/^https?:\/\//,'');
-                            channel['safeUri'] = safeUri.replace("/\/", "_");
+                            var channel = {};                            
+                            channel['uri'] = chs[ch]['subject']['value'];
                             var title = g.any(chs[ch]['subject'], DCT('title')).value;
 
                             if (title) {
-                            channel['title'] = title;
+                                channel['title'] = title;
                             } else {
-                            channel['title'] = channeluri;
+                                channel['title'] = channeluri;
                             }
 
                             channel["owner"] = webid;
@@ -375,7 +371,7 @@ angular.module( 'Cimba', [
                             /* uncomment to get posts for any channel (not just my own)
                             // get posts for that channel
                             if (loadposts === true) {
-                            $scope.getPosts(channel.uri, channel.title);
+                                $scope.getPosts(channel.uri, channel.title);
                             }
                             */
 
@@ -468,7 +464,7 @@ angular.module( 'Cimba', [
                 }
             }
         });
-        return $scope.channels;
+        
     };
 
     $scope.getPosts = function(channel, title) {
@@ -485,6 +481,8 @@ angular.module( 'Cimba', [
         var g = $rdf.graph();
 
         var f = $rdf.fetcher(g, TIMEOUT);
+
+        $scope.allPosts[channel] = [];
 
         // add CORS proxy
         $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
@@ -615,3 +613,4 @@ angular.module( 'Cimba', [
         }         
     });
 });
+

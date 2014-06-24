@@ -1,23 +1,21 @@
-angular.module('Cimba.posts',[
-	'ui.router'
+angular.module( 'Cimba.posts', [
+  'ui.router'
 ])
 
 .config(function PostsConfig( $stateProvider ) {
-	$stateProvider.state( 'posts', {
-		url: '/',
-		views: {
-			"main": {
-				controller: 'PostsController',
-				templateUrl: ''
-			}
-		},
-		data:{
-			pageTitle: 'Posts'
-		}
-	});
+  $stateProvider.state( 'posts', {
+    url: '/',
+    views: {
+      "main": {
+        controller: 'PostsController',
+        templateUrl: ''
+      }
+    },
+    data:{ pageTitle: 'Posts' }
+  });
 })
 
-.controller("PostsController", function PostsController( $scope, $http, $location, $sce ) {
+.controller("PostsController", function PostsCtrl( $scope, $http, $location, $sce ) {
 	var webid = $scope.$parent.userProfile.webid;
 	$scope.audience = {};
 	$scope.audience.icon = "fa-globe"; //default value
@@ -130,11 +128,12 @@ angular.module('Cimba.posts',[
 				var postURI = r.getResponseHeader('Location');
 				if (postURI) {
 					_newPost.uri = postURI;
+
 					if (!$scope.allPosts) {
 						$scope.allPosts = {};
 					}
 					else if (!$scope.posts) {
-						$scope.posts = {};
+						$scope.posts = [];
 					}
 					// append post to the local list
 					$scope.allPosts[uri].push(_newPost);
@@ -261,6 +260,7 @@ angular.module('Cimba.posts',[
 					// TODO: TEST THIS AGAIN!!!
 					$scope.removePost(post.uri, channeluri);
 					$scope.$apply();
+
 					// also remove the ACL file
 					var acl = parseLinkHeader(r.getResponseHeader('Link'));
 					var aclURI = acl['acl']['href'];

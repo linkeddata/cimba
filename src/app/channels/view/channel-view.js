@@ -15,9 +15,9 @@ angular.module('Cimba.channels.view', ['ui.router'])
 })
 
 .controller('ChannelViewCtrl', function ChannelViewController($scope, $stateParams, $location, $http) {	
+	
 	$scope.$parent.pageTitle = $stateParams.channelName;
 	$scope.channelUri = $stateParams.channelUri;
-
 	$scope.channelTitle = $stateParams.channelName;	
 
 	//get posts
