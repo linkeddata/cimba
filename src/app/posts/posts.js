@@ -130,11 +130,15 @@ angular.module('Cimba.posts',[
 				var postURI = r.getResponseHeader('Location');
 				if (postURI) {
 					_newPost.uri = postURI;
-					if (!$scope.posts) {
+					if (!$scope.allPosts) {
+						$scope.allPosts = {};
+					}
+					else if (!$scope.posts) {
 						$scope.posts = {};
 					}
 					// append post to the local list
-					$scope.posts[postURI] = _newPost;
+					$scope.allPosts[uri].push(_newPost);
+					$scope.posts.push(_newPost);
 					$scope.users[webid].gotposts = true;
 
 					// set the corresponding acl
@@ -239,8 +243,8 @@ angular.module('Cimba.posts',[
 		});
 	};
 
-	// delete post
-	$scope.deletePost = function (post, refresh) {
+	// delete a single post
+	$scope.deletePost = function (post, channeluri, refresh) {
 		// check if the user matches the post owner
 		if (webid == post.userwebid) {
 			$.ajax({
@@ -254,9 +258,8 @@ angular.module('Cimba.posts',[
 					notify('Success', 'Your post was removed from the server!');
 
 					// TODO: TEST THIS AGAIN!!!
-					$scope.removePost(post.uri);
+					$scope.removePost(post.uri, channeluri);
 					$scope.$apply();
-
 					// also remove the ACL file
 					var acl = parseLinkHeader(r.getResponseHeader('Link'));
 					var aclURI = acl['acl']['href'];
@@ -284,14 +287,21 @@ angular.module('Cimba.posts',[
 		}
 	};
 
-	//remove the post with the given post uri
-	$scope.removePost = function(uri) {
+	//remove the post with the given post uri and channeluri
+	$scope.removePost = function(posturi,channeluri) {
 		var modified = false;
+		if ($scope.allPosts && !isEmpty($scope.allPosts)) {
+			for (var p in $scope.allPosts[channeluri]) {
+				if (posturi && posturi == $scope.allPosts[channeluri][p].uri) {
+					delete $scope.allPosts[channeluri][p];
+					modified = true;
+				}
+			}
+		}
 		if ($scope.posts && !isEmpty($scope.posts)) {
-			for (var p in $scope.posts) {
-				var post = $scope.posts[p];
-				if (uri && uri == post.uri) {
-					delete $scope.posts[p];
+			for (var i in $scope.posts) {
+				if (posturi && posturi == $scope.posts[i].uri) {
+					delete $scope.posts[i];
 					modified = true;
 				}
 			}
@@ -301,12 +311,14 @@ angular.module('Cimba.posts',[
 	// remove all posts from viewer based on the given WebID
 	$scope.removePostsByOwner = function(webid) {
 		var modified = false;
-		if ($scope.posts && !isEmpty($scope.posts)) {
-			for (var p in $scope.posts) {
-				var post = $scope.posts[p];
-				if (webid && webid == post.userwebid) {
-					delete $scope.posts[p];
-					modified = true;
+		if ($scope.allPosts && !isEmpty($scope.allPosts)) {
+			for (var channel in $scope.allPosts) {
+				for (var p in channel) {
+					var post = $scope.channels[p];
+					if (webid && webid == post.userwebid) {
+						delete $scope.allPosts[channel][p];
+						modified = true;
+					}
 				}
 			}
 		}
@@ -315,17 +327,13 @@ angular.module('Cimba.posts',[
 	// remove all posts from viewer based on the given channel URI
 	$scope.removePostsByChannel = function(ch) {
 		var modified = false;
-		if ($scope.posts && !isEmpty($scope.posts)) {
-			for (var p in $scope.posts) {
-				var post = $scope.posts[p];
-				if (ch && ch == post.channel) {
-					delete $scope.posts[p];
-					modified = true;
-				}
+		if ($scope.allPosts && !isEmpty($scope.allPosts)) {
+			for (var p in $scope.allPosts[ch]) {
+				delete $scope.allPosts[ch][p];
+				modified = true;
 			}
 		}
 	};
-
 })
 
 //simple directive to display new post box
