@@ -2,7 +2,7 @@ angular.module('Cimba.posts',[
 	'ui.router'
 ])
 
-.config(function PostsConfig( $stateProvider ) {s
+.config(function PostsConfig( $stateProvider ) {
 	$stateProvider.state( 'posts', {
 		url: '/',
 		views: {
