@@ -261,7 +261,6 @@ angular.module('Cimba.posts',[
 					// TODO: TEST THIS AGAIN!!!
 					$scope.removePost(post.uri, channeluri);
 					$scope.$apply();
-
 					// also remove the ACL file
 					var acl = parseLinkHeader(r.getResponseHeader('Link'));
 					var aclURI = acl['acl']['href'];

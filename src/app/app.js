@@ -95,9 +95,12 @@ angular.module( 'Cimba', [
     $scope.userProfile = {};
     $scope.userProfile.picture = 'assets/generic_photo.png';
     $scope.channels = [];
-    $scope.posts = {};
-    $scope.users = {};  
-    $rootScope.userProfile = $scope.userProfile;
+
+    $scope.allPosts = {};//aggregate list of all posts by channel uri
+    $scope.posts = []; //aggregate list of all posts (flat list)
+    $scope.users = {};   
+
+    $rootScope.userProfile = {};
 
     $scope.login = function () {
         $location.path('/login');
@@ -562,13 +565,17 @@ angular.module( 'Cimba', [
                         $scope.posts = {};
                     }
                     
-                    // filter post by language (only show posts in English or show all)         
+                    // filter post by language (only show posts in English or show all) 
+                    //not implemented yet ^, currently a redundant if/else statement        
                     if ($scope.filterFlag && testIfAllEnglish(_newPost.body)) {
                         // add/overwrite post
-                        $scope.posts[uri] = _newPost;
+                        $scope.allPosts[channel].push(_newPost);
+                        $scope.posts.push(_newPost);
+                        // $scope.posts[uri] = _newPost;                        
                         $scope.$apply();
                     } else {
-                        $scope.posts[uri] = _newPost;
+                        $scope.allPosts[channel].push(_newPost);
+                        $scope.posts.push(_newPost);
                         $scope.$apply();
                     }
 
@@ -586,6 +593,7 @@ angular.module( 'Cimba', [
         });
     };
 })
+
 
 .run( function run ($rootScope, $location) {    
     $rootScope.userProfile = {};
