@@ -299,12 +299,8 @@ angular.module('Cimba.posts',[
 			}
 		}
 		if ($scope.posts && !isEmpty($scope.posts)) {
-			for (var i in $scope.posts) {
-				if (posturi && posturi == $scope.posts[i].uri) {
-					delete $scope.posts[i];
-					modified = true;
-				}
-			}
+			delete $scope.posts[posturi];
+			modified = true;
 		}
 	};
 
@@ -324,6 +320,7 @@ angular.module('Cimba.posts',[
 		}
 	};
 
+	/*
 	// remove all posts from viewer based on the given channel URI
 	$scope.removePostsByChannel = function(ch) {
 		var modified = false;
@@ -333,7 +330,7 @@ angular.module('Cimba.posts',[
 				modified = true;
 			}
 		}
-	};
+	};*/
 })
 
 //simple directive to display new post box
