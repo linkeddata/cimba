@@ -13,13 +13,12 @@
 
     <!-- favicon -->
     <link rel="shortcut icon" type="img/png" href="assets/cimba-logo.png">
-    
-    <script type='text/javascript' src="http://momentjs.com/downloads/moment.min.js"></script>
-    <!-- compiled JavaScript --><% scripts.forEach( function ( file ) { %>
 
+    <!-- compiled JavaScript --><% scripts.forEach( function ( file ) { %>
     <script type='text/javascript' src="http://momentjs.com/downloads/moment.min.js"></script>
     <script type='text/javascript' src="src/dep/common.js"></script>
     <!-- // <script type='text/javascript' src="src/dep/notify.js"></script> -->
+
 
     <script type="text/javascript" src="<%= file %>"></script><% }); %>
   </head>
@@ -103,9 +102,11 @@
       </div>
     </div>
 
-    <div ui-view="main" class="main"></div>
+    <div ui-view="main" class="main" ng-click = 'hideMenu()'></div>
 
-    <footer class="footer">
+    <header ng-click='hideMenu()'></header>
+
+    <footer class="footer" ng-click = 'hideMenu()'>
       <div class="container">
         <div class="footer-inner">
           <p>
@@ -115,5 +116,4 @@
       </div>
     </footer>
   </body>
-
 </html>

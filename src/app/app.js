@@ -105,6 +105,9 @@ angular.module( 'Cimba', [
         $location.path('/login');
     };
 
+    $scope.hideMenu = function(){
+      $scope.showMenu = false;
+    };
     $scope.logout = function () {
         // Logout WebID (only works in Firefox and IE)
         if (document.all == null) {
