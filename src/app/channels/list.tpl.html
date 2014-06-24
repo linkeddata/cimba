@@ -1,26 +1,13 @@
-<div ng-click="hideMenu()">
-	<div class = "panel-body" overflow='auto'>
-        <ul style='list-style-type:none;'>
-	        <h1> Channels </h1>
-	        <li ng-repeat="channel in channels">
-		        <a href = "{{channel.uri}}">
-		        	<button class='btn btn-primary'>
-		        	    {{channel.title}}
-		            </button>
-		        </a>
-	        </li>
-        </ul>
-    </div>
-    <a href ui-sref="manage">
-		<button class="btn btn-primary btn-sep-right">
-	  		<i class="fa fa-wrench fa">Manage Channels</i>
-		</button>
-	</a>
-	<button class="btn btn-primary btn-sep-right" ng-click="newChannelModal=true">
-		<i class="fa fa-plus"></i> 
-		New channel
-	</button>
+<div >
+	<h1 align='center'> 
+		Channels
+		<button class='fa fa-plus pull-right' ng-click="newChannelModal=!newChannelModal" title="New Channel">
 
+		</button> 
+		<a href ui-sref="manage">
+			<button class='fa fa-wrench pull-right' title='Manage Channels'></button>
+		</a>
+	</h1>
 
     <div ng-show="newChannelModal">
       <div>
@@ -28,39 +15,48 @@
           <h2 class="text-center">Create a new channel</h2>
       </div>
       <div>
-          <form class="m10" ng-controller = "ChannelsCtrl">
-          <p>The name you provide will be used to create a new channel inside your microblog.</p>
-          <p><input type="text" ng-model="ChannelsCtrl.channelname" class="form-control" placeholder="Name (Main, Work, etc.).." required ng-pattern="/^[A-Za-z0-9_ ]*$/"></p> 
-          <script type="text/javascript">console.log(channelname)</script>
-          <div class="btn-group">
-              <button id="audience" class="btn btn-primary" disabled><i class="fa fa-group fa-2x white"></i></button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop" rel="tooltip" data-placement="top" title="Audience"><i class="fa fa-chevron-down fa-2x"></i></small></button>
-              <ul class="dropdown-menu" role="menu" aria-labelledby="audience">
-                  <li ng-click="setAudience('public')">
-                  	<a href="#">
-                  		<i id="public" class="fa fa-globe fa-2x blue"></i> 
-                  		Public
-                  	</a>
-                  </li>
-                  <li ng-click="setAudience('private')">
-                  	<a href="#">
-                  		&nbsp;
-                  		<i id="private" class="fa fa-lock fa-2x blue"></i>
-                  		&nbsp; Private
-                  	</a>
-                  </li>
-              </ul>
-          </div>                
+          <form ng-controller = "ChannelsCtrl">
+	          <p>The name you provide will be used to create a new channel inside your microblog.</p>
+	          <p><input type="text" ng-model="channelname" placeholder="Name (Main, Work, etc.).." required ng-pattern="/^[A-Za-z0-9_ ]*$/"></input></p> 
+	          <div class="btn-group">
+	              <button id="audience" class="btn btn-primary" disabled><i class="fa fa-group fa-2x white"></i></button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop" rel="tooltip" data-placement="top" title="Audience"><i class="fa fa-chevron-down fa-2x"></i></small></button>
+	              <ul class="dropdown-menu" role="menu" aria-labelledby="audience">
+	                  <li ng-click="setAudience('public')">
+	                  	<a href="#">
+	                  		<i id="public" class="fa fa-globe fa-2x blue"></i> 
+	                  		Public
+	                  	</a>
+	                  </li>
+	                  <li ng-click="setAudience('private')">
+	                  	<a href="#">
+	                  		&nbsp;
+	                  		<i id="private" class="fa fa-lock fa-2x blue"></i>
+	                  		&nbsp; Private
+	                  	</a>
+	                  </li>
+	              </ul>
+	          </div>
+	      	  <div class="col-md-12">
+	              <button class="btn btn-primary" ng-click="newChannel(channelname)">
+	              	Create
+	              </button>
+	              <button class="btn btn-info btn-sep-right" ng-click="newChannelModal=false">
+	              	Close
+	              </button>
+	          </div>                
           </form>
       </div>
-      <div>
-      	<div class="col-md-12">
-              <button class="btn btn-primary" ng-click="newChannel()" ng-disabled="!channelname">
-              	Create
-              </button>
-              <button class="btn btn-info btn-sep-right" ng-click="newChannelModal=false">
-              	Close
-              </button>
-          </div> 
-      </div> 
-  </div>
+    </div>
+
+	<div class = "panel-body" overflow='auto' align='center'>
+        <ul style='list-style-type:none;'>
+	        <li ng-repeat="channel in channelKeys">
+		        <a href = "{{channel.uri}}">
+		        	<button class='btn btn-primary'>
+		        	    {{channel.title}}
+		            </button>
+		        </a>
+		    </li>
+        </ul>
+    </div>
 </div>

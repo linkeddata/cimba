@@ -43,5 +43,9 @@ angular.module( 'Cimba.home', [
     $scope.$parent.showMenu = false;
   };
 
-
+  if ($scope.$parent.userProfile.storagespace !== undefined) {
+        var storage = $scope.$parent.userProfile.storagespace;
+        var webid = $scope.$parent.userProfile.webid;
+        $scope.$parent.getChannels(storage, webid, true, false, true); //get channels and posts
+  }
  });

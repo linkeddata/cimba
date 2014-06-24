@@ -1,10 +1,13 @@
 angular.module('Cimba.channels',[
     'ui.router',
+    'Cimba.channels.view',
+    'Cimba.channels.viewPost',
     'Cimba.channels.manage'
     ])
 
 .config(function ChannelsConfig($stateProvider){
-    $stateProvider.state('list', {
+    $stateProvider
+    .state('channels', {
         url:'/channels',
         views:{
             'main':{
@@ -13,35 +16,34 @@ angular.module('Cimba.channels',[
             }
         },
         data:{
-            pageTitle:'channels'
+            pageTitle:'Channels'
         }
     });
 })
 
 .controller('ChannelsCtrl', function ChannelsController($scope, $http, $location, $sce){
-    $scope.channels = {};
-    if ($scope.$parent.userProfile.storagespace !== undefined) {
+    $scope.channelKeys = [];
+    if ($scope.$parent.userProfile.storagespace !== undefined) {        
         $scope.$parent.loading = true;
         var storage = $scope.$parent.userProfile.storagespace;
         var webid = $scope.$parent.userProfile.webid;
 
-        $scope.channels = $scope.$parent.getChannels(storage, webid, true, false);
+        $scope.channelKeys = $scope.$parent.getChannels(storage, webid, true, false, false);
 
     } else {
         $scope.$parent.gotstorage = false;
     }
     $scope.$parent.loading = false;
-    $scope.channelname = 'Family';
+    
 
-    newChannel = function(){
-
+    $scope.newChannel = function(channelname){
         $scope.loading = true;
         $scope.createbtn = 'Creating...';
         var title = 'ch';
         var churi = 'ch';
         
 
-        if ($scope.channelname && testIfAllEnglish($scope.channelname)) {
+        if ($scope.channelname !== undefined && testIfAllEnglish($scope.channelname)) {
             console.log("test");
             // remove white spaces and force lowercase
             title = $scope.channelname;
@@ -51,7 +53,7 @@ angular.module('Cimba.channels',[
 
         $.ajax({
             type: "POST",
-            url: $scope.me.mbspace,
+            url: $scope.users[webid].mbspace,
             processData: false,
             contentType: 'text/turtle',
             headers: {
@@ -141,10 +143,8 @@ angular.module('Cimba.channels',[
                                 notify('Success', 'Your new "'+title+'" channel was succesfully created!');
                                 // clear form
                                 $scope.channelname = '';
-                                // close modal
-                                $('#newChannelModal').modal('hide');
                                 // reload user profile when done
-                                $scope.getInfo($scope.me.webid, true);
+                                $scope.getInfo($scope.users[webid], true);
                             }
                         });
                     }

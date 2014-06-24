@@ -70,7 +70,6 @@ module.exports = {
       'vendor/ngProgress/ngProgress.min.js',
       'vendor/jquery/dist/jquery.min.js',
       'vendor/rdflib.js/rdflib.js',
-      'vendor/jquery-ui/jquery-ui.js'      
     ],
     css: [
       'vendor/ngProgress/ngProgress.less',
