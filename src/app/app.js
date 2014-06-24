@@ -565,6 +565,10 @@ angular.module( 'Cimba', [
                     if (!$scope.posts) {
                         $scope.posts = {};
                     }
+
+                    if (!$scope.allPosts[channel]) {
+                        $scope.allPosts[channel] =  [];
+                    }
                     
                     // filter post by language (only show posts in English or show all) 
                     //not implemented yet ^, currently a redundant if/else statement        
