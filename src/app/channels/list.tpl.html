@@ -1,15 +1,14 @@
-<div >
-	<h1 align='center'> 
-		Channels
+<div class:'tintedOverlay'>
+	<h1> 
 		<button class='fa fa-plus pull-right' ng-click="newChannelModal=!newChannelModal" title="New Channel">
-
 		</button> 
 		<a href ui-sref="manage">
 			<button class='fa fa-wrench pull-right' title='Manage Channels'></button>
 		</a>
+		<div class="center">Channels</div>
 	</h1>
 
-    <div ng-show="newChannelModal">
+    <div ng-show="newChannelModal" class="popup">
       <div>
           <button type="button" class="close" ng-click="newChannelModal=false">X</button>
           <h2 class="text-center">Create a new channel</h2>
@@ -52,7 +51,7 @@
         <ul style='list-style-type:none;'>
 	        <li ng-repeat="channel in channelKeys">
 		        <a href = "{{channel.uri}}">
-		        	<button class='btn btn-primary'>
+		        	<button class='btn btn-chan'>
 		        	    {{channel.title}}
 		            </button>
 		        </a>
