@@ -153,7 +153,7 @@ angular.module( 'Cimba', [
                 }
                 // load from PDS (follows)
                 if ($scope.userProfile.mbspace && (!$scope.users || $scope.users.length === 0)) {
-                    //$scope.getUsers();
+                    $scope.getUsers();
                 }
                 // refresh data
                 $scope.getInfo(cimba.userProfile.webid, true);                
@@ -258,11 +258,11 @@ angular.module( 'Cimba', [
 
             };
 
-            /*
             // add to search object if it was the object of a search
             if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
-                $scope.search = _user;
-            }*/
+                $scope.search.name = name;
+                $scope.search.picture = pic;
+            }
 
             $scope.users[webid] = {};
             $scope.users[webid].mine = mine;
@@ -343,11 +343,26 @@ angular.module( 'Cimba', [
         f.nowOrWhenFetched(uri,undefined,function(){
             // find all SIOC:Container
             var ws = g.statementsMatching(undefined, RDF('type'), SIOC('Space'));
+
             if (ws.length > 0) {
                 // set a default Microblog workspace
-                if (mine) {
+                if (mine && !$scope.users[webid].mbspace) {
                     // set default Microblog space
+                    console.log("ws start"); //debug
+                    console.log(ws); //debug
+                    console.log(ws[0]); //debug
+                    console.log(ws[0]['subject']); //debug
+                    console.log(ws[0]['subject']['value']); //debug
+                    console.log("mbspace in getChannels"); //debug
                     $scope.users[webid].mbspace = ws[0]['subject']['value'];
+                    console.log($scope.users[webid].mbspace); //debug
+                    console.log("webid: " + webid); //debug
+                    console.log("$scope.users[webid]"); //debug
+                    console.log($scope.users[webid]); //debug
+                    console.log("ws end"); //debug
+                    $scope.getUsers(true); // get the list of people I'm following + channels + posts
+                    console.log("$scope.users[webid"); //debug
+                    console.log($scope.users[webid]); //debug
                 }
 
                 var func = function() {
@@ -676,6 +691,15 @@ angular.module( 'Cimba', [
         var channels = []; // temporary channel list (will load posts from them once this is done)
         var followURI = ''; // uri of the preferences file
         var mywebid = $scope.userProfile.webid;
+
+        console.log("start saveUsers"); //debug
+        console.log("webid: " + mywebid); //debug
+        console.log($scope.users[mywebid]); //debug
+        console.log("mbspace"); //debug
+        console.log($scope.users[mywebid].mbspace); //debug
+        console.log($scope.users[mywebid].mbspace.length); //debug
+        console.log("end saveUsers"); //debug
+
         if ($scope.users[mywebid].mbspace && $scope.users[mywebid].mbspace.length > 1) {
             followURI = $scope.users[mywebid].mbspace+'following';
         }
@@ -685,47 +709,69 @@ angular.module( 'Cimba', [
         var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
         var g = $rdf.graph();
 
+
+        //debug
+        console.log("Follow uri: "+followURI);
         // set triples
         g.add($rdf.sym(followURI), RDF('type'), SIOC('Usergroup'));        
         g.add($rdf.sym(followURI), DCT('created'), $rdf.lit(Date.now(), '', $rdf.Symbol.prototype.XSDdateTime));
         // add users
-        var i=0;        
+        var i=0;
+        console.log("here"); //debug
+        console.log("$scope.users"); //debug
+        console.log($scope.users); //debug
         for (var key in $scope.users) {
             var user = $scope.users[key];
-            var uid = '#user_'+i;
+            console.log("var user: " + key); //debug
+            console.log(user); //debug
+            var uid = followURI+'#user_'+i;
             // add hash id to main graph
             g.add($rdf.sym(followURI), SIOC('has_member'), $rdf.sym(uid));
-
             g.add($rdf.sym(uid), RDF('type'), SIOC('UserAccount'));
-            g.add($rdf.sym(uid), SIOC('account_of'), $rdf.sym(user.webid));
+            g.add($rdf.sym(uid), SIOC('account_of'), $rdf.sym(key));
             g.add($rdf.sym(uid), SIOC('name'), $rdf.lit(user.name));
-            g.add($rdf.sym(uid), SIOC('avatar'), $rdf.sym(user.pic));
+
+            if (user.pic) {
+                g.add($rdf.sym(uid), SIOC('avatar'), $rdf.sym(user.pic));
+            }
+            console.log("here 2"); //debug
             // add each channel
             if (user.channels) {
                 for (var j=0;j<user.channels.length;j++) {
+                    console.log("here 3"); //debug
                     var ch = user.channels[j];
-                    var ch_id = '#channel_'+i+'_'+j;
+                    var ch_id = followURI+'#channel_'+i+'_'+j;
                     // add the channel uri to the list
                     channels.push(ch.uri);
-
+                    console.log("here 4"); //debug
                     // add the channel reference back to the user
                     g.add($rdf.sym(uid), SIOC('feed'), $rdf.sym(ch_id));
                     // add channel details
                     g.add($rdf.sym(ch_id), RDF('type'), SIOC('Container'));
                     g.add($rdf.sym(ch_id), SIOC('link'), $rdf.sym(ch.uri));
                     g.add($rdf.sym(ch_id), DCT('title'), $rdf.lit(ch.title));
+                    console.log("here 5"); //debug
                     // add my WebID if I'm subscribed to this channel
                     if (ch.action == 'Unsubscribe') {
+                        console.log("here 5.5"); //debug
                         g.add($rdf.sym(ch_id), SIOC('has_subscriber'), $rdf.sym(mywebid));
                     }
                 }
             }
             i++;
+            console.log("here 5.75"); //debug
         }
         // serialize graph
+        console.log("here 5.9"); //debug
+        console.log(g); //debug
+        var t = new $rdf.Serializer(g); //debug
+        console.log(g.toString()); //debug
+        console.log(t.toN3(g)); //debug
         var s = new $rdf.Serializer(g).toN3(g);
+        console.log("here 6"); //debug
         // PUT the new file on the PDS
         if (s.length > 0) {
+            console.log("here 7"); //debug
             $.ajax({
                 type: "PUT",
                 url: followURI,
@@ -759,11 +805,80 @@ angular.module( 'Cimba', [
                 success: function(d,s,r) {
                     console.log('Success! Your channel subscription has been updated.');
                     notify('Success', 'Your user and channel subscription has been updated!');
+                    //$scope.updatePosts();//testing
                 }
             });
         }
     };
 
+    // get list of users (that I'm following) + their channels
+    // optionally load posts
+    $scope.getUsers = function (loadposts) {
+        if ($scope.users[$scope.userProfile.webid].mbspace && $scope.users[$scope.userProfile.webid].mbspace.length > 1) {
+            var followURI = $scope.users[$scope.userProfile.webid].mbspace+'following';
+    
+            var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+            var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
+            var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
+            var g = $rdf.graph();
+            var f = $rdf.fetcher(g, TIMEOUT);
+            // add CORS proxy
+            $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
+
+            // fetch user data
+            f.nowOrWhenFetched(followURI,undefined,function(ok, body){
+                var users = g.statementsMatching(undefined, RDF('type'), SIOC('UserAccount'));
+
+                if (users.length > 0) {
+                    for (var i in users) {
+                        var u = users[i]['subject'];
+                        var _user = {};
+                        _user.webid = g.any(u, SIOC('account_of')).value;
+                        _user.name = (g.any(u, SIOC('name')))?g.any(u, SIOC('name')).value:'';
+                        _user.picture = (g.any(u, SIOC('avatar')))?g.any(u, SIOC('avatar')).value:'assets/generic_photo.png';
+                        _user.channels = [];
+                        // add channels
+                        var channels = g.statementsMatching(u, SIOC('feed'), undefined);
+                        if (channels.length > 0) {
+                            for (var j in channels) {
+                                var ch = channels[j]['object'];
+                                var _channel = {};
+                                _channel.uri = g.any(ch, SIOC('link')).value;
+                                _channel.title = (g.any(ch, DCT('title')))?g.any(ch, DCT('title')).value:'Untitled';
+                                if (g.any(ch, SIOC('has_subscriber'))) {
+                                // subscribed
+                                    _channel.action = 'Unsubscribe';
+                                    _channel.button = ch.button = 'fa-check-square-o';
+                                    _channel.css = ch.css = 'btn-success';
+                                    // also load the posts for this channel
+                                    if (loadposts && _channel.uri) {
+                                        $scope.getPosts(_channel.uri, _channel.title);
+                                    }
+                                } else {
+                                    _channel.action = ch.action = 'Subscribe';
+                                    _channel.button = ch.button = 'fa-square-o';
+                                    _channel.css = ch.css = 'btn-primary';
+                                }
+                                // add channel to user objects
+                                _user.channels.push(_channel);
+                            }
+                        }
+                        // add user
+                        if (!$scope.users) {
+                            $scope.users = {};
+                        }
+                        if (_user.webid !== $scope.userProfile.webid) { //do not overwrite our own user
+                            //(change later to append because we need to know if we're subscribed or not to our own channel)
+                            $scope.users[_user.webid] = _user;                          
+                            $scope.$apply();
+                        }
+                    }
+                }
+            });
+        }
+    };
+
+    //TODO (not functional yet)
     // remove all posts from viewer based on the given channel URI
     $scope.removePostsByChannel = function(ch) {
 
@@ -771,6 +886,7 @@ angular.module( 'Cimba', [
         for (var p in $scope.posts) {
             if (ch && $scope.posts[p].channel === ch) {
                 delete $scope.posts[p];
+                modified = true;
             }
         }
 

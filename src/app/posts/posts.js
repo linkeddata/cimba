@@ -75,7 +75,10 @@ angular.module('Cimba.posts',[
 		g.add($rdf.sym('#author'), SIOC('avatar'), $rdf.sym($scope.userProfile.picture));
 		g.add($rdf.sym('#author'), FOAF('name'), $rdf.lit($scope.userProfile.name));
 
+		console.log(g); //debug
+		console.log(new $rdf.Serializer(g)); //debug
 		var s = new $rdf.Serializer(g).toN3(g);
+		console.log(s); //debug
 		var uri = $scope.defaultChannel.uri;
 		var title = $scope.defaultChannel.title;
 		
