@@ -3,7 +3,7 @@ angular.module('Cimba.channels.view', ['ui.router'])
 
 .config(function ChannelsConfig($stateProvider) {
 	$stateProvider.state('view', {
-		url: '/channels/view/{channelName}?channelUri', 
+		url: '/channels/view/*path', 
 		views: {
 			'main': {
 				controller: 'ChannelViewCtrl',	
@@ -15,13 +15,27 @@ angular.module('Cimba.channels.view', ['ui.router'])
 })
 
 .controller('ChannelViewCtrl', function ChannelViewController($scope, $stateParams, $location, $http) {	
+	$scope.path = $stateParams.path;
+	$scope.channel = {};
 	
-	$scope.$parent.pageTitle = $stateParams.channelName;
-	$scope.channelUri = $stateParams.channelUri;
-	$scope.channelTitle = $stateParams.channelName;	
+	for (var chan in $scope.$parent.channels) {
+		var ch = $scope.$parent.channels[chan];		
+		if (ch.safeUri === $scope.path) {
+			console.log("found safeUri");
+			$scope.channel = ch;
+		}
+	}
 
-	//get posts
-	$scope.$parent.getPosts($scope.channelUri, $scope.channelName);
+	if (!isEmpty($scope.channel)) {
+		console.log($scope.channel);
+		$scope.$parent.pageTitle = $scope.channel.title;
+		$scope.channelUri = $scope.channel.uri;
+		$scope.channelTitle = $scope.channel.title;	
+
+		//get posts
+		$scope.$parent.getPosts($scope.channel.uri, $scope.channel.title);
+		// console.log($scope.$parent.channels[$scope.channel.uri]);
+	}
 
 	// $location.url($location.path());
 })

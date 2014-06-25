@@ -41,7 +41,16 @@ h4 {
 .btn,.form-control,.panel,.list-group,.well {border-radius:3px;box-shadow:0 0 0;}
 .form-control {border-color:#d7d7d7;height:43px!important;}
 .btn-primary {border-color:transparent;}
-.btn-primary,.label-primary,.list-group-item.active, .list-group-item.active:hover, .list-group-item.active:focus {background-color:#4285f4;}
+.btn-primary,.label-primary,.list-group-item.active, .list-group-item.active:hover, .list-group-item.active:focus {
+/*background-color:#4285f4;*/
+  background-color: #FF3C1F;
+  border-color: #FF5140;
+}
+
+.btn-primary[disabled] {
+  background-color: #FF5140;
+  border-color: #FF5140;
+}
 .btn-plus {background-color:#ffffff;border-width:1px;border-color:#dddddd;box-shadow:1px 1px 0 #999999;border-radius:3px;color:#666666;text-shadow:0 0 1px #bbbbbb;}
 .btn-chan{
   background-color:#E4602D;
@@ -506,8 +515,8 @@ iframe {border:0px;}
   position: fixed;
   top: 25%;
   left: 25%;
-  width: 50%;
-  height: 50%;
+  min-width: 50%;
+  min-height: 50%;
   padding: 15px;
   background-color: #FFFFFF;
   z-index: 1002;
@@ -523,4 +532,8 @@ iframe {border:0px;}
   background-color: #333333;
   z-index: 1001;
   opacity:.8;
+}
+
+.default-color {
+  color: #FF3C1F;
 }

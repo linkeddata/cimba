@@ -18,6 +18,7 @@ angular.module('Cimba.find',[
 })
 
 .controller('FindController', function FindController($scope, $http, $location, $sce){
+    $scope.search = $scope.$parent.search;
     $scope.hideMenu = function() {
         $scope.$parent.showMenu = false;
     };

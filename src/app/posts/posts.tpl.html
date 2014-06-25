@@ -1,6 +1,20 @@
 <div ng-animate="{enter: 'animate'}" class="panel panel-default" custom ng-repeat="post in posts | orderBy:'date':true" | unique:'uri'>
     <div class="panel-heading light-blue">
-        <a href="{{post.uri}}" class="link-post pull-right" target="_blank"><i class="fa fa-link"></i> Link to post</a>
+
+        <form class="pull-right post-options-group">
+            <div class="input-group">
+                <div class="input-group-btn pull-left">
+                    <button class="btn btn-success" rel="tooltip" data-placement="top" title="Read full message">More</button>
+                    <button class="btn btn-default" rel="tooltip" data-placement="top" title="Star message" ng-click="starPost()"><i class="fa fa-star fa-2x"></i></button>
+                    <button class="btn btn-default" data-placement="top" title="Delete message" ng-click="deletePost(post, post.channel, true)" ng-show="userProfile.webid == post.userwebid"><i class="fa fa-trash-o fa-2x"></i></button>
+                    <a href="{{post.uri}}">
+                        <button class="btn btn-default" data-placement="top" title="Link to post"><i class="fa fa-link fa-2x"></i></button>
+                    </a>
+                </div>
+            </div>
+        </form>
+
+      <!--   <a href="{{post.uri}}" class="link-post pull-right" target="_blank"><i class="fa fa-link"></i> Link to post</a> -->
         <h4>
         	<span class="pull-left" rel="tooltip" data-placement="top" title="{{post.date}}">{{post.date | fromNow}}</span><div class="pull-left">&nbsp;by <a href="{{post.userwebid}}" class="link-white bold" target="_blank">{{post.username}}</a> </div>
         	<br style="line-height:150%"/>
@@ -18,18 +32,7 @@
             <p>
                 <pre ng-bind-html="post.body | makeLinks"></pre>
             </p>
-        </div>
-        <hr>
-        <form>
-            <div class="input-group">
-                <div class="input-group-btn pull-left">
-                    <button class="btn btn-success" rel="tooltip" data-placement="top" title="Read full message">More</button>
-                    <button class="btn btn-default" rel="tooltip" data-placement="top" title="Star message" ng-click="starPost()"><i class="fa fa-star fa-2x"></i></button>
-                    <button class="btn btn-default" data-placement="top" title="Delete message" ng-click="deletePost(post, post.channel, true)" ng-show="userProfile.webid == post.userwebid"><i class="fa fa-trash-o fa-2x"></i></button>
-
-                </div>
-            </div>
-        </form>
+        </div>        
     </div>
     <!-- user info modal -->
     <div id="{{post.$$hashKey}}" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
@@ -53,7 +56,7 @@
                   <div class="col-md-12">
                       <button class="btn btn-info btn-sep-right" data-dismiss="modal" aria-hidden="true">Close</button>
                   </div>  
-                </div>       
+              </div>
             </div>
         </div>
     </div>
