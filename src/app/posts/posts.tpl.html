@@ -1,5 +1,5 @@
-<div ng-animate="{enter: 'animate'}" class="panel panel-default" custom ng-repeat="post in posts | orderBy:'date':true" | unique:'uri'>
-    <div class="panel-heading light-blue">
+<div ng-animate="{enter: 'animate'}" class="panel panel-default" custom ng-repeat="post in posts | orderBy:'date':true | unique:'uri'">
+    <div class="panel-heading light-red">
 
         <form class="pull-right post-options-group">
             <div class="input-group">
@@ -13,8 +13,6 @@
                 </div>
             </div>
         </form>
-
-      <!--   <a href="{{post.uri}}" class="link-post pull-right" target="_blank"><i class="fa fa-link"></i> Link to post</a> -->
         <h4>
         	<span class="pull-left" rel="tooltip" data-placement="top" title="{{post.date}}">{{post.date | fromNow}}</span><div class="pull-left">&nbsp;by <a href="{{post.userwebid}}" class="link-white bold" target="_blank">{{post.username}}</a> </div>
         	<br style="line-height:150%"/>
