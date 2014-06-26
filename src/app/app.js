@@ -453,7 +453,7 @@ angular.module( 'Cimba', [
 
                     // if we were called by search
                     if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
-                        $scope.search.channels = $scope.channels;
+                        $scope.search.channels = $scope.users[$scope.search.webid].channels;
                         $scope.drawSearchResults();
                         $scope.searchbtn = 'Search';
                         $scope.search.loading = false;
@@ -695,6 +695,12 @@ angular.module( 'Cimba', [
         var mywebid = $scope.userProfile.webid;
 
         console.log("start saveUsers"); //debug
+        console.log("list of users"); //debug
+        for (var k in $scope.users) {
+            console.log("key: " + k); //debug
+            console.log("$scope.users[key]"); //debug
+            console.log($scope.users[k]); //debug
+        }
         console.log("webid: " + mywebid); //debug
         console.log($scope.users[mywebid]); //debug
         console.log("mbspace"); //debug
@@ -742,6 +748,8 @@ angular.module( 'Cimba', [
                 for (var j=0;j<user.channels.length;j++) {
                     console.log("here 3"); //debug
                     var ch = user.channels[j];
+                    console.log("ch in saveUsers is"); //debug
+                    console.log(ch); //debug
                     var ch_id = followURI+'#channel_'+i+'_'+j;
                     // add the channel uri to the list
                     channels.push(ch.uri);
@@ -753,6 +761,7 @@ angular.module( 'Cimba', [
                     g.add($rdf.sym(ch_id), SIOC('link'), $rdf.sym(ch.uri));
                     g.add($rdf.sym(ch_id), DCT('title'), $rdf.lit(ch.title));
                     console.log("here 5"); //debug
+                    console.log("ch.action is " + ch.action); //debug
                     // add my WebID if I'm subscribed to this channel
                     if (ch.action == 'Unsubscribe') {
                         console.log("here 5.5"); //debug
@@ -920,46 +929,77 @@ angular.module( 'Cimba', [
     };
 
     // toggle selected channel for user
-    $scope.channelToggle = function(ch, user) {
+    $scope.channelToggle = function(ch, suser) {
+        console.log("ch in channelToggle is"); //debug
+        console.log(ch); //debug
+        var user = {};
+        if (suser.webid === $scope.userProfile.webid) {
+            user.mine = true;
+        }
+        else {
+            user.mine = false;
+        }
+        user.name = suser.name;
+        user.picture = suser.picture;
+        user.channels = suser.channels;
+
         // we're following this user
-        if ($scope.users && $scope.users[user.webid]) {
-            var channels = $scope.users[user.webid].channels;
+        if ($scope.users && $scope.users[suser.webid]) {
+            console.log("following user"); //debug
+            var channels = $scope.users[suser.webid].channels;
             var idx = findWithAttr(channels, 'uri', ch.uri);
             // already have the channel
             if (idx !== undefined) {
+                console.log("already have channels"); //debug
                 var c = channels[idx];
                 // unsubscribe
                 if (c.action == 'Unsubscribe') {
+                    console.log("currently subscribed, unsubscribing"); //debug
                     c.action = ch.action = 'Subscribe';
+                    console.log("c.action is now " + c.action); //debug
                     c.button = ch.button = 'fa-square-o';
                     c.css = ch.css = 'btn-info';
                     $scope.removePostsByChannel(ch.uri);
                 } else {
                 // subscribe
+                    console.log("currently unsubscribed, subscribing"); //debug
                     c.action = ch.action = 'Unsubscribe';
+                    console.log("c.action is now " + c.action); //debu
                     c.button = ch.button = 'fa-check-square-o';
                     c.css = ch.css = 'btn-success';
                     $scope.getPosts(ch.uri, ch.title);
                 }
             } else {
+                console.log("don't have channels, subscribe"); //debug
                 // subscribe
                 ch.action = 'Unsubscribe';
+                console.log("ch.action is now " + ch.action); //debu
                 ch.button = 'fa-check-square-o';
                 ch.css = 'btn-success';
                 $scope.getPosts(ch.uri, ch.title);
             }
             // also update the users list in case there is a new channel
-            $scope.users[user.webid] = user;
+            console.log("setting user: " + suser.webid + "in $scope.users[user.webid]"); //debug
+            console.log($scope.users[suser.webid]); //debug
+            console.log("to"); //debug
+            console.log(user); //debug
+            $scope.users[suser.webid] = user;
             $scope.saveUsers();
         } else {
+            console.log("isn't following user, subscribe"); //debug
             // subscribe (also add user + channels)
             ch.action = 'Unsubscribe';
+            console.log("ch.action is now " + ch.action); //debu
             ch.button = 'fa-check-square-o';
             ch.css = 'btn-success';         
             if (!$scope.users) {
                 $scope.users = {};
             }
-            $scope.users[user.webid] = user;
+            console.log("setting user: " + suser.webid + " in $scope.users[user.webid]"); //debug
+            console.log($scope.users[suser.webid]); //debug
+            console.log("to"); //debug
+            console.log(user); //debug
+            $scope.users[suser.webid] = user;
             $scope.saveUsers();
             $scope.getPosts(ch.uri, ch.title);
         }
