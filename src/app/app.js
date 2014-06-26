@@ -91,12 +91,12 @@ angular.module( 'Cimba', [
 .controller( 'MainCtrl', function MainCtrl ($scope, $rootScope, $location, $timeout, ngProgress, $http ) {
     // Some default values
     $scope.appuri = window.location.hostname+window.location.pathname;
+    $scope.users={};
     $scope.loginSuccess = false;
     $scope.userProfile = {};
     $scope.userProfile.picture = 'assets/generic_photo.png';
     $scope.channels = {};
     $scope.posts = {}; //aggregate list of all posts (flat list)
-    $scope.users = {};
     $scope.search = {}; 
 
     $rootScope.userProfile = {};
@@ -348,6 +348,9 @@ angular.module( 'Cimba', [
 
             if (ws.length > 0) {
                 // set a default Microblog workspace
+                if(!$scope.users[webid]){
+                  $scope.users[webid] = {};
+                }
                 if (mine && !$scope.users[webid].mbspace) {
                     // set default Microblog space
                     console.log("ws start"); //debug
@@ -390,7 +393,8 @@ angular.module( 'Cimba', [
                                 channel['title'] = channeluri;
                             }
 
-                            channel["owner"] = webid;
+                            channel["webid"] = webid;
+                            channel['author'] = $scope.users[webid].name;
                         
                             // add channel to the list
                             $scope.channels[channel.uri] = channel;

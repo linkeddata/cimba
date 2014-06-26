@@ -1,7 +1,7 @@
 <div class="overlay" ng-show="showOverlay" ng-click="showOverlay=false; newChannelModal=false"></div>
 <div>
 	<div> 
-		<button class='fa fa-plus channel-menu-btn btn-primary pull-right' ng-click="newChannelModal=!newChannelModal; showOverlay=true" id="new-channel-button" title="New Channel"></button> 
+		<button class='fa fa-plus channel-menu-btn btn-primary pull-right' ng-click="newChannelModal=!newChannelModal; showOverlay=!showOverlay" id="new-channel-button" title="New Channel"></button> 
 		<a href ui-sref="manage">
 			<button class='fa fa-wrench channel-menu-btn btn-primary pull-right' title='Manage Channels' disabled></button>
 		</a>
@@ -58,7 +58,7 @@
 		    </div>
 		    <div class="panel-body">
 		        <div class="chan-panel-body-text" align="left">
-		            <a href="{{channel.owner}}">{{channel.owner}}</a>
+		            <a href="{{channel.webid}}">{{channel.author}}</a>
 		        </div>		        
 		    </div>
 	    </div>
