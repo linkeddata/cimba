@@ -50,10 +50,12 @@ h1{
   border-color: #FF5140;
 }
 
-.btn-primary[disabled] {
+.btn-primary[disabled], .btn-primary[disabled]:hover {
   background-color: #FF5140;
   border-color: #FF5140;
 }
+
+
 .btn-plus {background-color:#ffffff;border-width:1px;border-color:#dddddd;box-shadow:1px 1px 0 #999999;border-radius:3px;color:#666666;text-shadow:0 0 1px #bbbbbb;}
 .btn-chan{
   background-color:#FF9900;
@@ -562,11 +564,23 @@ iframe {border:0px;}
   color: #FF3C1F;
 }
 
-.channel-list-item {
-  width: 50%;
-}
+
 
 .chan-panel-heading{
-  font-size: 30px !important;
+  font-size: 2em !important; 
   font-weight: 400;
+}
+
+.chan-panel-body-text {
+  font-size: 1.2em !important; 
+  font-weight: 200;
+}
+
+.panel-body {
+  padding: 7px;
+  vertical-align: middle;
+}
+
+.btn-success, .btn-success:hover, .btn-success:focus {
+  background-color: #3bafda;
 }

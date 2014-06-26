@@ -1,4 +1,4 @@
-<div class="overlay" ng-show="showOverlay" ng-click="showOverlay=false; newChannelModal=false"></div>
+
 <div>
 	<div> 
 		<button class='fa fa-plus channel-menu-btn btn-primary pull-right' ng-click="newChannelModal=!newChannelModal; showOverlay=true" id="new-channel-button" title="New Channel"></button> 
@@ -46,25 +46,27 @@
       </div>
     </div>
 
-    <div class="col-md-12" align="center">
-        <div ng-repeat="channel in channels" class="channel-list-item panel panel-default">
-	        <div class="chan-panel-heading panel-heading light-red">
-		        <h4>
-		        	<div class="pull-left"><a ui-sref="view({path: channel.safeUri})" class="link-white bold">{{channel.title}}</a>
-		        	</div>
-	                
-		        	<br style="line-height:25%"/>
-		        </h4>
+    <div class="container channel-list">
+    	<div class="row">
+		    <div class="col-md-12" align="center">
+		        <div ng-repeat="channel in channels" class="channel-list-item panel panel-default">
+			        <div class="chan-panel-heading panel-heading light-red">
+			        	<div class="pull-left"><a ui-sref="view({path: channel.safeUri})" class="link-white bold">{{channel.title}}</a>
+			        	</div>
+		                
+			        	<br style="line-height:25%"/>
+				    </div>
+				    <div class="panel-body">
+				        <div class="chan-panel-body-text" align="left">
+				            <a href="{{channel.owner}}">{{channel.owner}}</a>
+				        </div>		        
+				    </div>
+			    </div>
 		    </div>
-		    <div class="panel-body">
-		        <div class="chan-panel-body-text" align="left">
-		            <a href="{{channel.owner}}">{{channel.owner}}</a>
-		        </div>		        
-		    </div>
-	    </div>
-    </div>
+		</div>
+	</div>
 </div>
-
+<div class="overlay" ng-show="showOverlay" ng-click="showOverlay=false; newChannelModal=false"></div>
 
 <!-- <form>
 			            <div class="input-group">

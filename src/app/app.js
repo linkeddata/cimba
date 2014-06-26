@@ -375,7 +375,7 @@ angular.module( 'Cimba', [
                         $scope.channels = {};
                         // clear list first
                         $scope.users[webid].channels = [];
-          
+                        $scope.users[webid].chspace = true;
                         for (var ch in chs) {                        
                             var channel = {};                            
                             channel['uri'] = chs[ch]['subject']['value'];
@@ -413,6 +413,7 @@ angular.module( 'Cimba', [
 
                                 //this dictionary pairs channels with their owner and the posts they contain
                                 $scope.users[webid].chspace = true;
+                                $scope.$apply();
                             }
 
                             // update
@@ -495,7 +496,6 @@ angular.module( 'Cimba', [
                 }
             }
         });
-        
     };
 
     $scope.getPosts = function(channel, title) {

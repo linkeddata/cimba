@@ -1,5 +1,5 @@
-<div ng-animate="{enter: 'animate'}" class-"panel panel-default" custom ng-repeat="post in channels[channelUri].posts | unique:'uri' | orderBy:'date':true">
-    <div class="panel-heading light-blue">
+<div ng-animate="{enter: 'animate'}" class="panel panel-default" custom ng-repeat="post in channels[channelUri].posts | unique:'uri' | orderBy:'date':true">
+    <div class="panel-heading light-red">
 
         <form class="pull-right post-options-group">
             <div class="input-group">
@@ -7,9 +7,9 @@
                     <button class="btn btn-success" rel="tooltip" data-placement="top" title="Read full message">More</button>
                     <button class="btn btn-default" rel="tooltip" data-placement="top" title="Star message" ng-click="starPost()"><i class="fa fa-star fa-2x"></i></button>
                     <button class="btn btn-default" data-placement="top" title="Delete message" ng-click="deletePost(post, post.channel, true)" ng-show="userProfile.webid == post.userwebid"><i class="fa fa-trash-o fa-2x"></i></button>
-                    <a href="{{post.uri}}">
-                        <button class="btn btn-default" data-placement="top" title="Link to post"><i class="fa fa-link fa-2x"></i></button>
-                    </a>
+                    <a href="{{post.uri}}" class="btn btn-default" target="_blank">
+                        <i class="fa fa-link fa-2x"></i>
+                    </a>  
                 </div>
             </div>
         </form>

@@ -9,8 +9,6 @@
     <div class="panel-body">
         <div class="panel-body-textmail">
           <div id="spinner" ng-hide="users[userProfile.webid].name"></div>
-          <h3 class="bold" ng-show="profileloading">Loading profile...</h3>
-          <h3 class="bold" ng-show="users[userProfile.webid].name && !users[userProfile.webid].chspace">Hello {{users[userProfile.webid].name}}!</h3>
           <h3 class="bold" ng-show="users[userProfile.webid].chspace">What's new<span ng-show="users[userProfile.webid].name != ''">, {{users[userProfile.webid].name}}</span>?</h3>
           <form ng-hide="userProfile.webid && !users[userProfile.webid].chspace">                               
               <textarea name="message" ng-model="postbody" class="form-control message" placeholder="Type your message here.." required></textarea>

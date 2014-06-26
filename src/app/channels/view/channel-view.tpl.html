@@ -1,12 +1,12 @@
-<div class="panel-body" ng-click="hideMenu()">
-	<h1 class="page-header">{{channelTitle}}</h1>
+<div ng-click="hideMenu()">
+	<!-- <h1 class="page-header">{{channelTitle}}</h1> -->
 
 	<div id="newpost" class="container">
         <div class="row">
             <!-- <div class="clear-70"></div> -->
             <div class="col-md-12">
                 <!-- new post -->
-                <post-box ng-show="loggedin" ng-controller="PostsController as postCtrl"></post-box>
+                <post-channel ng-show="loggedin" ng-controller="PostsController as postCtrl"></post-channel>
                 <!-- end new post -->
             </div>
         </div>
