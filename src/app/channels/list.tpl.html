@@ -1,7 +1,7 @@
 
 <div>
 	<div> 
-		<button class='fa fa-plus channel-menu-btn btn-primary pull-right' ng-click="newChannelModal=!newChannelModal; showOverlay=true" id="new-channel-button" title="New Channel"></button> 
+		<button class='fa fa-plus channel-menu-btn btn-primary pull-right' ng-click="newChannelModal=!newChannelModal; showOverlay=!showOverlay" id="new-channel-button" title="New Channel"></button> 
 		<a href ui-sref="manage">
 			<button class='fa fa-wrench channel-menu-btn btn-primary pull-right' title='Manage Channels' disabled></button>
 		</a>
@@ -16,7 +16,7 @@
           <h2 class="text-center">Create a new channel</h2>
       </div>
       <div>
-          <form ng-controller = "ChannelsCtrl">
+          <form ng-controller="ChannelsCtrl">
 	          <p>The name you provide will be used to create a new channel inside your microblog.</p>
 	          <p><input type="text" ng-model="channelname" placeholder="Name (Main, Work, etc.).." required ng-pattern="/^[A-Za-z0-9_ ]*$/"></input></p>
 	          <div id="modal-channel-group" class="btn-group-horizontal"> 
@@ -48,17 +48,51 @@
 
     <div class="container channel-list">
     	<div class="row">
-		    <div class="col-md-12" align="center">
-		        <div ng-repeat="channel in channels" class="channel-list-item panel panel-default">
+		    <div class="col-md-6" align="center">
+		    	<div class="panel panel-default channel-list-item">
+		    		<div class="panel-heading light-red">
+		    		</div>
+		    		<div class="panel-body" >
+		    			<div align="center">
+		    				<h3 class="bold panel-header-body">My Channels</h3>
+		    			</div>
+		    		</div>
+		    	</div>
+		        <div ng-repeat="channel in users[userProfile.webid].channels" class="channel-list-item panel panel-default">
 			        <div class="chan-panel-heading panel-heading light-red">
-			        	<div class="pull-left"><a ui-sref="view({path: channel.safeUri})" class="link-white bold">{{channel.title}}</a>
+			        	<div class="pull-left"><a ui-sref="view({path: safeUri(channel.uri)})" class="link-white bold">{{channel.title}}</a>
 			        	</div>
 		                
 			        	<br style="line-height:25%"/>
 				    </div>
 				    <div class="panel-body">
 				        <div class="chan-panel-body-text" align="left">
-				            <a href="{{channel.owner}}">{{channel.owner}}</a>
+				             <a href="{{channel.webid}}"><i>By: {{users[channel.owner].name}}</i></a>
+				        </div>		        
+				    </div>
+			    </div>
+		    </div>
+
+		    <div class="col-md-6" align="center">
+		    	<div class="panel panel-default channel-list-item">
+		    		<div class="panel-heading light-red">
+		    		</div>
+		    		<div class="panel-body" >
+		    			<div align="center">
+		    				<h3 class="panel-header-body bold">Subscribed Channels</h3>
+		    			</div>
+		    		</div>
+		    	</div>
+		    	<div ng-repeat="channel in users[userProfile.webid].subscribedChannels" class="channel-list-item panel panel-default">
+			        <div class="chan-panel-heading panel-heading light-red">
+			        	<div class="pull-left"><a ui-sref="view({path: safeUri(channel.uri)})" class="link-white bold">{{channel.title}}</a>
+			        	</div>
+		                
+			        	<br style="line-height:25%"/>
+				    </div>
+				    <div class="panel-body">
+				        <div class="chan-panel-body-text" align="left">
+				             <a href="{{channel.webid}}"><i>By: {{users[channel.owner].name}}</i></a>
 				        </div>		        
 				    </div>
 			    </div>

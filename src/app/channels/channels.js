@@ -33,6 +33,9 @@ angular.module('Cimba.channels',[
 
     $scope.$parent.loading = false;
     
+    $scope.safeUri = function (uri) {
+        return uri.replace(/^https?:\/\//,'');
+    };
 
     $scope.newChannel = function(channelname){
         $scope.loading = true;

@@ -1,6 +1,6 @@
 <div class="webid-results" ng-show="!search.selected">
     <div ng-repeat="person in webidresults | limitTo: 7" class="mt20">
-        <div class="panel-heading light-blue pointer" ng-click="prepareSearch(person.webid, person.name[0])" rel="tooltip" data-placement="top" title="Find channels for {{person.webid}}">
+        <div class="panel-heading light-red pointer" ng-click="prepareSearch(person.webid, person.name[0])" rel="tooltip" data-placement="top" title="Find channels for {{person.webid}}">
             <div class="pull-left">
                 <div class="thumbnail thumbnail-sm pull-right">
                   <img class="media-object thumb-pic-sm" ng-src="{{person.img[0]}}">

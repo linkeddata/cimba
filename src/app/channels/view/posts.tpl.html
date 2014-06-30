@@ -1,4 +1,4 @@
-<div ng-animate="{enter: 'animate'}" class="panel panel-default" custom ng-repeat="post in channels[channelUri].posts | unique:'uri' | orderBy:'date':true">
+<div ng-animate="{enter: 'animate'}" class="panel panel-default" custom ng-repeat="post in users[owner].channels[channel.uri].posts | unique:'uri' | orderBy:'date':true">
     <div class="panel-heading light-red">
 
         <form class="pull-right post-options-group">

@@ -42,8 +42,6 @@ angular.module( 'Cimba.login', [
       $scope.userProfile.webid = webid;
 
       $scope.$parent.loginSuccess = true;
-
-      // $scope.$apply();
       
       // index or update current WebID on webizen.org
       $http.get('http://api.webizen.org/v1/search', {
