@@ -32,7 +32,24 @@ angular.module('Cimba.channels',[
     }
 
     $scope.$parent.loading = false;
-    
+    $scope.audience = {};
+    $scope.audience.range = 'public';
+    $scope.audience.icon = 'fa-globe';
+    console.log('this is the audience'+$scope.audience.range);
+
+    $scope.setAudience = function(v) {
+        if (v=='public') {
+            $scope.audience.icon = 'fa-globe';
+            $scope.audience.range = 'public';
+        } else if (v=='private') {
+            $scope.audience.icon = 'fa-lock';
+            $scope.audience.range = 'private';
+        } else if (v=='friends') {
+            $scope.audience.icon = 'fa-users';
+            $scope.audience.range = 'friends';
+        }
+        console.log('this is the audience: '+$scope.audience.range);
+    };   
 
     $scope.newChannel = function(channelname){
         $scope.loading = true;
