@@ -98,6 +98,10 @@ angular.module( 'Cimba', [
     $scope.channels = {};
     $scope.posts = {}; //aggregate list of all posts (flat list)
     $scope.search = {}; 
+    if (isEmpty($scope.users[$scope.userProfile.webid])) {
+        $scope.users[$scope.userProfile.webid] = {};
+    }
+    //$scope.users[$scope.userProfile.webid].subscribedChannels = {};
 
     $rootScope.userProfile = {};
 
@@ -294,8 +298,9 @@ angular.module( 'Cimba', [
                 $scope.users[webid].name = name; //for displaying delete button in posts.tpl.html
                 $scope.users[webid].picture = pic; //resolves issue of not displaying profile picture that the above line creates
 
-                $scope.users[webid].name = name; //for displaying delete button in posts.tpl.html
-                $scope.users[webid].picture = pic; //resolves issue of not displaying profile picture that the above line creates
+                //
+                $scope.users[webid].subscribedChannels = {};
+                //
 
                 // find microblogging feeds/channels
                 if (!storage) {
@@ -888,6 +893,8 @@ angular.module( 'Cimba', [
                                 var _channel = {};
                                 _channel.uri = g.any(ch, SIOC('link')).value;
                                 _channel.title = (g.any(ch, DCT('title')))?g.any(ch, DCT('title')).value:'Untitled';
+                                _channel.author = _user.name; //for subscription
+                                _channel.webid = _user.webid; //for subscription
                                 if (g.any(ch, SIOC('has_subscriber'))) {
                                 // subscribed
                                     _channel.action = 'Unsubscribe';
@@ -919,6 +926,9 @@ angular.module( 'Cimba', [
                             console.log("after loading, channels in $scope.users[" + _user.webid + "].channels are"); //debug
                             for (var y in $scope.users[_user.webid].channels) {
                                 console.log($scope.users[_user.webid].channels[y]);
+                            }
+                            for (var chann in _user.channels) {
+                                $scope.users[$scope.userProfile.webid].subscribedChannels[chann] = _user.channels[chann];
                             }
                             $scope.$apply();
                         }
@@ -1023,6 +1033,11 @@ angular.module( 'Cimba', [
             }
             // also update the users list in case there is a new channel
             $scope.users[suser.webid] = user;
+            for (var cha in channels) {
+                $scope.users[$scope.userProfile.webid].subscribedChannels[cha] = channels[cha];
+            }
+            console.log("subscribed");
+            console.log($scope.users[$scope.userProfile.webid].subscribedChannels); //debug
             $scope.saveUsers();
         } else {
             // subscribe (also add user + channels)
@@ -1036,6 +1051,14 @@ angular.module( 'Cimba', [
             console.log("subscribing"); //debug
             console.log(ch); //debug
             $scope.users[suser.webid] = user;
+
+            var schans = $scope.users[suser.webid].channels;
+
+            for (var chane in schans) {
+                $scope.users[$scope.userProfile.webid].subscribedChannels[chane.uri] = chane;
+            }
+            console.log("subscribed");
+            console.log($scope.users[$scope.userProfile.webid].subscribedChannels); //debug
             $scope.saveUsers();
             $scope.getPosts(ch.uri, ch.title);
         }
