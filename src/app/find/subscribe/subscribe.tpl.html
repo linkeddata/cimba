@@ -1,5 +1,5 @@
 <div class="panel panel-default" style="width: 80%">
-    <div class="panel-heading dark-red"> </div>
+    <div class="panel-heading dark-blue"> </div>
     <form>
     </form>
     <div class="panel-body">
@@ -20,7 +20,7 @@
             -->
             <div class="webid-results" ng-show="!search.selected">
                 <div ng-repeat="person in webidresults | limitTo: 7" class="mt20">
-                    <div class="panel-heading light-red pointer" ng-click="prepareSearch(person.webid, person.name[0])" rel="tooltip" data-placement="top" title="Find channels for {{person.webid}}">
+                    <div class="panel-heading light-blue pointer" ng-click="prepareSearch(person.webid, person.name[0])" rel="tooltip" data-placement="top" title="Find channels for {{person.webid}}">
                         <div class="pull-left">
                             <div class="thumbnail thumbnail-sm pull-right">
                               <img class="media-object thumb-pic-sm" ng-src="{{person.img[0]}}">
@@ -43,7 +43,7 @@
         </form>
         <br>
         <div class="searchresults" ng-show="gotresults">
-            <div class="panel-heading dark-red">
+            <div class="panel-heading dark-blue">
                 <div class="pull-left">
                     <a class="thumbnail thumbnail-sm pull-right" href="{{search.webid}}">
                       <img class="media-object" ng-src="{{search.picture}}" rel="tooltip" data-placement="top" title="{{search.name}}">
@@ -52,16 +52,12 @@
             </div>
             <div class="panel-body-text">
                 <h4 class="black bold text-center">{{search.name}}</h4>
-                <h4 class="black text-center">Has {{search.channels.length}} channels.</h4>
+                <h4 class="black text-center">Has {{search.channel_size}} channels.</h4>
             </div>
             <div class="panel-body">
-                <div class="black row sub-list" ng-repeat="ch in search.channels">
-                    <div class="col-md-1 col-md-offset-6">
-                        <button class="btn" ng-class="ch.css" ng-click="channelToggle(ch, search)" rel="tooltip" data-placement="top" title="{{ch.action}}"><i class="fa {{ch.button}} fa-2x"></i></button>
-                    </div>
-                    <div class="col-md-2 sub-list-title">
-                        <a href="{{ch.uri}}" target="_blank">{{ch.title}}</a>
-                    </div>
+                <h4 class="black" ng-repeat="ch in search.channels">
+                    <button class="btn" ng-class="ch.css" ng-click="channelToggle(ch, search)" rel="tooltip" data-placement="top" title="{{ch.action}}"><i class="fa {{ch.button}} fa-2x"></i></button>
+                    <a href="{{ch.uri}}" target="_blank">{{ch.title}}</a>
                 </h4>
             </div>
         </div>
