@@ -23,7 +23,7 @@
                         <li><a href="#home" ng-click="setAudience('friends')">&nbsp;<i id="friends" class="fa fa-user fa-2x default-color"></i>&nbsp;&nbsp;Friends</a></li>
                     </ul>
                 </div>
-                <div class="btn-group" ng-show="users[userProfile.webid].channels.length > 0" rel="tooltip" data-placement="top" title="Channels">
+                <div class="btn-group" ng-show="userProfile.channel_size > 0" rel="tooltip" data-placement="top" title="Channels">
                     <button id="chs" class="btn btn-primary" disabled>{{defaultChannel.title}}</button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop" rel="tooltip" data-placement="top" title="Channels"><i class="fa fa-chevron-down fa-2x"></i></small></button>
                     <ul class="dropdown-menu" role="menu" aria-labelledby="chs">
                         <li ng-repeat="channel in users[userProfile.webid].channels | orderBy:'title'">

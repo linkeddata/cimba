@@ -152,6 +152,8 @@ angular.module( 'Cimba', [
                     for (var w in $scope.userProfile.channels) {
                         if (!$scope.defaultChannel) {
                             $scope.defaultChannel = $scope.userProfile.channels[w];
+                            console.log("$scope.defaultChannel is "); //debug
+                            console.log($scope.defaultChannel); //debug
                         }
                     }
                 }
@@ -389,8 +391,6 @@ angular.module( 'Cimba', [
                         for (var ch in chs) {                        
                             var channel = {};                            
                             channel['uri'] = chs[ch]['subject']['value'];
-                            var safeUri = channel.uri.replace(/^https?:\/\//,'');
-                            channel['safeUri'] = safeUri;
 
                             var title = g.any(chs[ch]['subject'], DCT('title')).value;
 
@@ -433,18 +433,29 @@ angular.module( 'Cimba', [
 
                             // update
                             if (update) {
+                                /*
                                 var exists = findWithAttr($scope.users[webid].channels, 'uri', channel.uri);
                                 if (exists === undefined) {
                                     $scope.users[webid].channels[channel.uri] = channel;
-                                }
+                                }*/
+                                $scope.users[webid].chspace = true;
+                                $scope.apply();
                             }
                         }
 
                         // set a default channel for the logged user
                         if (mine) {
+                            console.log("setting default channel"); //debug
                             for (var u in $scope.users[webid].channels) {
+                                console.log("first channel is "); //debug
+                                console.log($scope.users[webid].channels[u]); //debug
                                 if (!$scope.defaultChannel) {
+                                    console.log("no default channel found"); //debug
                                     $scope.defaultChannel = $scope.users[webid].channels[u];
+                                    console.log("$scope.defaultChannel is "); //debug
+                                    console.log($scope.defaultChannel); //debug
+                                    $scope.userProfile.channel_size = Object.keys($scope.users[$scope.userProfile.webid].channels).length; //not supported in IE8 and below
+                                    break; //debug
                                 }
                             }
                         }
@@ -627,6 +638,17 @@ angular.module( 'Cimba', [
                         $scope.channels[channeluri]["posts"] = [];
                     }
 
+
+                    // add to user's channels
+                    if (!$scope.users[userwebid].channels[channeluri]) {
+                        $scope.users[userwebid].channels[channeluri] = {
+                            "posts": []
+                        };
+                    } else if (!$scope.users[userwebid].channels[channeluri]["posts"]) {
+                        $scope.users[userwebid].channels[channeluri]["posts"] = [];
+                    }
+                    $scope.users[userwebid].channels[channeluri].posts.push(_newPost);
+
                     // filter post by language (only show posts in English or show all) 
                     //not implemented yet ^, currently a redundant if/else statement        
                     if ($scope.filterFlag && testIfAllEnglish(_newPost.body)) {
@@ -761,8 +783,9 @@ angular.module( 'Cimba', [
             if (user.pic) {
                 g.add($rdf.sym(uid), SIOC('avatar'), $rdf.sym(user.pic));
             }
+
             // add each channel
-            if (user.channels) {
+            if (!isEmpty(user.channels)) {
                 for (var j in user.channels) {
                     var ch = user.channels[j];
                     var ch_id = followURI+'#channel_'+i+'_'+j;
@@ -775,7 +798,7 @@ angular.module( 'Cimba', [
                     g.add($rdf.sym(ch_id), SIOC('link'), $rdf.sym(ch.uri));
                     g.add($rdf.sym(ch_id), DCT('title'), $rdf.lit(ch.title));
                     // add my WebID if I'm subscribed to this channel
-                    if (ch.action == 'Unsubscribe') {
+                    if (ch.action === 'Unsubscribe') {
                         console.log("here 5.5"); //debug
                         g.add($rdf.sym(ch_id), SIOC('has_subscriber'), $rdf.sym(mywebid));
                     }
@@ -965,22 +988,10 @@ angular.module( 'Cimba', [
             console.log($scope.users[suser.webid].channels); //debug
             var channels = $scope.users[suser.webid].channels;
 
-            var idx = "";
-            var exist = false;
-            for (var t in channels) {
-                if (t === ch.uri) {
-                    idx = t;
-                    exist = true;
-                }
-            }
-            //var idx = findWithAttr(channels, 'uri', ch.uri);
-            
-            console.log("exist: " + exist + ", idx: " + idx); //debug
-
             // already have the channel
-            if (exist) {
+            if (channels[ch.uri]) {
                 console.log("already have channel"); //debug
-                var c = channels[idx];
+                var c = channels[ch.uri];
                 // unsubscribe
                 if (c.action == 'Unsubscribe') {
                     console.log("unsubscribing"); //debug
@@ -1042,13 +1053,12 @@ angular.module( 'Cimba', [
     
     // add html elements to channels 
     $scope.addChannelStyling = function(webid, channels) {
-        for (i=0;i<channels.length;i++) {
+        for (var i in channels) {
             // find if we have the channel in our list already
             var ch = channels[i];
             // check if it's a known user
             if ($scope.users && $scope.users[webid]) {
-                var idx = findWithAttr($scope.users[webid].channels, 'uri', ch.uri);
-                var c = $scope.users[webid].channels[idx];
+                var c = $scope.users[webid].channels[ch.uri];
                 // set attributes
                 if (idx !== undefined) {
                     ch.button = (c.button)?c.button:'fa-square-o';
@@ -1072,8 +1082,228 @@ angular.module( 'Cimba', [
             }
         }
     };
-
     /////-----
+
+    // prepare the triples for new storage
+    // do not actually create the space, we just point to it
+    $scope.newStorage = function(express) {
+        $scope.loading = true;
+        $scope.addstoragebtn = 'Adding...';
+
+        var storage = ($scope.storageuri)?$scope.storageuri:'shared/';
+        // replace whitespaces and force lowercase
+        storage = storage.toLowerCase().split(' ').join('_');
+
+        // add trailing slash since we have dir
+        if (storage.substring(storage.length - 1) != '/') {
+            storage = storage+'/';
+        }
+
+        var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+        var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
+        var FOAF = $rdf.Namespace('http://xmlns.com/foaf/0.1/');
+        var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
+        var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
+        var g = $rdf.graph();
+        
+        // add storage triple
+        g.add($rdf.sym($scope.me.webid), SPACE('storage'), $rdf.sym(storage));
+
+        var s = new $rdf.Serializer(g).toN3(g);
+        console.log(s);
+        if (s.length > 0) {
+            $.ajax({
+                type: "POST",
+                url: $scope.me.webid,
+                contentType: "text/turtle",
+                data: s,
+                processData: false,
+                xhrFields: {
+                    withCredentials: true
+                },
+                statusCode: {
+                    200: function(data) {
+                        console.log("200 Created");
+                    },
+                    401: function() {
+                        console.log("401 Unauthorized");
+                        notify('Error', 'Unauthorized! You need to authentify before posting.');
+                    },
+                    403: function() {
+                        console.log("403 Forbidden");
+                        notify('Error', 'Forbidden! You are not allowed to update the selected profile.');
+                    },
+                    406: function() {
+                        console.log("406 Contet-type unacceptable");
+                        notify('Error', 'Content-type unacceptable.');
+                    },
+                    507: function() {
+                        console.log("507 Insufficient storage");
+                        notify('Error', 'Insuffifient storage left! Check your server storage.');
+                    }
+                },
+                success: function(d,s,r) {
+                    console.log('Success! Added a new storage relation to your profile.');
+                    notify('Success', 'Your profile was succesfully updated!');
+
+                    // clear form
+                    $scope.storageuri = '';
+                    $scope.addstoragebtn = 'Add';
+                    $scope.users[$scope.userProfile.webid].storagespace = storage;
+                    // close modal
+                    $('#newStorageModal').modal('hide');
+                    // reload user profile when done
+                    if (express && express === true) {
+                        $scope.mburi = "mb";
+                        $scope.newMB(express);
+                    } else {
+                        $scope.getInfo($scope.me.webid, true);
+                        // revert button contents to previous state
+                        $scope.addstoragebtn = 'Add';
+                        $scope.loading = false;
+                        $scope.$apply();
+                    }
+                },
+                error: function() {
+                    // revert button contents to previous state
+                    $scope.addstoragebtn = 'Add';
+                    $scope.loading = false;
+                    $scope.$apply();
+                }
+            });
+        }
+    };
+
+    // prepare the triples for new storage
+    $scope.newMB = function(express) {
+        $scope.loading = true;
+        $scope.createbtn = 'Creating...';
+
+        var mburi = ($scope.mburi)?$scope.mburi:'mb';
+        // replace whitespaces and force lowercase
+        mburi = mburi.toLowerCase().split(' ').join('_');
+
+        $.ajax({
+            type: "POST",
+            url: $scope.users[$scope.userProfile.webid].storagespace,
+            processData: false,
+            headers: {
+                Slug: mburi,
+                Link: '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"'
+            },
+            contentType: 'text/turtle',
+            xhrFields: {
+                withCredentials: true
+            },
+            statusCode: {
+                201: function() {
+                    console.log("201 Created");
+                },
+                401: function() {
+                    console.log("401 Unauthorized");
+                    notify('Error', 'Unauthorized! You need to authentify!');
+                },
+                403: function() {
+                    console.log("403 Forbidden");
+                    notify('Error', 'Forbidden! You are not allowed to create new resources.');
+                },
+                406: function() {
+                    console.log("406 Contet-type unacceptable");
+                    notify('Error', 'Content-type unacceptable.');
+                },
+                507: function() {
+                    console.log("507 Insufficient storage");
+                    notify('Error', 'Insuffifient storage left! Check your server storage.');
+                }
+            },
+            success: function(d,s,r) {
+                console.log('Success! Created new uB directory at '+mburi+'/');
+                // create the meta file
+                var meta = parseLinkHeader(r.getResponseHeader('Link'));
+                var metaURI = meta['meta']['href'];
+                var ldpresource = r.getResponseHeader("Location");
+                var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+                var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
+                var FOAF = $rdf.Namespace('http://xmlns.com/foaf/0.1/');
+                var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
+                var LDPX = $rdf.Namespace("http://ns.rww.io/ldpx#");
+                var g = $rdf.graph();
+                
+                // add uB triple (append trailing slash since we got dir)
+                g.add($rdf.sym(mburi+'/'), RDF('type'), SIOC('Space'));
+                g.add($rdf.sym(mburi+'/'), DCT('title'), $rdf.lit("Microblogging workspace"));
+                g.add($rdf.sym(mburi+'/'), LDPX('ldprPrefix'), $rdf.lit("ch"));
+                var q = new $rdf.Serializer(g).toN3(g);         
+                if (q.length > 0) {
+                    $.ajax({
+                        type: "POST",
+                        url: metaURI,
+                        contentType: "text/turtle",
+                        data: q,
+                        processData: false,
+                        xhrFields: {
+                            withCredentials: true
+                        },
+                        statusCode: {
+                            201: function() {
+                                console.log("201 Created");
+                            },
+                            401: function() {
+                                console.log("401 Unauthorized");
+                                notify('Error', 'Unauthorized! You need to authentify before posting.');
+                            },
+                            403: function() {
+                                console.log("403 Forbidden");
+                                notify('Error', 'Forbidden! You are not allowed to create new resources.');
+                            },
+                            406: function() {
+                                console.log("406 Contet-type unacceptable");
+                                notify('Error', 'Content-type unacceptable.');
+                            },
+                            507: function() {
+                                console.log("507 Insufficient storage");
+                                notify('Error', 'Insuffifient storage left! Check your server storage.');
+                            }
+                        },
+                        success: function(d,s,r) {
+                            console.log('Success! Microblog space created.');
+                            notify('Success', 'Microblog space created.');
+                            $scope.users[$scope.userProfile.webid].mbspace = ldpresource;
+                            // clear form
+                            $scope.mburi = '';
+                            // close modal
+                            $('#newMBModal').modal('hide');
+                            if (express && express === true) {
+                                $scope.channelname = "main";
+                                $scope.newChannel();
+                            } else {
+                                // reload user profile when done
+                                $scope.getInfo($scope.userProfile.webid, true);
+                                // revert button contents to previous state
+                                $scope.createbtn = 'Create';
+                                $scope.loading = false;
+                                $scope.$apply();
+                            }
+                        },
+                        error: function() {
+                            // revert button contents to previous state
+                            $scope.createbtn = 'Create';
+                            $scope.loading = false;
+                            $scope.$apply();
+                        }                   
+                    });
+                }
+            },
+            error: function() {
+                // revert button contents to previous state
+                $scope.createbtn = 'Create';
+                $scope.loading = false;
+                $scope.$apply();
+            }
+        });
+    };
+
+
 })
 
 
@@ -1085,7 +1315,7 @@ angular.module( 'Cimba', [
             // no logged user, we should be going to #login
             if ( next.templateUrl != "login/login.tpl.html" ) {
                 // not going to #login, we should redirect now
-                
+                $location.path("/login");
             }
         }
     });
