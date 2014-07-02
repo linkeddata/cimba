@@ -37,15 +37,21 @@ angular.module( 'Cimba.home', [
 /**
  * And of course we define a controller for our route.
  */
-.controller( 'HomeCtrl', function HomeController( $scope, $http, $location, $sce ) {
-
+.controller( 'HomeCtrl', function HomeController( $scope, $http, $location, $sce) {
   $scope.hideMenu = function() {
     $scope.$parent.showMenu = false;
   };
-
-  if ($scope.$parent.userProfile.storagespace !== undefined) {
+  
+  $scope.loadPage = function(){
+    console.log('tried to load page');
+    if ($scope.$parent.userProfile.storagespace !== undefined && $scope.$parent.getInfoDone) {
+        console.log('close');
         var storage = $scope.$parent.userProfile.storagespace;
         var webid = $scope.$parent.userProfile.webid;
         $scope.$parent.getChannels(storage, webid, true, false, true); //get channels and posts        
-  }
+    }else{
+      setTimeout(function(){$scope.loadPage();},500);
+    }
+  };
+  $scope.loadPage();
  });

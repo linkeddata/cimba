@@ -191,6 +191,8 @@ angular.module( 'Cimba', [
         if (DEBUG) {
             console.log("Getting user info for: "+webid);
         }
+        $scope.getInfoDone=false;
+        console.log($scope.getInfoDone);
 
         // start progress bar
         ngProgress.start();
@@ -319,6 +321,8 @@ angular.module( 'Cimba', [
             if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
                 $scope.getChannels(storage, webid, false, update, false);
             }
+            $scope.getInfoDone=true;
+            console.log($scope.getInfoDone);
         });
         if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
             $scope.searchbtn = 'Search';
