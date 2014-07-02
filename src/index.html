@@ -63,6 +63,17 @@
         </div>
 
         <div class="menu-item" ng-class="{active:tabCtrl.isSet(3)}">
+          <a href ui-sref="find" ng-click="tabCtrl.setTab(3);">
+            <div>
+              <i class="fa fa-search fa-3x"></i>
+              <p>Find</p>
+            </div>
+          </a>
+          <i class="fa fa-ellipsis-h fa-2x dark-grey"></i>
+        </div>
+
+        <!--
+        <div class="menu-item" ng-class="{active:tabCtrl.isSet(3)}">
           <a href ui-sref="conversations" ng-click="tabCtrl.setTab(3); tabCtrl.clearbadge(2);">
             <span class="badge">{{tabCtrl.badges[2]}}</span>
             <div>
@@ -72,6 +83,7 @@
           </a>
           <i class="fa fa-ellipsis-h fa-2x dark-grey"></i>
         </div>
+        -->
 
         <div class="menu-item" ng-class="{active:tabCtrl.isSet(4)}">
           <a href ui-sref="settings" ng-click="tabCtrl.setTab(4)">

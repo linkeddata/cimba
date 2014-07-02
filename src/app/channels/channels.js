@@ -31,11 +31,105 @@ angular.module('Cimba.channels',[
         $scope.$parent.gotstorage = false;
     }
 
+    var newChannelModal = false;
+
     $scope.$parent.loading = false;
+    
+    // set the corresponding ACLs for the given post, using the right ACL URI
+    $scope.setACL = function(uri, type, defaultForNew) {
+        // get the acl URI first
+        $.ajax({
+            type: "HEAD",
+            url: uri,
+            xhrFields: {
+                withCredentials: true
+            },
+            success: function(d,s,r) {
+                // acl URI
+                var acl = parseLinkHeader(r.getResponseHeader('Link'));
+                var aclURI = acl['acl']['href'];
+                // frag identifier
+                var frag = '#'+basename(uri);
+
+                var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+                var WAC = $rdf.Namespace("http://www.w3.org/ns/auth/acl#");
+                var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
+
+                var g = $rdf.graph();
+                // add document triples
+                g.add($rdf.sym(''), WAC('accessTo'), $rdf.sym(''));
+                g.add($rdf.sym(''), WAC('accessTo'), $rdf.sym(uri));
+                g.add($rdf.sym(''), WAC('agent'), $rdf.sym(webid));
+                g.add($rdf.sym(''), WAC('mode'), WAC('Read'));
+                g.add($rdf.sym(''), WAC('mode'), WAC('Write'));
+
+                // add post triples
+                g.add($rdf.sym(frag), WAC('accessTo'), $rdf.sym(uri));
+                // public visibility
+                if (type == 'public' || type == 'friends') {
+                    g.add($rdf.sym(frag), WAC('agentClass'), FOAF('Agent'));
+                    g.add($rdf.sym(frag), WAC('mode'), WAC('Read'));
+                } else if (type == 'private') {
+                    // private visibility
+                    g.add($rdf.sym(frag), WAC('agent'), $rdf.sym(webid));
+                    g.add($rdf.sym(frag), WAC('mode'), WAC('Read'));
+                    g.add($rdf.sym(frag), WAC('mode'), WAC('Write'));
+                }
+                if (defaultForNew && uri.substring(uri.length - 1) == '/') {
+                    g.add($rdf.sym(frag), WAC('defaultForNew'), $rdf.sym(uri));
+                }
+
+                s = new $rdf.Serializer(g).toN3(g);
+                
+                if (s && aclURI) {
+                    $.ajax({
+                        type: "PUT", // overwrite just in case
+                        url: aclURI,
+                        contentType: "text/turtle",
+                        data: s,
+                        processData: false,
+                        xhrFields: {
+                            withCredentials: true
+                        },
+                        statusCode: {
+                            200: function(data) {
+                                console.log("200 Created");
+                            },
+                            401: function() {
+                                console.log("401 Unauthorized");
+                                notify('Error', 'Unauthorized! You need to authentify before posting.');
+                            },
+                            403: function() {
+                                console.log("403 Forbidden");
+                                notify('Error', 'Forbidden! You are not allowed to update the selected profile.');
+                            },
+                            406: function() {
+                                console.log("406 Contet-type unacceptable");
+                                notify('Error', 'Content-type unacceptable.');
+                            },
+                            507: function() {
+                                console.log("507 Insufficient storage");
+                                notify('Error', 'Insuffifient storage left! Check your server storage.');
+                            }
+                        },
+                        success: function(d,s,r) {
+                            console.log('Success! ACLs are now set.');
+                        }
+                    });
+                }
+            }
+        });
+    };
+
+    $scope.safeUri = function (uri) {
+        return uri.replace(/^https?:\/\//,'');
+    };
+
     $scope.audience = {};
     $scope.audience.range = 'public';
     $scope.audience.icon = 'fa-globe';
     console.log('this is the audience'+$scope.audience.range);
+    console.log("icon: " + $scope.audience.icon); //debug
 
     $scope.setAudience = function(v) {
         if (v=='public') {
@@ -49,7 +143,7 @@ angular.module('Cimba.channels',[
             $scope.audience.range = 'friends';
         }
         console.log('this is the audience: '+$scope.audience.range);
-    };   
+    };
 
     $scope.newChannel = function(channelname){
         $scope.loading = true;
@@ -57,6 +151,7 @@ angular.module('Cimba.channels',[
         var title = 'ch';
         var churi = 'ch';
         
+        var chan = {};
 
         if ($scope.channelname !== undefined && testIfAllEnglish($scope.channelname)) {
             console.log("test");
@@ -64,6 +159,14 @@ angular.module('Cimba.channels',[
             title = $scope.channelname;
             churi = $scope.channelname.toLowerCase().split(' ').join('_');
         } 
+
+        chan.uri = churi;
+        chan.title = title;
+        chan.webid = $scope.$parent.userProfile.webid;
+        chan.author = $scope.$parent.userProfile.name;
+
+        $scope.$parent.users[chan.webid].channels[chan.uri] = chan;
+
         // TODO: let the user select the Microblog workspace too
 
         $.ajax({
@@ -159,7 +262,7 @@ angular.module('Cimba.channels',[
                                 // clear form
                                 $scope.channelname = '';
                                 // reload user profile when done
-                                $scope.getInfo($scope.users[webid], true);
+                                $scope.getInfo(webid, true, false);
                             }
                         });
                     }
@@ -169,6 +272,7 @@ angular.module('Cimba.channels',[
             // revert button contents to previous state
             $scope.createbtn = 'Create';
             $scope.loading = false;
+            newChannelModal = false;
             $scope.$apply();
         });channelname='';
     };

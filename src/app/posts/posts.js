@@ -347,6 +347,14 @@ angular.module('Cimba.posts',[
     }; 
 })
 
+.directive('postChannel', function () {
+	return {
+		replace: true,
+		restrict: 'E', 
+		templateUrl: "channels/view/new_post.tpl.html"
+	};
+})
+
 //simple directive to display each post
 .directive('postsViewer',function(){
     return {
