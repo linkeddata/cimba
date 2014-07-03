@@ -131,6 +131,13 @@ angular.module( 'Cimba', [
         $scope.clearLocalCredentials();
         $scope.userProfile = {};
         $rootScope.userProfile = {};
+
+        //reset data so that it doesn't carry over to next login
+        $scope.users={};
+        $scope.channels = {};
+        $scope.posts = {};
+        $scope.search = {}; 
+
         $location.path('/login');
     };
 
