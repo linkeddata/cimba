@@ -276,4 +276,8 @@ angular.module('Cimba.channels',[
             $scope.$apply();
         });channelname='';
     };
+
+    $scope.deleteChannel = function (channeluri) {
+        
+    };
 });

@@ -76,7 +76,7 @@
 			        <div class="chan-panel-heading panel-heading light-red">
 			        	<div class="pull-left"><a ui-sref="view({path: safeUri(channel.uri)})" class="link-white bold">{{channel.title}}</a>
 			        	</div>
-		                
+		                <div class="pull-right"><button type="button" class="close" ng-click="deleteChannel(channel.uri)">x</button></div>
 			        	<br style="line-height:25%"/>
 				    </div>
 				    <div class="panel-body">
