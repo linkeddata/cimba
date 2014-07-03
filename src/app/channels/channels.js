@@ -221,6 +221,14 @@ angular.module('Cimba.channels',[
                     g.add($rdf.sym(chURI), RDF('type'), SIOC('Container'));
                     g.add($rdf.sym(chURI), DCT('title'), $rdf.lit(title));
                     g.add($rdf.sym(chURI), LDPX('ldprPrefix'), $rdf.lit('post'));
+                    g.add($rdf.sym(chURI), SIOC('has_creator'), $rdf.sym('#author'));
+
+                    // add author triples
+                    g.add($rdf.sym('#author'), RDF('type'), SIOC('UserAccount'));
+                    g.add($rdf.sym('#author'), SIOC('account_of'), $rdf.sym($scope.userProfile.webid));
+                    g.add($rdf.sym('#author'), SIOC('avatar'), $rdf.sym($scope.userProfile.picture));
+                    g.add($rdf.sym('#author'), FOAF('name'), $rdf.lit($scope.userProfile.name));
+
                     s = new $rdf.Serializer(g).toN3(g);
 
                     if (s.length > 0) {

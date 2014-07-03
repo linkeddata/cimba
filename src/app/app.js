@@ -338,6 +338,48 @@ angular.module( 'Cimba', [
     // initialize by retrieving user info from sessionStorage
     $scope.loadCredentials();
 
+    $scope.getChannel = function (uri) {
+        var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+        var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
+        var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
+        var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
+        var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
+
+        var g = $rdf.graph();
+        var f = $rdf.fetcher(g, TIMEOUT);
+
+        // add CORS proxy
+        $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
+
+        // fetch user data: SIOC:Space -> SIOC:Container -> SIOC:Post
+        f.nowOrWhenFetched(uri,undefined,function(){            
+            var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));            
+
+            if (chs.length > 0) {
+                var channel = {};                 
+                channel['uri'] = chs[0]['subject']['value'];
+
+                var title = g.any(chs[0]['subject'], DCT('title'));
+
+                if (title) {
+                    channel['title'] = title.value;
+                } else {
+                    channel['title'] = channeluri;
+                }
+
+                ownerWebid = g.any(chs[0]['subject'], SIOC('has_creator'));
+                if (ownerWebid) {
+                    channel["webid"] = ownerWebid.value;
+                } 
+
+                $scope.channels[channel.uri] = channel;
+                $scope.$apply();
+                $scope.loading = true;
+                $scope.getPosts(channel.uri, channel.title);                
+            }
+        });
+    };
+
     $scope.getChannels = function(uri, webid, mine, update, loadposts) {
         var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 
@@ -387,8 +429,7 @@ angular.module( 'Cimba', [
 
                 var func = function() {
 
-                    var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));
-
+                    var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));                    
                     if (chs.length > 0) {
                         console.log("beginning of function: $scope.users[" + webid + "].channels is "); //debug
                         console.log($scope.users[webid].channels); //debug
@@ -639,24 +680,29 @@ angular.module( 'Cimba', [
                         $scope.posts =  {};
                     }
                     
+                    /*
                     if (!$scope.channels[channeluri]) {
                         $scope.channels[channeluri] = {
                             "posts": []
                         };
                     } else if (!$scope.channels[channeluri]["posts"]) {
                         $scope.channels[channeluri]["posts"] = [];
+                    }*/
+
+                    if (!$scope.channels[channeluri]['posts']) {
+                        $scope.channels[channeluri]['posts'] = [];
                     }
 
 
                     // add to user's channels
-                    if (!$scope.users[userwebid].channels[channeluri]) {
-                        $scope.users[userwebid].channels[channeluri] = {
-                            "posts": []
-                        };
-                    } else if (!$scope.users[userwebid].channels[channeluri]["posts"]) {
-                        $scope.users[userwebid].channels[channeluri]["posts"] = [];
+                    if ($scope.users[userwebid] &&
+                        $scope.users[userwebid].channels &&
+                        $scope.users[userwebid].channels[channeluri]) {
+                        if (!$scope.users[userwebid].channels[channeluri]['posts']) {
+                            $scope.users[userwebid].channels[channeluri]["posts"] = [];
+                        }
+                        $scope.users[userwebid].channels[channeluri].posts.push(_newPost);
                     }
-                    $scope.users[userwebid].channels[channeluri].posts.push(_newPost);
 
                     // filter post by language (only show posts in English or show all) 
                     //not implemented yet ^, currently a redundant if/else statement        
@@ -672,7 +718,7 @@ angular.module( 'Cimba', [
                         $scope.channels[channeluri]["posts"].push(_newPost);
                         $scope.$apply();
                     }
-
+                    console.log($scope.channels[channeluri]);
                     $scope.users[$scope.userProfile.webid].gotposts = true;
                 }
             } else {
