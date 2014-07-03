@@ -42,16 +42,13 @@ angular.module( 'Cimba.home', [
     $scope.$parent.showMenu = false;
   };
   
-  $scope.loadPage = function(){
-    console.log('tried to load page');
-    if ($scope.$parent.userProfile.storagespace !== undefined && $scope.$parent.getInfoDone) {
+  $scope.$watch('$parent.getInfoDone', function(newVal,oldVal){   //waits for getInfo to be done to call getChannels
+    console.log('getInfo is done');
+    if ($scope.$parent.userProfile.storagespace !== undefined && newVal === true) {
         console.log('close');
         var storage = $scope.$parent.userProfile.storagespace;
         var webid = $scope.$parent.userProfile.webid;
         $scope.$parent.getChannels(storage, webid, true, false, true); //get channels and posts        
-    }else{
-      setTimeout(function(){$scope.loadPage();},500);
     }
-  };
-  $scope.loadPage();
+  });
  });
