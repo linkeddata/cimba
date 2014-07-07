@@ -499,7 +499,7 @@ angular.module( 'Cimba', [
                     if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
                         $scope.search.channels = $scope.users[$scope.search.webid].channels;
                         $scope.search.channel_size = Object.keys($scope.search.channels).length; //not supported in IE8 and below
-                        $scope.drawSearchResults();
+                        $scope.drawSearchResults(webid);
                         $scope.searchbtn = 'Search';
                         $scope.search.loading = false;
                         $scope.$apply();
@@ -523,7 +523,7 @@ angular.module( 'Cimba', [
 
                 // we were called by search
                 if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
-                    $scope.drawSearchResults();
+                    $scope.drawSearchResults(webid);
                 }
 
                 if (mine) {
@@ -1035,6 +1035,7 @@ angular.module( 'Cimba', [
     // lookup a WebID to find channels
     $scope.drawSearchResults = function(webid) {
         $scope.gotresults = true;
+        console.log("webid " + webid); //debug
         $scope.addChannelStyling(webid, $scope.search.channels);
         $scope.searchbtn = 'Search';
         $scope.search.loading = false;
@@ -1049,9 +1050,12 @@ angular.module( 'Cimba', [
             var ch = channels[i];
             // check if it's a known user
             if ($scope.users && $scope.users[webid]) {
+                console.log("webid: " + webid); //debug
+                console.log("$scope.users[" + webid + "]"); //debug
+                console.log($scope.users[webid]); //debug
                 var c = $scope.users[webid].channels[ch.uri];
                 // set attributes
-                if (idx !== undefined) {
+                if (channels[ch.uri]) {
                     ch.button = (c.button)?c.button:'fa-square-o';
                     ch.css = (c.css)?c.css:'btn-info';
                     ch.action = (c.action)?c.action:'Subscribe';

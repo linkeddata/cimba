@@ -166,7 +166,7 @@ angular.module('Cimba.channels',[
         chan.owner = $scope.$parent.userProfile.webid;
         chan.author = $scope.$parent.userProfile.name;
 
-        if ($scope.$parent.users[chan.owner].channels === undefined) {
+        if (isEmpty($scope.$parent.users[chan.owner].channels)) {
             $scope.$parent.users[chan.owner].channels = {};
         }
         $scope.$parent.users[chan.owner].channels[chan.uri] = chan;
