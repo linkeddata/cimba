@@ -322,11 +322,7 @@ angular.module( 'Cimba', [
             if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
                 $scope.getChannels(storage, webid, false, update, false);
             }
-<<<<<<< HEAD
             $scope.getInfoDone=true;            
-=======
-            $scope.getInfoDone=true;
->>>>>>> c958b5c863cf36cfc3c54ff4924a46dd32ec9d2d
         });
         if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
             $scope.searchbtn = 'Search';
@@ -416,11 +412,6 @@ angular.module( 'Cimba', [
                     // set default Microblog space
                     $scope.users[webid].mbspace = ws[0]['subject']['value'];
                     $scope.getUsers(true); // get the list of people I'm following + channels + posts
-<<<<<<< HEAD
-=======
-                    console.log("$scope.users[webid]"); //debug
-                    console.log($scope.users[webid]); //debug
->>>>>>> c958b5c863cf36cfc3c54ff4924a46dd32ec9d2d
                 }
 
                 var func = function() {
