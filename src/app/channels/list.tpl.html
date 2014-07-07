@@ -53,7 +53,7 @@
 		              </ul>
 		          </div>		      
 	              <button class="btn btn-primary" ng-click="newChannelModal=false; newChannel(channelname)">
-	              	Create
+	              	{{createbtn}}
 	              </button>		         
 	          </div>                
           </form>
@@ -81,7 +81,7 @@
 				    </div>
 				    <div class="panel-body">
 				        <div class="chan-panel-body-text" align="left">
-				            By: <a href="{{channel.webid}}"><i> {{channel.author}}</i></a>
+				            By: <a href="{{channel.owner}}"><i> {{users[channel.owner].name}}</i></a>
 				        </div>		        
 				    </div>
 			    </div>
@@ -106,7 +106,7 @@
 				    </div>
 				    <div class="panel-body">
 				        <div class="chan-panel-body-text" align="left">
-				             By: <a href="{{channel.webid}}"><i>{{channel.author}}</i></a>
+				             By: <a href="{{channel.owner}}"><i>{{users[channel.owner].name}}</i></a>
 				        </div>		        
 				    </div>
 			    </div>
@@ -114,7 +114,7 @@
 		</div>
 	</div>
 </div>
-<div class="overlay" ng-show="showOverlay" ng-click="showOverlay=false; newChannelModal=false"></div>
+<div class="overlay" ng-show="{{showOverlay}}" ng-click="showOverlay=false; newChannelModal=false"></div>
 
 <!-- <form>
 			            <div class="input-group">

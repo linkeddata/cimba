@@ -69,6 +69,7 @@ angular.module('Cimba.posts',[
 		g.add($rdf.sym(''), SIOC('content'), $rdf.lit($scope.postbody.trim()));
 		g.add($rdf.sym(''), SIOC('has_creator'), $rdf.sym('#author'));
 		g.add($rdf.sym(''), DCT('created'), $rdf.lit(now, '', $rdf.Symbol.prototype.XSDdateTime));
+		
 		// add author triples
 		g.add($rdf.sym('#author'), RDF('type'), SIOC('UserAccount'));
 		g.add($rdf.sym('#author'), SIOC('account_of'), $rdf.sym(webid));
