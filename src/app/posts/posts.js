@@ -138,6 +138,9 @@ angular.module('Cimba.posts',[
 						$scope.posts = {};
 					}
 					// append post to the local list
+					if ($scope.channels[uri].posts === undefined) {
+						$scope.channels[uri].posts = [];
+					}
 					$scope.channels[uri].posts.push(_newPost);
 					$scope.posts[_newPost.uri] = _newPost;
 					$scope.users[webid].gotposts = true;
@@ -301,7 +304,10 @@ angular.module('Cimba.posts',[
 		}
 
 		delete $scope.posts[posturi];
-		
+
+		if (isEmpty($scope.posts)) {
+			$scope.users[$scope.userProfile.webid].gotposts = false;
+		}
 	};
 
 	// remove all posts from viewer based on the given WebID
@@ -323,6 +329,9 @@ angular.module('Cimba.posts',[
 				}
 			}
 		}
+		if (isEmpty($scope.posts)) {
+			$scope.users[$scope.userProfile.webid].gotposts = false;
+		}
 	};
 
 	// remove all posts from viewer based on the given channel URI
@@ -333,8 +342,10 @@ angular.module('Cimba.posts',[
                 delete $scope.posts[p];
             }
         }
-
         $scope.channels[ch].posts = [];
+        if (isEmpty($scope.posts)) {
+			$scope.users[$scope.userProfile.webid].gotposts = false;
+		}
 	};
 })
 

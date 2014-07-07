@@ -493,16 +493,18 @@ angular.module( 'Cimba', [
                         console.log("assigning $scope.users[$scope.search.webid].channels"); //debug
                         console.log($scope.users[$scope.search.webid].channels); //debug
                         console.log("to $scope.search.channels"); //debug
-                        console.log($scope.search.channels); //debug
                         $scope.search.channels = $scope.users[$scope.search.webid].channels;
+                        console.log("1"); //debug
                         $scope.search.channel_size = Object.keys($scope.search.channels).length; //not supported in IE8 and below
+                        console.log("2"); //debug
                         $scope.drawSearchResults();
+                        console.log("3"); //debug
                         $scope.searchbtn = 'Search';
                         $scope.search.loading = false;
                         $scope.$apply();
                         //
                     }
-                           
+
                     if (mine) {
                         $scope.saveCredentials();
                         $scope.$apply();
@@ -1083,9 +1085,13 @@ angular.module( 'Cimba', [
     // lookup a WebID to find channels
     $scope.drawSearchResults = function(webid) {
         $scope.gotresults = true;
+        console.log("at drawSearchResults"); //debug
+        console.log("$scope.search.channels"); //debug
+        console.log($scope.search.channels); //debug
         $scope.addChannelStyling(webid, $scope.search.channels);
         $scope.searchbtn = 'Search';
         $scope.search.loading = false;
+        console.log("do ngProgress.complete()"); //debug
         ngProgress.complete();
         $scope.$apply();
     };
