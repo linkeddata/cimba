@@ -22,6 +22,7 @@ angular.module('Cimba.channels',[
 })
 
 .controller('ChannelsCtrl', function ChannelsController($scope, $http, $location, $sce){
+    console.log("executing channels controller");
     if ($scope.$parent.userProfile.storagespace !== undefined) {        
         $scope.$parent.loading = true;
         var storage = $scope.$parent.userProfile.storagespace;
@@ -31,7 +32,9 @@ angular.module('Cimba.channels',[
         $scope.$parent.gotstorage = false;
     }
 
-    var newChannelModal = false;
+    $scope.newChannelModal = false;
+    $scope.showOverlay = false;
+    $scope.createbtn = "Create";
 
     $scope.$parent.loading = false;
     
@@ -128,8 +131,6 @@ angular.module('Cimba.channels',[
     $scope.audience = {};
     $scope.audience.range = 'public';
     $scope.audience.icon = 'fa-globe';
-    console.log('this is the audience'+$scope.audience.range);
-    console.log("icon: " + $scope.audience.icon); //debug
 
     $scope.setAudience = function(v) {
         if (v=='public') {
@@ -162,10 +163,10 @@ angular.module('Cimba.channels',[
 
         chan.uri = churi;
         chan.title = title;
-        chan.webid = $scope.$parent.userProfile.webid;
+        chan.owner = $scope.$parent.userProfile.webid;
         chan.author = $scope.$parent.userProfile.name;
 
-        $scope.$parent.users[chan.webid].channels[chan.uri] = chan;
+        $scope.$parent.users[chan.owner].channels[chan.uri] = chan;
 
         // TODO: let the user select the Microblog workspace too
 
@@ -269,8 +270,14 @@ angular.module('Cimba.channels',[
                                 notify('Success', 'Your new "'+title+'" channel was succesfully created!');
                                 // clear form
                                 $scope.channelname = '';
-                                // reload user profile when done
+                                $scope.$apply();
+                                $location.path('/channels');
                                 $scope.getInfo(webid, true, false);
+                                
+
+                                
+                                // reload user profile when done
+                                
                             }
                         });
                     }
@@ -278,10 +285,12 @@ angular.module('Cimba.channels',[
             }
         }).always(function() {
             // revert button contents to previous state
+            console.log("executing creation always");
             $scope.createbtn = 'Create';
             $scope.loading = false;
-            newChannelModal = false;
             $scope.$apply();
-        });channelname='';
+        });
+
+        // channelname = '';
     };
 });

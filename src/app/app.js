@@ -192,7 +192,6 @@ angular.module( 'Cimba', [
             console.log("Getting user info for: "+webid);
         }
         $scope.getInfoDone=false;
-        console.log($scope.getInfoDone);
 
         // start progress bar
         ngProgress.start();
@@ -301,7 +300,10 @@ angular.module( 'Cimba', [
                 $scope.users[webid].picture = pic; //resolves issue of not displaying profile picture that the above line creates
 
                 //
-                $scope.users[webid].subscribedChannels = {};
+                if (!$scope.users[webid].subscribedChannels) {
+                    $scope.users[webid].subscribedChannels = {};
+                }
+                // $scope.users[webid].subscribedChannels = {};
                 //
 
                 // find microblogging feeds/channels
@@ -321,8 +323,7 @@ angular.module( 'Cimba', [
             if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
                 $scope.getChannels(storage, webid, false, update, false);
             }
-            $scope.getInfoDone=true;
-            console.log($scope.getInfoDone);
+            $scope.getInfoDone=true;            
         });
         if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
             $scope.searchbtn = 'Search';
@@ -369,7 +370,7 @@ angular.module( 'Cimba', [
 
                 ownerWebid = g.any(chs[0]['subject'], SIOC('has_creator'));
                 if (ownerWebid) {
-                    channel["webid"] = ownerWebid.value;
+                    channel["owner"] = ownerWebid.value;
                 } 
 
                 $scope.channels[channel.uri] = channel;
@@ -410,29 +411,14 @@ angular.module( 'Cimba', [
                 }
                 if (mine && !$scope.users[webid].mbspace) {
                     // set default Microblog space
-                    console.log("ws start"); //debug
-                    console.log(ws); //debug
-                    console.log(ws[0]); //debug
-                    console.log(ws[0]['subject']); //debug
-                    console.log(ws[0]['subject']['value']); //debug
-                    console.log("mbspace in getChannels"); //debug
                     $scope.users[webid].mbspace = ws[0]['subject']['value'];
-                    console.log($scope.users[webid].mbspace); //debug
-                    console.log("webid: " + webid); //debug
-                    console.log("$scope.users[webid]"); //debug
-                    console.log($scope.users[webid]); //debug
-                    console.log("ws end"); //debug
                     $scope.getUsers(true); // get the list of people I'm following + channels + posts
-                    console.log("$scope.users[webid"); //debug
-                    console.log($scope.users[webid]); //debug
                 }
 
                 var func = function() {
+                    var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));
 
-                    var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));                    
-                    if (chs.length > 0) {
-                        console.log("beginning of function: $scope.users[" + webid + "].channels is "); //debug
-                        console.log($scope.users[webid].channels); //debug
+                    if (chs.length > 0) {  
                         $scope.channels = {};
                         if (!$scope.users[webid].channels) {
                             $scope.users[webid].channels = {};
@@ -450,25 +436,14 @@ angular.module( 'Cimba', [
                                 channel['title'] = channeluri;
                             }
 
-                            channel["webid"] = webid;
-                            channel['author'] = $scope.users[webid].name;
+                            channel["owner"] = webid;                            
                         
-                            // add channel to the list if not existing already
-                            console.log("current channels: "); //debug
-                            console.log($scope.channels); //debug
-                            console.log("checking if $scope.channels[" + channel.uri + "] exists"); //debug
-                            if (!$scope.channels[channel.uri]) {
-                                console.log("doesn't exist, adding channel: "); //debug
-                                console.log(channel); //debug
-                                $scope.channels[channel.uri] = channel;
-                            }
-
-                            console.log("checking if $scope.users[webid].channels[" + channel.uri + "] exists"); //debug
-                            if (!$scope.users[webid].channels[channel.uri]) {
-                                console.log("doesn't exist, adding channel "); //debug
-                                console.log(channel); //debug
+                            $scope.channels[channel.uri] = channel;
+                            
+                            if ($scope.users[webid].channels) {
                                 $scope.users[webid].channels[channel.uri] = channel;
                             }
+                            $scope.$apply();
 
                             // mine
                             if (mine) {
@@ -495,15 +470,9 @@ angular.module( 'Cimba', [
 
                         // set a default channel for the logged user
                         if (mine) {
-                            console.log("setting default channel"); //debug
                             for (var u in $scope.users[webid].channels) {
-                                console.log("first channel is "); //debug
-                                console.log($scope.users[webid].channels[u]); //debug
                                 if (!$scope.defaultChannel) {
-                                    console.log("no default channel found"); //debug
                                     $scope.defaultChannel = $scope.users[webid].channels[u];
-                                    console.log("$scope.defaultChannel is "); //debug
-                                    console.log($scope.defaultChannel); //debug
                                     $scope.userProfile.channel_size = Object.keys($scope.users[$scope.userProfile.webid].channels).length; //not supported in IE8 and below
                                     break; //debug
                                 }
@@ -532,11 +501,6 @@ angular.module( 'Cimba', [
 
                     // if we were called by search
                     if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
-                        console.log("$scope.search.webid: " + $scope.search.webid); //debug
-                        console.log("assigning $scope.users[$scope.search.webid].channels"); //debug
-                        console.log($scope.users[$scope.search.webid].channels); //debug
-                        console.log("to $scope.search.channels"); //debug
-                        console.log($scope.search.channels); //debug
                         $scope.search.channels = $scope.users[$scope.search.webid].channels;
                         $scope.search.channel_size = Object.keys($scope.search.channels).length; //not supported in IE8 and below
                         $scope.drawSearchResults();
@@ -635,18 +599,17 @@ angular.module( 'Cimba', [
 
                     // try using the picture from the WebID first
 
-                    if (userwebid) {
+                    if (userwebid && $scope.users[userwebid]) {
                         userpic = $scope.users[userwebid].picture;
                     }
                     else if (g.any(useraccount, SIOC('avatar'))) {
                         userpic = g.any(useraccount, SIOC('avatar')).value;
                     }
                     else {
-                      userpic = 'assets/generic_photo.png';
+                        userpic = 'assets/generic_photo.png';
                     }
-
                     // try using the name from the WebID first
-                    if (userwebid) {
+                    if (userwebid && $scope.users[userwebid]) {
                         username = $scope.users[userwebid].name;
                     } else if (g.any(useraccount, FOAF('name'))) {
                         username = g.any(useraccount, FOAF('name')).value;
@@ -679,18 +642,12 @@ angular.module( 'Cimba', [
                     if (!$scope.posts) {
                         $scope.posts =  {};
                     }
-                    
-                    /*
-                    if (!$scope.channels[channeluri]) {
-                        $scope.channels[channeluri] = {
-                            "posts": []
-                        };
-                    } else if (!$scope.channels[channeluri]["posts"]) {
-                        $scope.channels[channeluri]["posts"] = [];
-                    }*/
 
-                    if (!$scope.channels[channeluri]['posts']) {
-                        $scope.channels[channeluri]['posts'] = [];
+                    if ($scope.channels[channeluri]) {
+                        if (!$scope.channels[channeluri]['posts']) {
+                            $scope.channels[channeluri]['posts'] = []; 
+                        }
+                        $scope.channels[channeluri].posts.push(_newPost);
                     }
 
 
@@ -709,16 +666,15 @@ angular.module( 'Cimba', [
                     if ($scope.filterFlag && testIfAllEnglish(_newPost.body)) {
                         // add/overwrite post
                         $scope.posts[uri] = _newPost; 
-                        $scope.channels[channeluri].posts.push(_newPost);                       
+                        // $scope.channels[channeluri].posts.push(_newPost);                       
                         $scope.$apply();
                     } else {
                         // $scope.allPosts[channeluri].push(_newPost);
                         // $scope.posts.push(_newPost);
                         $scope.posts[uri] = _newPost;                        
-                        $scope.channels[channeluri]["posts"].push(_newPost);
+                        // $scope.channels[channeluri]["posts"].push(_newPost);
                         $scope.$apply();
-                    }
-                    console.log($scope.channels[channeluri]);
+                    }                    
                     $scope.users[$scope.userProfile.webid].gotposts = true;
                 }
             } else {
@@ -797,14 +753,6 @@ angular.module( 'Cimba', [
         var followURI = ''; // uri of the preferences file
         var mywebid = $scope.userProfile.webid;
 
-        console.log("start saveUsers"); //debug
-        console.log("webid: " + mywebid); //debug
-        console.log($scope.users[mywebid]); //debug
-        console.log("mbspace"); //debug
-        console.log($scope.users[mywebid].mbspace); //debug
-        console.log($scope.users[mywebid].mbspace.length); //debug
-        console.log("end saveUsers"); //debug
-
         if ($scope.users[mywebid].mbspace && $scope.users[mywebid].mbspace.length > 1) {
             followURI = $scope.users[mywebid].mbspace+'following';
         }
@@ -814,20 +762,13 @@ angular.module( 'Cimba', [
         var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
         var g = $rdf.graph();
 
-
-        //debug
-        console.log("Follow uri: "+followURI);
         // set triples
         g.add($rdf.sym(followURI), RDF('type'), SIOC('Usergroup'));        
         g.add($rdf.sym(followURI), DCT('created'), $rdf.lit(Date.now(), '', $rdf.Symbol.prototype.XSDdateTime));
         // add users
         var i=0;
-        console.log("$scope.users"); //debug
-        console.log($scope.users); //debug
         for (var key in $scope.users) {
             var user = $scope.users[key];
-            console.log("var user: " + key); //debug
-            console.log(user); //debug
             var uid = followURI+'#user_'+i;
             // add hash id to main graph
             g.add($rdf.sym(followURI), SIOC('has_member'), $rdf.sym(uid));
@@ -862,10 +803,7 @@ angular.module( 'Cimba', [
             i++;
         }
         // serialize graph
-        console.log(g); //debug
         var t = new $rdf.Serializer(g); //debug
-        console.log(g.toString()); //debug
-        console.log(t.toN3(g)); //debug
         var s = new $rdf.Serializer(g).toN3(g);
         // PUT the new file on the PDS
         if (s.length > 0) {
@@ -911,7 +849,6 @@ angular.module( 'Cimba', [
     // get list of users (that I'm following) + their channels
     // optionally load posts
     $scope.getUsers = function (loadposts) {
-        console.log("GETUSERS() START"); //debug
         if ($scope.users[$scope.userProfile.webid].mbspace && $scope.users[$scope.userProfile.webid].mbspace.length > 1) {
             var followURI = $scope.users[$scope.userProfile.webid].mbspace+'following';
     
@@ -943,8 +880,8 @@ angular.module( 'Cimba', [
                                 var _channel = {};
                                 _channel.uri = g.any(ch, SIOC('link')).value;
                                 _channel.title = (g.any(ch, DCT('title')))?g.any(ch, DCT('title')).value:'Untitled';
-                                _channel.author = _user.name; //for subscription
-                                _channel.webid = _user.webid; //for subscription
+                                // _channel.author = _user.name; //for subscription
+                                _channel.owner = _user.webid; //for subscription
                                 if (g.any(ch, SIOC('has_subscriber'))) {
                                 // subscribed
                                     _channel.action = 'Unsubscribe';
@@ -961,9 +898,6 @@ angular.module( 'Cimba', [
                                 }
                                 // add channel to user objects
                                 _user.channels[_channel.uri] = _channel;
-                                console.log("adding channel"); //debug
-                                console.log(_channel); //debug
-                                console.log("to _user.channels[" + _channel.uri + "]"); //debug
                             }
                         }
                         // add user
@@ -973,10 +907,6 @@ angular.module( 'Cimba', [
                         if (_user.webid !== $scope.userProfile.webid) { //do not overwrite our own user
                             //(change later to append because we need to know if we're subscribed or not to our own channel)
                             $scope.users[_user.webid] = _user;
-                            console.log("after loading, channels in $scope.users[" + _user.webid + "].channels are"); //debug
-                            for (var y in $scope.users[_user.webid].channels) {
-                                console.log($scope.users[_user.webid].channels[y]);
-                            }
                             for (var chann in _user.channels) {
                                 $scope.users[$scope.userProfile.webid].subscribedChannels[chann] = _user.channels[chann];
                             }

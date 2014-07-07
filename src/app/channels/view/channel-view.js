@@ -15,6 +15,7 @@ angular.module('Cimba.channels.view', ['ui.router'])
 })
 
 .controller('ChannelViewCtrl', function ChannelViewController($scope, $stateParams, $location, $http) {	
+	console.log("channel view ctrl");
 	$scope.path = $stateParams.path;
 
 	$scope.safeUri = function (uri) {
