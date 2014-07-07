@@ -146,6 +146,7 @@ angular.module('Cimba.channels',[
     };
 
     $scope.newChannel = function(channelname){
+        console.log("wrong function"); //debug
         $scope.loading = true;
         $scope.createbtn = 'Creating...';
         var title = 'ch';
@@ -154,7 +155,6 @@ angular.module('Cimba.channels',[
         var chan = {};
 
         if ($scope.channelname !== undefined && testIfAllEnglish($scope.channelname)) {
-            console.log("test");
             // remove white spaces and force lowercase
             title = $scope.channelname;
             churi = $scope.channelname.toLowerCase().split(' ').join('_');
@@ -165,6 +165,9 @@ angular.module('Cimba.channels',[
         chan.webid = $scope.$parent.userProfile.webid;
         chan.author = $scope.$parent.userProfile.name;
 
+        if ($scope.$parent.users[chan.webid].channels === undefined) {
+            $scope.$parent.users[chan.webid].channels = {};
+        }
         $scope.$parent.users[chan.webid].channels[chan.uri] = chan;
 
         // TODO: let the user select the Microblog workspace too
@@ -261,6 +264,10 @@ angular.module('Cimba.channels',[
                                 notify('Success', 'Your new "'+title+'" channel was succesfully created!');
                                 // clear form
                                 $scope.channelname = '';
+                                //set default if first channel
+                                if (!$scope.defaultChannel) {
+                                    $scope.defaultChannel = chan;
+                                }
                                 // reload user profile when done
                                 $scope.getInfo(webid, true, false);
                             }

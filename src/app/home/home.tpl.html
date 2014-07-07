@@ -1,15 +1,4 @@
 <div ng-click="hideMenu()" ng-controller="PostsController as postCtrl">
-	<!-- no posts found -->
-    <div id="setup" class="container" ng-show="users[userProfile.webid].gotposts == false">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="panel panel-default text-center">
-                    <h3>You haven't posted anything. Try writing a new post or <a href="#subscribeModal" role="button" data-toggle="modal"><button class="btn btn-primary"><i class="fa fa-rss white"></i> subscribe</button></a> to someone's channels!</h3>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div id="newpost" class="container">
         <div class="row">
             <!-- <div class="clear-70"></div> -->
@@ -20,6 +9,198 @@
             </div>
         </div>
     </div>
+
+    <!-- new storage modal -->
+    <div id="setup" class="container" ng-show="userProfile.webid && !userProfile.storagespace">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default text-center">
+                    <h3>We could not find a shared storage space in your WebID profile.</h3>
+                    <p><button ng-click="newStorageModal = true" class="btn btn-primary">Please provide one here</button></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- new uB modal -->
+    <div id="setup" class="container" ng-show="userProfile.webid && userProfile.storagespace && users[userProfile.webid].mbspace == false">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default text-center">
+                    <h3>To start using Cimba, you will need a microblogging space.</h3>
+                    <p><button ng-click="newMBModal = true" class="btn btn-primary">Click here to create one</button></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- no channels found -->
+    <div id="setup" class="container" ng-show="userProfile.webid && userProfile.storagespace && users[userProfile.webid].mbspace && users[userProfile.webid].chspace == false">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default text-center">
+                    <h3>You're almost there! Now you just need to create a channel for your posts.</h3>
+                    <p><button ng-click="newChannelModal = true" class="btn btn-primary">Click here to create a channel</button></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+	<!-- no posts found -->
+    <div id="setup" class="container" ng-show="users[userProfile.webid].gotposts == false">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default text-center">
+                    <h3>You haven't posted anything. Try writing a new post or <a ui-sref="find" role="button"><button class="btn btn-primary"><i class="fa fa-rss white"></i> subscribe</button></a> to someone's channels!</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--new storage modal-->
+    <div ng-show="newStorageModal" tabindex="-1" role="dialog" aria-hidden="true"; style="display:block">
+        <!-- <div class="tintedOverlay" style="position: fixed; top: 0%; left: 0%; height:100% width=100%; z-index:800"> -->
+        <div class="modal-dialog">
+            <div class="modal-content popup">
+                <div class="modal-header">
+                    <button type="button" class="close" ng-click="newStorageModal = false" aria-hidden="true">x</button>
+                    <h3 class="text-center">Provide a URI for your storage</h3>
+                </div>
+                <div class="modal-body">
+                    <form class="m10">
+                        <p><small>Full storage location URI. Must start with http(s)://</small></p>
+                        <input type="text" id="storageuri" name="storageuri" ng-model="storageuri" class="form-control" placeholder="http.." required ng-pattern="/^http[A-Za-z0-9_.:/]*$/">
+                        <div ng-show="storageuri" class="text-center">
+                            <br>
+                            <p>Alternatively, if your WebID profile is not Web writable, you can manually add the following triple at the end of your profile:</p>
+                            <br>
+                            <textarea class="triples"><{{userProfile.webid}}><http://www.w3.org/ns/pim/space#storage><{{storageuri}}> .</textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-md-12">
+                        <button class="btn btn-primary" ng-click="newStorage(true)" ng-disabled="!storageuri" tooltip="Skip all configuration">{{addstoragebtn}} (simple)</button>
+                        <button class="btn btn-primary" ng-click="newStorage()" ng-disabled="!storageuri" rel="tooltip" data-placement="top" title="Choose configuration options">{{addstoragebtn}} (advanced)</button>
+                        <button class="btn btn-info btn-sep-right" ng-click="newStorageModal = false" aria-hidden="true">Close</button>
+                    </div>  
+                </div>      
+            </div>
+        <!-- </div> -->
+        </div>
+    </div>
+
+    <!--new microblogging workspace modal-->
+    <div ng-show="newMBModal" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content popup">
+              <div class="modal-header">                 
+                  <button type="button" class="close" ng-click="newMBModal = false" aria-hidden="true">x</button>              
+                  <h3 class="text-center">Create a new microblog workspace</h3>
+              </div>
+              <div class="modal-body">
+                  <form class="m10">
+                      <input type="text" id="mburi" name="mburi" ng-model="mburi" class="form-control" placeholder="mb, blog, etc.." required ng-pattern="/^[A-Za-z0-9_ ]*$/">
+                  </form>
+              </div>
+              <div class="modal-footer">
+                  <div class="col-md-12">
+                      <button class="btn btn-primary" ng-click="newMB(mburi, false)" ng-disabled="!mburi">{{createbtn}}</button>
+                      <button class="btn btn-info btn-sep-right" ng-click="newMBModal = false" aria-hidden="true">Close</button>
+                  </div>  
+              </div>
+          </div>
+      </div>
+    </div>
+
+    <!--new channel modal-->
+    <div id="channel-modal" ng-show="newChannelModal" class="popup">
+      <div class="pull-right">
+        <button type="button" class="close" ng-click="newChannelModal=false; showOverlay=false">X</button>
+      </div>
+      <div>
+          
+          <h2 class="text-center">Create a new channel</h2>
+      </div>
+      <div>
+          <form ng-controller="ChannelsCtrl">
+            <p>The name you provide will be used to create a new channel inside your microblog.</p>
+            <p><input type="text" ng-model="channelname" placeholder="Name (Main, Work, etc.).." required ng-pattern="/^[A-Za-z0-9_ ]*$/"></input></p>
+            <div id="modal-channel-group" class="btn-group-horizontal"> 
+              <div id="audience-group" class="btn-group">
+                  <button id="audience" class="btn btn-primary" disabled>
+                    <i class="fa {{audience.icon}} fa-2x white"></i>
+                  </button>
+                  <button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> 
+                    <small class="drop" rel="tooltip" data-placement="top" title="Audience">
+                      <i class="fa fa-chevron-down fa-2x"></i>
+                    </small>
+                  </button>
+                  <ul class="dropdown-menu audience-dropdown" role="menu" aria-labelledby="audience">
+                      <li ng-click="setAudience('public')">
+                        <a href="#/channels">
+                          <i id="public" class="fa fa-globe fa-2x default-color"></i> 
+                          Public
+                        </a>
+                      </li>
+                      <li ng-click="setAudience('private')">
+                        <a href="#/channels">
+                          &nbsp;
+                          <i id="private" class="fa fa-lock fa-2x default-color"></i>
+                          &nbsp; Private
+                        </a>
+                      </li>
+                      <li ng-click="setAudience('friends')">
+                        <a href="#/channels">
+                          &nbsp;
+                          <i id="friends" class="fa fa-users fa-2x default-color"></i>
+                          &nbsp; Friends
+                        </a>
+                      </li>
+                  </ul>
+              </div>          
+                <button class="btn btn-primary" ng-click="newChannelModal=false; newChannel(channelname)">
+                  Create
+                </button>            
+            </div>                
+          </form>
+      </div>
+    </div>
+
+    <!--
+    <div ng-show="newChannelModal" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content popup">
+              <div class="modal-header">
+                  <button type="button" class="close" ng-click="newChannelModal = false" aria-hidden="true">×</button>
+                  <h2 class="text-center">Create a new channel</h2>
+              </div>
+              <div class="modal-body">
+                  <form class="m10">
+                  <p>The name you provide will be used to create a new channel inside your microblog.</p>                  
+                  <p><input type="text" id="channelname" name="channelname" ng-model="channelname" class="form-control" placeholder="Name (Main, Work, etc.).." required ng-pattern="/^[A-Za-z0-9_ ]*$/"></p>
+                  <div class="btn-group">
+                      <button id="audience" class="btn btn-primary" disabled><i class="fa {{audience.icon}} fa-2x white"></i></button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop" rel="tooltip" data-placement="top" title="Audience"><i class="fa fa-chevron-down fa-2x"></i></small></button>
+                      <ul class="dropdown-menu" role="menu" aria-labelledby="audience">
+                          <li><a href="#" ng-click="setAudience('public')"><i id="public" class="fa fa-globe fa-2x blue"></i> Public</a></li>
+                          <li><a href="#" ng-click="setAudience('private')">&nbsp;<i id="private" class="fa fa-lock fa-2x blue"></i>&nbsp; Private</a></li>
+                          <li><a href="#" ng-click="setAudience('friends')"><i id="friends" class="fa fa-user fa-2x blue"></i> Friends</a></li>
+                      </ul>
+                  </div>
+                  </form>
+              </div>
+              <div class="modal-footer">
+                  <div class="col-md-12">
+                      <button class="btn btn-primary" ng-click="newChannel()" ng-disabled="!channelname">{{createbtn}}</button>
+                      <button class="btn btn-info btn-sep-right" ng-click="newChannelModal = false" aria-hidden="true">Close</button>
+                  </div>  
+              </div>
+          </div>
+      </div>
+    </div>
+    -->
 
 	<div id="posts" class="container">
 	    <div class="row">
