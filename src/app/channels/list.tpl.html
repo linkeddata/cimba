@@ -1,9 +1,9 @@
 
 <div>
 	<div> 
-		<button class='fa fa-plus fa-2x channel-menu-btn btn-primary pull-right' ng-click="newChannelModal=!newChannelModal; showOverlay=!showOverlay" id="new-channel-button" title="New Channel"></button> 
+		<button class='fa fa-plus channel-menu-btn btn-primary pull-right' ng-click="newChannelModal=!newChannelModal; showOverlay=!showOverlay" id="new-channel-button" title="New Channel"></button> 
 		<a href ui-sref="manage">
-			<button class='fa fa-wrench fa-2x channel-menu-btn btn-primary pull-right' title='Manage Channels' disabled></button>
+			<button class='fa fa-wrench channel-menu-btn btn-primary pull-right' title='Manage Channels' disabled></button>
 		</a>
 		<div class="center"><h1>Channels</h1></div>
 	</div>
@@ -76,7 +76,7 @@
 			        <div class="chan-panel-heading panel-heading light-red">
 			        	<div class="pull-left"><a ui-sref="view({path: safeUri(channel.uri)})" class="link-white bold">{{channel.title}}</a>
 			        	</div>
-		                
+		                <div class="pull-right"><button type="button" class="close" ng-click="deleteChannel(channel.uri)">x</button></div>
 			        	<br style="line-height:25%"/>
 				    </div>
 				    <div class="panel-body">
