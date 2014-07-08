@@ -320,6 +320,14 @@ angular.module( 'Cimba', [
                 $scope.getChannels(storage, webid, false, update, false);
             }
             $scope.getInfoDone=true;
+            console.log("at getinfo, $scope.users[" + $scope.userProfile.webid + "] has channels"); //debug
+            for (var y in $scope.users[webid].channels) {
+                console.log($scope.users[webid].channels[y]); //debug
+            }
+            console.log("has subscribed channels"); //debug
+            for (var w in $scope.users[webid].subscribedChannels) {
+                console.log($scope.users[webid].subscribedChannels[w]); //debug
+            }
         });
         if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
             $scope.searchbtn = 'Search';
@@ -408,15 +416,21 @@ angular.module( 'Cimba', [
                 if (mine && !$scope.users[webid].mbspace) {
                     // set default Microblog space
                     $scope.users[webid].mbspace = ws[0]['subject']['value'];
+                    console.log("at getChannels, looking for .mbspace $scope.users[" + webid + "] is"); //debug
+                    console.log($scope.users[webid]); //debug
                     $scope.getUsers(true); // get the list of people I'm following + channels + posts
                 }
 
                 var func = function() {
                     var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));
 
-                    if (chs.length > 0) {  
-                        $scope.channels = {};
+                    if (chs.length > 0) {
+                        if (!$scope.channels) {
+                            console.log("$scope.channels is undefined, initializing empty list"); //debug
+                            $scope.channels = {};
+                        }
                         if (!$scope.users[webid].channels) {
+                            console.log("$scope.users[" + webid + "].channels is undefined, initializing empty list"); //debug
                             $scope.users[webid].channels = {};
                         }
           
@@ -437,7 +451,11 @@ angular.module( 'Cimba', [
                             $scope.channels[channel.uri] = channel;
                             
                             if ($scope.users[webid].channels) {
-                                $scope.users[webid].channels[channel.uri] = channel;
+                                if (!$scope.users[webid].channels[channel.uri]) {
+                                    console.log("$scope.usrs[webid].channels doesn't contain " + channel.uri + ". setting it equal to");
+                                    console.log(channel);
+                                    $scope.users[webid].channels[channel.uri] = channel;
+                                }
                             }
                             $scope.$apply();
 
@@ -497,6 +515,10 @@ angular.module( 'Cimba', [
 
                     // if we were called by search
                     if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
+                        console.log("in getChannels, called by search: $scope.users[" + $scope.search.webid + "].channels");
+                        for (var y in $scope.users[$scope.search.webid].channels) {
+                            console.log($scope.users[$scope.search.webid].channels[y]); //debug
+                        }
                         $scope.search.channels = $scope.users[$scope.search.webid].channels;
                         $scope.search.channel_size = Object.keys($scope.search.channels).length; //not supported in IE8 and below
                         $scope.drawSearchResults(webid);
@@ -749,9 +771,13 @@ angular.module( 'Cimba', [
         var followURI = ''; // uri of the preferences file
         var mywebid = $scope.userProfile.webid;
 
+        console.log("$scope.users[" + mywebid + "]"); //debug
+        console.log($scope.users[mywebid]); //debug
+
         if ($scope.users[mywebid].mbspace && $scope.users[mywebid].mbspace.length > 1) {
             followURI = $scope.users[mywebid].mbspace+'following';
         }
+        console.log("at save users"); //debug
 
         var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
@@ -776,8 +802,10 @@ angular.module( 'Cimba', [
                 g.add($rdf.sym(uid), SIOC('avatar'), $rdf.sym(user.pic));
             }
 
+            console.log("inside for loop"); //debug
             // add each channel
             if (!isEmpty(user.channels)) {
+                console.log("inside if"); //debug
                 for (var j in user.channels) {
                     var ch = user.channels[j];
                     var ch_id = followURI+'#channel_'+i+'_'+j;
@@ -791,6 +819,7 @@ angular.module( 'Cimba', [
                     g.add($rdf.sym(ch_id), DCT('title'), $rdf.lit(ch.title));
                     // add my WebID if I'm subscribed to this channel
                     if (ch.action === 'Unsubscribe') {
+                        console.log("5.5"); //debug
                         g.add($rdf.sym(ch_id), SIOC('has_subscriber'), $rdf.sym(mywebid));
                     }
                 }
@@ -802,6 +831,7 @@ angular.module( 'Cimba', [
         var s = new $rdf.Serializer(g).toN3(g);
         // PUT the new file on the PDS
         if (s.length > 0) {
+            console.log("s > 0; url: " + followURI); //debug
             $.ajax({
                 type: "PUT",
                 url: followURI,
@@ -902,8 +932,14 @@ angular.module( 'Cimba', [
                         if (_user.webid !== $scope.userProfile.webid) { //do not overwrite our own user
                             //(change later to append because we need to know if we're subscribed or not to our own channel)
                             $scope.users[_user.webid] = _user;
+                            console.log("in $scope.users[" + _user.webid + "], channels are"); //debug
                             for (var chann in _user.channels) {
-                                $scope.users[$scope.userProfile.webid].subscribedChannels[chann] = _user.channels[chann];
+                                console.log(_user.channels[chann]); //debug
+                                if (_user.channels[chann].action == 'Unsubscribe') {
+                                    console.log("im subscribed to a channel"); //debug
+                                    console.log(_user.channels[chann]);
+                                    $scope.users[$scope.userProfile.webid].subscribedChannels[chann] = _user.channels[chann];
+                                }
                             }
                             $scope.$apply();
                         }
@@ -939,6 +975,9 @@ angular.module( 'Cimba', [
             }
         }
 
+        console.log("at removePostsbyChannel, $scope.channels"); //debug
+        console.log($scope.channels); //debug
+        console.log("looking 4 ch uri: " + ch); //debug
         $scope.channels[ch].posts = [];
     };
 
@@ -992,6 +1031,7 @@ angular.module( 'Cimba', [
                     c.button = ch.button = 'fa-square-o';
                     c.css = ch.css = 'btn-info';
                     $scope.removePostsByChannel(ch.uri);
+                    delete $scope.users[$scope.userProfile.webid].subscribedChannels[ch.uri];
                 } else {
                 // subscribe
                     c.action = ch.action = 'Unsubscribe';
@@ -1009,8 +1049,11 @@ angular.module( 'Cimba', [
             // also update the users list in case there is a new channel
             $scope.users[suser.webid] = user;
             for (var cha in channels) {
-                $scope.users[$scope.userProfile.webid].subscribedChannels[cha] = channels[cha];
+                if (channels[cha].action == 'Unsubscribe') {
+                    $scope.users[$scope.userProfile.webid].subscribedChannels[cha] = channels[cha];
+                }
             }
+            console.log("saving user"); //debug
             $scope.saveUsers();
         } else {
             // subscribe (also add user + channels)
@@ -1025,8 +1068,11 @@ angular.module( 'Cimba', [
             var schans = $scope.users[suser.webid].channels;
 
             for (var chane in schans) {
-                $scope.users[$scope.userProfile.webid].subscribedChannels[chane.uri] = chane;
+                if (schans[chane].action == 'Unsubscribe') {
+                    $scope.users[$scope.userProfile.webid].subscribedChannels[chane.uri] = chane;
+                }
             }
+            console.log("saving user 2"); //debug
             $scope.saveUsers();
             $scope.getPosts(ch.uri, ch.title);
         }
@@ -1035,7 +1081,10 @@ angular.module( 'Cimba', [
     // lookup a WebID to find channels
     $scope.drawSearchResults = function(webid) {
         $scope.gotresults = true;
-        console.log("webid " + webid); //debug
+        console.log("webid " + webid + ", $scope.users[" + webid + "] has channels "); //debug
+        for (var y in $scope.users[webid].channels) {
+            console.log($scope.users[webid].channels[y]); //debug
+        }
         $scope.addChannelStyling(webid, $scope.search.channels);
         $scope.searchbtn = 'Search';
         $scope.search.loading = false;
@@ -1053,7 +1102,17 @@ angular.module( 'Cimba', [
                 console.log("webid: " + webid); //debug
                 console.log("$scope.users[" + webid + "]"); //debug
                 console.log($scope.users[webid]); //debug
+
+                for (var k in $scope.users[webid].channels) {
+                    console.log("channel key: " + k); //debug
+                    console.log($scope.users[webid].channels[k]); //debug
+                }
                 var c = $scope.users[webid].channels[ch.uri];
+                console.log("var c"); //debug
+                console.log(c); //debug
+                console.log("at addChannelStyling, for channel: " + ch.uri); //debug
+                console.log("action: " + c.action + ", css: " + c.css + ", button: " + c.button); //debug
+
                 // set attributes
                 if (channels[ch.uri]) {
                     ch.button = (c.button)?c.button:'fa-square-o';
