@@ -146,7 +146,7 @@ angular.module('Cimba.channels',[
         console.log('this is the audience: '+$scope.audience.range);
     };
 
-    $scope.newChannel = function(channelname){
+    $scope.newChannel = function(channelname, redirect){
         console.log("wrong function"); //debug
         $scope.loading = true;
         $scope.createbtn = 'Creating...';
@@ -166,16 +166,35 @@ angular.module('Cimba.channels',[
         chan.owner = $scope.$parent.userProfile.webid;
         chan.author = $scope.$parent.userProfile.name;
 
+        console.log("START listing channels"); //debug
+        for (var w in $scope.$parent.users[chan.owner].channels) {
+            console.log("key: " + w); //debug
+            console.log($scope.$parent.users[chan.owner].channels[w]); //debug
+        }
+        console.log("END listing channels"); //debug
+
         if (isEmpty($scope.$parent.users[chan.owner].channels)) {
+            console.log("empty channels"); //debug
             $scope.$parent.users[chan.owner].channels = {};
         }
-        $scope.$parent.users[chan.owner].channels[chan.uri] = chan;
+
+        console.log("$scope.$parent.users[" + chan.owner + "].channels[" + chan.uri + "] = "); //debug
+        console.log($scope.$parent.users[chan.owner].channels[chan.uri]); //debug
 
         // TODO: let the user select the Microblog workspace too
 
+        console.log("mbspace: " + $scope.$parent.users[chan.owner].mbspace); //debug
+
+        console.log("START listing channels"); //debug
+        for (var r in $scope.$parent.users[chan.owner].channels) {
+            console.log("key: " + r); //debug
+            console.log($scope.$parent.users[chan.owner].channels[r]); //debug
+        }
+        console.log("END listing channels"); //debug
+
         $.ajax({
             type: "POST",
-            url: $scope.users[webid].mbspace,
+            url: $scope.$parent.users[chan.owner].mbspace,
             processData: false,
             contentType: 'text/turtle',
             headers: {
@@ -211,7 +230,11 @@ angular.module('Cimba.channels',[
                 var meta = parseLinkHeader(r.getResponseHeader('Link'));
                 var metaURI = meta['meta']['href'];
 
+                console.log("metaURI: " + metaURI);
+
                 var chURI = r.getResponseHeader('Location');
+                console.log("chURI: " + chURI);
+
                 // got the URI for the new channel
                 if (chURI && metaURI) {
                     var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
@@ -275,20 +298,29 @@ angular.module('Cimba.channels',[
                                 $scope.channelname = '';
 
                                 $scope.$apply();
-                                $location.path('/channels');
+                                if (redirect) {
+                                    $location.path('/channels');
+                                }
 
                                 //set default if first channel
                                 if (!$scope.defaultChannel) {
                                     $scope.defaultChannel = chan;
                                 }
 
-                                // reload user profile when done
-                                $scope.getInfo(webid, true, false);
-                                
+                                //adds the newly created channel to our list
+                                chan.uri = chURI;
+                                $scope.$parent.users[chan.owner].channels[chURI] = chan;
+                                $scope.$parent.channels[chURI] = chan;
 
-                                
+                                console.log("START listing channels"); //debug
+                                for (var t in $scope.$parent.users[chan.owner].channels) {
+                                    console.log("key: " + t); //debug
+                                    console.log($scope.$parent.users[chan.owner].channels[t]); //debug
+                                }
+                                console.log("END listing channels"); //debug
+
                                 // reload user profile when done
-                                
+                                $scope.getInfo(chan.owner, true, false);
                             }
                         });
                     }
@@ -301,8 +333,6 @@ angular.module('Cimba.channels',[
             $scope.loading = false;
             $scope.$apply();
         });
-
-        // channelname = '';
     };
 
     $scope.deleteChannel = function (channeluri) {

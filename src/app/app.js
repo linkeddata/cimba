@@ -423,6 +423,7 @@ angular.module( 'Cimba', [
 
                 var func = function() {
                     var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));
+                    console.log("got Channels!"); //debug
 
                     if (chs.length > 0) {
                         if (!$scope.channels) {
@@ -446,13 +447,21 @@ angular.module( 'Cimba', [
                                 channel['title'] = channeluri;
                             }
 
-                            channel["owner"] = webid;                            
-                        
-                            $scope.channels[channel.uri] = channel;
+                            channel["owner"] = webid;
+                            channel["author"] = webid; //default
+                            var authorlink = g.any(chs[ch]['subject'], SIOC('has_creator'));
+                            var author = g.any(authorlink, FOAF('name'));
+                            if (author) {
+                                channel["author"] = author.value;
+                            }
+
+                            if (!$scope.channels[channel.uri]) {
+                                $scope.channels[channel.uri] = channel;
+                            }
                             
                             if ($scope.users[webid].channels) {
                                 if (!$scope.users[webid].channels[channel.uri]) {
-                                    console.log("$scope.usrs[webid].channels doesn't contain " + channel.uri + ". setting it equal to");
+                                    console.log("$scope.users[webid].channels doesn't contain " + channel.uri + ". setting it equal to");
                                     console.log(channel);
                                     $scope.users[webid].channels[channel.uri] = channel;
                                 }
@@ -590,6 +599,7 @@ angular.module( 'Cimba', [
         f.nowOrWhenFetched(channeluri+'*', undefined, function(){
 
             var posts = g.statementsMatching(undefined, RDF('type'), SIOC('Post'));
+            console.log("got Posts!"); //debug
 
             if (posts.length > 0) {
 
@@ -874,6 +884,7 @@ angular.module( 'Cimba', [
     // get list of users (that I'm following) + their channels
     // optionally load posts
     $scope.getUsers = function (loadposts) {
+        console.log("at get users");
         if ($scope.users[$scope.userProfile.webid].mbspace && $scope.users[$scope.userProfile.webid].mbspace.length > 1) {
             var followURI = $scope.users[$scope.userProfile.webid].mbspace+'following';
     
@@ -889,8 +900,11 @@ angular.module( 'Cimba', [
             f.nowOrWhenFetched(followURI,undefined,function(ok, body){
                 var users = g.statementsMatching(undefined, RDF('type'), SIOC('UserAccount'));
 
+                console.log("listing users: "); //debug
                 if (users.length > 0) {
                     for (var i in users) {
+                        console.log("key: " + i + ", user object: "); //debug
+                        console.log(users[i]); //debug
                         var u = users[i]['subject'];
                         var _user = {};
                         _user.webid = g.any(u, SIOC('account_of')).value;
@@ -929,6 +943,8 @@ angular.module( 'Cimba', [
                         if (!$scope.users) {
                             $scope.users = {};
                         }
+                        console.log("_user"); //debug
+                        console.log(_user); //debug
                         if (_user.webid !== $scope.userProfile.webid) { //do not overwrite our own user
                             //(change later to append because we need to know if we're subscribed or not to our own channel)
                             $scope.users[_user.webid] = _user;
