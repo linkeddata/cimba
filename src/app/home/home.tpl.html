@@ -1,4 +1,5 @@
 <div ng-click="hideMenu()" ng-controller="PostsController as postCtrl">
+
     <div id="newpost" class="container">
         <div class="row">
             <!-- <div class="clear-70"></div> -->
@@ -60,7 +61,7 @@
     </div>
 
     <!--new storage modal-->
-    <div ng-show="newStorageModal" tabindex="-1" role="dialog" aria-hidden="true"; style="display:block">
+    <div ng-show="newStorageModal" tabindex="-1" role="dialog" aria-hidden="true";>
         <!-- <div class="tintedOverlay" style="position: fixed; top: 0%; left: 0%; height:100% width=100%; z-index:800"> -->
         <div class="modal-dialog">
             <div class="modal-content popup">
@@ -161,7 +162,7 @@
                       </li>
                   </ul>
               </div>          
-                <button class="btn btn-primary" ng-click="newChannelModal=false; newChannel(channelname)">
+                <button class="btn btn-primary" ng-disabled="!channelname" ng-click="newChannelModal=false; newChannel(channelname, false)">
                   Create
                 </button>            
             </div>                

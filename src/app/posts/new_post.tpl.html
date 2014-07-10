@@ -27,7 +27,7 @@
                     <button id="chs" class="btn btn-primary" disabled>{{defaultChannel.title}}</button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop" rel="tooltip" data-placement="top" title="Channels"><i class="fa fa-chevron-down fa-2x"></i></small></button>
                     <ul class="dropdown-menu" role="menu" aria-labelledby="chs">
                         <li ng-repeat="channel in users[userProfile.webid].channels | orderBy:'title'">
-                            <a href="#home" ng-click="setChannel(channel.title)">{{channel.title}}</a>
+                            <a href="#home" ng-click="setChannel(channel.uri)">{{channel.title}}</a>
                         </li>
                     </ul>
                 </div>

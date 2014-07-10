@@ -22,7 +22,7 @@
 
     <script type="text/javascript" src="<%= file %>"></script><% }); %>
   </head>
-  <body class='gray modal-open'>
+  <body class='gray'>
     <div ng-class="showMenu?'slide-out':''" class="sidebar left-menu" style="z-index: 999; position: fixed;">
       <button type="button" ng-click="showMenu=!showMenu" class="btn icon-bars-button" alt="Toggle navigation">
         <span class="icon-bar"></span>
@@ -85,6 +85,7 @@
         </div>
         -->
 
+        <!--
         <div class="menu-item" ng-class="{active:tabCtrl.isSet(4)}">
           <a href ui-sref="settings" ng-click="tabCtrl.setTab(4)">
             <div class="settings">
@@ -93,6 +94,7 @@
             </div>
           </a>
         </div>
+        -->
 
         <div class="">
           <a href ng-click="tabCtrl.setTab(0); logout()">
