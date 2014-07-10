@@ -302,10 +302,16 @@ angular.module('Cimba.channels',[
                                     $location.path('/channels');
                                 }
 
+                                console.log("$scope.defaultChannel before"); //debug
+                                console.log($scope.defaultChannel); //debug
                                 //set default if first channel
-                                if (!$scope.defaultChannel) {
+                                if ($scope.defaultChannel === undefined) {
+                                    console.log("no default channel, setting default equal to "); //debug
                                     $scope.defaultChannel = chan;
+                                    console.log(chan); //debug
                                 }
+                                console.log("$scope.defaultChannel after"); //debug
+                                console.log($scope.defaultChannel); //debug
 
                                 //adds the newly created channel to our list
                                 chan.uri = chURI;

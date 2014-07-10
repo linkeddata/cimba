@@ -94,14 +94,10 @@ angular.module( 'Cimba', [
     $scope.users={};
     $scope.loginSuccess = false;
     $scope.userProfile = {};
-    $scope.userProfile.picture = 'assets/generic_photo.png';
+    $scope.userProfile.picture = 'assets/generic_photo.png'; //default
     $scope.channels = {};
     $scope.posts = {}; //aggregate list of all posts (flat list)
-    $scope.search = {}; 
-    if (isEmpty($scope.users[$scope.userProfile.webid])) {
-        $scope.users[$scope.userProfile.webid] = {};
-    }
-    //$scope.users[$scope.userProfile.webid].subscribedChannels = {};
+    $scope.search = {};
 
     $rootScope.userProfile = {};
 
@@ -196,7 +192,7 @@ angular.module( 'Cimba', [
         if (DEBUG) {
             console.log("Getting user info for: "+webid);
         }
-        $scope.getInfoDone=false;
+        $scope.getInfoDone=false; //callback for home page loading channels and posts
 
         // start progress bar
         ngProgress.start();
@@ -221,6 +217,12 @@ angular.module( 'Cimba', [
 
         // fetch user data
         f.nowOrWhenFetched(docURI,undefined,function(ok, body) {
+            console.log("listing $scope.users"); //debug
+            for (var k in $scope.users) {
+                console.log("key: " + k); //debug
+                console.log($scope.users[k]); //debug
+            }
+
             if (!ok) {
                 if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
                   notify('Warning', 'WebID profile not found.');
@@ -257,6 +259,7 @@ angular.module( 'Cimba', [
                 }
             }
 
+            /*
             var _user = {
                 webid: webid,
                 name: name,
@@ -264,6 +267,7 @@ angular.module( 'Cimba', [
                 storagespace: storage
 
             };
+            */
 
             // add to search object if it was the object of a search
             if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
@@ -272,6 +276,7 @@ angular.module( 'Cimba', [
             }
 
             if (!$scope.users[webid]) {
+                console.log("$scope.users[" + webid + "] doesn't exist, initializing it"); //debug
                 $scope.users[webid] = {};
             }
             $scope.users[webid].mine = mine;
@@ -294,9 +299,19 @@ angular.module( 'Cimba', [
                 $scope.userProfile.storagespace = storage;
                 $scope.users[webid].name = name; //for displaying delete button in posts.tpl.html
                 $scope.users[webid].picture = pic; //resolves issue of not displaying profile picture that the above line creates
+                $scope.users[webid].storagespace = storage; //not inherently necessary since we could just call $scope.userProfile.storagespace
+                    //but it's nice to have just in case
 
+                console.log("$scope.users[" + webid + "]"); //debug
+                console.log($scope.users[webid]); //debug
+
+                console.log("subscribed channels"); //debug
+                for (var m in $scope.users[webid].subscribedChannels) {
+                    console.log($scope.users[webid].subscribedChannels[m]); //debug
+                }
                 //
                 if (!$scope.users[webid].subscribedChannels) {
+                    console.log("at getInfo, subscribed channels doesn't exist for my user, initializing it"); //debug
                     $scope.users[webid].subscribedChannels = {};
                 }
                 // $scope.users[webid].subscribedChannels = {};
@@ -319,7 +334,7 @@ angular.module( 'Cimba', [
             if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
                 $scope.getChannels(storage, webid, false, update, false);
             }
-            $scope.getInfoDone=true;
+            $scope.getInfoDone = true; //done getting info, home page can now load channels and posts
             console.log("at getinfo, $scope.users[" + $scope.userProfile.webid + "] has channels"); //debug
             for (var y in $scope.users[webid].channels) {
                 console.log($scope.users[webid].channels[y]); //debug
@@ -409,9 +424,22 @@ angular.module( 'Cimba', [
             var ws = g.statementsMatching(undefined, RDF('type'), SIOC('Space'));
 
             if (ws.length > 0) {
-                // set a default Microblog workspace
+                console.log("at getChannels, webid is " + webid); //debug
+                console.log("at getChannels, users are"); //debug
+                for (var l in $scope.users) {
+                    console.log("key: " + l); //debug
+                    console.log($scope.users[l]); //debug
+                }
+                console.log("empty object list"); //debug
+                $scope.w = {}; //febug
+                for (var y in $scope.w) {
+                    console.log("key: " + y); //debug
+                    console.log($scope.w[y]); //debug
+                }
+
                 if(!$scope.users[webid]){
-                  $scope.users[webid] = {};
+                    console.log("$scope.users[" + webid + "] doesn't exist (which doesn't make sense since i need the webid to call this function), initializing it"); //debug
+                    $scope.users[webid] = {};
                 }
                 if (mine && !$scope.users[webid].mbspace) {
                     // set default Microblog space
@@ -461,7 +489,7 @@ angular.module( 'Cimba', [
                             
                             if ($scope.users[webid].channels) {
                                 if (!$scope.users[webid].channels[channel.uri]) {
-                                    console.log("$scope.users[webid].channels doesn't contain " + channel.uri + ". setting it equal to");
+                                    console.log("$scope.users[" + webid + "].channels doesn't contain " + channel.uri + ". setting it equal to");
                                     console.log(channel);
                                     $scope.users[webid].channels[channel.uri] = channel;
                                 }
@@ -781,7 +809,14 @@ angular.module( 'Cimba', [
         var followURI = ''; // uri of the preferences file
         var mywebid = $scope.userProfile.webid;
 
-        console.log("$scope.users[" + mywebid + "]"); //debug
+        console.log("at saveUsers"); //debug
+        console.log("list of users"); //debug
+        for (var x in $scope.users){ //debug
+            console.log("key: " + x); //debug
+            console.log($scope.users[x]); //debug
+        }
+
+        console.log("at save users, saving $scope.users[" + mywebid + "]"); //debug
         console.log($scope.users[mywebid]); //debug
 
         if ($scope.users[mywebid].mbspace && $scope.users[mywebid].mbspace.length > 1) {
@@ -903,8 +938,6 @@ angular.module( 'Cimba', [
                 console.log("listing users: "); //debug
                 if (users.length > 0) {
                     for (var i in users) {
-                        console.log("key: " + i + ", user object: "); //debug
-                        console.log(users[i]); //debug
                         var u = users[i]['subject'];
                         var _user = {};
                         _user.webid = g.any(u, SIOC('account_of')).value;
@@ -945,6 +978,14 @@ angular.module( 'Cimba', [
                         }
                         console.log("_user"); //debug
                         console.log(_user); //debug
+                        if (_user.webid === $scope.userProfile.webid) {
+                            console.log("got same user as userProfile, _user"); //debug
+                            console.log(_user); //debug
+                            console.log("users[" + _user.webid + "]"); //debug
+                            console.log($scope.users[_user.webid]); //debug
+                            console.log("userProfile"); //debug
+                            console.log($scope.userProfile); //debug
+                        }
                         if (_user.webid !== $scope.userProfile.webid) { //do not overwrite our own user
                             //(change later to append because we need to know if we're subscribed or not to our own channel)
                             $scope.users[_user.webid] = _user;
@@ -953,7 +994,7 @@ angular.module( 'Cimba', [
                                 console.log(_user.channels[chann]); //debug
                                 if (_user.channels[chann].action == 'Unsubscribe') {
                                     console.log("im subscribed to a channel"); //debug
-                                    console.log(_user.channels[chann]);
+                                    console.log(_user.channels[chann]); //debug
                                     $scope.users[$scope.userProfile.webid].subscribedChannels[chann] = _user.channels[chann];
                                 }
                             }
