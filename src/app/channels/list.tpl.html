@@ -64,7 +64,7 @@
     	<div class="row">
 		    <div class="col-md-6" align="center">
 		    	<div class="panel panel-default channel-list-item">
-		    		<div class="panel-heading light-red">
+		    		<div class="panel-heading main-header">
 		    		</div>
 		    		<div class="panel-body" >
 		    			<div align="center">
@@ -73,7 +73,7 @@
 		    		</div>
 		    	</div>
 		        <div ng-repeat="channel in users[userProfile.webid].channels" class="channel-list-item panel panel-default">
-			        <div class="chan-panel-heading panel-heading light-red">
+			        <div class="chan-panel-heading panel-heading sub-header">
 			        	<div class="pull-left"><a ui-sref="view({path: safeUri(channel.uri)})" class="link-white bold">{{channel.title}}</a>
 			        	</div>
 		                <div class="pull-right"><button type="button" class="close" ng-click="deleteChannel(channel.uri)">x</button></div>
@@ -98,7 +98,7 @@
 		    		</div>
 		    	</div>
 		    	<div ng-repeat="channel in users[userProfile.webid].subscribedChannels" class="channel-list-item panel panel-default">
-			        <div class="chan-panel-heading panel-heading light-red">
+			        <div class="chan-panel-heading panel-heading sub-header">
 			        	<div class="pull-left"><a ui-sref="view({path: safeUri(channel.uri)})" class="link-white bold">{{channel.title}}</a>
 			        	</div>
 		                

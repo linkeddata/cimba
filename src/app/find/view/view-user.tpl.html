@@ -1,15 +1,30 @@
 
 <div class="container" ng-click="hideMenu()" ng-show="loggedin" align="center">
 	<div class="panel panel-default">
-	    <div class="panel-heading dark-red"> </div>
+	    <div class="panel-heading main-header"> </div>
 	    <div class="panel-body">
 	        <h2 class="text-center">Channels for {{search.name}}</h2>
 	    </div>
 	</div>
 
-	<div class="panel-body">
-		<div ng-repeat="ch in search.channels | slice:0:5">
-			<h2>{{ch.title}}</h2>
+	<div class="row">
+		<div class="col-md-6">
+			<div class="panel panel-default" ng-repeat="ch in search.channels | slice:0:(search.channel_size/2)">
+				<div class="panel-heading chan-panel-heading sub-header">
+					<div class="pull-left"><a ui-sref="view({path: safeUri(ch.uri)})" class="link-white bold">{{ch.title}}</a></div>
+					<button class="btn pull-right" ng-class="ch.css" ng-click="channelToggle(ch, search)" rel="tooltip" data-placement="top" title="{{ch.action}}"><i class="fa {{ch.button}} fa-2x"></i></button>
+				</div>
+				<div class="panel-body"></div>
+			</div>
+		</div>
+		<div class="col-md-6">
+			<div class="panel panel-default" ng-repeat="ch in search.channels | slice:(search.channel_size/2):search.channel_size">
+				<div class="panel-heading sub-header chan-panel-heading">
+					<div class="pull-left"><a ui-sref="view({path: safeUri(ch.uri)})" class="link-white bold">{{ch.title}}</a></div>
+					<button class="btn pull-right" ng-class="ch.css" ng-click="channelToggle(ch, search)" rel="tooltip" data-placement="top" title="{{ch.action}}"><i class="fa {{ch.button}} fa-2x"></i></button>
+				</div>
+				<div class="panel-body"></div>
+			</div>
 		</div>
 	</div>
 </div>
