@@ -1,3 +1,6 @@
+
+
+
 body {
   //background-color:#e0e0e0;
   -webkit-font-smoothing: antialiased;
@@ -46,13 +49,15 @@ h1{
 .btn-primary {border-color:transparent;}
 .btn-primary,.label-primary,.list-group-item.active, .list-group-item.active:hover, .list-group-item.active:focus {
 /*background-color:#4285f4;*/
-  background-color: #FF3C1F;
-  border-color: #FF5140;
+  background-color: dark-blue;
+  border-color: dark-blue;
+  color:white;
 }
 
 .btn-primary[disabled], .btn-primary[disabled]:hover {
-  background-color: #FF5140;
-  border-color: #FF5140;
+  background-color: dark-blue;
+  border-color: dark-blue;
+  color: white;
 }
 
 
@@ -74,7 +79,7 @@ h1{
   background-color:#65b045;
   }
 .btn-info, .label-info, .progress-bar-info{
-  background-color:#a0c3ff;
+  background-color:#fff;
   border-color:#a0c3ff;
   }
 .btn-danger,.label-danger,.progress-bar-danger{background-color:#dd4b39;}
@@ -263,10 +268,7 @@ h4,h5 {
   padding: 0px 0px 20px 0px!important;
   border-top: 0px!important;
 }
-.center {
-  margin-left: auto;
-  margin-right: auto;
-}
+
 .dropdown-menu {
     background-color:#fff;
     border-color:#f0f0f0;
@@ -472,6 +474,7 @@ iframe {border:0px;}
       }
 }
 
+
 /* Second Loadin Circle */
 .circle {
   background-color: rgba(0,0,0,0);
@@ -583,7 +586,7 @@ iframe {border:0px;}
 }
 
 .btn-success, .btn-success:hover, .btn-success:focus {
-  background-color: #3bafda;
+  background-color: #4dbd33;
 }
 
 .sub-list-title {
@@ -604,4 +607,74 @@ iframe {border:0px;}
 
 .main-header {
   background-color: #4285f4!important;
+}
+
+
+
+/**
+ * Navbar
+ */
+.icon-bars-button {
+  float: left;
+  position: absolute;
+  display: inline-block;
+  vertical-align:middle;
+  height: 40px;
+  padding-top: 9px;
+  left: 160px;
+  top: 10px;
+  background-color: #4285f4!important;;
+}
+
+.icon-bar {
+  margin-bottom:4px;
+  display: block;
+  width: 22px;
+  height: 4px;
+  background-color: #fff;
+  border-radius: 2px;
+}
+
+.sidebar {
+  -moz-transition: left .3s;
+  -webkit-transition: left .3s;
+  -o-transition: left .3s;
+  transition: left .3s;
+  width: 150px;
+  background-color: #2A3137;
+  position: absolute;
+  min-height: 700px;
+  top: 0px;
+  padding-top: 10px;
+  bottom: 0px;
+  left: -150px;
+  text-align: center;
+}
+.sidebar .menu-item {
+  width: 150px;
+  min-height: 86px;
+}
+
+.sidebar div {
+  color: #fff;
+  text-align: center;
+}
+.sidebar a, .sidebar a:hover, .sidebar a:visited {
+  color: #fff;
+  text-decoration: none;
+}
+.sidebar a:hover i {
+  color: #FF5140;
+}
+.sidebar p {
+  color: #fff;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+.slide-out {
+  -moz-transition: left .3s;
+  -webkit-transition: left .3s;
+  -o-transition: left .3s;
+  transition: left .3s;
+  left: 0px;
 }

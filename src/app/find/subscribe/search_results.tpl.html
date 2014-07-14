@@ -3,7 +3,7 @@
         <div class="webid-results" ng-show="!search.selected">
             <div ng-repeat="person in webidresults | limitTo: 10" class="mt20">
                 <div ng-show="$index % 2 === 0" class="panel panel-default">                    
-                    <div class="panel-heading light-red pointer" ng-click="prepareSearch(person.webid, person.name[0])" rel="tooltip" data-placement="top" title="Find channels for {{person.webid}}">
+                    <div class="panel-heading sub-header pointer" ng-click="prepareSearch(person.webid, person.name[0])" rel="tooltip" data-placement="top" title="Find channels for {{person.webid}}">
                         <div class="pull-left">
                             <div class="thumbnail thumbnail-sm pull-right">
                               <img class="media-object thumb-pic-sm" ng-src="{{person.img[0]}}">
@@ -28,7 +28,7 @@
         <div class="webid-results" ng-show="!search.selected">
             <div ng-repeat="person in webidresults | limitTo: 10" class="mt20">
                 <div ng-show="$index % 2 === 1" class="panel panel-default">                    
-                    <div class="panel-heading light-red pointer" ng-click="prepareSearch(person.webid, person.name[0])" rel="tooltip" data-placement="top" title="Find channels for {{person.webid}}">
+                    <div class="panel-heading sub-header pointer" ng-click="prepareSearch(person.webid, person.name[0])" rel="tooltip" data-placement="top" title="Find channels for {{person.webid}}">
                         <div class="pull-left">
                             <div class="thumbnail thumbnail-sm pull-right">
                               <img class="media-object thumb-pic-sm" ng-src="{{person.img[0]}}">

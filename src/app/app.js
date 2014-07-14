@@ -132,6 +132,13 @@ angular.module( 'Cimba', [
 })*/
 .controller( 'MainCtrl', function MainCtrl ($scope, $rootScope, $location, $timeout, ngProgress, $http ) {
     // Some default values
+
+    var emptyUser = {
+        'name': "Anonymous",
+        'picture': 'assets/generic_photo.png',
+        'storagespace': ''
+    };
+
     $scope.appuri = window.location.hostname+window.location.pathname;
     $scope.users={};
     $scope.loginSuccess = false;
@@ -447,7 +454,7 @@ angular.module( 'Cimba', [
                 // console.log(g.any(ownerObj, FOAF('name')));
                 if (g.any(ownerObj, SIOC('account_of'))) {
                     channel["owner"] = g.any(ownerObj, SIOC('account_of')).value;                    
-                } 
+                }  
 
                 // $scope.channels[channel.uri] = channel;
                 $scope.$apply();
@@ -620,7 +627,7 @@ angular.module( 'Cimba', [
                             // console.log($scope.users[$scope.search.webid].channels[y]); //debug
                         }
                         // for (int i = 0; i < )
-                        $scope.search.channels = $scope.flatten1DObject($scope.users[$scope.search.webid].channels);
+                        $scope.search.channels = $scope.flattenObject($scope.users[$scope.search.webid].channels);
                         $scope.search.channel_size = $scope.search.channels.length; //not supported in IE8 and below
                         $scope.drawSearchResults(webid);
                         $scope.searchbtn = 'Search';
@@ -713,6 +720,7 @@ angular.module( 'Cimba', [
 
                     if (g.any(useraccount, SIOC('account_of'))) {
                         userwebid = g.any(useraccount, SIOC('account_of')).value;
+                        console.log(userwebid);
                     } else {
                         userwebid = undefined;
                     }
@@ -1250,7 +1258,7 @@ angular.module( 'Cimba', [
         }
     };
 
-    $scope.flatten1DObject = function (obj) {
+    $scope.flattenObject = function (obj) {
         flatList = [];
         for (var i in obj) {
             flatList.push(obj[i]);
@@ -1258,6 +1266,16 @@ angular.module( 'Cimba', [
         return flatList;
     };
 
+})
+
+.directive('errSrc', function() {
+    return {
+        link: function(scope, element, attrs) {
+            element.bind('error', function() {
+                element.attr('src', attrs.errSrc);
+            });
+        }
+    };
 })
 
 

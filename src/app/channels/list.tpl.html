@@ -1,12 +1,11 @@
 
 <div ng-controller="ChannelsCtrl">
-	<div> 
-		<button class='fa fa-plus channel-menu-btn btn-primary pull-right' ng-click="showPopup()" id="new-channel-button" title="New Channel"></button> 
-		<a href ui-sref="manage">
-			<button class='fa fa-wrench channel-menu-btn btn-primary pull-right' title='Manage Channels' disabled></button>
-		</a>
-		<div class="center"><h1>Channels</h1></div>
-	</div>
+	<button class='fa fa-plus channel-menu-btn btn-primary pull-right' ng-click="showPopup()" id="new-channel-button" title="New Channel"></button> 
+<!-- 	<a href ui-sref="manage">
+		<button class='fa fa-wrench channel-menu-btn btn-primary pull-right' title='Manage Channels' disabled></button>
+	</a> -->
+	<!-- <div>  -->
+	<!-- </div> -->
     <div id="channel-modal" ng-show="newChannelModal" class="popup">
     	<div class="pull-right">
     		<button type="button" class="close" ng-click="hidePopup()">X</button>
@@ -61,6 +60,12 @@
     </div>
 
     <div class="container channel-list">
+<!--     	<div class="panel panel-default">
+    		<div class="panel-heading main-header"></div>
+    		<div class="panel-body">
+    			<div class="center">Channels</div>
+    		</div>
+    	</div> -->
     	<div class="row">
 		    <div class="col-md-6" align="center">
 		    	<div class="panel panel-default channel-list-item">
@@ -89,7 +94,7 @@
 
 		    <div class="col-md-6" align="center">
 		    	<div class="panel panel-default channel-list-item">
-		    		<div class="panel-heading light-red">
+		    		<div class="panel-heading main-header">
 		    		</div>
 		    		<div class="panel-body" >
 		    			<div align="center">

@@ -258,6 +258,7 @@ angular.module('Cimba.channels',[
                     g.add($rdf.sym(chURI), LDPX('ldprPrefix'), $rdf.lit('post'));
                     g.add($rdf.sym(chURI), SIOC('has_creator'), $rdf.sym('#author'));
 
+
                     // add author triples
                     g.add($rdf.sym('#author'), RDF('type'), SIOC('UserAccount'));
                     g.add($rdf.sym('#author'), SIOC('account_of'), $rdf.sym($scope.userProfile.webid));
