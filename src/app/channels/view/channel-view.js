@@ -26,6 +26,7 @@ angular.module('Cimba.channels.view', ['ui.router'])
 	$scope.chanUri = "https://" + $scope.path;
 
 	$scope.$parent.getChannel($scope.chanUri);
+	
 })
 
 .directive('listPosts', function () {

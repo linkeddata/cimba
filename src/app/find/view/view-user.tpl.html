@@ -1,0 +1,15 @@
+
+<div class="container" ng-click="hideMenu()" ng-show="loggedin" align="center">
+	<div class="panel panel-default">
+	    <div class="panel-heading dark-red"> </div>
+	    <div class="panel-body">
+	        <h2 class="text-center">Channels for {{search.name}}</h2>
+	    </div>
+	</div>
+
+	<div class="panel-body">
+		<div ng-repeat="ch in search.channels | slice:0:5">
+			<h2>{{ch.title}}</h2>
+		</div>
+	</div>
+</div>

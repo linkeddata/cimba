@@ -1,16 +1,16 @@
 <div class="panel panel-default"> <!-- debug -->
     <div class="panel-heading light-red">
-        <div class="pull-left">
+        <div class="pull-left" ng-show="channels[chanUri].owner">
             <a id="pic" class="thumbnail pull-right" href="{{userProfile.webid}}">
               <img class="media-object" ng-src="{{users[userProfile.webid].picture}}" rel="tooltip" data-placement="top" title="{{users[userProfile.webid].name}}">
             </a>
         </div>
     </div>
     <div class="panel-body">
-        <div class="panel-body-textmail">
+        <div class="panel-body-textmail center">
           <div id="spinner" ng-hide="users[userProfile.webid].name"></div>
-           <h3 class="bold" ng-show="channels[chanUri]">Write new post to {{channels[chanUri].title}}</h3>
-          <form ng-hide="!userProfile.webid">                               
+           <h3 class="channelsHeader" ng-show="channels[chanUri]"><b ng-show="channels[chanUri].owner">Write new post to</b> {{channels[chanUri].title}}</h3>
+          <form ng-hide="channels[chanUri].owner != userProfile.webid">                               
               <textarea name="message" ng-model="postbody" class="form-control message" placeholder="Type your message here.." required></textarea>
               <div class="pull-left">
                 <div class="btn-group">

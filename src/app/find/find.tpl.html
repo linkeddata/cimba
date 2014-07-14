@@ -1,4 +1,6 @@
 
-<div ng-click="hideMenu()" ng-show="loggedin" align="center">
-    <subscribe-modal align="center"></subscribe-modal>
+<div class="container" ng-click="hideMenu()" ng-show="loggedin" align="center">
+	<search-users align="center"></search-users>
+	<!-- <subscription-view ng-show="gotresults"></subscription-view> -->
+	<search-results ng-show="!search.selected" ></search-results>
 </div>

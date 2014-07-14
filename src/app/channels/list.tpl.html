@@ -1,7 +1,7 @@
 
-<div>
+<div ng-controller="ChannelsCtrl">
 	<div> 
-		<button class='fa fa-plus channel-menu-btn btn-primary pull-right' ng-click="newChannelModal=!newChannelModal; showOverlay=!showOverlay" id="new-channel-button" title="New Channel"></button> 
+		<button class='fa fa-plus channel-menu-btn btn-primary pull-right' ng-click="showPopup()" id="new-channel-button" title="New Channel"></button> 
 		<a href ui-sref="manage">
 			<button class='fa fa-wrench channel-menu-btn btn-primary pull-right' title='Manage Channels' disabled></button>
 		</a>
@@ -9,7 +9,7 @@
 	</div>
     <div id="channel-modal" ng-show="newChannelModal" class="popup">
     	<div class="pull-right">
-    		<button type="button" class="close" ng-click="newChannelModal=false; showOverlay=false">X</button>
+    		<button type="button" class="close" ng-click="hidePopup()">X</button>
     	</div>
       <div>
           
@@ -113,8 +113,9 @@
 		    </div>
 		</div>
 	</div>
+	<div class="overlay" ng-show="showOverlay" ng-click="hidePopup()"></div>
 </div>
-<div class="overlay" ng-show="{{showOverlay}}" ng-click="showOverlay=false; newChannelModal=false"></div>
+
 
 <!-- <form>
 			            <div class="input-group">

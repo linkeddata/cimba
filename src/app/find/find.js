@@ -1,5 +1,6 @@
 angular.module('Cimba.find',[
-    'ui.router'
+    'ui.router',
+    'Cimba.find.view-user'
 ])
 
 .config(function FindConfig($stateProvider){
@@ -19,13 +20,33 @@ angular.module('Cimba.find',[
 
 .controller('FindController', function FindController($scope, $http, $location, $sce){
     $scope.search = $scope.$parent.search;
+    
     $scope.hideMenu = function() {
         $scope.$parent.showMenu = false;
     };
+
+    $scope.prepareSearch = function(webid, name) {
+        $scope.search.selected = true;
+        $scope.search.loading = true;
+        $scope.search.webid = webid;
+        $scope.search.query = name;
+        $scope.getUsers(); //force refresh of channel subscriptions in case it changed
+        $scope.getInfo(webid, false, false);
+        $scope.webidresults = [];
+        var safeUri = $scope.safeUri(webid);
+        $location.path("/find/" + safeUri);
+    };
 })
 
+.directive('searchUsers', function() {
+    return {
+        replace: true, 
+        restrict: 'E', 
+        templateUrl: 'find/search.tpl.html'
+    };
+})
 
-.directive('subscribeModal', function() {
+.directive('subscriptionView', function() {
     return {
         replace: true,
         restrict: 'E',
@@ -34,10 +55,10 @@ angular.module('Cimba.find',[
 })
 
 //simple directive to display list of search results
-.directive('searchResults',function(){
+.directive('searchResults', function(){
     return {
         replace: true,
         restrict: 'E',
-        templateUrl: 'find/subscribe/search_results.html'
+        templateUrl: 'find/subscribe/search_results.tpl.html'
     }; 
 });

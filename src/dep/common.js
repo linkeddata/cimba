@@ -138,3 +138,9 @@ function parseLinkHeader(header) {
     
     return rels;
 }
+
+var debugConsole = function (debug, msg) {
+	if (debug) {
+		console.log(msg);
+	}
+};

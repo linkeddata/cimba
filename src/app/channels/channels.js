@@ -38,6 +38,18 @@ angular.module('Cimba.channels',[
 
     $scope.$parent.loading = false;
     
+    $scope.showPopup = function () {
+        console.log("ex show");
+        $scope.newChannelModal = true;
+        $scope.showOverlay = true;
+    };
+
+    $scope.hidePopup = function () {
+        console.log("ex hide");
+        $scope.newChannelModal = false;
+        $scope.showOverlay = false;
+    };
+
     // set the corresponding ACLs for the given post, using the right ACL URI
     $scope.setACL = function(uri, type, defaultForNew) {
         // get the acl URI first
@@ -122,10 +134,6 @@ angular.module('Cimba.channels',[
                 }
             }
         });
-    };
-
-    $scope.safeUri = function (uri) {
-        return uri.replace(/^https?:\/\//,'');
     };
 
     $scope.audience = {};
