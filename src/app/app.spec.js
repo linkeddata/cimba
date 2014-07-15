@@ -1,49 +1,33 @@
-describe( 'Midway:Testing Modules', function() {
-  describe( 'Cimba Module', function() {
-    // var MainCtrl, $location, $scope;
+
+describe( 'MainCtrl', function() {
+  describe( 'isCurrentUrl', function() {
+    var MainCtrl, $location, $root, $scope, $http, $timeout, httpBackend;
 
     // beforeEach( angular.module( 'Cimba' ) );
 
-    // beforeEach( inject( function( $controller, _$location_, $rootScope ) {
-    //   $location = _$location_;
-    //   $scope = $rootScope.$new();
-    //   MainCtrl = $controller( 'MainCtrl', { $location: $location, $scope: $scope });
-    // }));
-
-    // it( 'should pass a dummy test', inject( function() {
-    //   expect( MainCtrl ).toBeTruthy();
-    // }));
-    var module;
-
-    beforeEach(function(){
-      module = angular.module('Cimba');
-    });
-
-    it('should be registererd', function(){
-      expect(module).not.toEqual(null);
-    });
-
-    describe("Dependencies:", function(){
-      var deps;
-      var hasModule = function(m){
-        return deps.indexOf(m) >= 0;
-      };
-      beforeEach(function(){
-        deps = module.value('Cimba').requires;
+    beforeEach( inject( function( $controller, $rootScope, _$location_, $timeout, $http, $httpBackend ) {
+      $location = _$location_;
+      $root = $rootScope;
+      $scope = $rootScope.$new();
+      httpBackend = $httpBackend;
+      MainCtrl = $controller( 'MainCtrl', { 
+        $location: $location, 
+        $scope: $scope,
+        $http: $http,
+        $timeout: $timeout
       });
+      // userID = "https://henchill.rww.io/profile/card#m3";
+      // $scope.login(userID);
+    }));
 
-      it('should have Cimba.login as a dependency', function(){
-        expect(hasModule('Cimba.login')).toEqual(true);
-      });
+    it( 'should pass a dummy test', inject( function() {
+      expect( MainCtrl ).toBeTruthy();
+    }));
 
-      it('should have Cimba.channels as a dependency', function(){
-        expect(hasModule('Cimba.channels')).toEqual(true);
-      });
-
-      // it('should fail this test', function(){
-      //   expect(hasModule('Cimba.fish')).toEqual(true);
-      // });
-    });
+    it('should redirect to login page', inject(function($timeout) {
+      $scope.login();
+      expect($location.$$path).toEqual('/login');
+    }));
   });
 });
 

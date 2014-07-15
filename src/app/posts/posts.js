@@ -21,19 +21,15 @@ angular.module('Cimba.posts',[
 	var webid = $scope.$parent.userProfile.webid;
 	$scope.audience = {};
 	$scope.audience.icon = "fa-globe"; //default value
+
 	$scope.hideMenu = function() {
 		$scope.$parent.showMenu = false;
 	};
 
 	// update account
-    $scope.setChannel = function(ch) {
-		console.log(webid);
-		console.log($scope.users[webid]);
-        for (var i in $scope.users[webid].channels) {
-			if ($scope.users[webid].channels[i].title == ch) {
-				$scope.defaultChannel = $scope.users[webid].channels[i];
-				break;
-			}
+    $scope.setChannel = function(channelUri) {
+		if ($scope.users[webid].channels && $scope.users[webid].channels[channelUri]) {
+			$scope.defaultChannel = $scope.users[webid].channels[channelUri];
 		}
     };
 
@@ -69,6 +65,7 @@ angular.module('Cimba.posts',[
 		g.add($rdf.sym(''), SIOC('content'), $rdf.lit($scope.postbody.trim()));
 		g.add($rdf.sym(''), SIOC('has_creator'), $rdf.sym('#author'));
 		g.add($rdf.sym(''), DCT('created'), $rdf.lit(now, '', $rdf.Symbol.prototype.XSDdateTime));
+		
 		// add author triples
 		g.add($rdf.sym('#author'), RDF('type'), SIOC('UserAccount'));
 		g.add($rdf.sym('#author'), SIOC('account_of'), $rdf.sym(webid));
@@ -138,6 +135,9 @@ angular.module('Cimba.posts',[
 						$scope.posts = {};
 					}
 					// append post to the local list
+					if ($scope.channels[uri].posts === undefined) {
+						$scope.channels[uri].posts = [];
+					}
 					$scope.channels[uri].posts.push(_newPost);
 					$scope.posts[_newPost.uri] = _newPost;
 					$scope.users[webid].gotposts = true;
@@ -301,7 +301,10 @@ angular.module('Cimba.posts',[
 		}
 
 		delete $scope.posts[posturi];
-		
+
+		if (isEmpty($scope.posts)) {
+			$scope.users[$scope.userProfile.webid].gotposts = false;
+		}
 	};
 
 	// remove all posts from viewer based on the given WebID
@@ -323,6 +326,9 @@ angular.module('Cimba.posts',[
 				}
 			}
 		}
+		if (isEmpty($scope.posts)) {
+			$scope.users[$scope.userProfile.webid].gotposts = false;
+		}
 	};
 
 	// remove all posts from viewer based on the given channel URI
@@ -333,8 +339,10 @@ angular.module('Cimba.posts',[
                 delete $scope.posts[p];
             }
         }
-
         $scope.channels[ch].posts = [];
+        if (isEmpty($scope.posts)) {
+			$scope.users[$scope.userProfile.webid].gotposts = false;
+		}
 	};
 })
 

@@ -1,15 +1,14 @@
 
-<div>
-	<div> 
-		<button class='fa fa-plus channel-menu-btn btn-primary pull-right' ng-click="newChannelModal=!newChannelModal; showOverlay=!showOverlay" id="new-channel-button" title="New Channel"></button> 
-		<a href ui-sref="manage">
-			<button class='fa fa-wrench channel-menu-btn btn-primary pull-right' title='Manage Channels' disabled></button>
-		</a>
-		<div class="center"><h1>Channels</h1></div>
-	</div>
+<div ng-controller="ChannelsCtrl">
+	<button class='fa fa-plus channel-menu-btn btn-primary pull-right' ng-click="showPopup()" id="new-channel-button" title="New Channel"></button> 
+<!-- 	<a href ui-sref="manage">
+		<button class='fa fa-wrench channel-menu-btn btn-primary pull-right' title='Manage Channels' disabled></button>
+	</a> -->
+	<!-- <div>  -->
+	<!-- </div> -->
     <div id="channel-modal" ng-show="newChannelModal" class="popup">
     	<div class="pull-right">
-    		<button type="button" class="close" ng-click="newChannelModal=false; showOverlay=false">X</button>
+    		<button type="button" class="close" ng-click="hidePopup()">X</button>
     	</div>
       <div>
           
@@ -52,8 +51,8 @@
 		                  </li>
 		              </ul>
 		          </div>		      
-	              <button class="btn btn-primary" ng-click="newChannelModal=false; newChannel(channelname)">
-	              	Create
+	              <button class="btn btn-primary" ng-disabled="!channelname" ng-click="newChannelModal=false; newChannel(channelname, true)">
+	              	{{createbtn}}
 	              </button>		         
 	          </div>                
           </form>
@@ -61,10 +60,16 @@
     </div>
 
     <div class="container channel-list">
+<!--     	<div class="panel panel-default">
+    		<div class="panel-heading main-header"></div>
+    		<div class="panel-body">
+    			<div class="center">Channels</div>
+    		</div>
+    	</div> -->
     	<div class="row">
 		    <div class="col-md-6" align="center">
 		    	<div class="panel panel-default channel-list-item">
-		    		<div class="panel-heading light-red">
+		    		<div class="panel-heading main-header">
 		    		</div>
 		    		<div class="panel-body" >
 		    			<div align="center">
@@ -73,15 +78,15 @@
 		    		</div>
 		    	</div>
 		        <div ng-repeat="channel in users[userProfile.webid].channels" class="channel-list-item panel panel-default">
-			        <div class="chan-panel-heading panel-heading light-red">
+			        <div class="chan-panel-heading panel-heading sub-header">
 			        	<div class="pull-left"><a ui-sref="view({path: safeUri(channel.uri)})" class="link-white bold">{{channel.title}}</a>
 			        	</div>
-		                
+		                <div class="pull-right"><button type="button" class="close" ng-click="deleteChannel(channel.uri)">x</button></div>
 			        	<br style="line-height:25%"/>
 				    </div>
 				    <div class="panel-body">
 				        <div class="chan-panel-body-text" align="left">
-				            By: <a href="{{channel.webid}}"><i> {{channel.author}}</i></a>
+				            By: <a href="{{channel.owner}}"><i> {{users[channel.owner].name}}</i></a>
 				        </div>		        
 				    </div>
 			    </div>
@@ -89,7 +94,7 @@
 
 		    <div class="col-md-6" align="center">
 		    	<div class="panel panel-default channel-list-item">
-		    		<div class="panel-heading light-red">
+		    		<div class="panel-heading main-header">
 		    		</div>
 		    		<div class="panel-body" >
 		    			<div align="center">
@@ -98,23 +103,27 @@
 		    		</div>
 		    	</div>
 		    	<div ng-repeat="channel in users[userProfile.webid].subscribedChannels" class="channel-list-item panel panel-default">
-			        <div class="chan-panel-heading panel-heading light-red">
+			        <div class="chan-panel-heading panel-heading sub-header">
 			        	<div class="pull-left"><a ui-sref="view({path: safeUri(channel.uri)})" class="link-white bold">{{channel.title}}</a>
+			        	</div>
+			        	<div class="pull-right">
+			        		<button class="fa fa-exclamation-circle channel-unsub-btn btn-primary" title="Unsubscribe" ng-click="channelTog(channel,channel.owner)"></button>
 			        	</div>
 		                
 			        	<br style="line-height:25%"/>
 				    </div>
 				    <div class="panel-body">
 				        <div class="chan-panel-body-text" align="left">
-				             By: <a href="{{channel.webid}}"><i>{{channel.author}}</i></a>
+				             By: <a href="{{channel.owner}}"><i>{{users[channel.owner].name}}</i></a>
 				        </div>		        
 				    </div>
 			    </div>
 		    </div>
 		</div>
 	</div>
+	<div class="overlay" ng-show="showOverlay" ng-click="hidePopup()"></div>
 </div>
-<div class="overlay" ng-show="showOverlay" ng-click="showOverlay=false; newChannelModal=false"></div>
+
 
 <!-- <form>
 			            <div class="input-group">

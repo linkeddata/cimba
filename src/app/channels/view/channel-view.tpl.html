@@ -6,7 +6,7 @@
             <!-- <div class="clear-70"></div> -->
             <div class="col-md-12">
                 <!-- new post -->
-                <post-channel ng-show="loggedin" ng-controller="PostsController as postCtrl"></post-channel>
+                <post-channel ng-show="channelTitle != ''" ng-controller="PostsController as postCtrl"></post-channel>
                 <!-- end new post -->
             </div>
         </div>
@@ -25,7 +25,10 @@
 	            <!-- All posts go into <posts-viewer> -->
 	            <!-- ngRepeat: post in posts | unique:'uri' | orderBy:'date':true -->
 	            <!-- <list-posts ng-show="loggedin"></list-posts> -->
-            	<list-posts ng-show="loggedin"></list-posts>
+            	<list-posts ng-show="channels[chanUri].posts && !loading"></list-posts>
+            	<div class="panel panel-default text-center" ng-show="!channels[chanUri].posts && !loading">
+            		<h3>We could not find any posts for this channel</h3>
+        		</div>
             </div>
 	    </div>
 	</div>

@@ -22,6 +22,7 @@ angular.module('Cimba.channels',[
 })
 
 .controller('ChannelsCtrl', function ChannelsController($scope, $http, $location, $sce){
+    console.log("executing channels controller");
     if ($scope.$parent.userProfile.storagespace !== undefined) {        
         $scope.$parent.loading = true;
         var storage = $scope.$parent.userProfile.storagespace;
@@ -31,10 +32,31 @@ angular.module('Cimba.channels',[
         $scope.$parent.gotstorage = false;
     }
 
-    var newChannelModal = false;
+    $scope.newChannelModal = false;
+    $scope.showOverlay = false;
+    $scope.createbtn = "Create";
 
     $scope.$parent.loading = false;
     
+    $scope.showPopup = function () {
+        console.log("ex show");
+        $scope.newChannelModal = true;
+        $scope.showOverlay = true;
+    };
+
+    $scope.hidePopup = function () {
+        console.log("ex hide");
+        $scope.newChannelModal = false;
+        $scope.showOverlay = false;
+    };
+
+    $scope.channelTog = function(channel, owner){
+        console.log("toggling channel");
+        console.log(owner);
+        console.log(channel);
+        $scope.$parent.channelToggle(channel,$scope.$parent.users[owner]);
+    };
+
     // set the corresponding ACLs for the given post, using the right ACL URI
     $scope.setACL = function(uri, type, defaultForNew) {
         // get the acl URI first
@@ -121,15 +143,9 @@ angular.module('Cimba.channels',[
         });
     };
 
-    $scope.safeUri = function (uri) {
-        return uri.replace(/^https?:\/\//,'');
-    };
-
     $scope.audience = {};
     $scope.audience.range = 'public';
     $scope.audience.icon = 'fa-globe';
-    console.log('this is the audience'+$scope.audience.range);
-    console.log("icon: " + $scope.audience.icon); //debug
 
     $scope.setAudience = function(v) {
         if (v=='public') {
@@ -145,7 +161,8 @@ angular.module('Cimba.channels',[
         console.log('this is the audience: '+$scope.audience.range);
     };
 
-    $scope.newChannel = function(channelname){
+    $scope.newChannel = function(channelname, redirect){
+        console.log("wrong function"); //debug
         $scope.loading = true;
         $scope.createbtn = 'Creating...';
         var title = 'ch';
@@ -154,7 +171,6 @@ angular.module('Cimba.channels',[
         var chan = {};
 
         if ($scope.channelname !== undefined && testIfAllEnglish($scope.channelname)) {
-            console.log("test");
             // remove white spaces and force lowercase
             title = $scope.channelname;
             churi = $scope.channelname.toLowerCase().split(' ').join('_');
@@ -162,16 +178,38 @@ angular.module('Cimba.channels',[
 
         chan.uri = churi;
         chan.title = title;
-        chan.webid = $scope.$parent.userProfile.webid;
+        chan.owner = $scope.$parent.userProfile.webid;
         chan.author = $scope.$parent.userProfile.name;
 
-        $scope.$parent.users[chan.webid].channels[chan.uri] = chan;
+        console.log("START listing channels"); //debug
+        for (var w in $scope.$parent.users[chan.owner].channels) {
+            console.log("key: " + w); //debug
+            console.log($scope.$parent.users[chan.owner].channels[w]); //debug
+        }
+        console.log("END listing channels"); //debug
+
+        if (isEmpty($scope.$parent.users[chan.owner].channels)) {
+            console.log("empty channels"); //debug
+            $scope.$parent.users[chan.owner].channels = {};
+        }
+
+        console.log("$scope.$parent.users[" + chan.owner + "].channels[" + chan.uri + "] = "); //debug
+        console.log($scope.$parent.users[chan.owner].channels[chan.uri]); //debug
 
         // TODO: let the user select the Microblog workspace too
 
+        console.log("mbspace: " + $scope.$parent.users[chan.owner].mbspace); //debug
+
+        console.log("START listing channels"); //debug
+        for (var r in $scope.$parent.users[chan.owner].channels) {
+            console.log("key: " + r); //debug
+            console.log($scope.$parent.users[chan.owner].channels[r]); //debug
+        }
+        console.log("END listing channels"); //debug
+
         $.ajax({
             type: "POST",
-            url: $scope.users[webid].mbspace,
+            url: $scope.$parent.users[chan.owner].mbspace,
             processData: false,
             contentType: 'text/turtle',
             headers: {
@@ -207,7 +245,11 @@ angular.module('Cimba.channels',[
                 var meta = parseLinkHeader(r.getResponseHeader('Link'));
                 var metaURI = meta['meta']['href'];
 
+                console.log("metaURI: " + metaURI);
+
                 var chURI = r.getResponseHeader('Location');
+                console.log("chURI: " + chURI);
+
                 // got the URI for the new channel
                 if (chURI && metaURI) {
                     var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
@@ -221,6 +263,15 @@ angular.module('Cimba.channels',[
                     g.add($rdf.sym(chURI), RDF('type'), SIOC('Container'));
                     g.add($rdf.sym(chURI), DCT('title'), $rdf.lit(title));
                     g.add($rdf.sym(chURI), LDPX('ldprPrefix'), $rdf.lit('post'));
+                    g.add($rdf.sym(chURI), SIOC('has_creator'), $rdf.sym('#author'));
+
+
+                    // add author triples
+                    g.add($rdf.sym('#author'), RDF('type'), SIOC('UserAccount'));
+                    g.add($rdf.sym('#author'), SIOC('account_of'), $rdf.sym($scope.userProfile.webid));
+                    g.add($rdf.sym('#author'), SIOC('avatar'), $rdf.sym($scope.userProfile.picture));
+                    g.add($rdf.sym('#author'), FOAF('name'), $rdf.lit($scope.userProfile.name));
+
                     s = new $rdf.Serializer(g).toN3(g);
 
                     if (s.length > 0) {
@@ -261,8 +312,37 @@ angular.module('Cimba.channels',[
                                 notify('Success', 'Your new "'+title+'" channel was succesfully created!');
                                 // clear form
                                 $scope.channelname = '';
+
+                                $scope.$apply();
+                                if (redirect) {
+                                    $location.path('/channels');
+                                }
+
+                                console.log("$scope.defaultChannel before"); //debug
+                                console.log($scope.defaultChannel); //debug
+                                //set default if first channel
+                                if ($scope.defaultChannel === undefined) {
+                                    console.log("no default channel, setting default equal to "); //debug
+                                    $scope.defaultChannel = chan;
+                                    console.log(chan); //debug
+                                }
+                                console.log("$scope.defaultChannel after"); //debug
+                                console.log($scope.defaultChannel); //debug
+
+                                //adds the newly created channel to our list
+                                chan.uri = chURI;
+                                $scope.$parent.users[chan.owner].channels[chURI] = chan;
+                                $scope.$parent.channels[chURI] = chan;
+
+                                console.log("START listing channels"); //debug
+                                for (var t in $scope.$parent.users[chan.owner].channels) {
+                                    console.log("key: " + t); //debug
+                                    console.log($scope.$parent.users[chan.owner].channels[t]); //debug
+                                }
+                                console.log("END listing channels"); //debug
+
                                 // reload user profile when done
-                                $scope.getInfo(webid, true, false);
+                                $scope.getInfo(chan.owner, true, false);
                             }
                         });
                     }
@@ -270,10 +350,14 @@ angular.module('Cimba.channels',[
             }
         }).always(function() {
             // revert button contents to previous state
+            console.log("executing creation always");
             $scope.createbtn = 'Create';
             $scope.loading = false;
-            newChannelModal = false;
             $scope.$apply();
-        });channelname='';
+        });
+    };
+
+    $scope.deleteChannel = function (channeluri) {
+        
     };
 });

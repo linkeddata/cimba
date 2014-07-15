@@ -1,6 +1,9 @@
 #new-channel-button {
-	position: relative;
+	position: absolute;
 	margin: 10px;
+	top: 10px;
+	right: 30px;
+	background-color: #4285f4!important;
 	
 }
 
@@ -19,6 +22,7 @@
     background: #000;
     opacity: 0.5;
     filter: alpha(opacity=50);
+    z-index: 999;
 }
 
 #channel-create-button {
@@ -48,14 +52,27 @@
 	border: none;
 }
 
+.channel-unsub-btn {
+	height: 35px;
+	width: 35px;
+	margin: 5px;
+	font-size: 1em;
+	border-radius: 5px;
+	border: none;
+}
+
 .channel-list-item {
 	width: 90%;
 }
 
 .channel-list {
-	margin-top: 30px;
+	margin-top: 55px;
 }
 
 .panel-header-body {
 	margin: 10px;
+}
+
+.channelsHeader {
+	font-weight: bold;
 }
