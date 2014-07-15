@@ -32,7 +32,7 @@ angular.module('Cimba.channels',[
         $scope.$parent.gotstorage = false;
     }
 
-    $scope.newChannelModal = false;
+    $scope.$parent.newChannelModal = false;
     $scope.showOverlay = false;
     $scope.createbtn = "Create";
 
@@ -307,9 +307,10 @@ angular.module('Cimba.channels',[
                                 $scope.channelname = '';
 
                                 $scope.$apply();
+                                /*
                                 if (redirect) {
                                     $location.path('/channels');
-                                }
+                                }*/
 
                                 console.log("$scope.defaultChannel before"); //debug
                                 console.log($scope.defaultChannel); //debug
@@ -333,6 +334,12 @@ angular.module('Cimba.channels',[
                                     console.log($scope.$parent.users[chan.owner].channels[t]); //debug
                                 }
                                 console.log("END listing channels"); //debug
+
+                                console.log($scope.newChannelModal); //debug
+                                //hide window
+                                $scope.hidePopup();
+                                console.log($scope.newChannelModal); //debug
+                                console.log("1"); //debug
 
                                 // reload user profile when done
                                 $scope.getInfo(chan.owner, true, false);

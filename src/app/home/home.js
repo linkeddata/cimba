@@ -41,7 +41,35 @@ angular.module( 'Cimba.home', [
     $scope.hideMenu = function() {
         $scope.$parent.showMenu = false;
     };
+
+    //defaults
+    $scope.$parent.newChannelModal = false;
+    $scope.newMBModal = false;
+    $scope.newStorageModal = false;
+    $scope.showOverlay = false;
   
+    $scope.showPopup = function (p) {
+        console.log("ex show");
+        if (p == "ch") {
+            $scope.newChannelModal = true;
+        }
+        else if (p == "mb") {
+            $scope.newMBModal = true;
+        }
+        else if (p == "st") {
+            $scope.newStorageModal = true;
+        }
+        $scope.showOverlay = true;
+    };
+
+    $scope.hidePopup = function (p) {
+        console.log("ex hide");
+        $scope.newChannelModal = false;
+        $scope.newMBModal = false;
+        $scope.newStorageModal = false;
+        $scope.showOverlay = false;
+    };
+
     $scope.$watch('$parent.getInfoDone', function(newVal,oldVal){   //waits for getInfo to be done to call getChannels
         console.log('getInfo is done');
         if ($scope.$parent.userProfile.storagespace !== undefined && newVal === true) {
@@ -121,6 +149,7 @@ angular.module( 'Cimba.home', [
                     $scope.addstoragebtn = 'Add';
                     $scope.users[$scope.userProfile.webid].storagespace = storage;
                     // close modal
+                    $scope.hidePopup();
                     //$('#newStorageModal').modal('hide');
                     // reload user profile when done
                     if (express && express === true) {
@@ -246,6 +275,7 @@ angular.module( 'Cimba.home', [
                         // clear form
                         $scope.mburi = '';
                         // close modal
+                        $scope.hidePopup();
                         //$('#newMBModal').modal('hide');
                         this.newMBModal = false; //debug, testing
                         if (express && express === true) {
