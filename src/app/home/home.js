@@ -43,7 +43,6 @@ angular.module( 'Cimba.home', [
   };
   
   $scope.$watch('$parent.getInfoDone', function(newVal,oldVal){   //waits for getInfo to be done to call getChannels
-    console.log('getInfo is done');
     if ($scope.$parent.userProfile.storagespace !== undefined && newVal === true) {
         console.log('close');
         var storage = $scope.$parent.userProfile.storagespace;

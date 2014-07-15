@@ -157,3 +157,12 @@ When we started designing CIMBA, we wanted it to work in a very generic way, to 
     This policy basically states that user ```https://user.name/card#me``` can Read/Write the *.acl* resource, while anyone that is a foaf:Agent (any user) can Read resources from ```https://example.org/data/microblog/channel/```.
 
  * A user can subscribe to other users' channels. To do so, CIMBA basically follows the same procedure as it did for the owner. At the end, if it finds any channels, it will save them in a resource called *follows*, under the microblogging workspace: ```https://example.org/data/microblog/follows```. Finally, it will proceed to fech posts from each remote channel.
+
+
+ **Karma Testing Information**
+ -Getting karma to test in chrome as well as firefox. Use the following command in a command line
+
+ npm install karma-chrome-launcher --save-dev
+
+ Then add 'karma-chrome-launcher' to the plugins array and 'Chrome' to the browsers array in karma-unit.tpl.js.
+ Similar things must be done for the other major browsers.
