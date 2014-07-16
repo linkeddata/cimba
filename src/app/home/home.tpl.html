@@ -17,7 +17,7 @@
             <div class="col-md-12">
                 <div class="panel panel-default text-center">
                     <h3>We could not find a shared storage space in your WebID profile.</h3>
-                    <p><button ng-click="newStorageModal = true" class="btn btn-primary">Please provide one here</button></p>
+                    <p><button ng-click="showPopup('st')" class="btn btn-primary">Please provide one here</button></p>
                 </div>
             </div>
         </div>
@@ -31,7 +31,7 @@
             <div class="col-md-12">
                 <div class="panel panel-default text-center">
                     <h3>To start using Cimba, you will need a microblogging space.</h3>
-                    <p><button ng-click="newMBModal = true" class="btn btn-primary">Click here to create one</button></p>
+                    <p><button ng-click="showPopup('mb')" class="btn btn-primary">Click here to create one</button></p>
                 </div>
             </div>
         </div>
@@ -43,7 +43,7 @@
             <div class="col-md-12">
                 <div class="panel panel-default text-center">
                     <h3>You're almost there! Now you just need to create a channel for your posts.</h3>
-                    <p><button ng-click="newChannelModal = true; showOverlay=true" class="btn btn-primary">Click here to create a channel</button></p>
+                    <p><button ng-click="showPopup('ch')" class="btn btn-primary">Click here to create a channel</button></p>
                 </div>
             </div>
         </div>
@@ -66,7 +66,7 @@
         <div class="modal-dialog">
             <div class="modal-content popup">
                 <div class="modal-header">
-                    <button type="button" class="close" ng-click="newStorageModal = false" aria-hidden="true">x</button>
+                    <button type="button" class="close" ng-click="hidePopup()" aria-hidden="true">x</button>
                     <h3 class="text-center">Provide a URI for your storage</h3>
                 </div>
                 <div class="modal-body">
@@ -85,7 +85,7 @@
                     <div class="col-md-12">
                         <button class="btn btn-primary" ng-click="newStorage(true)" ng-disabled="!storageuri" tooltip="Skip all configuration">{{addstoragebtn}} (simple)</button>
                         <button class="btn btn-primary" ng-click="newStorage()" ng-disabled="!storageuri" rel="tooltip" data-placement="top" title="Choose configuration options">{{addstoragebtn}} (advanced)</button>
-                        <button class="btn btn-info btn-sep-right" ng-click="newStorageModal = false" aria-hidden="true">Close</button>
+                        <button class="btn btn-info btn-sep-right" ng-click="hidePopup()" aria-hidden="true">Close</button>
                     </div>  
                 </div>      
             </div>
@@ -98,7 +98,7 @@
       <div class="modal-dialog">
           <div class="modal-content popup">
               <div class="modal-header">                 
-                  <button type="button" class="close" ng-click="newMBModal = false" aria-hidden="true">x</button>              
+                  <button type="button" class="close" ng-click="hidePopup()" aria-hidden="true">x</button>              
                   <h3 class="text-center">Create a new microblog workspace</h3>
               </div>
               <div class="modal-body">
@@ -109,7 +109,7 @@
               <div class="modal-footer">
                   <div class="col-md-12">
                       <button class="btn btn-primary" ng-click="newMB(mburi, false)" ng-disabled="!mburi">{{createbtn}}</button>
-                      <button class="btn btn-info btn-sep-right" ng-click="newMBModal = false" aria-hidden="true">Close</button>
+                      <button class="btn btn-info btn-sep-right" ng-click="hidePopup()" aria-hidden="true">Close</button>
                   </div>  
               </div>
           </div>
@@ -119,7 +119,7 @@
     <!--new channel modal-->
     <div id="channel-modal" ng-show="newChannelModal" class="popup">
       <div class="pull-right">
-        <button type="button" class="close" ng-click="newChannelModal=false; showOverlay=false">X</button>
+        <button type="button" class="close" ng-click="hidePopup()">X</button>
       </div>
       <div>
           
@@ -220,4 +220,5 @@
 	        </div>
 	    </div>
 	</div>
+  <div class="overlay" ng-show="showOverlay" ng-click="hidePopup()"></div>
 </div>
