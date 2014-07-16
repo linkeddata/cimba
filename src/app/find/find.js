@@ -20,19 +20,12 @@ angular.module('Cimba.find',[
 
 .controller('FindController', function FindController($scope, $http, $location, $sce){
     $scope.search = $scope.$parent.search;
-    
+    $scope.searchbtn = "Search";
     $scope.hideMenu = function() {
         $scope.$parent.showMenu = false;
     };
 
     $scope.prepareSearch = function(webid, name) {
-        $scope.search.selected = true;
-        $scope.search.loading = true;
-        $scope.search.webid = webid;
-        $scope.search.query = name;
-        $scope.getUsers(); //force refresh of channel subscriptions in case it changed
-        $scope.getInfo(webid, false, false);
-        $scope.webidresults = [];
         var safeUri = $scope.safeUri(webid);
         $location.path("/find/" + safeUri);
     };

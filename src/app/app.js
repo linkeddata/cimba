@@ -147,7 +147,7 @@ angular.module( 'Cimba', [
     $scope.channels = {};
     $scope.posts = {}; //aggregate list of all posts (flat list)
     $scope.search = {};
-
+    $scope.loadChannels = {};
     $rootScope.userProfile = {};
 
     $scope.login = function () {
@@ -380,8 +380,24 @@ angular.module( 'Cimba', [
                 ngProgress.complete();
                 $scope.$apply();
             }
-            if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
+            // if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
+            //     $scope.getChannels(storage, webid, false, update, false);
+            // }
+
+            console.log($scope.loadChannels);
+
+            // Load Channels 
+            if ($scope.loadChannels[webid]) {
+                console.log("loading channels");
                 $scope.getChannels(storage, webid, false, update, false);
+                console.log("end load Channels");
+                delete $scope.loadChannels[webid];
+                console.log($scope.loadChannels);
+                
+                $scope.profileloading = false;
+                ngProgress.complete();
+                $scope.$apply();
+
             }
 
             $scope.getInfoDone = true; //done getting info, home page can now load channels and posts
@@ -519,7 +535,7 @@ angular.module( 'Cimba', [
 
                 var func = function() {
                     var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));
-                    // console.log("got Channels!"); //debug
+                    console.log("got Channels!"); //debug
 
                     if (chs.length > 0) {
                         if (!$scope.channels) {
@@ -585,7 +601,7 @@ angular.module( 'Cimba', [
                                     $scope.users[webid].channels[channel.uri] = channel;
                                 }*/
                                 $scope.users[webid].chspace = true;
-                                $scope.apply();
+                                $scope.$apply();
                             }
                         }
 

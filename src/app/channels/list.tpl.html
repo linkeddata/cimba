@@ -17,7 +17,7 @@
       <div>
           <form ng-controller="ChannelsCtrl">
 	          <p>The name you provide will be used to create a new channel inside your microblog.</p>
-	          <p><input type="text" ng-model="channelname" placeholder="Name (Main, Work, etc.).." required ng-pattern="/^[A-Za-z0-9_ ]*$/"></input></p>
+	          <p class="center"><input type="text" class="form-control add-channel-input" ng-model="channelname" placeholder="Name (Main, Work, etc.).." required ng-pattern="/^[A-Za-z0-9_ ]*$/"></input></p>
 	          <div id="modal-channel-group" class="btn-group-horizontal"> 
 		          <div id="audience-group" class="btn-group">
 		              <button id="audience" class="btn btn-primary" disabled>
