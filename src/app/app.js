@@ -383,8 +383,6 @@ angular.module( 'Cimba', [
             //     $scope.getChannels(storage, webid, false, update, false);
             // }
 
-            console.log($scope.loadChannels);
-
             // Load Channels 
             if ($scope.loadChannels[webid]) {                
                 $scope.getChannels(storage, webid, false, update, false);                
