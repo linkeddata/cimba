@@ -32,22 +32,30 @@ angular.module('Cimba.channels',[
         $scope.$parent.gotstorage = false;
     }
 
-    $scope.$parent.newChannelModal = false;
+    $scope.newChannelModal = false;
     $scope.showOverlay = false;
     $scope.createbtn = "Create";
 
     $scope.$parent.loading = false;
     
     $scope.showPopup = function () {
-        console.log("ex show");
+        console.log("ex show 1");
+        console.log("$scope.newChannelModal before: " + $scope.newChannelModal); //debug
+        console.log("$scope.showOverlay before: " + $scope.showOverlay); //debug
         $scope.newChannelModal = true;
         $scope.showOverlay = true;
+        console.log("$scope.newChannelModal after: " + $scope.newChannelModal); //debug
+        console.log("$scope.showOverlay after: " + $scope.showOverlay); //debug
     };
 
     $scope.hidePopup = function () {
-        console.log("ex hide");
+        console.log("ex hide 1");
+        console.log("$scope.newChannelModal before: " + $scope.newChannelModal); //debug
+        console.log("$scope.showOverlay before: " + $scope.showOverlay); //debug
         $scope.newChannelModal = false;
         $scope.showOverlay = false;
+        console.log("$scope.newChannelModal after: " + $scope.newChannelModal); //debug
+        console.log("$scope.showOverlay after: " + $scope.showOverlay); //debug
     };
 
     // set the corresponding ACLs for the given post, using the right ACL URI
@@ -160,6 +168,9 @@ angular.module('Cimba.channels',[
         $scope.createbtn = 'Creating...';
         var title = 'ch';
         var churi = 'ch';
+
+        console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
+        console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
         
         var chan = {};
 
@@ -185,6 +196,8 @@ angular.module('Cimba.channels',[
             console.log("empty channels"); //debug
             $scope.$parent.users[chan.owner].channels = {};
         }
+        console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
+        console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
 
         console.log("$scope.$parent.users[" + chan.owner + "].channels[" + chan.uri + "] = "); //debug
         console.log($scope.$parent.users[chan.owner].channels[chan.uri]); //debug
@@ -199,6 +212,8 @@ angular.module('Cimba.channels',[
             console.log($scope.$parent.users[chan.owner].channels[r]); //debug
         }
         console.log("END listing channels"); //debug
+        console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
+        console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
 
         $.ajax({
             type: "POST",
@@ -217,14 +232,14 @@ angular.module('Cimba.channels',[
                 },
                 401: function() {
                     console.log("401 Unauthorized");
-                    notify('Error', 'Unauthorized! You need to authentify!');
+                    notify('Error', 'Unauthorized! You need to authentificate!');
                 },
                 403: function() {
                     console.log("403 Forbidden");
                     notify('Error', 'Forbidden! You are not allowed to create new channels.');
                 },
                 406: function() {
-                    console.log("406 Contet-type unacceptable");
+                    console.log("406 Content-type unacceptable");
                     notify('Error', 'Content-type unacceptable.');
                 },
                 507: function() {
@@ -234,6 +249,8 @@ angular.module('Cimba.channels',[
             },
             success: function(d,s,r) {
                 console.log('Success! Created new channel "'+title+'".');
+                console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
+                console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
                 // create the meta file
                 var meta = parseLinkHeader(r.getResponseHeader('Link'));
                 var metaURI = meta['meta']['href'];
@@ -266,6 +283,8 @@ angular.module('Cimba.channels',[
                     g.add($rdf.sym('#author'), FOAF('name'), $rdf.lit($scope.userProfile.name));
 
                     s = new $rdf.Serializer(g).toN3(g);
+                    console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
+                    console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
 
                     if (s.length > 0) {
                         $.ajax({
@@ -283,14 +302,14 @@ angular.module('Cimba.channels',[
                                 },
                                 401: function() {
                                     console.log("401 Unauthorized");
-                                    notify('Error', 'Unauthorized! You need to authentify before posting.');
+                                    notify('Error', 'Unauthorized! You need to authenticate before posting.');
                                 },
                                 403: function() {
                                     console.log("403 Forbidden");
                                     notify('Error', 'Forbidden! You are not allowed to create new containers.');
                                 },
                                 406: function() {
-                                    console.log("406 Contet-type unacceptable");
+                                    console.log("406 Content-type unacceptable");
                                     notify('Error', 'Content-type unacceptable.');
                                 },
                                 507: function() {
@@ -307,10 +326,30 @@ angular.module('Cimba.channels',[
                                 $scope.channelname = '';
 
                                 $scope.$apply();
-                                /*
+                                
+                                //hacky way to remove https:// or http://
+                                var churi_noheader = "";
+                                for (var ind = 0; ind < chURI.length; ind++) {
+                                    console.log("slice: " + chURI.slice(ind,ind+3)); //debug
+                                    if (chURI.slice(ind,ind+3) === "://") {
+                                        churi_noheader = chURI.slice(ind+3,chURI.length); //debug
+                                        break;
+                                    }
+                                }
+
+                                if (churi_noheader === "") {
+                                    console.log("Error: channel uri doesn't exist.");
+                                }
+
                                 if (redirect) {
-                                    $location.path('/channels');
-                                }*/
+                                    $location.path('/channels/view/' + churi_noheader);
+                                }
+                                else {
+                                    $scope.hidePopup();
+                                }
+
+                                console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
+                                console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
 
                                 console.log("$scope.defaultChannel before"); //debug
                                 console.log($scope.defaultChannel); //debug
@@ -327,6 +366,8 @@ angular.module('Cimba.channels',[
                                 chan.uri = chURI;
                                 $scope.$parent.users[chan.owner].channels[chURI] = chan;
                                 $scope.$parent.channels[chURI] = chan;
+                                console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
+                                console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
 
                                 console.log("START listing channels"); //debug
                                 for (var t in $scope.$parent.users[chan.owner].channels) {
@@ -335,10 +376,13 @@ angular.module('Cimba.channels',[
                                 }
                                 console.log("END listing channels"); //debug
 
-                                console.log($scope.newChannelModal); //debug
+
+                                console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
+                                console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
                                 //hide window
                                 $scope.hidePopup();
-                                console.log($scope.newChannelModal); //debug
+                                console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
+                                console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
                                 console.log("1"); //debug
 
                                 // reload user profile when done

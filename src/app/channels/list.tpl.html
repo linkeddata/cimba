@@ -51,7 +51,7 @@
 		                  </li>
 		              </ul>
 		          </div>		      
-	              <button class="btn btn-primary" ng-disabled="!channelname" ng-click="newChannelModal=false; newChannel(channelname, true)">
+	              <button class="btn btn-primary" ng-disabled="!channelname" ng-click="newChannel(channelname, true)">
 	              	{{createbtn}}
 	              </button>		         
 	          </div>                
@@ -112,7 +112,7 @@
 				    <div class="panel-body">
 				        <div class="chan-panel-body-text" align="left">
 				             By: <a href="{{channel.owner}}"><i>{{users[channel.owner].name}}</i></a>
-				        </div>		        
+				        </div>
 				    </div>
 			    </div>
 		    </div>
