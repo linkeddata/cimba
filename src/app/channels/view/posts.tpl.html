@@ -12,7 +12,6 @@
                 </div>
             </div>
         </form>
-
        <!--  <a href="{{post.uri}}" class="link-post pull-right" target="_blank"><i class="fa fa-link"></i> Link to post</a> -->
         <h4>
         	<span class="pull-left" rel="tooltip" data-placement="top" title="{{post.date}}">{{post.date | fromNow}}</span><div class="pull-left">&nbsp;by <a href="{{post.userwebid}}" class="link-white bold" target="_blank">{{post.username}}</a> </div>
@@ -21,12 +20,11 @@
         </h4>
         <br/>
         <div class="pull-left">
-            <a class="thumbnail pull-right" href="#{{post.$$hashKey}}" role="button" data-toggle="modal">
+            <a class="thumbnail pull-right" href="" ng-click="userModal = true; showOverlay = true" role="button" data-toggle="modal">
               <img class="media-object thumb-pic" ng-src="{{post.userpic}}" err-src="assets/generic_photo.png" rel="tooltip" data-placement="top" title="{{post.username}}">
             </a>
         </div>
     </div>
-
     <div class="panel-body">
         <div class="panel-body-text" align="left">
             <p>
@@ -34,12 +32,13 @@
             </p>
         </div>
     </div>
+
     <!-- user info modal -->
-    <div id="{{post.$$hashKey}}" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog">
+    <div ng-show="userModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" style="position:fixed; top: 25%; left: 25%; background-color: white; z-index: 1010; border-radius: 6px; overflow; auto;">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                    <button type="button" class="close" ng-click="userModal = false; showOverlay = false" aria-hidden="true">x</button>
                     <div class="text-center">
                         <a class="thumbnail center" href="{{post.userwebid}}" target="_blank">
                             <img class="media-object thumb-pic" ng-src="{{post.userpic}}" rel="tooltip" data-placement="top" title="{{post.username}}">
@@ -47,17 +46,14 @@
                         <h3><a href="{{post.userwebid}}" target="_blank">{{post.username}}</a></h3>
                     </div>
                 </div>
-                <div class="modal-body">
-                    <div class="text-center">
-                        <button class="btn btn-info"><i class="{{sub.icon}} white"></i> {{sub.text}}</button>
-                    </div>
-                </div>
                 <div class="modal-footer">
                   <div class="col-md-12">
-                      <button class="btn btn-info btn-sep-right" data-dismiss="modal" aria-hidden="true">Close</button>
+                      <button class="btn btn-info btn-sep-right" ng-click="userModal = false; showOverlay = false" aria-hidden="true">Close</button>
                   </div>  
-                </div>      
+              </div>
             </div>
         </div>
     </div>
+
+    <div class="overlay" ng-show="showOverlay" ng-click="userModal = false; showOverlay = false"></div>
 </div>
