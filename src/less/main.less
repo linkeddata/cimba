@@ -96,6 +96,18 @@ h2 {
   }
 }
 
+.navbar {height: 56px;}
+.navbar-default {background-color:#f4f4f4;border-width:0;z-index:5;}
+.navbar-default .navbar-nav > .active > a,.navbar-default .navbar-nav > li:hover > a {
+    border:0 solid #4285f4;border-bottom-width:2px;background-color:transparent;
+}
+.navbar-default .dropdown-menu {background-color:#ffffff;}
+.navbar-default .dropdown-menu li > a {padding-left:30px;}
+.navbar-nav {background-color: #f4f4f4; margin-top:0px;}
+.navbar-toggle{margin-top:5px!important;margin-right:0px !important;}
+
+
+
 .icon-bars-button {
   float: left;
   position: absolute;
@@ -283,7 +295,6 @@ h2 {
 
 .panel .panel-heading a {
   font-weight:400;
-  color: @white;
 }
 
 .panel-heading-small {
@@ -603,4 +614,25 @@ h2 {
 
 .center {
   text-align: center;
+}
+
+.two-col-list {
+  -webkit-column-count: 2; /* Chrome, Safari, Opera */
+    -moz-column-count: 2; /* Firefox */
+    column-count: 2;
+
+    -webkit-column-break-inside: avoid; /* Chrome, Safari, Opera */
+    -moz-column-break-inside: avoid; /* Firefox */
+    column-break-inside: avoid;
+}
+
+.two-col-list > .panel {
+  -webkit-column-break-inside: avoid; /* Chrome, Safari, Opera */
+    -moz-column-break-inside: avoid; /* Firefox */
+    column-break-inside: avoid;
+}
+
+.row.two-col-list {
+  padding-left: 15px;
+  padding-right: 15px;
 }

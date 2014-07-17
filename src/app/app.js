@@ -130,7 +130,7 @@ angular.module( 'Cimba', [
         return output;
     };
 })*/
-.controller( 'MainCtrl', function MainCtrl ($scope, $rootScope, $location, $timeout, ngProgress, $http ) {
+.controller( 'MainCtrl', function MainCtrl ($scope, $window, $rootScope, $location, $timeout, ngProgress, $http ) {
     // Some default values
 
     var emptyUser = {
@@ -1316,11 +1316,17 @@ angular.module( 'Cimba', [
         return flatList;
     };
 
+
     $scope.$on("$locationChangeStart", function(event, next, current) {        
         // $scope.loadCredentials();
         if (!$scope.loggedin) {
             $location.path("/login");
         }  
+    });
+
+    angular.element($window).on('load', function() {
+        console.log("window load");
+        $scope.loadCredentials();
     });
 
 })
