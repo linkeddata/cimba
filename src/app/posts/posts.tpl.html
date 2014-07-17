@@ -28,7 +28,18 @@
     <div class="panel-body">
         <div class="panel-body-text" align="left">
             <p>
-                <pre ng-bind-html="post.body | makeLinks"></pre>
+                <script>
+                var fullText = false;
+                var readMore = false;
+                if(post.body.length>170)
+                {
+                    readMore = true;
+                }
+                </script>
+                <pre ng-bind-html="post.body | makeLinks" ng-hide="fullText"></pre>
+                <button ng-click="fullText=!fullText" ng-hide="fullText" ng-show="readMore">Read More</button>
+                <div ng-bind-html="post.body | makeLinks" ng-show="fullText"></div>
+                <button ng-click="fullText=!fullText" ng-show="fullText">Read Less</button>
             </p>
         </div>        
     </div>
