@@ -698,8 +698,6 @@ angular.module( 'Cimba', [
 
         var f = $rdf.fetcher(g, TIMEOUT);
 
-        
-
         // add CORS proxy
         $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
 
