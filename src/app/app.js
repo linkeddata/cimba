@@ -300,11 +300,14 @@ angular.module( 'Cimba', [
             // set avatar picture
             if (pic) {
                 pic = pic.value;
+                console.log("picture found at " + pic); //debug
             } else {
                 if (depic) {
                     pic = depic.value;
+                    console.log("depiction found at " + pic); //debug
                 } else {
                     pic = 'assets/generic_photo.png';
+                    console.log("no image found: loading from " + pic); //debug
                 }
             }
 
@@ -740,11 +743,11 @@ angular.module( 'Cimba', [
                     var uri = posts[p]['subject'];
                     var useraccount = g.any(uri, SIOC('has_creator'));
                     var post = g.statementsMatching(posts[p]['subject']);
-                    var body = '';
-                    var username = '';
-                    var userpic = 'assets/generic_photo.png';
-                    var userwebid;
-                    var date = '';
+                    var body = ''; //default 
+                    var username = ''; //default
+                    var userpic = 'assets/generic_photo.png'; //default
+                    var userwebid; //default
+                    var date = ''; //default
 
                     if (g.any(uri, DCT('created'))) {
                         var d = g.any(uri, DCT('created')).value;
@@ -753,7 +756,6 @@ angular.module( 'Cimba', [
 
                     if (g.any(useraccount, SIOC('account_of'))) {
                         userwebid = g.any(useraccount, SIOC('account_of')).value;
-                        console.log(userwebid);
                     } else {
                         userwebid = undefined;
                     }
@@ -761,14 +763,16 @@ angular.module( 'Cimba', [
                     // try using the picture from the WebID first
 
                     if (userwebid && $scope.users[userwebid]) {
+                        console.log("tried loading from webid first"); //debug
                         userpic = $scope.users[userwebid].picture;
+                        console.log("userpic: " + userpic); //debug
                     }
                     else if (g.any(useraccount, SIOC('avatar'))) {
+                        console.log("tried loading from rww storage"); //debug
                         userpic = g.any(useraccount, SIOC('avatar')).value;
+                        console.log("userpic: " + userpic); //debug
                     }
-                    else {
-                        userpic = 'assets/generic_photo.png';
-                    }
+
                     // try using the name from the WebID first
                     if (userwebid && $scope.users[userwebid]) {
                         username = $scope.users[userwebid].name;
@@ -1040,6 +1044,7 @@ angular.module( 'Cimba', [
                         _user.webid = g.any(u, SIOC('account_of')).value;
                         _user.name = (g.any(u, SIOC('name')))?g.any(u, SIOC('name')).value:'';
                         _user.picture = (g.any(u, SIOC('avatar')))?g.any(u, SIOC('avatar')).value:'assets/generic_photo.png';
+                        console.log("loading user picture for " + _user.webid + ". _user.picture: " + _user.picture); //debug
                         _user.channels = {};
                         // add channels
                         var channels = g.statementsMatching(u, SIOC('feed'), undefined);

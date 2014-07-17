@@ -326,23 +326,10 @@ angular.module('Cimba.channels',[
                                 $scope.channelname = '';
 
                                 $scope.$apply();
-                                
-                                //hacky way to remove https:// or http://
-                                var churi_noheader = "";
-                                for (var ind = 0; ind < chURI.length; ind++) {
-                                    console.log("slice: " + chURI.slice(ind,ind+3)); //debug
-                                    if (chURI.slice(ind,ind+3) === "://") {
-                                        churi_noheader = chURI.slice(ind+3,chURI.length); //debug
-                                        break;
-                                    }
-                                }
-
-                                if (churi_noheader === "") {
-                                    console.log("Error: channel uri doesn't exist.");
-                                }
 
                                 if (redirect) {
-                                    $location.path('/channels/view/' + churi_noheader);
+                                    //gets rid of the https:// or http:// in chURI and appends it to the path
+                                    $location.path('/channels/view/' + chURI.slice(chURI.indexOf(":")+3,chURI.length));
                                 }
                                 else {
                                     $scope.hidePopup();
