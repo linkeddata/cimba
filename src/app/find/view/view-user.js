@@ -16,10 +16,10 @@ angular.module('Cimba.find.view-user', ['ui.router'])
 .controller('ViewUserController', function ViewUserController($scope, $stateParams, $location, $http) {
 	console.log("view user controller");
 	$scope.webid = "https://" + $stateParams.path;
-	console.log($scope.webid);
-
+	// $scope.loadCredentials();
+	
 	$scope.$parent.loadChannels[$scope.webid] = $scope.webid;
-	$scope.loadCredentials();
+	
 	// $scope.getUsers();
     $scope.getInfo($scope.webid, false, true);    
     $scope.webidresults = [];

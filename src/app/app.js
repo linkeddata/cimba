@@ -386,7 +386,7 @@ angular.module( 'Cimba', [
             // Load Channels 
             if ($scope.loadChannels[webid]) {                
                 $scope.getChannels(storage, webid, false, update, false);                
-                delete $scope.loadChannels[webid];                
+                // delete $scope.loadChannels[webid];                
                 
                 // $scope.profileloading = false;
                 // ngProgress.complete();
@@ -405,9 +405,9 @@ angular.module( 'Cimba', [
             }
 
         });
-        if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
-            $scope.searchbtn = 'Search';
-        }
+        // if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
+        //     $scope.searchbtn = 'Search';
+        // }
 
         return $scope.channels;
     };
@@ -629,28 +629,36 @@ angular.module( 'Cimba', [
                         // $scope.saveUsers();
                     }
 
-                    // if we were called by search
-                    if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
-                        console.log("in getChannels, called by search: $scope.users[" + $scope.search.webid + "].channels");
-                        for (var y in $scope.users[$scope.search.webid].channels) {
-                            console.log("key: " + y); //debug
-                            console.log($scope.users[$scope.search.webid].channels[y]); //debug
-                        }
-                        console.log("in getChannels, called by search: $scope.search.channels");
-                        for (var ee in $scope.search.channels) {
-                            console.log("key: " + ee); //debug
-                            console.log($scope.search.channels[ee]); //debug
-                        }
-                        $scope.search.channels = $scope.flattenObject($scope.users[$scope.search.webid].channels);
-                        //$scope.search.channels = $scope.users[$scope.search.webid].channels;
-                        $scope.search.channel_size = $scope.search.channels.length; //not supported in IE8 and below
-                        $scope.drawSearchResults(webid);
-                        $scope.searchbtn = 'Search';
-                        $scope.search.loading = false;
+
+                    if ($scope.loadChannels[webid]) {
+                        delete $scope.loadChannels[webid];
+                        $scope.addChannelStyling(webid, $scope.users[webid].channels);
+                        ngProgress.complete();
                         $scope.$apply();
-                        //
                     }
 
+                    // if we were called by search
+                    // if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
+                    //     console.log("in getChannels, called by search: $scope.users[" + $scope.search.webid + "].channels");
+                    //     for (var y in $scope.users[$scope.search.webid].channels) {
+                    //         console.log("key: " + y); //debug
+                    //         console.log($scope.users[$scope.search.webid].channels[y]); //debug
+                    //     }
+                    //     console.log("in getChannels, called by search: $scope.search.channels");
+                    //     for (var ee in $scope.search.channels) {
+                    //         console.log("key: " + ee); //debug
+                    //         console.log($scope.search.channels[ee]); //debug
+                    //     }
+                    //     $scope.search.channels = $scope.flattenObject($scope.users[$scope.search.webid].channels);
+                    //     //$scope.search.channels = $scope.users[$scope.search.webid].channels;
+                    //     $scope.search.channel_size = $scope.search.channels.length; //not supported in IE8 and below
+                    //     // $scope.drawSearchResults(webid);
+                    //     ngProgress.complete();
+                    //     $scope.searchbtn = 'Search';
+                    //     $scope.search.loading = false;
+                    //     $scope.$apply();
+                    //     //
+                    // }                    
                     if (mine) {
                         $scope.saveCredentials();
                         $scope.$apply();
@@ -676,8 +684,15 @@ angular.module( 'Cimba', [
             } else { // no Microblogging workspaces found!
 
                 // we were called by search
-                if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
-                    $scope.drawSearchResults(webid);
+                // if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
+                //     $scope.drawSearchResults(webid);
+                // }
+
+                if ($scope.loadChannels[webid]) {
+                    delete $scope.loadChannels[webid];
+                    $scope.addChannelStyling(webid, $scope.users[webid].channels);
+                    ngProgress.complete();
+                    $scope.$apply();
                 }
 
                 if (mine) {
@@ -1233,7 +1248,7 @@ angular.module( 'Cimba', [
             console.log("key: " + yq); //debug
             console.log($scope.search.channels[yq]); //debug
         }
-        $scope.addChannelStyling(webid, $scope.search.channels);
+        $scope.addChannelStyling(webid, $scope.users[webid].channels);
         $scope.searchbtn = 'Search';
         $scope.search.loading = false;
         ngProgress.complete();
