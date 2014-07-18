@@ -1,10 +1,10 @@
-<div ng-click="hideMenu()">
+<div ng-click="hideMenu()" ng-controller="PostsController as postCtrl">
 	<div id="newpost" class="container">
         <div class="row">
             <!-- <div class="clear-70"></div> -->
             <div class="col-md-12">
                 <!-- new post -->
-                <post-channel ng-show="channelTitle != ''" ng-controller="PostsController as postCtrl"></post-channel>
+                <post-channel ng-show="channelTitle != ''"></post-channel>
                 <!-- end new post -->
             </div>
         </div>
