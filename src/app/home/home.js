@@ -271,6 +271,7 @@ angular.module( 'Cimba.home', [
                         console.log('Success! Microblog space created.');
                         notify('Success', 'Microblog space created.');
                         $scope.users[$scope.userProfile.webid].mbspace = ldpresource;
+                        $scope.userProfile.mbspace = ldpresource;
                         console.log("$scope.users[" + $scope.userProfile.webid + "].mbspace: " + $scope.users[$scope.userProfile.webid].mbspace); //debug
                         // clear form
                         $scope.mburi = '';

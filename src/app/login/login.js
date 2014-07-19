@@ -40,6 +40,8 @@ angular.module( 'Cimba.login', [
   // login user into the app
   $scope.login = function(webid) {
     console.log("login beginning");
+    console.log(webid);
+    console.log(webid.substr(0, 4));
     if (webid && (webid.substr(0, 4) == 'http')) {
       $scope.userProfile = {};
       $scope.userProfile.webid = webid;
