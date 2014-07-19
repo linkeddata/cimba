@@ -28,9 +28,15 @@ angular.module('Cimba.posts',[
 
 	// update account
     $scope.setChannel = function(channelUri) {
+		console.log("wrong setChannel"); //debug
 		if ($scope.users[webid].channels && $scope.users[webid].channels[channelUri]) {
 			$scope.defaultChannel = $scope.users[webid].channels[channelUri];
+			console.log("defaultChannel set to "); //debug
+			console.log($scope.defaultChannel); //debug
 		}
+		else {
+            console.log("Error: cannot set channel to " + channelUri);
+        }
     };
 
 	// update the audience selector

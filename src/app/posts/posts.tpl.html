@@ -10,7 +10,10 @@
             <div class="post-usr-name"><a href="{{post.userwebid}}" target="_blank">{{post.username}}</a> </div>
             <div class="post-time">
                 <span rel="tooltip" data-placement="top" title="{{post.date}}">{{post.date | fromNow}}</span>
-                <a href="{{post.channel}}" target="_blank"> in {{post.chtitle}}</a>
+                <a class="link-white" ui-sref="view({path: safeUri(post.channel)})">In {{post.chtitle}}</a>
+                <!--
+                <a href="{{location.path+'/#/channels/view/'+post.channel.slice(post.channel.indexOf(':')+3, post.channel.length)}}" target="_blank">In {{post.chtitle}}</a>
+                -->
             </div>
         </div>
 
@@ -21,7 +24,7 @@
             <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="post-options">
                 <li role="presentation" ng-click="starPost()"><a role="menuitem" tabindex="-1" href="#"><i class="fa fa-star"></i> Favorite</a></li>
                 <li role="presentation"><a role="menuitem" tabindex="-1" href="{{post.uri}}" target="_blank"><i class="fa fa-link"></i> Link to post</a></li>
-                <li role="presentation" ng-click="deletePost(post, post.channel, true)" ng-show="userProfile.webid == post.userwebid"><a role="menuitem" tabindex="-1" href="{{post.uri}}"><i class="fa fa-trash-o"></i> Delete Post</a></li>
+                <li role="presentation" ng-click="deletePost(post, post.channel, true)" ng-show="userProfile.webid == post.userwebid"><a role="menuitem" tabindex="-1" href=""><i class="fa fa-trash-o"></i> Delete Post</a></li>
             </ul>
         </div>
     </div>

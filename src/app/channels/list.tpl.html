@@ -104,9 +104,9 @@
 		    	</div>
 		    	<div ng-repeat="channel in users[userProfile.webid].subscribedChannels" class="channel-list-item panel panel-default">
 			        <div class="chan-panel-heading panel-heading sub-header">
-			        	<div class="pull-left"><a ui-sref="view({path: safeUri(channel.uri)})" class="link-white bold">{{channel.title}}</a>
+			        	<div class="pull-left"><a ui-sref="view({path: safeUri(channel.uri)})" class="link-white bold"><div ng-click="setChannel(channel.uri)">{{channel.title}}</div></a>
 			        	</div>
-		                
+
 			        	<br style="line-height:25%"/>
 				    </div>
 				    <div class="panel-body">
