@@ -58,19 +58,6 @@ angular.module('Cimba.channels',[
         console.log("$scope.showOverlay after: " + $scope.showOverlay); //debug
     };
 
-    // update account
-    $scope.setChannel = function(channelUri) {
-        console.log("right setChannel"); //debug
-        if ($scope.users[webid].channels && $scope.users[webid].channels[channelUri]) {
-            $scope.defaultChannel = $scope.users[webid].channels[channelUri];
-            console.log("defaultChannel set to "); //debug
-            console.log($scope.defaultChannel); //debug
-        }
-        else {
-            console.log("Error: cannot set channel to " + channelUri);
-        }
-    };
-
     // set the corresponding ACLs for the given post, using the right ACL URI
     $scope.setACL = function(uri, type, defaultForNew) {
         // get the acl URI first
