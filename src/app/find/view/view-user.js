@@ -21,10 +21,10 @@ angular.module('Cimba.find.view-user', ['ui.router'])
 	// $scope.loadCredentials();
 	
 	$scope.$parent.loadChannels[$scope.webid] = $scope.webid;
-	$scope.$parent.loadSubscriptions[$scope.$parent.userProfile.webid] = $scope.$parent.userProfile.webid;
+	// $scope.$parent.loadSubscriptions[$scope.$parent.userProfile.webid] = $scope.$parent.userProfile.webid;
 
-    $scope.getInfo($scope.webid, false, true);    
-    // $scope.getUsers();
+    $scope.getInfo($scope.webid, false, false);    
+    
     $scope.webidresults = [];
 
 });

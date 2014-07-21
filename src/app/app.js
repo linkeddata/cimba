@@ -122,8 +122,7 @@ angular.module( 'Cimba', [
     $scope.posts = {}; //aggregate list of all posts (flat list)
     $scope.search = {};
     $scope.loadChannels = {};
-    $scope.loadSubscriptions = {};
-    $rootScope.userProfile = {};
+    $scope.loadSubscriptions = {};    
 
     $scope.login = function () {
         $location.path('/login');
@@ -171,9 +170,9 @@ angular.module( 'Cimba', [
 
     // retrieve from sessionStorage
     $scope.loadCredentials = function () {
-        console.log("load credentials executed");
+        // console.log("load credentials executed");
         if (sessionStorage.getItem($scope.appuri)) {
-            console.log("found session stored info");
+            // console.log("found session stored info");
             var cimba = JSON.parse(sessionStorage.getItem($scope.appuri));
             if (cimba.userProfile) {
                 if (!$scope.userProfile) {
@@ -181,7 +180,7 @@ angular.module( 'Cimba', [
                 }
                 $scope.userProfile = cimba.userProfile;
                 $scope.loggedin = true;
-                console.log($scope.userProfile.channels);
+                // console.log($scope.userProfile.channels);
 
                 if ($scope.userProfile.channels) {
                     for (var w in $scope.userProfile.channels) {
@@ -190,10 +189,10 @@ angular.module( 'Cimba', [
                         }
                     }
                 }
-                console.log($scope.userProfile.mbspace);
+                // console.log($scope.userProfile.mbspace);
                 // load from PDS (follows)
-                if ($scope.userProfile.mbspace && (!$scope.users ||Object.keys($scope.users).length === 0)) {
-                    console.log("found user mbspace");
+                if ($scope.userProfile.mbspace && (!$scope.users || Object.keys($scope.users).length === 0)) {
+                    // console.log("found user mbspace");
                     $scope.getUsers();
                 }
                 // refresh data
@@ -226,6 +225,7 @@ angular.module( 'Cimba', [
 
         // start progress bar
         ngProgress.start();
+        console.log("progress bar started");
 
         if (mine) {
             $scope.loading = true;
@@ -260,6 +260,7 @@ angular.module( 'Cimba', [
                   $scope.searchbtn = 'Search';
                   // reset progress bar
                   ngProgress.reset();
+                  console.log("progress bar reset");
                   $scope.$apply();
                 }
             } 
@@ -330,23 +331,19 @@ angular.module( 'Cimba', [
                 $scope.userProfile.name = name;
                 $scope.userProfile.picture = pic;
                 $scope.userProfile.storagespace = storage;
-                $scope.users[webid].name = name; //for displaying delete button in posts.tpl.html
-                $scope.users[webid].picture = pic; //resolves issue of not displaying profile picture that the above line creates
-                $scope.users[webid].storagespace = storage; //not inherently necessary since we could just call $scope.userProfile.storagespace
+                // $scope.users[webid].name = name; //for displaying delete button in posts.tpl.html
+                // $scope.users[webid].picture = pic; //resolves issue of not displaying profile picture that the above line creates
+                // $scope.users[webid].storagespace = storage; //not inherently necessary since we could just call $scope.userProfile.storagespace
+                $scope.users[webid] = $scope.userProfile;
                     //but it's nice to have just in case
 
                 // console.log("$scope.users[" + webid + "]"); //debug
                 // console.log($scope.users[webid]); //debug
 
-                // console.log("subscribed channels"); //debug
-                for (var m in $scope.users[webid].subscribedChannels) {
-                    // console.log($scope.users[webid].subscribedChannels[m]); //debug
-                }
-                //
+
+                
                 console.log(webid);
                 if (!$scope.users[webid].subscribedChannels) {
-                    console.log("at getInfo, subscribed channels doesn't exist for my user, initializing it"); //debug
-                    console.log(webid);
                     $scope.users[webid].subscribedChannels = {};
                 }
                 //
@@ -362,7 +359,8 @@ angular.module( 'Cimba', [
                 // update DOM
                 $scope.loggedin = true;
                 $scope.profileloading = false;
-                ngProgress.complete();
+                // ngProgress.complete();
+                // console.log("progress bar complete");
                 $scope.$apply();
             }
             // if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
@@ -372,21 +370,15 @@ angular.module( 'Cimba', [
             // Load Channels 
             if ($scope.loadChannels[webid]) {                
                 $scope.getChannels(storage, webid, false, update, false);                
-                // delete $scope.loadChannels[webid];                
-                
-                // $scope.profileloading = false;
-                // ngProgress.complete();
+
                 $scope.$apply();
 
-            }
-
-            if ($scope.loadSubscriptions[webid]) {
-                $scope.getUsers();
-                delete $scope.loadSubscriptions[webid];
+            } else {
+                ngProgress.complete();
             }
 
             $scope.getInfoDone = true;
-            ngProgress.complete(); //done getting info, home page can now load channels and posts
+             //done getting info, home page can now load channels and posts
             // console.log("at getinfo, $scope.users[" + $scope.userProfile.webid + "] has channels"); //debug
             // for (var y in $scope.users[webid].channels) {
             //     console.log($scope.users[webid].channels[y]); //debug
@@ -559,8 +551,19 @@ angular.module( 'Cimba', [
                                 channel["author"] = author.value;
                             }
                             
-                            $scope.users[webid].channels[channel.uri] = channel;
-                            $scope.userProfile.channels[channel.uri] = channel;
+                            if (!$scope.channels[channel.uri]) {
+                                $scope.channels[channel.uri] = channel;
+                            }
+
+                             if ($scope.users[webid].channels && !$scope.users[webid].channels[channel.uri]) {
+                           
+                                $scope.users[webid].channels[channel.uri] = channel;
+                            }
+                
+                            if (mine) {
+                                $scope.userProfile.channels[channel.uri] = channel;    
+                            }
+                            
                             $scope.$apply();
 
                             // mine
@@ -599,7 +602,7 @@ angular.module( 'Cimba', [
 
                         // done refreshing user information -> update view
                         if (update) {
-                            $scope.addChannelStyling(webid, $scope.users[webid].channels);
+                            // $scope.addChannelStyling(webid, $scope.users[webid].channels);
                             delete $scope.users[webid].refreshing;
                             $scope.$apply();
                         }
@@ -619,10 +622,11 @@ angular.module( 'Cimba', [
 
 
                     if ($scope.loadChannels[webid]) {
-                        console.log(webid);
+                        // console.log(webid);
                         delete $scope.loadChannels[webid];
                         $scope.addChannelStyling(webid, $scope.users[webid].channels);
                         ngProgress.complete();
+                        console.log("progress bar complete");
                         $scope.$apply();
                     }
 
@@ -679,8 +683,9 @@ angular.module( 'Cimba', [
 
                 if ($scope.loadChannels[webid]) {
                     delete $scope.loadChannels[webid];
-                    $scope.addChannelStyling(webid, $scope.users[webid].channels);
+                    // $scope.addChannelStyling(webid, $scope.users[webid].channels);
                     ngProgress.complete();
+                    console.log("progress bar complete");
                     $scope.$apply();
                 }
 
@@ -1006,7 +1011,7 @@ angular.module( 'Cimba', [
     // get list of users (that I'm following) + their channels
     // optionally load posts
     $scope.getUsers = function (loadposts) {
-        console.log("get subscriptions for " + $scope.userProfile.webid);
+        // console.log("get subscriptions for " + $scope.userProfile.webid);
         // console.log("space: " + $scope.users[$scope.userProfile.webid].mbspace);
         if ($scope.userProfile.mbspace && $scope.userProfile.mbspace.length > 1) {
             var followURI = $scope.userProfile.mbspace+'following';
@@ -1023,7 +1028,7 @@ angular.module( 'Cimba', [
             f.nowOrWhenFetched(followURI,undefined,function(ok, body){
                 var users = g.statementsMatching(undefined, RDF('type'), SIOC('UserAccount'));
 
-                console.log("listing users: "); //debug
+                // console.log("listing users: "); //debug
                 if (users.length > 0) {
                     for (var i in users) {
                         var u = users[i]['subject'];
@@ -1044,7 +1049,7 @@ angular.module( 'Cimba', [
                                 // _channel.author = _user.name; //for subscription
                                 _channel.owner = _user.webid; //for subscription
                                 if (g.any(ch, SIOC('has_subscriber'))) {
-                                    console.log("found channel I'm subscribed to: " + _channel.uri);
+                                    // console.log("found channel I'm subscribed to: " + _channel.uri);
                                 // subscribed 
                                     _channel.action = 'Unsubscribe';
                                     _channel.button = ch.button = 'fa-check-square-o';
@@ -1075,7 +1080,8 @@ angular.module( 'Cimba', [
                             // console.log($scope.users[_user.webid]); //debug
                             // console.log("userProfile"); //debug
                             // console.log($scope.userProfile); //debug
-                            $scope.users[$scope.userProfile.webid] = $scope.userProfile;
+                            // $scope.users[$scope.userProfile.webid] = $scope.userProfile;
+                            // $scope.$apply();
                         }
                         if (_user.webid !== $scope.userProfile.webid) { //do not overwrite our own user
                             //(change later to append because we need to know if we're subscribed or not to our own channel)
@@ -1083,11 +1089,12 @@ angular.module( 'Cimba', [
                             // console.log("in $scope.users[" + _user.webid + "], channels are"); //debug
                             for (var chann in $scope.users[_user.webid].channels) {
                                 // console.log(_user.channels[chann]); //debug
-                                if ($scope.users[_user.webid].channels[chann].action == 'Unsubscribe') {
-                                    console.log("im subscribed to a channel"); //debug
+                                if ($scope.users[_user.webid].channels[chann].action === 'Unsubscribe') {
+                                    // console.log("im subscribed to a channel: " + chann); //debug
                                     // console.log($scope.users[_user.webid].channels[chann]); //debug
                                     // $scope.users[$scope.userProfile.webid].subscribedChannels[chann] = _user.channels[chann];
                                     $scope.userProfile['subscribedChannels'][chann] = _user.channels[chann];
+                                    // $scope.users[$scope.userProfile.webid] = $scope.userProfile;
                                 }
                             }
                             $scope.$apply();
@@ -1245,13 +1252,14 @@ angular.module( 'Cimba', [
         $scope.searchbtn = 'Search';
         $scope.search.loading = false;
         ngProgress.complete();
+        console.log("progress bar complete");
         $scope.$apply();
     };
     
     // add html elements to channels 
     $scope.addChannelStyling = function(webid, channels) {
-        console.log("adding channel styling for " + webid);
-        console.log($scope.users[$scope.userProfile.webid].subscribedChannels);
+        // console.log("adding channel styling for " + webid);
+        // console.log($scope.users[$scope.userProfile.webid].subscribedChannels);
         // console.log("at addChannelStyling"); //debug
         // console.log("listing channels paramemter"); //debug
         for (var i in channels) {
@@ -1276,7 +1284,10 @@ angular.module( 'Cimba', [
                 // console.log("action: " + c.action + ", css: " + c.css + ", button: " + c.button); //debug
 
                 // set attributes
-                if (channels[i].uri === c.uri) {
+                if (ch.uri === c.uri) {
+                    // console.log("matching: " + ch.uri);
+                    // console.log(ch.css);
+                    // console.log(c.css);
                     // console.log("channels[" + ch.uri + "] exists"); //debug
                     ch.button = (c.button)?c.button:'fa-square-o';
                     ch.css = (c.css)?c.css:'btn-info';
@@ -1303,7 +1314,8 @@ angular.module( 'Cimba', [
                 }
             }
         }
-        ngProgress.complete();
+        // ngProgress.complete();
+        // console.log("progress bar complete");
     };
 
     $scope.flattenObject = function (obj) {
@@ -1316,7 +1328,6 @@ angular.module( 'Cimba', [
 
 
     $scope.$on("$locationChangeStart", function(event, next, current) {        
-        // $scope.loadCredentials();
         if (!$scope.loggedin) {
             $location.path("/login");
         }  
