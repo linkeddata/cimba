@@ -58,6 +58,13 @@ angular.module('Cimba.channels',[
         console.log("$scope.showOverlay after: " + $scope.showOverlay); //debug
     };
 
+    $scope.channelTog = function(channel, owner){
+        console.log("toggling channel");
+        console.log(owner);
+        console.log(channel);
+        $scope.$parent.channelToggle(channel,$scope.$parent.users[owner]);
+    };
+
     // set the corresponding ACLs for the given post, using the right ACL URI
     $scope.setACL = function(uri, type, defaultForNew) {
         // get the acl URI first

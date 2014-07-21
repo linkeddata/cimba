@@ -1133,20 +1133,28 @@ angular.module( 'Cimba', [
 
     //TODO (not functional yet)
     // remove all posts from viewer based on the given channel URI
-    $scope.removePostsByChannel = function(ch) {
+    $scope.removePostsByChannel = function(ch, webid) {
 
         var modified = false;
-        for (var p in $scope.posts) {
-            if (ch && $scope.posts[p].channel === ch) {
-                delete $scope.posts[p];
-                modified = true;
-            }
+        // for (var p in $scope.posts) {
+        //     if (ch && $scope.posts[p].channel === ch) {
+        //         delete $scope.posts[p];
+        //         modified = true;
+        //     }
+        // }
+        for(var p in $scope.users[webid].channels[ch].posts){
+            delete $scope.posts[p];
         }
 
         // console.log("at removePostsbyChannel, $scope.channels"); //debug
-        // console.log($scope.channels); //debug
+        console.log($scope.channels); //debug
+        console.log($scope.channels[ch]);
         // console.log("looking 4 ch uri: " + ch); //debug
-        $scope.channels[ch].posts = [];
+        if($scope.channels[ch])
+        {
+            delete $scope.channels[ch];
+            modified = true;
+        }
     };
 
     // update the view with new posts
@@ -1178,6 +1186,7 @@ angular.module( 'Cimba', [
     $scope.channelToggle = function(ch, suser) {
         //console.log("channelToggle called"); //debug
         var user = {};
+        console.log(suser);
         if (suser.webid === $scope.userProfile.webid) {
             user.mine = true;
         }
@@ -1191,6 +1200,9 @@ angular.module( 'Cimba', [
         // we're following this user
         if ($scope.users && $scope.users[suser.webid]) {
             var channels = $scope.users[suser.webid].channels;
+            console.log($scope.users[suser.webid]);
+            console.log($scope.users[suser.webid].channels);
+            console.log(channels);
 
             // already have the channel
             if (channels[ch.uri]) {
@@ -1200,7 +1212,9 @@ angular.module( 'Cimba', [
                     c.action = ch.action = 'Subscribe';
                     c.button = ch.button = 'fa-square-o';
                     c.css = ch.css = 'btn-info';
-                    $scope.removePostsByChannel(ch.uri);
+                    console.log("channel uri");
+                    console.log(ch.uri);
+                    $scope.removePostsByChannel(ch.uri, ch.owner);
                     delete $scope.users[$scope.userProfile.webid].subscribedChannels[ch.uri];
                 } else {
                 // subscribe
