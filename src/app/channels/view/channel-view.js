@@ -15,7 +15,7 @@ angular.module('Cimba.channels.view', ['ui.router'])
 })
 
 .controller('ChannelViewCtrl', function ChannelViewController($scope, $stateParams, $location, $http) {	
-	console.log("channel view ctrl");
+	//console.log("channel view ctrl"); //debug
 	$scope.path = $stateParams.path;
 
 	$scope.safeUri = function (uri) {
@@ -30,8 +30,8 @@ angular.module('Cimba.channels.view', ['ui.router'])
 	//manual setChannel
     if ($scope.users[webid].channels && $scope.users[webid].channels[$scope.chanUri]) {
         $scope.defaultChannel = $scope.users[webid].channels[$scope.chanUri];
-        console.log("defaultChannel set to "); //debug
-        console.log($scope.defaultChannel); //debug
+        //console.log("defaultChannel set to "); //debug
+        //console.log($scope.defaultChannel); //debug
     }
     else {
         console.log("Error: cannot set channel to " + $scope.chanUri);

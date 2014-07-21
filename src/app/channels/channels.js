@@ -22,7 +22,7 @@ angular.module('Cimba.channels',[
 })
 
 .controller('ChannelsCtrl', function ChannelsController($scope, $http, $location, $sce){
-    console.log("executing channels controller");
+    //console.log("executing channels controller"); //debug
     if ($scope.$parent.userProfile.storagespace !== undefined) {        
         $scope.$parent.loading = true;
         var storage = $scope.$parent.userProfile.storagespace;
@@ -163,14 +163,14 @@ angular.module('Cimba.channels',[
     };
 
     $scope.newChannel = function(channelname, redirect){
-        console.log("wrong function"); //debug
+        //console.log("wrong function"); //debug
         $scope.loading = true;
         $scope.createbtn = 'Creating...';
         var title = 'ch';
         var churi = 'ch';
 
-        console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
-        console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
+        //console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
+        //console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
         
         var chan = {};
 
@@ -185,17 +185,20 @@ angular.module('Cimba.channels',[
         chan.owner = $scope.$parent.userProfile.webid;
         chan.author = $scope.$parent.userProfile.name;
 
+        /*
         console.log("START listing channels"); //debug
         for (var w in $scope.$parent.users[chan.owner].channels) {
             console.log("key: " + w); //debug
             console.log($scope.$parent.users[chan.owner].channels[w]); //debug
         }
         console.log("END listing channels"); //debug
+        */
 
         if (isEmpty($scope.$parent.users[chan.owner].channels)) {
-            console.log("empty channels"); //debug
+            //console.log("empty channels"); //debug
             $scope.$parent.users[chan.owner].channels = {};
         }
+        /*
         console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
         console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
 
@@ -207,6 +210,7 @@ angular.module('Cimba.channels',[
         console.log("mbspace: " + $scope.$parent.users[chan.owner].mbspace); //debug
 
         console.log("START listing channels"); //debug
+
         for (var r in $scope.$parent.users[chan.owner].channels) {
             console.log("key: " + r); //debug
             console.log($scope.$parent.users[chan.owner].channels[r]); //debug
@@ -214,6 +218,7 @@ angular.module('Cimba.channels',[
         console.log("END listing channels"); //debug
         console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
         console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
+        */
 
         $.ajax({
             type: "POST",
@@ -249,8 +254,8 @@ angular.module('Cimba.channels',[
             },
             success: function(d,s,r) {
                 console.log('Success! Created new channel "'+title+'".');
-                console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
-                console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
+                //console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
+                //console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
                 // create the meta file
                 var meta = parseLinkHeader(r.getResponseHeader('Link'));
                 var metaURI = meta['meta']['href'];
@@ -283,8 +288,8 @@ angular.module('Cimba.channels',[
                     g.add($rdf.sym('#author'), FOAF('name'), $rdf.lit($scope.userProfile.name));
 
                     s = new $rdf.Serializer(g).toN3(g);
-                    console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
-                    console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
+                    //console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
+                    //console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
 
                     if (s.length > 0) {
                         $.ajax({
@@ -335,24 +340,29 @@ angular.module('Cimba.channels',[
                                     $scope.hidePopup();
                                 }
 
+                                /*
                                 console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
                                 console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
 
                                 console.log("$scope.defaultChannel before"); //debug
                                 console.log($scope.defaultChannel); //debug
+                                */
                                 //set default if first channel
                                 if ($scope.defaultChannel === undefined) {
-                                    console.log("no default channel, setting default equal to "); //debug
+                                    //console.log("no default channel, setting default equal to "); //debug
                                     $scope.defaultChannel = chan;
-                                    console.log(chan); //debug
+                                    //console.log(chan); //debug
                                 }
+                                /*
                                 console.log("$scope.defaultChannel after"); //debug
                                 console.log($scope.defaultChannel); //debug
+                                */
 
                                 //adds the newly created channel to our list
                                 chan.uri = chURI;
                                 $scope.$parent.users[chan.owner].channels[chURI] = chan;
                                 $scope.$parent.channels[chURI] = chan;
+                                /*
                                 console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
                                 console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
 
@@ -362,15 +372,17 @@ angular.module('Cimba.channels',[
                                     console.log($scope.$parent.users[chan.owner].channels[t]); //debug
                                 }
                                 console.log("END listing channels"); //debug
+                                */
 
-
-                                console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
-                                console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
+                                //console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
+                                //console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
                                 //hide window
                                 $scope.hidePopup();
+                                /*
                                 console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
                                 console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
                                 console.log("1"); //debug
+                                */
 
                                 // reload user profile when done
                                 $scope.getInfo(chan.owner, true, false);

@@ -28,11 +28,11 @@ angular.module('Cimba.posts',[
 
 	// update account
     $scope.setChannel = function(channelUri) {
-		console.log("wrong setChannel"); //debug
+		//console.log("wrong setChannel"); //debug
 		if ($scope.users[webid].channels && $scope.users[webid].channels[channelUri]) {
 			$scope.defaultChannel = $scope.users[webid].channels[channelUri];
-			console.log("defaultChannel set to "); //debug
-			console.log($scope.defaultChannel); //debug
+			//console.log("defaultChannel set to "); //debug
+			//console.log($scope.defaultChannel); //debug
 		}
 		else {
             console.log("Error: cannot set channel to " + channelUri);
@@ -78,10 +78,10 @@ angular.module('Cimba.posts',[
 		g.add($rdf.sym('#author'), SIOC('avatar'), $rdf.sym($scope.userProfile.picture));
 		g.add($rdf.sym('#author'), FOAF('name'), $rdf.lit($scope.userProfile.name));
 
-		console.log(g); //debug
-		console.log(new $rdf.Serializer(g)); //debug
+		//console.log(g); //debug
+		//console.log(new $rdf.Serializer(g)); //debug
 		var s = new $rdf.Serializer(g).toN3(g);
-		console.log(s); //debug
+		//console.log(s); //debug
 		var uri = $scope.defaultChannel.uri;
 		var title = $scope.defaultChannel.title;
 		
