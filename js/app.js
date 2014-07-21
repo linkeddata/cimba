@@ -634,6 +634,15 @@ function CimbaCtrl($scope, $http, $filter) {
 	        success: function(d,s,r) {
 	            console.log('Success! Created new uB directory at '+mburi+'/');
 	            // create the meta file
+		        var l = r.getResponseHeader('Link');
+			if (l == null)
+			  {
+			    notify ('Error', 'No Link Headers found in reply');
+			    $scope.createbtn = 'Create';
+			    $scope.loading = false;
+			    $scope.$apply();
+			    return;
+			  }
 	           	var meta = parseLinkHeader(r.getResponseHeader('Link'));
 				var metaURI = meta['meta']['href'];
 				var ldpresource = r.getResponseHeader("Location");
@@ -1271,7 +1280,7 @@ function CimbaCtrl($scope, $http, $filter) {
 					w = ws[i]['subject']['value'];
 
 					// find the channels info for the user (from .meta files)
-		        	f.nowOrWhenFetched(w+'.*', undefined,function(){
+					f.nowOrWhenFetched(w+'*,meta', undefined,function(){
 			        	var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));
 			        	var channels = [];
 
