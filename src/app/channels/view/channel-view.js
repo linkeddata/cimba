@@ -26,6 +26,16 @@ angular.module('Cimba.channels.view', ['ui.router'])
 	$scope.chanUri = "https://" + $scope.path;
 
 	$scope.$parent.getChannel($scope.chanUri);
+
+	//manual setChannel
+    if ($scope.users[webid].channels && $scope.users[webid].channels[$scope.chanUri]) {
+        $scope.defaultChannel = $scope.users[webid].channels[$scope.chanUri];
+        console.log("defaultChannel set to "); //debug
+        console.log($scope.defaultChannel); //debug
+    }
+    else {
+        console.log("Error: cannot set channel to " + $scope.chanUri);
+    }
 	
 })
 
