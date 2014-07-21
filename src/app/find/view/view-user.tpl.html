@@ -1,14 +1,23 @@
 
 <div class="container" ng-click="hideMenu()" ng-show="loggedin" align="center">
-	<div class="panel panel-default">
+	<div class="row panel panel-default">
 	    <div class="panel-heading main-header"> </div>
 	    <div class="panel-body">
-	        <h2 class="text-center">Channels for {{search.name}}</h2>
+	        <h2 class="text-center">Channels for {{users[webid].name}}</h2>
 	    </div>
 	</div>
 
-	<div class="row">
-		<div class="col-md-6">
+	<div class="row two-col-list">
+		<div class="panel panel-default" ng-repeat="ch in users[webid].channels">
+			<div class="panel-heading chan-panel-heading sub-header">
+				<div class="pull-left"><a ui-sref="view({path: safeUri(ch.uri)})" class="link-white bold">{{ch.title}}</a></div>
+				<button class="btn pull-right" ng-class="ch.css" ng-click="channelToggle(ch, search)" rel="tooltip" data-placement="top" title="{{ch.action}}"><i class="fa {{ch.button}} fa-2x"></i></button>
+			</div>
+			<div class="panel-body"></div>
+		</div>
+		<div ng-show="search.channel_size % 2 == 1"></div>
+
+	<!-- 	<div class="col-md-6">
 			<div class="panel panel-default" ng-repeat="ch in search.channels | slice:0:(search.channel_size/2)">
 				<div class="panel-heading chan-panel-heading sub-header">
 					<div class="pull-left"><a ui-sref="view({path: safeUri(ch.uri)})" class="link-white bold">{{ch.title}}</a></div>
@@ -25,6 +34,6 @@
 				</div>
 				<div class="panel-body"></div>
 			</div>
-		</div>
+		</div> -->
 	</div>
 </div>

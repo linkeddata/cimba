@@ -20,7 +20,7 @@ angular.module( 'Cimba', [
 ])
 
 .config( function CimbaConfig ( $stateProvider, $urlRouterProvider ) {
-  $urlRouterProvider.otherwise( '/home' );
+  $urlRouterProvider.otherwise('/login');
 })
 
 // replace dates with moment's "time ago" style
@@ -147,7 +147,7 @@ angular.module( 'Cimba', [
     $scope.channels = {};
     $scope.posts = {}; //aggregate list of all posts (flat list)
     $scope.search = {};
-
+    $scope.loadChannels = {};
     $rootScope.userProfile = {};
 
     $scope.login = function () {
@@ -174,14 +174,14 @@ angular.module( 'Cimba', [
 
         // clear sessionStorage
         $scope.clearLocalCredentials();
-        $scope.userProfile = {};
-        $rootScope.userProfile = {};
+        $scope.userProfile = {};        
 
         //reset data so that it doesn't carry over to next login
         $scope.users={};
         $scope.channels = {};
         $scope.posts = {};
         $scope.search = {}; 
+        $scope.loggedin = false;
 
         $location.path('/login');
     };
@@ -219,10 +219,10 @@ angular.module( 'Cimba', [
                 $scope.getInfo(cimba.userProfile.webid, true);                
             } else {
                 // clear sessionStorage in case there was a change to the data structure
-                sessionStorage.removeItem($scope.appuri);                
+                sessionStorage.removeItem($scope.appuri);
+                // $scope.loggedin = false;
             }
-        }
-        $rootScope.userProfile = $scope.userProfile;
+        }        
     };
 
     // clear sessionStorage
@@ -379,8 +379,19 @@ angular.module( 'Cimba', [
                 ngProgress.complete();
                 $scope.$apply();
             }
-            if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
-                $scope.getChannels(storage, webid, false, update, false);
+            // if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
+            //     $scope.getChannels(storage, webid, false, update, false);
+            // }
+
+            // Load Channels 
+            if ($scope.loadChannels[webid]) {                
+                $scope.getChannels(storage, webid, false, update, false);                
+                // delete $scope.loadChannels[webid];                
+                
+                // $scope.profileloading = false;
+                // ngProgress.complete();
+                $scope.$apply();
+
             }
 
             $scope.getInfoDone = true; //done getting info, home page can now load channels and posts
@@ -394,9 +405,9 @@ angular.module( 'Cimba', [
             }
 
         });
-        if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
-            $scope.searchbtn = 'Search';
-        }
+        // if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
+        //     $scope.searchbtn = 'Search';
+        // }
 
         return $scope.channels;
     };
@@ -427,8 +438,7 @@ angular.module( 'Cimba', [
 
         // fetch user data: SIOC:Space -> SIOC:Container -> SIOC:Post
         f.nowOrWhenFetched(uri,undefined,function(){            
-            var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));            
-            console.log(chs);
+            var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));                        
             if (chs.length > 0) {
                 var churi = chs[0]['subject']['value'];
                 // console.log(churi);
@@ -515,6 +525,7 @@ angular.module( 'Cimba', [
                 var func = function() {
                     var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));
                     console.log("got Channels!"); //debug
+
                     console.log("pre: $scope.users[" + webid + "] has channels"); //debug
                     for (var r in $scope.users[webid].channels) {
                         console.log("key: " + r); //debug
@@ -583,7 +594,7 @@ angular.module( 'Cimba', [
                                     $scope.users[webid].channels[channel.uri] = channel;
                                 }*/
                                 $scope.users[webid].chspace = true;
-                                $scope.apply();
+                                $scope.$apply();
                             }
                         }
 
@@ -615,31 +626,39 @@ angular.module( 'Cimba', [
 
                     // also save updated users & channels list
                     if (update) { 
-                        $scope.saveUsers();
+                        // $scope.saveUsers();
+                    }
+
+
+                    if ($scope.loadChannels[webid]) {
+                        delete $scope.loadChannels[webid];
+                        $scope.addChannelStyling(webid, $scope.users[webid].channels);
+                        ngProgress.complete();
+                        $scope.$apply();
                     }
 
                     // if we were called by search
-                    if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
-                        console.log("in getChannels, called by search: $scope.users[" + $scope.search.webid + "].channels");
-                        for (var y in $scope.users[$scope.search.webid].channels) {
-                            console.log("key: " + y); //debug
-                            console.log($scope.users[$scope.search.webid].channels[y]); //debug
-                        }
-                        console.log("in getChannels, called by search: $scope.search.channels");
-                        for (var ee in $scope.search.channels) {
-                            console.log("key: " + ee); //debug
-                            console.log($scope.search.channels[ee]); //debug
-                        }
-                        $scope.search.channels = $scope.flattenObject($scope.users[$scope.search.webid].channels);
-                        //$scope.search.channels = $scope.users[$scope.search.webid].channels;
-                        $scope.search.channel_size = $scope.search.channels.length; //not supported in IE8 and below
-                        $scope.drawSearchResults(webid);
-                        $scope.searchbtn = 'Search';
-                        $scope.search.loading = false;
-                        $scope.$apply();
-                        //
-                    }
-
+                    // if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
+                    //     console.log("in getChannels, called by search: $scope.users[" + $scope.search.webid + "].channels");
+                    //     for (var y in $scope.users[$scope.search.webid].channels) {
+                    //         console.log("key: " + y); //debug
+                    //         console.log($scope.users[$scope.search.webid].channels[y]); //debug
+                    //     }
+                    //     console.log("in getChannels, called by search: $scope.search.channels");
+                    //     for (var ee in $scope.search.channels) {
+                    //         console.log("key: " + ee); //debug
+                    //         console.log($scope.search.channels[ee]); //debug
+                    //     }
+                    //     $scope.search.channels = $scope.flattenObject($scope.users[$scope.search.webid].channels);
+                    //     //$scope.search.channels = $scope.users[$scope.search.webid].channels;
+                    //     $scope.search.channel_size = $scope.search.channels.length; //not supported in IE8 and below
+                    //     // $scope.drawSearchResults(webid);
+                    //     ngProgress.complete();
+                    //     $scope.searchbtn = 'Search';
+                    //     $scope.search.loading = false;
+                    //     $scope.$apply();
+                    //     //
+                    // }                    
                     if (mine) {
                         $scope.saveCredentials();
                         $scope.$apply();
@@ -665,8 +684,15 @@ angular.module( 'Cimba', [
             } else { // no Microblogging workspaces found!
 
                 // we were called by search
-                if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
-                    $scope.drawSearchResults(webid);
+                // if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
+                //     $scope.drawSearchResults(webid);
+                // }
+
+                if ($scope.loadChannels[webid]) {
+                    delete $scope.loadChannels[webid];
+                    $scope.addChannelStyling(webid, $scope.users[webid].channels);
+                    ngProgress.complete();
+                    $scope.$apply();
                 }
 
                 if (mine) {
@@ -1234,7 +1260,7 @@ angular.module( 'Cimba', [
             console.log("key: " + yq); //debug
             console.log($scope.search.channels[yq]); //debug
         }
-        $scope.addChannelStyling(webid, $scope.search.channels);
+        $scope.addChannelStyling(webid, $scope.users[webid].channels);
         $scope.searchbtn = 'Search';
         $scope.search.loading = false;
         ngProgress.complete();
@@ -1304,6 +1330,13 @@ angular.module( 'Cimba', [
         return flatList;
     };
 
+    $scope.$on("$locationChangeStart", function(event, next, current) {        
+        // $scope.loadCredentials();
+        if (!$scope.loggedin) {
+            $location.path("/login");
+        }  
+    });
+
 })
 
 .directive('errSrc', function() {
@@ -1314,20 +1347,4 @@ angular.module( 'Cimba', [
             });
         }
     };
-})
-
-
-.run( function run ($rootScope, $location) {
-    $rootScope.userProfile = {};
-    // register listener to watch route changes
-    $rootScope.$on( "$locationChangeStart", function(event, next, current) {
-        if ( !$rootScope.userProfile.webid) {
-            // no logged user, we should be going to #login
-            if ( next.templateUrl != "login/login.tpl.html" ) {
-                // not going to #login, we should redirect now
-                $location.path("/login");
-            }
-        }
-    });
 });
-

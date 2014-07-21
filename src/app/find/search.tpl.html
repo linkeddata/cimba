@@ -9,7 +9,7 @@
             <div class="input-group">
                 <div class="text-center">
                     <input type="search" id="search" name="search" class="form-control" ng-model="search.query" ng-change="lookupWebID(search.query)" ng-pattern="/^[A-Za-z0-9_#.:/]*$/">
-                    <button class="btn btn-primary searchbutton" ng-click="getInfo(search.webid); searchbtn='Searching...'" ng-disabled="!search.webid"><i class="fa fa-search"></i> {{searchbtn}}</button>
+                 <!--    <button class="btn btn-primary searchbutton" ng-click="getInfo(search.webid); searchbtn='Searching...'" ng-disabled="!search.webid"><i class="fa fa-search"></i> {{searchbtn}}</button> -->
                 </div>
             </div>
             <div ng-show="search.loading" class="mt30">

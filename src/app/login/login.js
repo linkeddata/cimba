@@ -27,7 +27,10 @@ angular.module( 'Cimba.login', [
  * And of course we define a controller for our route.
  */
 .controller( 'LoginCtrl', function LoginController( $scope, $rootScope, $http, $location, $sce ) {
- 
+  if ($scope.$parent.loggedin) {
+    console.log("loggedin");
+    $location.path("/home");
+  }
   // login/signup widget source
   var providerURI = '//linkeddata.github.io/signup/index.html?ref=';
     
@@ -42,6 +45,7 @@ angular.module( 'Cimba.login', [
       $scope.userProfile.webid = webid;
 
       $scope.$parent.loginSuccess = true;
+      $scope.$parent.loggedin = true;
       
       // index or update current WebID on webizen.org
       $http.get('http://api.webizen.org/v1/search', {

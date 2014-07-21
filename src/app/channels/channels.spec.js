@@ -15,9 +15,9 @@ describe('Channels section', function() {
   //   });
   // }));
 
-  it('should pass a dummy test', inject(function() {
-    expect(ChannelsCtrl).toBeTruthy();
-  }));
+  // it('should pass a dummy test', inject(function() {
+  //   expect(ChannelsCtrl).toBeTruthy();
+  // }));
 
 });
 
