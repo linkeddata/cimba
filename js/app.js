@@ -976,6 +976,7 @@ function CimbaCtrl($scope, $http, $filter) {
 
 			    var g = $rdf.graph();
 			    // add document triples
+				g.add($rdf.sym(''), RDF('type'), WAC('Authorization'));
 				g.add($rdf.sym(''), WAC('accessTo'), $rdf.sym(''));
 				g.add($rdf.sym(''), WAC('accessTo'), $rdf.sym(uri));
 				g.add($rdf.sym(''),	WAC('agent'), $rdf.sym($scope.me.webid));
@@ -983,6 +984,7 @@ function CimbaCtrl($scope, $http, $filter) {
 				g.add($rdf.sym(''),	WAC('mode'), WAC('Write'));
 
 				// add post triples
+				g.add($rdf.sym(frag), RDF('type'), WAC('Authorization'));
 				g.add($rdf.sym(frag), WAC('accessTo'), $rdf.sym(uri));
 				// public visibility
 				if (type == 'public' || type == 'friends') {
