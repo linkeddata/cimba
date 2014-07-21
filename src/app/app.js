@@ -848,9 +848,9 @@ angular.module( 'Cimba', [
 
             // hide spinner
             $scope.loading = false;
-            console.log("loading 5: false"); //debug
+            // console.log("loading 5: false"); //debug
             ngProgress.complete(); 
-            console.log("ng 4.5?: complete"); //testing
+            // console.log("ng 4.5?: complete"); //testing
             $scope.$apply();
         });
     };
