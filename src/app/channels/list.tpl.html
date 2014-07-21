@@ -102,7 +102,7 @@
 		    			</div>
 		    		</div>
 		    	</div>
-		    	<div ng-repeat="channel in users[userProfile.webid].subscribedChannels" class="channel-list-item panel panel-default">
+		    	<div ng-repeat="channel in userProfile.subscribedChannels" class="channel-list-item panel panel-default">
 			        <div class="chan-panel-heading panel-heading sub-header">
 			        	<div class="pull-left"><a ui-sref="view({path: safeUri(channel.uri)})" class="link-white bold">{{channel.title}}</a>
 			        	</div>
@@ -111,7 +111,8 @@
 				    </div>
 				    <div class="panel-body">
 				        <div class="chan-panel-body-text" align="left">
-				             By: <a href="{{channel.owner}}"><i>{{users[channel.owner].name}}</i></a>
+				             By: <a href="{{channel.owner}}">
+				             <i>{{channel.author}}</a>
 				        </div>
 				    </div>
 			    </div>

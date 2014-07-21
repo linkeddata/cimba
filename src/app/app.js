@@ -179,6 +179,7 @@ angular.module( 'Cimba', [
                     $scope.userProfile = {};                    
                 }
                 $scope.userProfile = cimba.userProfile;
+                $scope.users[cimba.userProfile.webid] = cimba.userProfile;
                 $scope.loggedin = true;
                 // console.log($scope.userProfile.channels);
 
@@ -1046,7 +1047,8 @@ angular.module( 'Cimba', [
                                 var _channel = {};
                                 _channel.uri = g.any(ch, SIOC('link')).value;
                                 _channel.title = (g.any(ch, DCT('title')))?g.any(ch, DCT('title')).value:'Untitled';
-                                // _channel.author = _user.name; //for subscription
+                                _channel.author = _user.name; //for subscription
+                                console.log("channel author: " + _channel.author);
                                 _channel.owner = _user.webid; //for subscription
                                 if (g.any(ch, SIOC('has_subscriber'))) {
                                     // console.log("found channel I'm subscribed to: " + _channel.uri);
