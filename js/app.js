@@ -861,7 +861,7 @@ function CimbaCtrl($scope, $http, $filter) {
 		$scope.publishing = true;
 		// get the current date
 		var now = Date.now();
-		now = moment(now).zone('00:00').format("YYYY-MM-DDTHH:mm:ssZZ");
+		now = moment(now).zone('00:00').format("YYYY-MM-DDTHH:mm:ssZ");
 		
 		var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 		var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
