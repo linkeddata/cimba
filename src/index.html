@@ -8,19 +8,21 @@
     <!-- font awesome from BootstrapCDN -->
     <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 
-    <!-- compiled CSS --><% styles.forEach( function ( file ) { %>
-    <link rel="stylesheet" type="text/css" href="<%= file %>" /><% }); %>
+    <!-- compiled CSS -->
+    <% styles.forEach( function ( file ) { %>
+    <link rel="stylesheet" type="text/css" href="<%= file %>" />
+    <% }); %>
 
     <!-- favicon -->
     <link rel="shortcut icon" type="img/png" href="assets/cimba-logo.png">
 
-    <!-- compiled JavaScript --><% scripts.forEach( function ( file ) { %>
+    <!-- compiled JavaScript -->
+    <% scripts.forEach( function ( file ) { %>
+    <script type="text/javascript" src="<%= file %>"></script>
+    <% }); %>
     <script type='text/javascript' src="http://momentjs.com/downloads/moment.min.js"></script>
-    <script type='text/javascript' src="src/dep/common.js"></script>
-    <!-- // <script type='text/javascript' src="src/dep/notify.js"></script> -->
 
 
-    <script type="text/javascript" src="<%= file %>"></script><% }); %>
   </head>
   <body class='gray'>
     <div ng-class="showMenu?'slide-out':''" class="sidebar left-menu" style="z-index: 999; position: fixed;">
@@ -114,6 +116,15 @@
           </div>
         </a>
       </div>
+    </div>
+
+    <!-- set the notifications container hidden when the page first loads -->
+    <div id="notification" style="display:none">
+        <div id="basic-template">
+            <a class="ui-notify-cross ui-notify-close" href="#">x</a>
+            <h1>#{title}</h1>
+            <p>#{text}</p>
+        </div>
     </div>
 
     <div ui-view="main" class="main" ng-click = 'hideMenu()'></div>

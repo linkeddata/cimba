@@ -170,7 +170,7 @@ angular.module( 'Cimba', [
 
     // retrieve from sessionStorage
     $scope.loadCredentials = function () {
-        // console.log("load credentials executed");
+        console.log("load credentials executed");
         if (sessionStorage.getItem($scope.appuri)) {
             // console.log("found session stored info");
             var cimba = JSON.parse(sessionStorage.getItem($scope.appuri));
@@ -179,7 +179,7 @@ angular.module( 'Cimba', [
                     $scope.userProfile = {};                    
                 }
                 $scope.userProfile = cimba.userProfile;
-                $scope.users[cimba.userProfile.webid] = cimba.userProfile;
+                // $scope.users[cimba.userProfile.webid] = cimba.userProfile;
                 $scope.loggedin = true;
                 // console.log($scope.userProfile.channels);
 
@@ -192,8 +192,10 @@ angular.module( 'Cimba', [
                 }
                 // console.log($scope.userProfile.mbspace);
                 // load from PDS (follows)
+                console.log($scope.users);
                 if ($scope.userProfile.mbspace && (!$scope.users || Object.keys($scope.users).length === 0)) {
                     // console.log("found user mbspace");
+                    console.log("no scope.users");
                     $scope.getUsers();
                 }
                 // refresh data
@@ -322,6 +324,7 @@ angular.module( 'Cimba', [
                 $scope.users[webid].name = name;
                 $scope.users[webid].picture = pic;
                 $scope.users[webid].storagespace = storage;
+                $scope.$apply();
             }
 
             if (storage === undefined) { 
@@ -341,7 +344,7 @@ angular.module( 'Cimba', [
 
                 // console.log("$scope.users[" + webid + "]"); //debug
                 // console.log($scope.users[webid]); //debug
-                console.log(webid); //debug
+                // console.log(webid); //debug
 
                 if (!$scope.users[webid].subscribedChannels) {
                     $scope.users[webid].subscribedChannels = {};
@@ -371,8 +374,7 @@ angular.module( 'Cimba', [
 
             // Load Channels 
             if ($scope.loadChannels[webid]) {                
-                $scope.getChannels(storage, webid, false, update, false);                
-
+                $scope.getChannels(storage, webid, mine, update, false);                
                 $scope.$apply();
 
             } else {
@@ -446,15 +448,19 @@ angular.module( 'Cimba', [
                 // console.log(g.any(ownerObj, FOAF('name')));
                 if (g.any(ownerObj, SIOC('account_of'))) {
                     channel["owner"] = g.any(ownerObj, SIOC('account_of')).value;                    
+                    console.log("channel owner found: " + channel.owner);
                 }  else if ($scope.userProfile.channels && 
                     $scope.userProfile.channels[channel.uri]) {
                     channel["owner"] = $scope.userProfile.webid;
                 }
+                console.log("owner: " + channel.owner);
 
                 // $scope.channels[channel.uri] = channel;
-                $scope.$apply();
+                
                 $scope.loading = true;
+                $scope.defaultChannel = $scope.channels[churi];
                 console.log("loading 2: true"); //debug
+                $scope.$apply();
                 $scope.getPosts(channel.uri, channel.title);
 
                 //console.log("channel in getCHannel"); //debug
@@ -563,7 +569,7 @@ angular.module( 'Cimba', [
                             }
                             
                             if ($scope.users[webid].channels && !$scope.users[webid].channels[channel.uri]) {
-                                //console.log("$scope.users[" + webid + "].channels doesn't contain " + channel.uri + ". setting it equal to"); //debug
+                                // console.log("$scope.users[" + webid + "].channels doesn't contain " + channel.uri + ". setting it equal to"); //debug
                                 //console.log(channel); //debug
                                 $scope.users[webid].channels[channel.uri] = channel;
                             }
@@ -610,7 +616,7 @@ angular.module( 'Cimba', [
 
                         // done refreshing user information -> update view
                         if (update) {
-                            // $scope.addChannelStyling(webid, $scope.users[webid].channels);
+                            $scope.addChannelStyling(webid, $scope.users[webid].channels);
                             delete $scope.users[webid].refreshing;
                             $scope.$apply();
                         }
@@ -635,7 +641,7 @@ angular.module( 'Cimba', [
                         delete $scope.loadChannels[webid];
                         $scope.addChannelStyling(webid, $scope.users[webid].channels);
                         ngProgress.complete();
-                        console.log("ng 4: complete"); //debug
+                        // console.log("ng 4: complete"); //debug
                         $scope.$apply();
                     }
 
@@ -837,7 +843,10 @@ angular.module( 'Cimba', [
                         $scope.posts[uri] = _newPost;                        
                         // $scope.channels[channeluri]["posts"].push(_newPost);
                         $scope.$apply();
-                    }                    
+                    }             
+                    if (!$scope.users[$scope.userProfile.webid]) {
+                        $scope.users[$scope.userProfile.webid] = {};
+                    }       
                     $scope.users[$scope.userProfile.webid].gotposts = true;
                 }
             } else {
@@ -1021,6 +1030,7 @@ angular.module( 'Cimba', [
     // get list of users (that I'm following) + their channels
     // optionally load posts
     $scope.getUsers = function (loadposts) {
+        console.log("get users called");
         // console.log("get subscriptions for " + $scope.userProfile.webid);
         // console.log("space: " + $scope.users[$scope.userProfile.webid].mbspace);
         if ($scope.userProfile.mbspace && $scope.userProfile.mbspace.length > 1) {
@@ -1042,11 +1052,14 @@ angular.module( 'Cimba', [
                 if (users.length > 0) {
                     for (var i in users) {
                         var u = users[i]['subject'];
+                        // console.log(u);
                         var _user = {};
                         _user.webid = g.any(u, SIOC('account_of')).value;
                         _user.name = (g.any(u, SIOC('name')))?g.any(u, SIOC('name')).value:'';
+                        // console.log(g.any(u, SIOC('avatar')));
                         _user.picture = (g.any(u, SIOC('avatar')))?g.any(u, SIOC('avatar')).value:'assets/generic_photo.png';
-
+                        // console.log("_user.picture: " + _user.picture);
+                        // console.log(_user);
                         // console.log("loading user picture for " + _user.webid + ". _user.picture: " + _user.picture); //debug
                         _user.channels = {};
                         // add channels
@@ -1058,7 +1071,7 @@ angular.module( 'Cimba', [
                                 _channel.uri = g.any(ch, SIOC('link')).value;
                                 _channel.title = (g.any(ch, DCT('title')))?g.any(ch, DCT('title')).value:'Untitled';
                                 _channel.author = _user.name; //for subscription
-                                console.log("channel author: " + _channel.author);
+                                // console.log("channel author: " + _channel.author);
                                 _channel.owner = _user.webid; //for subscription
                                 if (g.any(ch, SIOC('has_subscriber'))) {
                                     // console.log("found channel I'm subscribed to: " + _channel.uri);
@@ -1092,8 +1105,8 @@ angular.module( 'Cimba', [
                             // console.log($scope.users[_user.webid]); //debug
                             // console.log("userProfile"); //debug
                             // console.log($scope.userProfile); //debug
-                            // $scope.users[$scope.userProfile.webid] = $scope.userProfile;
-                            // $scope.$apply();
+                            $scope.users[$scope.userProfile.webid] = $scope.userProfile;
+                            $scope.$apply();
                         }
                         if (_user.webid !== $scope.userProfile.webid) { //do not overwrite our own user
                             //(change later to append because we need to know if we're subscribed or not to our own channel)
@@ -1147,8 +1160,8 @@ angular.module( 'Cimba', [
         }
 
         // console.log("at removePostsbyChannel, $scope.channels"); //debug
-        console.log($scope.channels); //debug
-        console.log($scope.channels[ch]);
+        // console.log($scope.channels); //debug
+        // console.log($scope.channels[ch]);
         // console.log("looking 4 ch uri: " + ch); //debug
         if($scope.channels[ch])
         {
@@ -1200,9 +1213,9 @@ angular.module( 'Cimba', [
         // we're following this user
         if ($scope.users && $scope.users[suser.webid]) {
             var channels = $scope.users[suser.webid].channels;
-            console.log($scope.users[suser.webid]);
-            console.log($scope.users[suser.webid].channels);
-            console.log(channels);
+            // console.log($scope.users[suser.webid]);
+            // console.log($scope.users[suser.webid].channels);
+            // console.log(channels);
 
             // already have the channel
             if (channels[ch.uri]) {
@@ -1305,27 +1318,40 @@ angular.module( 'Cimba', [
                 //     console.log("channel key: " + k); //debug
                 //     console.log($scope.users[webid].channels[k]); //debug
                 // }
-                var c = $scope.users[webid].channels[ch.uri];
+
+                if ($scope.userProfile.subscribedChannels && 
+                    $scope.userProfile.subscribedChannels[ch.uri]) {
+                    var sc = $scope.userProfile.subscribedChannels[ch.uri];
+                    ch.button = sc.button;
+                    ch.css = sc.css;
+                    ch.action = sc.action;
+                } else {
+                    ch.action = 'Subscribe';
+                    ch.button = 'fa-square-o';
+                    ch.css = 'btn-info';
+                }
+
+                // var c = $scope.users[webid].channels[ch.uri];
                 // console.log("var c"); //debug
                 // console.log(c); //debug
                 // console.log("at addChannelStyling, for channel: " + ch.uri); //debug
                 // console.log("action: " + c.action + ", css: " + c.css + ", button: " + c.button); //debug
 
                 // set attributes
-                if (ch.uri === c.uri) {
-                    // console.log("matching: " + ch.uri);
-                    // console.log(ch.css);
-                    // console.log(c.css);
-                    // console.log("channels[" + ch.uri + "] exists"); //debug
-                    ch.button = (c.button)?c.button:'fa-square-o';
-                    ch.css = (c.css)?c.css:'btn-info';
-                    ch.action = (c.action)?c.action:'Subscribe';
-                } else {
-                    // console.log("channels[" + ch.uri + "] doesn't exist"); //debug
-                    c.action = ch.action = 'Subscribe';
-                    c.button = ch.button = 'fa-square-o';
-                    c.css = ch.css = 'btn-info';
-                }
+                // if (ch.uri === c.uri) {
+                //     console.log("matching: " + ch.uri);
+                //     console.log(ch.css);
+                //     console.log(c.css);
+                //     // console.log("channels[" + ch.uri + "] exists"); //debug
+                //     ch.button = (c.button)?c.button:'fa-square-o';
+                //     ch.css = (c.css)?c.css:'btn-info';
+                //     ch.action = (c.action)?c.action:'Subscribe';
+                // } else {
+                //     // console.log("channels[" + ch.uri + "] doesn't exist"); //debug
+                //     c.action = ch.action = 'Subscribe';
+                //     c.button = ch.button = 'fa-square-o';
+                //     c.css = ch.css = 'btn-info';
+                // }
                 //console.log("channel ch again"); //debug
                 //console.log(ch); //debug
                 //ch.ret = "wwoo"; //debug

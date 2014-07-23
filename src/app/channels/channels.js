@@ -59,9 +59,10 @@ angular.module('Cimba.channels',[
     };
 
     $scope.channelTog = function(channel, owner){
-        console.log("toggling channel");
-        console.log(owner);
-        console.log(channel);
+        // console.log("toggling channel");
+        // console.log(owner);
+        // console.log(channel);
+        // console.log($scope.$parent.users);
         $scope.$parent.channelToggle(channel,$scope.$parent.users[owner]);
     };
 

@@ -257,14 +257,19 @@ h2 {
 }
 
 .btn-primary {
-  background-color: @strong-blue !important;
-  border-color: @darkish-blue !important;
+  background-color: @light-blue !important;
+  border-color: @light-blue !important;
 }
 
 .btn-primary:hover, .btn-primary:focus, .btn-primary:active {
-  background-color: @darkish-blue!important;
-  border-color: @dark-blue!important
+  background-color: @strong-blue!important;
+  border-color: @strong-blue!important
   ;
+}
+
+.btn-primary[disabled] {
+  background-color: @light-blue !important;
+  border-color: @light-blue !important;
 }
 
 .btn-success, .btn-success:hover, .btn-success:focus {
@@ -351,6 +356,7 @@ h2 {
   z-index: 1010;
   overflow:auto;
   border: 15px;
+  border-radius: 15px;
 }
 
 .overlay {
@@ -623,6 +629,30 @@ h2 {
 .row.two-col-list {
   padding-left: 15px;
   padding-right: 15px;
+}
+
+iframe {border:0px;}
+
+.dots {
+  width: 6px;
+  height: 6px;
+  margin-left:2px;
+  border-radius: 50%;
+  -webkit-animation: typing 1s linear infinite alternate;
+  -moz-animation: Typing 1s linear infinite alternate;
+  animation: typing 1s linear infinite alternate;
+  position: relative;
+}
+
+.user-info-modal {
+  width: 400px;
+  min-width: 400px;
+  height: 200px;
+  min-height: 200px;
+  top: 50%;
+  left: 50%;
+  margin-top: -100px;
+  margin-left: -200px;
 }
 
 /*

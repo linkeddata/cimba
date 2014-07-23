@@ -94,9 +94,10 @@ angular.module('Cimba.posts',[
 			userpic : $scope.userProfile.picture,
 			userwebid : webid,
 			username : $scope.userProfile.name,
-			body : $scope.postbody.trim()
-			readMore : false;
+			body : $scope.postbody.trim(),
+			readMore : false
 		};
+
 		if(_newPost.body.length>150)
 		{
 			_newPost.readMore = true;
