@@ -95,7 +95,12 @@ angular.module('Cimba.posts',[
 			userwebid : webid,
 			username : $scope.userProfile.name,
 			body : $scope.postbody.trim()
+			readMore : false;
 		};
+		if(_newPost.body.length>150)
+		{
+			_newPost.readMore = true;
+		}
 
 		$.ajax({
 			type: "POST",
