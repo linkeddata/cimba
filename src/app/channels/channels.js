@@ -38,6 +38,7 @@ angular.module('Cimba.channels',[
 
     $scope.$parent.loading = false;
     
+    console.log($scope.userProfile.subscribedChannels);
     $scope.showPopup = function () {
         console.log("ex show 1");
         console.log("$scope.newChannelModal before: " + $scope.newChannelModal); //debug

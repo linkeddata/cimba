@@ -1198,6 +1198,7 @@ angular.module( 'Cimba', [
     // toggle selected channel for user
     $scope.channelToggle = function(ch, suser) {
         //console.log("channelToggle called"); //debug
+        console.log($scope.users);
         var user = {};
         console.log(suser);
         if (suser.webid === $scope.userProfile.webid) {
@@ -1213,7 +1214,8 @@ angular.module( 'Cimba', [
         // we're following this user
         if ($scope.users && $scope.users[suser.webid]) {
             var channels = $scope.users[suser.webid].channels;
-            // console.log($scope.users[suser.webid]);
+            console.log(suser);
+            console.log($scope.users[suser.webid]);
             // console.log($scope.users[suser.webid].channels);
             // console.log(channels);
 

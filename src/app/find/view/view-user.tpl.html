@@ -13,7 +13,7 @@
 				<div class="panel panel-default" ng-repeat="ch in users[webid].channels">
 					<div class="panel-heading chan-panel-heading sub-header">
 						<div class="pull-left"><a ui-sref="view({path: safeUri(ch.uri)})" class="link-white bold">{{ch.title}}</a></div>
-						<button class="btn pull-right" ng-class="ch.css" ng-click="channelToggle(ch, search)" rel="tooltip" data-placement="top" title="{{ch.action}}"><i class="fa {{ch.button}} fa-2x"></i></button>
+						<button class="btn pull-right" ng-class="ch.css" ng-click="toggleChannel(ch)" rel="tooltip" data-placement="top" title="{{ch.action}}"><i class="fa {{ch.button}} fa-2x"></i></button>
 					</div>
 					<div class="panel-body"></div>
 				</div>
