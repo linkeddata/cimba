@@ -38,9 +38,9 @@
                 }
                 </script>
                 <alex ng-bind-html="post.body | makeLinks" ng-hide="fullText"></alex>
-                <a style="cursor:pointer" ng-click="fullText=!fullText" ng-show="readMore">Read More</a>
+                <a style="cursor:pointer" ng-click="fullText=true" ng-hide="fullText">Read More</a>
                 <div ng-bind-html="post.body | makeLinks" ng-show="fullText"></div>
-                <a style="cursor:pointer" ng-click="fullText=!fullText" ng-show="fullText">Read Less</a>
+                <a style="cursor:pointer" ng-click="fullText=false" ng-show="fullText">Read Less</a>
             </p>
         </div>        
     </div>
