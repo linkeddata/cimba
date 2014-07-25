@@ -14,9 +14,9 @@ describe('login section', function() {
     $scope = $rootScope.$new();
     httpBackend = $httpBackend;
     LoginCtrl = $controller('LoginCtrl', {
-      $scope: $scope, 
-      $http: $http, 
-      $location: $location, 
+      $scope: $scope,
+      $http: $http,
+      $location: $location,
       $sce: $sce
     });
   }));

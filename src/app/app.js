@@ -239,7 +239,7 @@ angular.module( 'Cimba', [
 
         var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
-        var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");        
+        var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
         var ACL = $rdf.Namespace("http://www.w3.org/ns/auth/acl#");
         var g = $rdf.graph();
         var f = $rdf.fetcher(g, TIMEOUT);
@@ -303,7 +303,6 @@ angular.module( 'Cimba', [
                 name: name,
                 picture: pic,
                 storagespace: storage
-
             };
             */
 
@@ -346,8 +345,8 @@ angular.module( 'Cimba', [
                 // console.log($scope.users[webid]); //debug
                 // console.log(webid); //debug
 
-                if (!$scope.users[webid].subscribedChannels) {
-                    $scope.users[webid].subscribedChannels = {};
+                if (!$scope.userProfile.subscribedChannels) {
+                    $scope.userProfile.subscribedChannels = {};
                 }
                 //
 
@@ -388,8 +387,8 @@ angular.module( 'Cimba', [
             //     console.log($scope.users[webid].channels[y]); //debug
             // }
             // console.log("has subscribed channels"); //debug
-            // for (var w in $scope.users[webid].subscribedChannels) {
-            //     console.log($scope.users[webid].subscribedChannels[w]); //debug
+            // for (var w in $scope.userProfile.subscribedChannels) {
+            //     console.log($scope.userProfile.subscribedChannels[w]); //debug
             // }
 
         });
@@ -504,7 +503,7 @@ angular.module( 'Cimba', [
                 }
                 */
 
-                if(!$scope.users[webid]){
+                if (!$scope.users[webid]) {
                     //console.log("$scope.users[" + webid + "] doesn't exist (which doesn't make sense since i need the webid to call this function), initializing it"); //debug
                     $scope.users[webid] = {};
                 }
@@ -541,9 +540,9 @@ angular.module( 'Cimba', [
                         if (!$scope.userProfile.channels) {
                             $scope.userProfile.channels = {};
                         }
-          
-                        for (var ch in chs) {                        
-                            var channel = {};                            
+
+                        for (var ch in chs) {
+                            var channel = {};
                             channel['uri'] = chs[ch]['subject']['value'];
 
                             var title = g.any(chs[ch]['subject'], DCT('title')).value;
@@ -556,6 +555,9 @@ angular.module( 'Cimba', [
 
                             channel["owner"] = webid;
                             channel["author"] = webid; //default
+                            if ($scope.users[webid]) {
+                                channel["author"] = $scope.users[webid].name;
+                            }
                             var authorlink = g.any(chs[ch]['subject'], SIOC('has_creator'));
                             // console.log(authorlink);
                             var author = g.any(authorlink, FOAF('name'));
@@ -1117,7 +1119,6 @@ angular.module( 'Cimba', [
                                 if ($scope.users[_user.webid].channels[chann].action === 'Unsubscribe') {
                                     // console.log("im subscribed to a channel: " + chann); //debug
                                     // console.log($scope.users[_user.webid].channels[chann]); //debug
-                                    // $scope.users[$scope.userProfile.webid].subscribedChannels[chann] = _user.channels[chann];
                                     $scope.userProfile['subscribedChannels'][chann] = _user.channels[chann];
                                     // $scope.users[$scope.userProfile.webid] = $scope.userProfile;
                                 }
@@ -1144,8 +1145,12 @@ angular.module( 'Cimba', [
         }
     };
 
-    //TODO (not functional yet)
     // remove all posts from viewer based on the given channel URI
+    //as of this point of writing this comment
+    //  $scope.users[].channels[].posts is an array, identified by numbered indices
+    //  $scope.channels[].posts is an array, identified by numbered indices
+    //  $scope.posts is an *object*, identified by post uri indices
+
     $scope.removePostsByChannel = function(ch, webid) {
 
         var modified = false;
@@ -1155,8 +1160,21 @@ angular.module( 'Cimba', [
         //         modified = true;
         //     }
         // }
-        for(var p in $scope.users[webid].channels[ch].posts){
-            delete $scope.posts[p];
+        //
+        for (var p in $scope.users[webid].channels[ch].posts) {
+            console.log("deleting this: "); //debug
+            console.log($scope.posts[$scope.users[webid].channels[ch].posts[p].uri]); //debug
+            delete $scope.posts[$scope.users[webid].channels[ch].posts[p].uri];
+            console.log("finished"); //debug
+        }
+
+        if ($scope.users[webid].channels[ch].posts) {
+            console.log("deleting this as well: "); //debug
+            for (var r in $scope.users[webid].channels[ch].posts) {
+                console.log($scope.users[webid].channels[ch].posts[r]); //debug
+            }
+            delete $scope.users[webid].channels[ch].posts;
+            console.log("finished"); //debug
         }
 
         // console.log("at removePostsbyChannel, $scope.channels"); //debug
@@ -1197,8 +1215,11 @@ angular.module( 'Cimba', [
 
     // toggle selected channel for user
     $scope.channelToggle = function(ch, suser) {
-        //console.log("channelToggle called"); //debug
-        console.log($scope.users);
+        console.log("channelToggle called"); //debug
+        console.log("suser: ", suser); //debug
+        console.log("$scope.users[" + suser.webid + "] ", $scope.users[suser.webid]); //debug
+
+        console.log($scope.users); //debug
         var user = {};
         console.log(suser);
         if (suser.webid === $scope.userProfile.webid) {
@@ -1210,18 +1231,40 @@ angular.module( 'Cimba', [
         user.name = suser.name;
         user.picture = suser.picture;
         user.channels = suser.channels;
+        console.log("channeltoggle start: listening search-user's channels"); //debug
+        for (var i in suser.channels) {
+            console.log("key: " + i); //debug
+            console.log(suser.channels[i]); //debug
+        }
+        console.log("done listing"); //debug
+
+        console.log("listing subscribed channels before channeltoggle"); //debug
+        for (var u in $scope.userProfile.subscribedChannels) {
+            console.log("key: " + u); //debug
+            console.log($scope.userProfile.subscribedChannels[u]); //debug
+        }
+        console.log("done listing"); //debug
 
         // we're following this user
         if ($scope.users && $scope.users[suser.webid]) {
+            console.log("we have the user saved"); //debug
+
             var channels = $scope.users[suser.webid].channels;
-            console.log(suser);
-            console.log($scope.users[suser.webid]);
+            console.log("listing var channels"); //debug
+            for (var rt in channels) {
+                console.log("key: " + rt); //debug
+                console.log(channels[rt]); //debug
+            }
+            console.log("done listing"); //debug
             // console.log($scope.users[suser.webid].channels);
             // console.log(channels);
 
             // already have the channel
+            console.log("checking if we have " + ch.uri + "in channels already"); //debug
             if (channels[ch.uri]) {
+                console.log("we do, setting var c equal to it"); //debug
                 var c = channels[ch.uri];
+                console.log(c); //debug
                 // unsubscribe
                 if (c.action == 'Unsubscribe') {
                     c.action = ch.action = 'Subscribe';
@@ -1230,7 +1273,17 @@ angular.module( 'Cimba', [
                     console.log("channel uri");
                     console.log(ch.uri);
                     $scope.removePostsByChannel(ch.uri, ch.owner);
-                    delete $scope.users[$scope.userProfile.webid].subscribedChannels[ch.uri];
+                    console.log("deleting the following:"); //debug
+                    console.log($scope.userProfile.subscribedChannels[ch.uri]); //debug
+                    delete $scope.userProfile.subscribedChannels[ch.uri];
+
+                    console.log("listing subscribed channels after unsubscribing in channeltoggle"); //debug
+                    for (var uu in $scope.userProfile.subscribedChannels) {
+                        console.log("key: " + uu); //debug
+                        console.log($scope.userProfile.subscribedChannels[uu]); //debug
+                    }
+                    console.log("done listing"); //debug
+
                 } else {
                 // subscribe
                     c.action = ch.action = 'Unsubscribe';
@@ -1239,6 +1292,7 @@ angular.module( 'Cimba', [
                     $scope.getPosts(ch.uri, ch.title);
                 }
             } else {
+                //question: shudnt we add the channel to channels[] list or something since this is the else statement for not having channels[ch.uri]?
                 // subscribe
                 ch.action = 'Unsubscribe';
                 ch.button = 'fa-check-square-o';
@@ -1249,8 +1303,14 @@ angular.module( 'Cimba', [
             $scope.users[suser.webid] = user;
             for (var cha in channels) {
                 if (channels[cha].action == 'Unsubscribe') {
-                    $scope.users[$scope.userProfile.webid].subscribedChannels[cha] = channels[cha];
+                    $scope.userProfile.subscribedChannels[cha] = channels[cha];
                 }
+                console.log("listing subscribed channels after subscribing in channeltoggle"); //debug
+                for (var uuu in $scope.userProfile.subscribedChannels) {
+                    console.log("key: " + uuu); //debug
+                    console.log($scope.userProfile.subscribedChannels[uuu]); //debug
+                }
+                console.log("done listing"); //debug
             }
             // console.log("saving user"); //debug
             $scope.saveUsers();
@@ -1266,15 +1326,35 @@ angular.module( 'Cimba', [
 
             var schans = $scope.users[suser.webid].channels;
 
-            for (var chane in schans) {
-                if (schans[chane].action == 'Unsubscribe') {
-                    $scope.users[$scope.userProfile.webid].subscribedChannels[chane.uri] = chane;
+            console.log("listing var schans"); //debug
+            for (var rtt in schans) {
+                console.log("key: " + rtt); //debug
+                console.log(schans[rtt]); //debug
+            }
+
+            for (var skey in schans) {
+                if (schans[skey].action == 'Unsubscribe') {
+                    console.log("subscribed, adding key/uri: " + skey + "with channel content: "); //debug
+                    console.log(schans[skey]); //debug
+                    $scope.userProfile.subscribedChannels[skey] = schans[skey];
                 }
+                console.log("listing subscribed channels after subscribing in channeltoggle"); //debug
+                for (var ut in $scope.userProfile.subscribedChannels) {
+                    console.log("key: " + ut); //debug
+                    console.log($scope.userProfile.subscribedChannels[ut]); //debug
+                }
+                console.log("done listing"); //debug
             }
             // console.log("saving user 2"); //debug
             $scope.saveUsers();
             $scope.getPosts(ch.uri, ch.title);
         }
+        console.log("listing subscribed channels after channeltoggle"); //debug
+        for (var utt in $scope.userProfile.subscribedChannels) {
+            console.log("key: " + utt); //debug
+            console.log($scope.userProfile.subscribedChannels[utt]); //debug
+        }
+        console.log("done listing"); //debug
     };
 
     // lookup a WebID to find channels

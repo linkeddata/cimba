@@ -28,6 +28,8 @@ angular.module('Cimba.find.view-user', ['ui.router'])
     $scope.webidresults = [];
 
     $scope.toggleChannel = function (ch) {
+		console.log("toggleChannel, $scope.users[" + $scope.webid + "]"); //debug
+		console.log($scope.users[$scope.webid]); //debug
 		$scope.$parent.channelToggle(ch, $scope.users[$scope.webid]);
     };
 

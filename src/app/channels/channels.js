@@ -38,7 +38,16 @@ angular.module('Cimba.channels',[
 
     $scope.$parent.loading = false;
     
-    console.log($scope.userProfile.subscribedChannels);
+    $scope.t = {};
+    console.log("is fake object defined?"); //debug
+    console.log($scope.t); //debug
+    console.log("is subscribedChannels object list defined?"); //debug
+    console.log($scope.userProfile.subscribedChannels); //debug
+    console.log("listing subscribedChannels"); //debug
+    for (var yy in $scope.userProfile.subscribedChannels) {
+        console.log("key: " + yy); //debug
+        console.log($scope.userProfile.subscribedChannels[yy]); //debug
+    }
     $scope.showPopup = function () {
         console.log("ex show 1");
         console.log("$scope.newChannelModal before: " + $scope.newChannelModal); //debug
