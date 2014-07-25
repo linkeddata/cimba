@@ -106,9 +106,11 @@
 			        <div class="chan-panel-heading panel-heading sub-header">
 			        	<div class="pull-left"><a ui-sref="view({path: safeUri(channel.uri)})" class="link-white bold">{{channel.title}}</a>
 			        	</div>
+
 			        	<div class="pull-right">
-			        		<button class="fa fa-exclamation-circle channel-unsub-btn btn-primary" title="Unsubscribe" ng-click="channelTog(channel, channel.owner)"></button>
-			        	</div>		       
+			        		<button type="button" class="close" title="Unsubscribe" ng-click="channelTog(channel, channel.owner)">x</button>
+			        	</div>
+		                
 			        	<br style="line-height:25%"/>
 				    </div>
 				    <div class="panel-body">

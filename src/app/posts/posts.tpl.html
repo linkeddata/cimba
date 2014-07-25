@@ -34,17 +34,17 @@
             <p>
                 <script>
                 var fullText = false;
+                var postbody = String(post.body);
                 post.readMore = false;
-                console.log(post.body);
-                if(post.body.length>150)
+                if(postbody.length>100)
                 {
                     post.readMore = true;
                 }
                 </script>
                 <alex ng-bind-html="post.body | makeLinks" ng-hide="fullText"></alex>
-                <a style="cursor:pointer" ng-click="fullText=!fullText" ng-hide="fullText">Read More</a>
+                <a style="cursor:pointer" ng-click="fullText=true" ng-hide="fullText">Read More</a>
                 <div ng-bind-html="post.body | makeLinks" ng-show="fullText"></div>
-                <a style="cursor:pointer" ng-click="fullText=!fullText" ng-show="fullText">Read Less</a>
+                <a style="cursor:pointer" ng-click="fullText=false" ng-show="fullText">Read Less</a>
             </p>
         </div>        
     </div>

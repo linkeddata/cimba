@@ -98,7 +98,7 @@ angular.module('Cimba.posts',[
 			readMore : false
 		};
 
-		if(_newPost.body.length>150)
+		if(_newPost.body.length > 150)
 		{
 			_newPost.readMore = true;
 		}

@@ -842,7 +842,7 @@ angular.module( 'Cimba', [
                     } else {
                         // $scope.allPosts[channeluri].push(_newPost);
                         // $scope.posts.push(_newPost);
-                        $scope.posts[uri] = _newPost;                        
+                        $scope.posts[uri] = _newPost;                   
                         // $scope.channels[channeluri]["posts"].push(_newPost);
                         $scope.$apply();
                     }             
@@ -856,7 +856,6 @@ angular.module( 'Cimba', [
                     $scope.users[$scope.userProfile.webid].gotposts = false;
                 }
             }
-
             // hide spinner
             $scope.loading = false;
             // console.log("loading 5: false"); //debug
@@ -1121,6 +1120,7 @@ angular.module( 'Cimba', [
                                     // console.log($scope.users[_user.webid].channels[chann]); //debug
                                     $scope.userProfile['subscribedChannels'][chann] = _user.channels[chann];
                                     // $scope.users[$scope.userProfile.webid] = $scope.userProfile;
+
                                 }
                             }
                             $scope.$apply();
