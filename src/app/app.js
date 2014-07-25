@@ -769,14 +769,14 @@ angular.module( 'Cimba', [
                     // try using the picture from the WebID first
 
                     if (userwebid && $scope.users[userwebid]) {
-                        // console.log("tried loading from webid first"); //debug
+                        console.log("tried loading from webid first"); //debug
                         userpic = $scope.users[userwebid].picture;
-                        // console.log("userpic: " + userpic); //debug
+                        console.log("userpic: " + userpic); //debug
                     }
                     else if (g.any(useraccount, SIOC('avatar'))) {
-                        // console.log("tried loading from rww storage"); //debug
+                        console.log("tried loading from rww storage"); //debug
                         userpic = g.any(useraccount, SIOC('avatar')).value;
-                        // console.log("userpic: " + userpic); //debug
+                        console.log("userpic: " + userpic); //debug
                     }
 
                     // try using the name from the WebID first
@@ -948,16 +948,15 @@ angular.module( 'Cimba', [
         var i=0;
         for (var key in $scope.users) {
             var user = $scope.users[key];
+            console.log(user);
+            console.log(user.picture);
             var uid = followURI+'#user_'+i;
             // add hash id to main graph
             g.add($rdf.sym(followURI), SIOC('has_member'), $rdf.sym(uid));
             g.add($rdf.sym(uid), RDF('type'), SIOC('UserAccount'));
             g.add($rdf.sym(uid), SIOC('account_of'), $rdf.sym(key));
             g.add($rdf.sym(uid), SIOC('name'), $rdf.lit(user.name));
-
-            if (user.pic) {
-                g.add($rdf.sym(uid), SIOC('avatar'), $rdf.sym(user.pic));
-            }
+            g.add($rdf.sym(uid), SIOC('avatar'), $rdf.sym(user.picture));
 
             // console.log("inside for loop"); //debug
             // add each channel
@@ -1053,9 +1052,10 @@ angular.module( 'Cimba', [
                 if (users.length > 0) {
                     for (var i in users) {
                         var u = users[i]['subject'];
-                        // console.log(u);
+                        console.log(users[i]);
                         var _user = {};
                         _user.webid = g.any(u, SIOC('account_of')).value;
+                        console.log( g.any(u, SIOC('name')));
                         _user.name = (g.any(u, SIOC('name')))?g.any(u, SIOC('name')).value:'';
                         // console.log(g.any(u, SIOC('avatar')));
                         _user.picture = (g.any(u, SIOC('avatar')))?g.any(u, SIOC('avatar')).value:'assets/generic_photo.png';

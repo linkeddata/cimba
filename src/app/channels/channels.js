@@ -22,8 +22,17 @@ angular.module('Cimba.channels',[
 })
 
 .controller('ChannelsCtrl', function ChannelsController($scope, $http, $location, $sce){
-    //console.log("executing channels controller"); //debug
-    if ($scope.$parent.userProfile.storagespace !== undefined) {        
+    console.log("executing channels controller"); //debug
+
+    $scope.audience = {};
+    $scope.audience.range = 'public';
+    $scope.audience.icon = 'fa-globe';
+    $scope.newChannelModal = false;
+    $scope.showOverlay = false;
+    $scope.createbtn = "Create";
+
+    if (!$scope.$parent.userProfile.channels || 
+         Object.keys($scope.$parent.userProfile.channels) === 0) {        
         $scope.$parent.loading = true;
         var storage = $scope.$parent.userProfile.storagespace;
         var webid = $scope.$parent.userProfile.webid;
@@ -32,22 +41,8 @@ angular.module('Cimba.channels',[
         $scope.$parent.gotstorage = false;
     }
 
-    $scope.newChannelModal = false;
-    $scope.showOverlay = false;
-    $scope.createbtn = "Create";
-
-    $scope.$parent.loading = false;
     
-    $scope.t = {};
-    console.log("is fake object defined?"); //debug
-    console.log($scope.t); //debug
-    console.log("is subscribedChannels object list defined?"); //debug
-    console.log($scope.userProfile.subscribedChannels); //debug
-    console.log("listing subscribedChannels"); //debug
-    for (var yy in $scope.userProfile.subscribedChannels) {
-        console.log("key: " + yy); //debug
-        console.log($scope.userProfile.subscribedChannels[yy]); //debug
-    }
+    
     $scope.showPopup = function () {
         console.log("ex show 1");
         console.log("$scope.newChannelModal before: " + $scope.newChannelModal); //debug
@@ -161,10 +156,6 @@ angular.module('Cimba.channels',[
             }
         });
     };
-
-    $scope.audience = {};
-    $scope.audience.range = 'public';
-    $scope.audience.icon = 'fa-globe';
 
     $scope.setAudience = function(v) {
         if (v=='public') {
