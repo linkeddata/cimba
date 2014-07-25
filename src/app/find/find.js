@@ -39,19 +39,19 @@ angular.module('Cimba.find',[
     };
 })
 
-.directive('subscriptionView', function() {
-    return {
-        replace: true,
-        restrict: 'E',
-        templateUrl: 'find/subscribe/subscribe.tpl.html'
-    };
-})
+// .directive('subscriptionView', function() {
+//     return {
+//         replace: true,
+//         restrict: 'E',
+//         templateUrl: 'find/subscribe/subscribe.tpl.html'
+//     };
+// });
 
 //simple directive to display list of search results
 .directive('searchResults', function(){
     return {
         replace: true,
         restrict: 'E',
-        templateUrl: 'find/subscribe/search_results.tpl.html'
+        templateUrl: 'find/search_results.tpl.html'
     }; 
 });

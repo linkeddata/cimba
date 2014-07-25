@@ -286,14 +286,14 @@ angular.module( 'Cimba', [
             // set avatar picture
             if (pic) {
                 pic = pic.value;
-                //console.log("picture found at " + pic); //debug
+                console.log("picture found at " + pic); //debug
             } else {
                 if (depic) {
                     pic = depic.value;
-                    //console.log("depiction found at " + pic); //debug
+                    console.log("depiction found at " + pic); //debug
                 } else {
                     pic = 'assets/generic_photo.png';
-                    //console.log("no image found: loading from " + pic); //debug
+                    console.log("no image found: loading from " + pic); //debug
                 }
             }
 
@@ -307,7 +307,7 @@ angular.module( 'Cimba', [
             */
 
             // add to search object if it was the object of a search
-            if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
+            if ($scope.search && $scope.search.webid && $scope.search.webid === webid) {
                 $scope.search.name = name;
                 $scope.search.picture = pic;
             }
