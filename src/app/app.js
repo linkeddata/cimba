@@ -832,7 +832,7 @@ angular.module( 'Cimba', [
                     } else {
                         // $scope.allPosts[channeluri].push(_newPost);
                         // $scope.posts.push(_newPost);
-                        $scope.posts[uri] = _newPost;                        
+                        $scope.posts[uri] = _newPost;                   
                         // $scope.channels[channeluri]["posts"].push(_newPost);
                         $scope.$apply();
                     }                    
@@ -843,7 +843,6 @@ angular.module( 'Cimba', [
                     $scope.users[$scope.userProfile.webid].gotposts = false;
                 }
             }
-
             // hide spinner
             $scope.loading = false;
             $scope.$apply();
@@ -1086,12 +1085,12 @@ angular.module( 'Cimba', [
                         if (_user.webid !== $scope.userProfile.webid) { //do not overwrite our own user
                             //(change later to append because we need to know if we're subscribed or not to our own channel)
                             $scope.users[_user.webid] = _user;
-                            console.log("in $scope.users[" + _user.webid + "], channels are"); //debug
+                            // console.log("in $scope.users[" + _user.webid + "], channels are"); //debug
                             for (var chann in $scope.users[_user.webid].channels) {
-                                console.log(_user.channels[chann]); //debug
+                                // console.log(_user.channels[chann]); //debug
                                 if ($scope.users[_user.webid].channels[chann].action == 'Unsubscribe') {
-                                    console.log("im subscribed to a channel"); //debug
-                                    console.log($scope.users[_user.webid].channels[chann]); //debug
+                                    // console.log("im subscribed to a channel"); //debug
+                                    // console.log($scope.users[_user.webid].channels[chann]); //debug
                                     $scope.users[$scope.userProfile.webid].subscribedChannels[chann] = _user.channels[chann];
                                 }
                             }
