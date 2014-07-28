@@ -33,7 +33,7 @@
                 </div>
               </div>
               <div class="pull-right">
-                  <button class="btn btn-primary pull-right" id="post-btn" ng-click="newPost()" ng-disabled="!postbody">
+                  <button class="btn btn-primary pull-right" id="post-btn" ng-click="newPost()" ng-disabled="publishing || !postbody">
                     <div ng-show="!publishing">Post</div>
                     <div ng-show="publishing" class="dots"></div>
                   </button>
