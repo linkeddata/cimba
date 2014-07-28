@@ -28,7 +28,12 @@ angular.module('Cimba.channels',[
     $scope.audience.range = 'public';
     $scope.audience.icon = 'fa-globe';
     $scope.newChannelModal = false;
+    $scope.deleteChannelStatus = false;
     $scope.showOverlay = false;
+    ///--- used in deleting a channel
+    $scope.noPosts = false; //boolean variable for when all posts from a channel have been deleted, used in deleting a channel
+    $scope.countAndUri = [-1, ""]; //variable for holding the count of posts in a specific channel and its uri to delete when noPosts becomes true
+    ///---
     $scope.createbtn = "Create";
 
     if (!$scope.$parent.userProfile.channels || 
@@ -40,26 +45,34 @@ angular.module('Cimba.channels',[
     } else {
         $scope.$parent.gotstorage = false;
     }
-
     
-    
-    $scope.showPopup = function () {
+    $scope.showPopup = function (arg) {
         console.log("ex show 1");
         console.log("$scope.newChannelModal before: " + $scope.newChannelModal); //debug
+        console.log("$scope.deleteChannelStatus before: " + $scope.deleteChannelStatus); //debug
         console.log("$scope.showOverlay before: " + $scope.showOverlay); //debug
-        $scope.newChannelModal = true;
+        if (arg === "new") {
+            $scope.newChannelModal = true;
+        }
+        else if (arg === "del") {
+            $scope.deleteChannelStatus = true;
+        }
         $scope.showOverlay = true;
         console.log("$scope.newChannelModal after: " + $scope.newChannelModal); //debug
+        console.log("$scope.deleteChannelStatus after: " + $scope.deleteChannelStatus); //debug
         console.log("$scope.showOverlay after: " + $scope.showOverlay); //debug
     };
 
     $scope.hidePopup = function () {
         console.log("ex hide 1");
         console.log("$scope.newChannelModal before: " + $scope.newChannelModal); //debug
+        console.log("$scope.deleteChannelStatus before: " + $scope.deleteChannelStatus); //debug
         console.log("$scope.showOverlay before: " + $scope.showOverlay); //debug
         $scope.newChannelModal = false;
+        $scope.deleteChannelStatus = false;
         $scope.showOverlay = false;
         console.log("$scope.newChannelModal after: " + $scope.newChannelModal); //debug
+        console.log("$scope.deleteChannelStatus after: " + $scope.deleteChannelStatus); //debug
         console.log("$scope.showOverlay after: " + $scope.showOverlay); //debug
     };
 
@@ -409,7 +422,195 @@ angular.module('Cimba.channels',[
         });
     };
 
-    $scope.deleteChannel = function (channeluri) {
-        
+    ///--- everything within these ///--- is used in deleting a channel
+    // delete a single post
+    $scope.destroyChannel = function (ch) {
+        //loadposts first
+        $scope.getPostsforDeletion(ch);
     };
+
+    $scope.getPostsforDeletion = function(channeluri) {
+        var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+        var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
+
+        var g = $rdf.graph();
+        var f = $rdf.fetcher(g, TIMEOUT);
+
+        // add CORS proxy
+        $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
+
+        // get all SIOC:Post (using globbing)
+        f.nowOrWhenFetched(channeluri+'*', undefined, function(){
+
+            var posts = g.statementsMatching(undefined, RDF('type'), SIOC('Post'));
+            var postList = [];
+
+            if (posts.length > 0) {
+                for (var p in posts) {
+                    var uri = posts[p]['subject'];
+
+                    uri = uri.value;
+                    postList.push(uri);
+                }
+            }
+            // hide spinner
+            $scope.loading = false;
+
+            var webid = $scope.userProfile.webid;
+            console.log("deleting channeluri: " + channeluri); //debug
+            console.log("showing var postList"); //debug
+            for (var y in postList) {
+                console.log("key: " + y); //debug
+                console.log(postList[y]); //debug
+            }
+            console.log("done"); //debug
+            console.log("setting countAndUri"); //debug
+            $scope.countAndUri[0] = postList.length;
+            $scope.countAndUri[1] = channeluri;
+            console.log("countAndUri[0]: " + $scope.countAndUri[0]); //debug
+            console.log("countAndUri[1]: " + $scope.countAndUri[1]); //debug
+            if ($scope.countAndUri[0] > 0) {
+                for (var i in postList) {
+                    $scope.deletePost(postList[i]);
+                }
+            }
+            else {
+                $scope.noPosts = true;
+            }
+            $scope.$apply();
+        });
+    };
+
+    // deletes a single post
+    $scope.deletePost = function (posturi) {
+        $.ajax({
+            url: posturi,
+            type: "delete",
+            xhrFields: {
+                withCredentials: true
+            },
+            success: function (d,s,r) {
+                console.log('Deleted '+posturi);
+                notify('Success', 'Your post was removed from the server!');
+                $scope.$apply();
+
+                // also remove the ACL file
+                var acl = parseLinkHeader(r.getResponseHeader('Link'));
+                var aclURI = acl['acl']['href'];
+                $.ajax({
+                    url: aclURI,
+                    ype: "delete",
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    success: function (d,s,r) {
+                        console.log('Deleted! ACL file was removed from the server.');
+                        console.log("$scope.countAndUri[0] before: " + $scope.countAndUri[0]); //debug
+                        if ($scope.countAndUri[0] > 0) {
+                            $scope.countAndUri[0] = $scope.countAndUri[0] - 1;
+                        }
+                        console.log("$scope.countAndUri[0] after: " + $scope.countAndUri[0]); //debug
+                        if ($scope.countAndUri[0] === 0) {
+                            console.log("all posts were deleted successfully, $scope.noPosts before: " + $scope.noPosts); //debug
+                            $scope.noPosts = true;
+                            console.log("$scope.noPosts: " + $scope.noPosts); //debug
+                        }
+                    }
+                });
+            },
+            failure: function (r) {
+                var status = r.status.toString();
+                //error handling
+                console.log("ERROR: " + status + ". Cannot proceed with deleting channel.");
+                notify("ERROR: " + status + ". Cannot proceed with deleting channel.");
+
+                ///---reset
+                $scope.countAndUri[0] = -1;
+                $scope.countAndUri[1] = "";
+                $scope.noPosts = false;
+                ///---
+
+                if (status == '403') {
+                    notify('Error', 'Could not delete post, access denied!');
+                }
+                if (status == '404') {
+                    notify('Error', 'Could not delete post, no such resource on the server!');
+                }
+            }
+        });
+    };
+
+    $scope.$watch('noPosts', function(newVal,oldVal) {   //waits for all posts to be deleted, then proceeds to delete the channel
+        if ($scope.$parent.userProfile.storagespace !== undefined && newVal === true) {
+            console.log('all posts for a channel are deleted, attempting to delete channel: ' + $scope.countAndUri[1]); //debug
+            $scope.deleteChannel($scope.countAndUri[1]); //delete channel       
+        }
+    });
+
+    $scope.deleteChannel = function (ch) { //parameter passed in is channel uri
+        $.ajax({
+            url: ch,
+            type: "delete",
+            xhrFields: {
+                withCredentials: true
+            },
+            success: function (d,s,r) {
+                console.log('Deleted '+ch);
+                notify('Success', 'Your channel was removed from the server!');
+                $scope.$apply();
+
+                // also remove the ACL file
+                var acl = parseLinkHeader(r.getResponseHeader('Link'));
+                var aclURI = acl['acl']['href'];
+                $.ajax({
+                    url: aclURI,
+                    ype: "delete",
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    success: function (d,s,r) {
+                        console.log('Deleted! ACL file was removed from the server.');
+                        $scope.removeChannelandPosts(ch);
+                        ///---reset
+                        $scope.countAndUri[0] = -1;
+                        $scope.countAndUri[1] = "";
+                        $scope.noPosts = false;
+                        ///---
+                    }
+                });
+            },
+            failure: function (r) {
+                var status = r.status.toString();
+                if (status == '403') {
+                    notify('Error', 'Could not delete post, access denied!');
+                }
+                if (status == '404') {
+                    notify('Error', 'Could not delete post, no such resource on the server!');
+                }
+                ///---reset
+                $scope.countAndUri[0] = -1;
+                $scope.countAndUri[1] = "";
+                $scope.noPosts = false;
+                ///---
+            }
+        });
+    };
+
+    $scope.removeChannelandPosts = function (ch) {
+        var webid = $scope.userProfile.webid;
+        delete $scope.users[webid].channels[ch];
+        delete $scope.channels[ch];
+        for (var p in $scope.posts) {
+            if ($scope.posts[p].channel === ch) {
+                delete $scope.posts[p];
+            }
+        }
+        ///---reset; redundant, but I'm making sure I cover all my bases
+        $scope.countAndUri[0] = -1;
+        $scope.countAndUri[1] = "";
+        $scope.noPosts = false;
+        ///---
+    };
+
+    ///---
 });

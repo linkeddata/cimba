@@ -586,9 +586,9 @@ angular.module( 'Cimba', [
                                 //console.log(channel); //debug
                                 $scope.users[webid].channels[channel.uri] = channel;
                             }
-                
+                            
                             if (mine) {
-                                $scope.userProfile.channels[channel.uri] = channel;    
+                                $scope.userProfile.channels[channel.uri] = channel;
                             }
                             
                             $scope.$apply();

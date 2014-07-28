@@ -205,19 +205,19 @@ angular.module( 'Cimba.home', [
                 },
                 401: function() {
                     console.log("401 Unauthorized");
-                    notify('Error', 'Unauthorized! You need to authentify!');
+                    notify('Error', 'Unauthorized! You need to authentificate!');
                 },
                 403: function() {
                     console.log("403 Forbidden");
                     notify('Error', 'Forbidden! You are not allowed to create new resources.');
                 },
                 406: function() {
-                    console.log("406 Contet-type unacceptable");
+                    console.log("406 Content-type unacceptable");
                     notify('Error', 'Content-type unacceptable.');
                 },
                 507: function() {
                     console.log("507 Insufficient storage");
-                    notify('Error', 'Insuffifient storage left! Check your server storage.');
+                    notify('Error', 'Insufficient storage left! Check your server storage.');
                 }
             },
             success: function(d,s,r) {
