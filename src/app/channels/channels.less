@@ -1,15 +1,28 @@
+@import '../../less/variables.less';
+
 #new-channel-button {
 	position: absolute;
 	margin: 10px;
-	top: 10px;
+	top: 0px;
 	right: 30px;
-	
+	verticle-align: middle;
+	margin: 10px;
+	border-radius: 5px;
+	border: none;
+	background-color: @strong-blue !important;
+	text-align: center;
+	width: 43px;
+}
+
+#plus-img {
+	color: white;
 }
 
 #channel-modal {
 	border: 1px solid #ddd;
 	overflow: auto;
-	border-radius: 15px;
+	height: 300px;
+	min-height: 300px;
 }
 
 
@@ -32,14 +45,6 @@
 	align: left;
 }
 
-.channel-menu-btn.btn-primary {
-	height: 45px;
-	width: 45px;
-	margin: 10px;
-	font-size: 2em;
-	border-radius: 5px;
-	border: none;
-}
 
 .channel-unsub-btn {
 	height: 35px;
@@ -72,6 +77,10 @@
   overflow: auto;
 }
 
+.chan-panel-heading > div > a {
+	color: #fff;
+}
+
 .chan-panel-body-text {
   font-size: 1.2em !important; 
   font-weight: 200;
@@ -82,4 +91,55 @@
 .form-control.add-channel-input {
   width: 80%;
   margin-left: 10%;
+}
+
+.post-info {
+	display: block;
+	margin-left: 10px;
+	text-align: left;
+	margin-top: 5px;
+}
+
+.post-time {
+	margin-top: 3px;
+	font-size: .8em;
+}
+
+.post-options-group {
+	bottom: 0px;
+	float: right;
+}
+
+.post-header {
+	height: 80px;
+}
+
+.post-img {
+	margin-top:  5px;
+	margin-left: 5px;
+	position: relative;
+}
+
+.post-usr-name > a {
+	font-size: 1.3em;
+}
+
+.post-info > div > a {
+	color: #fff;
+}
+.post-options-dropdown {
+	float: right;
+}
+
+#post-options {
+	background: transparent;
+	background-color: transparent;
+	border: none;
+	color: black;
+	
+
+}
+
+.dropdown-menu {
+	border: 1px solid #4285f4
 }

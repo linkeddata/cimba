@@ -33,13 +33,15 @@ angular.module( 'Cimba.login', [
   }
   // login/signup widget source
   var providerURI = '//linkeddata.github.io/signup/index.html?ref=';
-    
+
   // set the parameter in the src of iframe
   $scope.signupWidget = $sce.trustAsResourceUrl(providerURI+window.location.protocol+'//'+window.location.host);
 
   // login user into the app
   $scope.login = function(webid) {
     console.log("login beginning");
+    console.log(webid);
+    console.log(webid.substr(0, 4));
     if (webid && (webid.substr(0, 4) == 'http')) {
       $scope.userProfile = {};
       $scope.userProfile.webid = webid;
@@ -58,13 +60,13 @@ angular.module( 'Cimba.login', [
       $scope.$parent.userProfile = $scope.userProfile;
       $rootScope.userProfile = $scope.userProfile;
 
-      $scope.showLogin = false;      
+      $scope.showLogin = false;
       $scope.$apply();
 
       $location.path("/home");
-      
+
     } else {
-      // notify('Error', 'WebID-TLS authentication failed.');
+      notify('Error', 'WebID-TLS authentication failed.');
       $scope.showLogin = false;
       $scope.$apply();
     }

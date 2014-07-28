@@ -8,21 +8,49 @@
     <!-- font awesome from BootstrapCDN -->
     <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 
-    <!-- compiled CSS --><% styles.forEach( function ( file ) { %>
-    <link rel="stylesheet" type="text/css" href="<%= file %>" /><% }); %>
+    <!-- compiled CSS -->
+    <% styles.forEach( function ( file ) { %>
+    <link rel="stylesheet" type="text/css" href="<%= file %>" />
+    <% }); %>
 
     <!-- favicon -->
     <link rel="shortcut icon" type="img/png" href="assets/cimba-logo.png">
 
-    <!-- compiled JavaScript --><% scripts.forEach( function ( file ) { %>
+    <!-- compiled JavaScript -->
+    <% scripts.forEach( function ( file ) { %>
+    <script type="text/javascript" src="<%= file %>"></script>
+    <% }); %>
     <script type='text/javascript' src="http://momentjs.com/downloads/moment.min.js"></script>
-    <script type='text/javascript' src="src/dep/common.js"></script>
-    <!-- // <script type='text/javascript' src="src/dep/notify.js"></script> -->
 
 
-    <script type="text/javascript" src="<%= file %>"></script><% }); %>
   </head>
   <body class='gray'>
+    <div id="site-header" class="navbar navbar-default">
+      <div>
+        <img id="cimba-logo" src="assets/cimba-logo-name.png">
+      </div>
+      <div ng-show="loggedin" id="current-user-info">
+        <div id="curr-user-name">{{userProfile.name}}</div>
+        <img id="curr-user-img" class="thumb-pic media-object" ng-src="{{userProfile.picture}}">
+      </div>
+
+    </div>
+
+    <div class="notices">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <!-- <button class="btn btn-primary" ng-click="addMessage()">Show</button> -->
+            <div ng-repeat="notice in notices" class="error-message-container">
+              <p>{{notice.text}}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+
+    
     <div ng-class="showMenu?'slide-out':''" class="sidebar left-menu" style="z-index: 999; position: fixed;">
       <button type="button" ng-click="showMenu=!showMenu" class="btn icon-bars-button" alt="Toggle navigation">
         <span class="icon-bar"></span>
@@ -42,7 +70,7 @@
         <i class="fa fa-ellipsis-h fa-2x dark-grey"></i>
         
         <div class="menu-item">
-          <a href ui-sref="home" ng-click="tabCtrl.setTab(0)">
+          <a href ui-sref="home" ng-click="tabCtrl.setTab(0); hideMenu()">
             <div>
               <i class="fa fa-bar-chart-o fa-3x"></i>
               <p>Dashboard</p>
@@ -52,7 +80,7 @@
         </div>
 
         <div class="menu-item" ng-class="{active:tabCtrl.isSet(2)}">
-          <a href ui-sref="channels" ng-click="tabCtrl.setTab(2); tabCtrl.clearbadge(1);">          
+          <a href ui-sref="channels" ng-click="tabCtrl.setTab(2); tabCtrl.clearbadge(1); hideMenu()">          
             <!-- <span class="badge">{{tabCtrl.badges[1]}}</span> -->
             <div>
               <i class="fa fa-rss fa-3x"></i>
@@ -63,7 +91,7 @@
         </div>
 
         <div class="menu-item" ng-class="{active:tabCtrl.isSet(3)}">
-          <a href ui-sref="find" ng-click="tabCtrl.setTab(3);">
+          <a href ui-sref="find" ng-click="tabCtrl.setTab(3); hideMenu()">
             <div>
               <i class="fa fa-search fa-3x"></i>
               <p>Find</p>
@@ -114,6 +142,15 @@
           </div>
         </a>
       </div>
+    </div>
+
+    <!-- set the notifications container hidden when the page first loads -->
+    <div id="notification" style="display:none">
+        <div id="basic-template">
+            <a class="ui-notify-cross ui-notify-close" href="#">x</a>
+            <h1>#{title}</h1>
+            <p>#{text}</p>
+        </div>
     </div>
 
     <div ui-view="main" class="main" ng-click = 'hideMenu()'></div>

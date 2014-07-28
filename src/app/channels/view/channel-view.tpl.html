@@ -1,19 +1,17 @@
-<div ng-click="hideMenu()">
-	<!-- <h1 class="page-header">{{channelTitle}}</h1> -->
-	{{channels[chanUri]}}
+<div ng-click="hideMenu()" ng-controller="PostsController as postCtrl">
 	<div id="newpost" class="container">
         <div class="row">
             <!-- <div class="clear-70"></div> -->
             <div class="col-md-12">
                 <!-- new post -->
-                <post-channel ng-show="channelTitle != ''" ng-controller="PostsController as postCtrl"></post-channel>
+                <post-channel ng-show="channelTitle != ''"></post-channel>
                 <!-- end new post -->
             </div>
         </div>
     </div>
 	<div id="posts" class="container">
 	    <div class="row">
-	        <div class="col-md-12">
+	    	<div class="col-md-12">
 	            <!-- Loading animation -->
 	            <div class="panel panel-default text-center" ng-show="loading">
 	                <!-- <div class="spinner"> -->
@@ -22,14 +20,16 @@
 	                </div>
 	                <!-- <div class="gear"></div> -->
 	            </div>
-	            <!-- All posts go into <posts-viewer> -->
-	            <!-- ngRepeat: post in posts | unique:'uri' | orderBy:'date':true -->
-	            <!-- <list-posts ng-show="loggedin"></list-posts> -->
-            	<list-posts ng-show="channels[chanUri].posts && !loading"></list-posts>
-            	<div class="panel panel-default text-center" ng-show="!channels[chanUri].posts && !loading">
-            		<h3>We could not find any posts for this channel</h3>
+	            <div class="panel panel-default text-center" ng-show="!channels[chanUri].posts && !loading">
+	        		<h3>We could not find any posts for this channel</h3>
+	    		</div>
+	    		<div class="">
+		            <!-- All posts go into <posts-viewer> -->
+		            <!-- ngRepeat: post in posts | unique:'uri' | orderBy:'date':true -->
+		            <!-- <list-posts ng-show="loggedin"></list-posts> -->
+		        	<list-posts ng-show="channels[chanUri].posts && !loading"></list-posts>
         		</div>
-            </div>
-	    </div>
+        	</div>
+        </div>	
 	</div>
 </div>

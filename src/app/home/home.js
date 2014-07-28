@@ -47,7 +47,10 @@ angular.module( 'Cimba.home', [
     $scope.newMBModal = false;
     $scope.newStorageModal = false;
     $scope.showOverlay = false;
-  
+    for (var c in $scope.$parent.userProfile.subscribedChannels) {
+        var channel = $scope.$parent.userProfile.subscribedChannels[c];
+        $scope.$parent.getPosts(channel.uri, channel.title);
+    }
     $scope.showPopup = function (p) {
         console.log("ex show");
         if (p == "ch") {
@@ -223,7 +226,7 @@ angular.module( 'Cimba.home', [
                 var meta = parseLinkHeader(r.getResponseHeader('Link'));
                 var metaURI = meta['meta']['href'];
                 var ldpresource = r.getResponseHeader("Location");
-                console.log("ldpresource: " + ldpresource); //debug
+                //console.log("ldpresource: " + ldpresource); //debug
                 var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
                 var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
                 var FOAF = $rdf.Namespace('http://xmlns.com/foaf/0.1/');
@@ -271,7 +274,10 @@ angular.module( 'Cimba.home', [
                         console.log('Success! Microblog space created.');
                         notify('Success', 'Microblog space created.');
                         $scope.users[$scope.userProfile.webid].mbspace = ldpresource;
-                        console.log("$scope.users[" + $scope.userProfile.webid + "].mbspace: " + $scope.users[$scope.userProfile.webid].mbspace); //debug
+                        
+                        $scope.userProfile.mbspace = ldpresource;
+                        //console.log("$scope.users[" + $scope.userProfile.webid + "].mbspace: " + $scope.users[$scope.userProfile.webid].mbspace); //debug
+
                         // clear form
                         $scope.mburi = '';
                         // close modal

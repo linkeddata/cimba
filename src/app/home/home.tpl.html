@@ -23,8 +23,6 @@
       </div>
   </div>
 
-
-
   <!-- new uB modal -->
   <div id="setup" class="container" ng-show="userProfile.webid && userProfile.storagespace && users[userProfile.webid].mbspace == false">
       <div class="row">
@@ -50,7 +48,7 @@
   </div>
 
 <!-- no posts found -->
-  <div id="setup" class="container" ng-show="users[userProfile.webid].gotposts == false">
+  <div id="setup" class="container" ng-show="users[userProfile.webid].gotposts == false && !loading">
       <div class="row">
           <div class="col-md-12">
               <div class="panel panel-default text-center">
@@ -126,7 +124,7 @@
         <h2 class="text-center">Create a new channel</h2>
     </div>
     <div>
-        <form ng-controller="ChannelsCtrl">
+        <form >
           <p>The name you provide will be used to create a new channel inside your microblog.</p>
           <p><input type="text" ng-model="channelname" placeholder="Name (Main, Work, etc.).." required ng-pattern="/^[A-Za-z0-9_ ]*$/"></input></p>
           <div id="modal-channel-group" class="btn-group-horizontal"> 
@@ -181,9 +179,11 @@
 	                </div>
 	                <!-- <div class="gear"></div> -->
 	            </div>
-	            <!-- All posts go into <posts-viewer> -->
-	            <!-- ngRepeat: post in posts | unique:'uri' | orderBy:'date':true -->
+              <div class=""> 
+  	            <!-- All posts go into <posts-viewer> -->
+  	            <!-- ngRepeat: post in posts | unique:'uri' | orderBy:'date':true -->
                 <posts-viewer ng-show="loggedin"></posts-viewer>
+              </div>
 	        </div>
 	    </div>
 	</div>
