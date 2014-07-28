@@ -40,7 +40,7 @@
                 <alex ng-bind-html="post.body | makeLinks" ng-hide="fullText"></alex>
                 <a style="cursor:pointer" ng-click="fullText=true" ng-hide="fullText">Read More</a>
                 <div ng-bind-html="post.body | makeLinks" ng-show="fullText"></div>
-                <a style="cursor:pointer" ng-click="fullText=false" ng-show="fullText">Read Less</a>
+                <a style="cursor:pointer; min-height:3.75em" ng-click="fullText=false" ng-show="fullText">Read Less</a>
             </p>
         </div>        
     </div>
