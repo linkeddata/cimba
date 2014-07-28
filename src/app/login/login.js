@@ -26,7 +26,7 @@ angular.module( 'Cimba.login', [
 /**
  * And of course we define a controller for our route.
  */
-.controller( 'LoginCtrl', function LoginController( $scope, $rootScope, $http, $location, $sce ) {
+.controller( 'LoginCtrl', function LoginController( $scope, $rootScope, $http, $location, $sce, noticesData ) {
   if ($scope.$parent.loggedin) {
     console.log("loggedin");
     $location.path("/home");
@@ -67,6 +67,7 @@ angular.module( 'Cimba.login', [
 
     } else {
       notify('Error', 'WebID-TLS authentication failed.');
+      noticesData.add("error", "WebID-TLS authentication failed. Please go to the following link to debug: https://auth.my-profile.eu/auth/index.php?verbose=on");
       $scope.showLogin = false;
       $scope.$apply();
     }

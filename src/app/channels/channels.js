@@ -23,7 +23,7 @@ angular.module('Cimba.channels',[
 
 .controller('ChannelsCtrl', function ChannelsController($scope, $http, $location, $sce){
     console.log("executing channels controller"); //debug
-
+    console.log($scope.userProfile.subscribedChannels);
     $scope.audience = {};
     $scope.audience.range = 'public';
     $scope.audience.icon = 'fa-globe';
@@ -63,12 +63,8 @@ angular.module('Cimba.channels',[
         console.log("$scope.showOverlay after: " + $scope.showOverlay); //debug
     };
 
-    $scope.channelTog = function(channel, owner){
-        // console.log("toggling channel");
-        // console.log(owner);
-        // console.log(channel);
-        // console.log($scope.$parent.users);
-        $scope.$parent.channelToggle(channel,$scope.$parent.users[owner]);
+    $scope.channelTog = function(channel){
+        $scope.$parent.channelToggle(channel);
     };
 
     // set the corresponding ACLs for the given post, using the right ACL URI

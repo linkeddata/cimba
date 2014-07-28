@@ -715,7 +715,7 @@ iframe {border:0px;}
 }
 
 .notices {
-  top: 70px;
+  top: 67px;
   left: 0px;
   position: fixed;
   z-index: 9999;
@@ -724,20 +724,16 @@ iframe {border:0px;}
 }
 
 .error-message-container {
-  padding:10px;
-  width: 98%;
-  top: 70px;
+  padding: 5px;
+  width: 99%;  
   border:1px solid red;
   border-radius: 5px;
-  background: white;
-  
-  height: 50px;
-  color: red;    
-  margin: auto;
-  margin-left: 1%;
+  background: #FFD2D2;
+  margin: auto;  
   text-align: center;
-  opacity: 0.9;
-  margin-bottom: 5px;
+  margin-bottom: 5px;  
+  vertical-align: middle;
+  position: relative;
   }
 
 .error-message-container {
@@ -747,4 +743,18 @@ iframe {border:0px;}
 
 .error-message-container.ng-hide {
   opacity:0;
+}
+
+.notice-close {
+  top: -5px;
+  right: 0px;
+  position: relative;
+}
+
+.notice-text {
+  font-size: 1.2em;
+  margin: 5px;
+  color: #fff;
+  font-family: Georgia, serif;
+  font-weight: 200;
 }

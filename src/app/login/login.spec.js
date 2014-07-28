@@ -5,7 +5,8 @@
  * automatically.
  */
 describe('login section', function() {
-  beforeEach(module('Cimba.login'));
+  beforeEach(module('Cimba'));
+  beforeEach(module("Cimba.login"));
   var LoginCtrl, $location, $root, $scope, $http, $sce, httpBackend;
 
   beforeEach(inject(function($controller, _$location_, $http, $sce, $rootScope, $httpBackend) {
@@ -29,6 +30,7 @@ describe('login section', function() {
     expect($scope.signupWidget.length).not.toBeGreaterThan(0);
   }));
 
+  // The test below fails because the factory for noticesData is not integrated
   it('should set the userProfile to the value of the WebID', inject(function() {
     var webid = '//deiu.rww.io/profile/card#me';
     // AngularJS does not encode : anymore so we have to hack around it
