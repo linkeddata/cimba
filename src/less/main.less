@@ -187,7 +187,7 @@ h2 {
  */
 .main {
   text-align: center;
-  margin-top: 20px;
+  margin-top: 85px;
 }
 
 /**
@@ -675,4 +675,76 @@ iframe {border:0px;}
 
 .container {
   min-width: 400px;
+}
+
+
+#site-header {
+  text-align: center;
+  position: fixed;
+  width: 100%;
+  height: 65px;
+  top: 0px;
+  margin-top: 0px;
+  vertical-align: middle;
+}
+
+#current-user-info {
+  float: right;
+  margin-top: 10px; 
+  margin-right: 10px;
+  top: 0px;
+  right: 0px;
+  position: absolute;
+}
+
+#curr-user-img {
+  height: 45px;
+}
+
+#curr-user-name {
+  float: left;
+  font-size: 1.5em;
+  font-style: bold;
+  color: @strong-blue;
+  margin-right: 5px;
+}
+
+#cimba-logo {
+  height: 45px;
+  margin-top: 10px;
+}
+
+.notices {
+  top: 70px;
+  left: 0px;
+  position: fixed;
+  z-index: 9999;
+  text-align: center;
+  width: 100%;
+}
+
+.error-message-container {
+  padding:10px;
+  width: 98%;
+  top: 70px;
+  border:1px solid red;
+  border-radius: 5px;
+  background: white;
+  
+  height: 50px;
+  color: red;    
+  margin: auto;
+  margin-left: 1%;
+  text-align: center;
+  opacity: 0.9;
+  margin-bottom: 5px;
+  }
+
+.error-message-container {
+  -webkit-transition:all linear 2s;
+  transition:all linear 2s;
+}
+
+.error-message-container.ng-hide {
+  opacity:0;
 }

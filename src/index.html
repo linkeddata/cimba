@@ -25,6 +25,32 @@
 
   </head>
   <body class='gray'>
+    <div id="site-header" class="navbar navbar-default">
+      <div>
+        <img id="cimba-logo" src="assets/cimba-logo-name.png">
+      </div>
+      <div ng-show="loggedin" id="current-user-info">
+        <div id="curr-user-name">{{userProfile.name}}</div>
+        <img id="curr-user-img" class="thumb-pic media-object" ng-src="{{userProfile.picture}}">
+      </div>
+
+    </div>
+
+    <div class="notices">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <!-- <button class="btn btn-primary" ng-click="addMessage()">Show</button> -->
+            <div ng-repeat="notice in notices" class="error-message-container">
+              <p>{{notice.text}}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+
+    
     <div ng-class="showMenu?'slide-out':''" class="sidebar left-menu" style="z-index: 999; position: fixed;">
       <button type="button" ng-click="showMenu=!showMenu" class="btn icon-bars-button" alt="Toggle navigation">
         <span class="icon-bar"></span>

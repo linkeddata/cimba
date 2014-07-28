@@ -95,7 +95,7 @@ angular.module( 'Cimba', [
     };
 })
 
-.controller( 'MainCtrl', function MainCtrl ($scope, $window, $rootScope, $location, $timeout, ngProgress, $http ) {
+.controller( 'MainCtrl', function MainCtrl ($scope, $window, $rootScope, $location, $timeout, ngProgress, $http, noticesData ) {
     // Some default values
 
     var emptyUser = {
@@ -122,7 +122,9 @@ angular.module( 'Cimba', [
     $scope.posts = {}; //aggregate list of all posts (flat list)
     $scope.search = {};
     $scope.loadChannels = {};
-    $scope.loadSubscriptions = {};    
+    $scope.loadSubscriptions = {}; 
+    // $scope.gotErrorMessage = true; 
+    $rootScope.notices = [];
 
     $scope.login = function () {
         $location.path('/login');
@@ -130,6 +132,15 @@ angular.module( 'Cimba', [
 
     $scope.hideMenu = function(){
       $scope.showMenu = false;
+    };
+
+    $scope.closeNotice = function(nId){
+        noticesData.close(nId);
+    };
+
+    // for debuging the notices
+    $scope.addMessage = function() {
+        noticesData.add("error", "helloworld");
     };
 
     $scope.logout = function () {
@@ -1481,6 +1492,28 @@ angular.module( 'Cimba', [
     //     // }
     // });
 
+})
+
+.factory('noticesData', function($rootScope, $timeout){
+    var obj = {};
+    obj.add = function(type, text){        
+        var nId = obj.count;
+        obj.count = (obj.count + 1) % 100;
+        $rootScope.notices.push({id: nId, type:type, text:text});
+        $timeout(function(){
+            obj.close(nId);
+        },3000);
+    };
+    obj.close = function(nId){
+        angular.forEach($rootScope.notices, function(notice, key){
+            if(notice.id == nId){
+                $rootScope.notices.splice(key,1);
+            }
+        });
+    };
+    obj.count = 0;
+
+    return obj; 
 })
 
 .directive('errSrc', function() {
