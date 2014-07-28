@@ -14,13 +14,13 @@ angular.module('Cimba.channels.view', ['ui.router'])
 	});
 })
 
-.controller('ChannelViewCtrl', function ChannelViewController($scope, $stateParams, $location, $http) {	
+.controller('ChannelViewCtrl', function ChannelViewController($scope, $stateParams, $location, $http, noticesData) {	
 	//console.log("channel view ctrl"); //debug
 	$scope.path = $stateParams.path;
 
 	$scope.safeUri = function (uri) {
 		return uri.replace(/^https?:\/\//,'');
-	};
+	};	
 
 	var webid = $scope.$parent.userProfile.webid;
 	$scope.chanUri = "https://" + $scope.path;

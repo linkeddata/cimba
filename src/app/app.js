@@ -140,7 +140,12 @@ angular.module( 'Cimba', [
 
     // for debuging the notices
     $scope.addMessage = function() {
-        noticesData.add("error", "helloworld");
+        noticesData.add("error", "helloworld http://google.com");
+    };
+
+    $scope.cancelTimeout = function (timeout) {
+        console.log("timeout executed");
+        $timeout.cancel(timeout);
     };
 
     $scope.logout = function () {
@@ -274,7 +279,7 @@ angular.module( 'Cimba', [
                   $scope.found = false;
                   $scope.searchbtn = 'Search';
                   // reset progress bar
-                  ngProgress.reset();
+                  ngProgress.complete();
                   console.log("ng 2: reset"); //debug
                   $scope.$apply();
                 }
@@ -330,7 +335,7 @@ angular.module( 'Cimba', [
             $scope.users[webid].mine = mine;
 
             if (update) {
-                $scope.refreshinguser = true;
+                $scope.refreshinguser = true;                
                 $scope.users[webid].name = name;
                 $scope.users[webid].picture = pic;
                 $scope.users[webid].storagespace = storage;
@@ -780,9 +785,9 @@ angular.module( 'Cimba', [
                     // try using the picture from the WebID first
 
                     if (userwebid && $scope.users[userwebid]) {
-                        console.log("tried loading from webid first"); //debug
+                        // console.log("tried loading from webid first"); //debug
                         userpic = $scope.users[userwebid].picture;
-                        console.log("userpic: " + userpic); //debug
+                        // console.log("userpic: " + userpic); //debug
                     }
                     else if (g.any(useraccount, SIOC('avatar'))) {
                         console.log("tried loading from rww storage"); //debug
@@ -931,68 +936,70 @@ angular.module( 'Cimba', [
         var channels = {}; // temporary channel list (will load posts from them once this is done)
         var followURI = ''; // uri of the preferences file
         var mywebid = $scope.userProfile.webid;
+        var _users = {};
 
-        // console.log("at saveUsers"); //debug
-        // console.log("list of users"); //debug
-        for (var x in $scope.users){ //debug
-            // console.log("key: " + x); //debug
-            // console.log($scope.users[x]); //debug
-        }
+        angular.forEach($scope.userProfile.subscribedChannels, function(value, key) {
+            var u;
+            if ( !_users[value.owner]) {
+                u = {};
+                u.name = $scope.users[value.owner].name;
+                u.picture = $scope.users[value.owner].picture;
+                u.channels = [];
+                _users[value.owner] = u;
+            } else {
+                u = _users[value.owner];
+            }           
+            u.channels.push(value); 
+        });
 
-        // console.log("at save users, saving $scope.users[" + mywebid + "]"); //debug
-        // console.log($scope.users[mywebid]); //debug
-
+        console.log(_users);
         if ($scope.users[mywebid].mbspace && $scope.users[mywebid].mbspace.length > 1) {
             followURI = $scope.users[mywebid].mbspace+'following';
         }
-        // console.log("at save users"); //debug
 
         var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
         var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
         var g = $rdf.graph();
 
-        // set triples
+        // add triplets
         g.add($rdf.sym(followURI), RDF('type'), SIOC('Usergroup'));        
         g.add($rdf.sym(followURI), DCT('created'), $rdf.lit(Date.now(), '', $rdf.Symbol.prototype.XSDdateTime));
-        // add users
-        var i=0;
-        for (var key in $scope.users) {
-            var user = $scope.users[key];
-            console.log(user);
-            console.log(user.picture);
+        
+        var i = 0;
+        console.log(_users);
+        for (var userId in _users) {
+            console.log("user id: " +userId);        
+            var user = _users[userId];
             var uid = followURI+'#user_'+i;
-            // add hash id to main graph
+
             g.add($rdf.sym(followURI), SIOC('has_member'), $rdf.sym(uid));
             g.add($rdf.sym(uid), RDF('type'), SIOC('UserAccount'));
-            g.add($rdf.sym(uid), SIOC('account_of'), $rdf.sym(key));
+            g.add($rdf.sym(uid), SIOC('account_of'), $rdf.sym(userId));
             g.add($rdf.sym(uid), SIOC('name'), $rdf.lit(user.name));
             g.add($rdf.sym(uid), SIOC('avatar'), $rdf.sym(user.picture));
+            
+            var j = 0;
+            for (var ind in user.channels) {
+                var ch = user.channels[ind];
+                var ch_id = followURI+'#channel_'+ i + "_" + j;
 
-            // console.log("inside for loop"); //debug
-            // add each channel
-            if (!isEmpty(user.channels)) {
-                // console.log("inside if"); //debug
-                for (var j in user.channels) {
-                    var ch = user.channels[j];
-                    var ch_id = followURI+'#channel_'+i+'_'+j;
-                    //add the channel uri to the list
-                    channels[ch.uri] = ch;
-                    // add the channel reference back to the user
-                    g.add($rdf.sym(uid), SIOC('feed'), $rdf.sym(ch_id));
-                    // add channel details
-                    g.add($rdf.sym(ch_id), RDF('type'), SIOC('Container'));
-                    g.add($rdf.sym(ch_id), SIOC('link'), $rdf.sym(ch.uri));
-                    g.add($rdf.sym(ch_id), DCT('title'), $rdf.lit(ch.title));
-                    // add my WebID if I'm subscribed to this channel
-                    if (ch.action === 'Unsubscribe') {
-                        // console.log("5.5"); //debug
-                        g.add($rdf.sym(ch_id), SIOC('has_subscriber'), $rdf.sym(mywebid));
-                    }
+                // add the channel reference back to the user
+                g.add($rdf.sym(uid), SIOC('feed'), $rdf.sym(ch_id));
+                // add channel details
+                g.add($rdf.sym(ch_id), RDF('type'), SIOC('Container'));
+                g.add($rdf.sym(ch_id), SIOC('link'), $rdf.sym(ch.uri));
+                g.add($rdf.sym(ch_id), DCT('title'), $rdf.lit(ch.title));
+                // add my WebID if I'm subscribed to this channel
+                if (ch.action === 'Unsubscribe') {
+                    // console.log("5.5"); //debug
+                    g.add($rdf.sym(ch_id), SIOC('has_subscriber'), $rdf.sym(mywebid));
                 }
+                j++;
             }
             i++;
         }
+
         // serialize graph
         var t = new $rdf.Serializer(g); //debug
         var s = new $rdf.Serializer(g).toN3(g);
@@ -1063,10 +1070,10 @@ angular.module( 'Cimba', [
                 if (users.length > 0) {
                     for (var i in users) {
                         var u = users[i]['subject'];
-                        console.log(users[i]);
+                        // console.log(users[i]);
                         var _user = {};
                         _user.webid = g.any(u, SIOC('account_of')).value;
-                        console.log( g.any(u, SIOC('name')));
+                        // console.log( g.any(u, SIOC('name')));
                         _user.name = (g.any(u, SIOC('name')))?g.any(u, SIOC('name')).value:'';
                         // console.log(g.any(u, SIOC('avatar')));
                         _user.picture = (g.any(u, SIOC('avatar')))?g.any(u, SIOC('avatar')).value:'assets/generic_photo.png';
@@ -1123,6 +1130,7 @@ angular.module( 'Cimba', [
                         if (_user.webid !== $scope.userProfile.webid) { //do not overwrite our own user
                             //(change later to append because we need to know if we're subscribed or not to our own channel)
                             $scope.users[_user.webid] = _user;
+                            console.log("user webid: " + _user.webid);
                             // console.log("in $scope.users[" + _user.webid + "], channels are"); //debug
                             for (var chann in $scope.users[_user.webid].channels) {
                                 // console.log(_user.channels[chann]); //debug
@@ -1225,146 +1233,32 @@ angular.module( 'Cimba', [
     };
 
     // toggle selected channel for user
-    $scope.channelToggle = function(ch, suser) {
-        console.log("channelToggle called"); //debug
-        console.log("suser: ", suser); //debug
-        console.log("$scope.users[" + suser.webid + "] ", $scope.users[suser.webid]); //debug
+    $scope.channelToggle = function(ch) {
+        if (ch.action === 'Unsubscribe') {
+            // we are following this channel
+            // set properties
+            ch.action = 'Subscribe';
+            ch.button = 'fa-square-o';
+            ch.css = 'btn-info';
 
-        console.log($scope.users); //debug
-        var user = {};
-        console.log(suser);
-        if (suser.webid === $scope.userProfile.webid) {
-            user.mine = true;
-        }
-        else {
-            user.mine = false;
-        }
-        user.name = suser.name;
-        user.picture = suser.picture;
-        user.channels = suser.channels;
-        console.log("channeltoggle start: listening search-user's channels"); //debug
-        for (var i in suser.channels) {
-            console.log("key: " + i); //debug
-            console.log(suser.channels[i]); //debug
-        }
-        console.log("done listing"); //debug
-
-        console.log("listing subscribed channels before channeltoggle"); //debug
-        for (var u in $scope.userProfile.subscribedChannels) {
-            console.log("key: " + u); //debug
-            console.log($scope.userProfile.subscribedChannels[u]); //debug
-        }
-        console.log("done listing"); //debug
-
-        // we're following this user
-        if ($scope.users && $scope.users[suser.webid]) {
-            console.log("we have the user saved"); //debug
-
-            var channels = $scope.users[suser.webid].channels;
-            console.log("listing var channels"); //debug
-            for (var rt in channels) {
-                console.log("key: " + rt); //debug
-                console.log(channels[rt]); //debug
-            }
-            console.log("done listing"); //debug
-            // console.log($scope.users[suser.webid].channels);
-            // console.log(channels);
-
-            // already have the channel
-            console.log("checking if we have " + ch.uri + "in channels already"); //debug
-            if (channels[ch.uri]) {
-                console.log("we do, setting var c equal to it"); //debug
-                var c = channels[ch.uri];
-                console.log(c); //debug
-                // unsubscribe
-                if (c.action == 'Unsubscribe') {
-                    c.action = ch.action = 'Subscribe';
-                    c.button = ch.button = 'fa-square-o';
-                    c.css = ch.css = 'btn-info';
-                    console.log("channel uri");
-                    console.log(ch.uri);
-                    $scope.removePostsByChannel(ch.uri, ch.owner);
-                    console.log("deleting the following:"); //debug
-                    console.log($scope.userProfile.subscribedChannels[ch.uri]); //debug
-                    delete $scope.userProfile.subscribedChannels[ch.uri];
-
-                    console.log("listing subscribed channels after unsubscribing in channeltoggle"); //debug
-                    for (var uu in $scope.userProfile.subscribedChannels) {
-                        console.log("key: " + uu); //debug
-                        console.log($scope.userProfile.subscribedChannels[uu]); //debug
-                    }
-                    console.log("done listing"); //debug
-
-                } else {
-                // subscribe
-                    c.action = ch.action = 'Unsubscribe';
-                    c.button = ch.button = 'fa-check-square-o';
-                    c.css = ch.css = 'btn-success';
-                    $scope.getPosts(ch.uri, ch.title);
-                }
-            } else {
-                //question: shudnt we add the channel to channels[] list or something since this is the else statement for not having channels[ch.uri]?
-                // subscribe
-                ch.action = 'Unsubscribe';
-                ch.button = 'fa-check-square-o';
-                ch.css = 'btn-success';
-                $scope.getPosts(ch.uri, ch.title);
-            }
-            // also update the users list in case there is a new channel
-            $scope.users[suser.webid] = user;
-            for (var cha in channels) {
-                if (channels[cha].action == 'Unsubscribe') {
-                    $scope.userProfile.subscribedChannels[cha] = channels[cha];
-                }
-                console.log("listing subscribed channels after subscribing in channeltoggle"); //debug
-                for (var uuu in $scope.userProfile.subscribedChannels) {
-                    console.log("key: " + uuu); //debug
-                    console.log($scope.userProfile.subscribedChannels[uuu]); //debug
-                }
-                console.log("done listing"); //debug
-            }
-            // console.log("saving user"); //debug
-            $scope.saveUsers();
+            // remove the channel
+            $scope.removePostsByChannel(ch.uri, ch.owner);
+            console.log("deleting the following:"); //debug
+            console.log($scope.userProfile.subscribedChannels[ch.uri]); //debug
+            delete $scope.userProfile.subscribedChannels[ch.uri];
+            console.log($scope.userProfile.subscribedChannels);
         } else {
-            // subscribe (also add user + channels)
+            // we are not following this channel
+            // subscribe to the channel
             ch.action = 'Unsubscribe';
             ch.button = 'fa-check-square-o';
             ch.css = 'btn-success';
-            if (!$scope.users) {
-                $scope.users = {};
-            }
-            $scope.users[suser.webid] = user;
-
-            var schans = $scope.users[suser.webid].channels;
-
-            console.log("listing var schans"); //debug
-            for (var rtt in schans) {
-                console.log("key: " + rtt); //debug
-                console.log(schans[rtt]); //debug
-            }
-
-            for (var skey in schans) {
-                if (schans[skey].action == 'Unsubscribe') {
-                    console.log("subscribed, adding key/uri: " + skey + "with channel content: "); //debug
-                    console.log(schans[skey]); //debug
-                    $scope.userProfile.subscribedChannels[skey] = schans[skey];
-                }
-                console.log("listing subscribed channels after subscribing in channeltoggle"); //debug
-                for (var ut in $scope.userProfile.subscribedChannels) {
-                    console.log("key: " + ut); //debug
-                    console.log($scope.userProfile.subscribedChannels[ut]); //debug
-                }
-                console.log("done listing"); //debug
-            }
-            // console.log("saving user 2"); //debug
-            $scope.saveUsers();
+            $scope.userProfile.subscribedChannels[ch.uri] = ch;
             $scope.getPosts(ch.uri, ch.title);
         }
-        console.log("listing subscribed channels after channeltoggle"); //debug
-        for (var utt in $scope.userProfile.subscribedChannels) {
-            console.log("key: " + utt); //debug
-            console.log($scope.userProfile.subscribedChannels[utt]); //debug
-        }
+
+        $scope.saveCredentials();
+        $scope.saveUsers();
         console.log("done listing"); //debug
     };
 
@@ -1495,14 +1389,16 @@ angular.module( 'Cimba', [
 })
 
 .factory('noticesData', function($rootScope, $timeout){
-    var obj = {};
+    var obj = {};    
     obj.add = function(type, text){        
         var nId = obj.count;
         obj.count = (obj.count + 1) % 100;
-        $rootScope.notices.push({id: nId, type:type, text:text});
-        $timeout(function(){
+        var notice = {id: nId, type:type, text:text};
+        notice.timeout = $timeout(function(){
             obj.close(nId);
-        },3000);
+        }, 5000);
+        console.log(notice);
+        $rootScope.notices.push(notice);
     };
     obj.close = function(nId){
         angular.forEach($rootScope.notices, function(notice, key){

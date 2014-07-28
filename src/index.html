@@ -40,15 +40,16 @@
       <div class="container">
         <div class="row">
           <div class="col-md-12">
-            <!-- <button class="btn btn-primary" ng-click="addMessage()">Show</button> -->
-            <div ng-repeat="notice in notices" class="error-message-container">
-              <p>{{notice.text}}</p>
+            <div ng-repeat="notice in notices" class="error-message-container" ng-click="cancelTimeout(notice.timeout)">
+              <button type="button" class="close notice-close" ng-click="closeNotice(notice.id)">x</button>
+              <p class="notice-text" ng-bind-html="notice.text | makeLinks"></p>
             </div>
+            <!-- <button class="btn btn-primary" ng-click="addMessage()">Show</button> -->
           </div>
         </div>
       </div>
     </div>
-    
+
 
     
     <div ng-class="showMenu?'slide-out':''" class="sidebar left-menu" style="z-index: 999; position: fixed;">
