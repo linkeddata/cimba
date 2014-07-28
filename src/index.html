@@ -126,7 +126,7 @@
         -->
 
         <div class="">
-          <a href ng-click="tabCtrl.setTab(0); logout()">
+          <a href ng-click="tabCtrl.setTab(0); hideMenu(); logout()">
             <div class="logout menu-item">
               <i class="fa fa-power-off fa-3x orange"></i>
               <p>Logout</p>
@@ -136,7 +136,7 @@
       </div>
 
       <div ng-hide="userProfile.webid" ng-click="showMenu=false">
-        <a href ng-click="login()">
+        <a href ng-click="hideMenu(); login()">
           <div class="menu-item">
             <i class="fa fa-power-off fa-3x"></i>
             <p>Login</p>

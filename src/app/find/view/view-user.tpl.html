@@ -8,7 +8,13 @@
 			        <h2 class="text-center" ng-show="users[webid].name">Channels for {{users[webid].name}}</h2>
 			    </div>
 			</div>
-
+			<div ng-show="loading">
+                <!-- <div class="spinner"> -->
+                <div class="clear-40">
+                  <div class="circle circle-large"></div><div class="circle1 circle1-large"></div>
+                </div>
+                <!-- <div class="gear"></div> -->
+            </div>
 			<div class="two-col-list">
 				<div class="panel panel-default" ng-repeat="ch in users[webid].channels">
 					<div class="panel-heading chan-panel-heading sub-header">

@@ -60,12 +60,6 @@
     </div>
 
     <div class="container channel-list">
-<!--     	<div class="panel panel-default">
-    		<div class="panel-heading main-header"></div>
-    		<div class="panel-body">
-    			<div class="center">Channels</div>
-    		</div>
-    	</div> -->
     	<div class="row">
 		    <div class="col-md-6" align="center">
 		    	<div class="panel panel-default channel-list-item">
@@ -77,7 +71,14 @@
 		    			</div>
 		    		</div>
 		    	</div>
-		        <div ng-repeat="channel in users[userProfile.webid].channels" class="channel-list-item panel panel-default">
+		    	<div ng-show="loading">
+	                <!-- <div class="spinner"> -->
+	                <div class="clear-40">
+	                  <div class="circle circle-large"></div><div class="circle1 circle1-large"></div>
+	                </div>
+	                <!-- <div class="gear"></div> -->
+	            </div>
+		        <div ng-repeat="channel in userProfile.channels" class="channel-list-item panel panel-default">
 			        <div class="chan-panel-heading panel-heading sub-header">
 			        	<div class="pull-left"><a ui-sref="view({path: safeUri(channel.uri)})" class="link-white bold">{{channel.title}}</a>
 			        	</div>

@@ -394,6 +394,7 @@ angular.module( 'Cimba', [
 
             } else {
                 ngProgress.complete();
+                $scope.loading = false;
             }
 
             $scope.getInfoDone = true;
@@ -436,6 +437,8 @@ angular.module( 'Cimba', [
         // add CORS proxy
         $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
 
+        $scope.loading = true;
+
         // fetch user data: SIOC:Space -> SIOC:Container -> SIOC:Post
         f.nowOrWhenFetched(uri,undefined,function(){            
             var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));                        
@@ -472,9 +475,8 @@ angular.module( 'Cimba', [
 
                 // $scope.channels[channel.uri] = channel;
                 
-                $scope.loading = true;
-                $scope.defaultChannel = $scope.channels[churi];
-                console.log("loading 2: true"); //debug
+                
+                $scope.defaultChannel = $scope.channels[churi];                
                 $scope.$apply();
                 $scope.getPosts(channel.uri, channel.title);
 
@@ -623,10 +625,10 @@ angular.module( 'Cimba', [
 
                         // set a default channel for the logged user
                         if (mine) {
+                            $scope.userProfile.channel_size = Object.keys($scope.userProfile.channels).length; //not supported in IE8 and below
                             for (var u in $scope.users[webid].channels) {
                                 if (!$scope.defaultChannel) {
-                                    $scope.defaultChannel = $scope.users[webid].channels[u];
-                                    $scope.userProfile.channel_size = Object.keys($scope.users[$scope.userProfile.webid].channels).length; //not supported in IE8 and below
+                                    $scope.defaultChannel = $scope.userProfile.channels[u];
                                     break;
                                 }
                             }
@@ -658,34 +660,12 @@ angular.module( 'Cimba', [
                         // console.log(webid);
                         delete $scope.loadChannels[webid];
                         $scope.addChannelStyling(webid, $scope.users[webid].channels);
-                        ngProgress.complete();
+                        ngProgress.complete();                        
                         // console.log("ng 4: complete"); //debug
                         $scope.$apply();
-                    }
-
-                    // if we were called by search
-                    // if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
-                    //     console.log("in getChannels, called by search: $scope.users[" + $scope.search.webid + "].channels");
-                    //     for (var y in $scope.users[$scope.search.webid].channels) {
-                    //         console.log("key: " + y); //debug
-                    //         console.log($scope.users[$scope.search.webid].channels[y]); //debug
-                    //     }
-                    //     console.log("in getChannels, called by search: $scope.search.channels");
-                    //     for (var ee in $scope.search.channels) {
-                    //         console.log("key: " + ee); //debug
-                    //         console.log($scope.search.channels[ee]); //debug
-                    //     }
-                    //     $scope.search.channels = $scope.flattenObject($scope.users[$scope.search.webid].channels);
-                    //     //$scope.search.channels = $scope.users[$scope.search.webid].channels;
-                    //     $scope.search.channel_size = $scope.search.channels.length; //not supported in IE8 and below
-                    //     // $scope.drawSearchResults(webid);
-                    //     ngProgress.complete();
-                    //     $scope.searchbtn = 'Search';
-                    //     $scope.search.loading = false;
-                    //     $scope.$apply();
-                    //     //
-                    // }                    
+                    } 
                     if (mine) {
+                        $scope.loading = false;
                         $scope.saveCredentials();
                         $scope.$apply();
                     }

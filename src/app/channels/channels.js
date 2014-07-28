@@ -38,7 +38,9 @@ angular.module('Cimba.channels',[
         var webid = $scope.$parent.userProfile.webid;
         $scope.$parent.getChannels(storage, webid, true, false, false);
     } else {
+        console.log("else executed");
         $scope.$parent.gotstorage = false;
+        $scope.$parent.loading = false;
     }
 
     
