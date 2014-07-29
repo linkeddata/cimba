@@ -6,8 +6,8 @@
         <h2 class="text-center"><i class="fa fa-search"></i> Find channels</h2>
         <form>
             <p class="text-center">Search by name, email or WebID..</p>
-            <div class="input-group">
-                <div class="text-center">
+            <div class="">
+                <div class="text-center col-md-6 col-md-offset-3 col-xs-12">
                     <input type="search" id="search" name="search" class="form-control" ng-model="search.query" ng-change="lookupWebID(search.query)" ng-pattern="/^[A-Za-z0-9_#.:/]*$/">
                  <!--    <button class="btn btn-primary searchbutton" ng-click="getInfo(search.webid); searchbtn='Searching...'" ng-disabled="!search.webid"><i class="fa fa-search"></i> {{searchbtn}}</button> -->
                 </div>

@@ -117,15 +117,27 @@ h2 {
 
 
 .icon-bars-button {
+  -moz-transition: left .3s;
+  -webkit-transition: left .3s;
+  -o-transition: left .3s;
+  transition: left .3s;
   float: left;
-  position: absolute;
+  position: fixed;
   display: inline-block;
   vertical-align:middle;
   height: 40px;
   padding-top: 9px;
-  left: 160px;
+  left: 10px;
   top: 10px;
   background-color: @strong-blue; /*#4285f4!important;;*/
+}
+
+.icon-bars-slide-out {
+  -moz-transition: left .3s;
+  -webkit-transition: left .3s;
+  -o-transition: left .3s;
+  transition: left .3s;
+  left: 160px;
 }
 
 .icon-bar {
