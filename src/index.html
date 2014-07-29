@@ -38,6 +38,11 @@
             </div>
             <img class="pull-right" id="curr-user-img" class="thumb-pic media-object" ng-src="{{userProfile.picture}}">
           </div>
+          <button type="button" ng-class="showMenu?'icon-bars-slide-out':''"ng-click="showMenu=!showMenu" class="btn icon-bars-button" alt="Toggle navigation">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
         </div>
 
       </div>
@@ -61,11 +66,6 @@
 
     
     <div ng-class="showMenu?'slide-out':''" class="sidebar left-menu" style="z-index: 999; position: fixed;">
-      <button type="button" ng-class="showMenu?'icon-bars-slide-out':''"ng-click="showMenu=!showMenu" class="btn icon-bars-button" alt="Toggle navigation">
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
 
       <div ng-show="userProfile.webid" ng-click="showMenu=false" ng-controller="TabController as tabCtrl">
 
