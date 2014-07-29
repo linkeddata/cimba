@@ -1347,6 +1347,10 @@ angular.module( 'Cimba', [
         return flatList;
     };
 
+    $scope.goPath = function (path) {
+        $location.path(path);
+    };
+
 
     $scope.$on("$locationChangeStart", function(event, next, current) {        
         if (!$scope.loggedin) {

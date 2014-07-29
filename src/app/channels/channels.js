@@ -598,6 +598,7 @@ angular.module('Cimba.channels',[
         var webid = $scope.userProfile.webid;
         delete $scope.users[webid].channels[ch];
         delete $scope.channels[ch];
+        delete $scope.userProfile.channels[ch];
         for (var p in $scope.posts) {
             if ($scope.posts[p].channel === ch) {
                 delete $scope.posts[p];
