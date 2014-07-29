@@ -26,12 +26,19 @@
   </head>
   <body class='gray'>
     <div id="site-header" class="navbar navbar-default">
-      <div>
-        <img id="cimba-logo" src="assets/cimba-logo-name.png">
-      </div>
-      <div ng-show="loggedin" id="current-user-info">
-        <div id="curr-user-name">{{userProfile.name}}</div>
-        <img id="curr-user-img" class="thumb-pic media-object" ng-src="{{userProfile.picture}}">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-4 col-md-offset-4 col-xs-4 col-xs-offset-4">
+            <img class="hidden-xs" id="cimba-logo" src="assets/cimba-logo-name.png">
+          </div>
+          <div ng-show="loggedin" class="pull-right" id="current-user-info">
+            <div class="" id="curr-user-name"> {{userProfile.name}}<br>
+              <img class="visible-xs" id="cimba-logo-mini" src="assets/cimba-logo-name.png">
+            </div>
+            <img class="pull-right" id="curr-user-img" class="thumb-pic media-object" ng-src="{{userProfile.picture}}">
+          </div>
+        </div>
+
       </div>
 
     </div>
