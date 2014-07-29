@@ -24,8 +24,14 @@ angular.module('Cimba.channels.view', ['ui.router'])
 
 	var webid = $scope.$parent.userProfile.webid;
 	$scope.chanUri = "https://" + $scope.path;
-
-	$scope.$parent.getChannel($scope.chanUri);
+	if($scope.channels[$scope.chanUri]) {
+		console.log("found");
+		var ch = $scope.channels[$scope.chanUri];
+		$scope.$parent.getPosts(ch.uri, ch.title);
+	} else {
+		console.log("not found");
+		$scope.$parent.getChannel($scope.chanUri);
+	}
 
 	// //manual setChannel
  //    if ($scope.users[webid].channels && $scope.users[webid].channels[$scope.chanUri]) {

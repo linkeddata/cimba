@@ -9,7 +9,7 @@
     <div class="panel-body">
         <div class="panel-body-textmail center">
           <div id="spinner" ng-hide="users[userProfile.webid].name"></div>
-           <h3 class="channelsHeader" ng-show="channels[chanUri]"><b ng-show="channels[chanUri].owner == userProfile.webid">Write new post to</b> {{channels[chanUri].title}}</h3>
+           <h3 class="channelsHeader" ng-show="channels[chanUri]"><b ng-show="channels[chanUri].owner == userProfile.webid">Write new post to</b><b ng-show="channels[chanUri].owner!=userProfile.webid">Now Viewing</b> {{channels[chanUri].title}}<b ng-show="channels[chanUri].owner!=userProfile.webid"> by {{users[channels[chanUri].owner].name}}</b></h3>
           <form ng-hide="channels[chanUri].owner != userProfile.webid">                               
               <textarea name="message" ng-model="postbody" class="form-control message" placeholder="Type your message here.." required></textarea>
               <div class="pull-left">
