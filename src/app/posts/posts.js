@@ -18,6 +18,30 @@ angular.module('Cimba.posts',[
 })
 
 .controller("PostsController", function PostsController( $scope, $http, $location, $sce ) {
+	//puts the post information that is saved in local storage into the text box
+	if(sessionStorage.getItem($scope.$parent.postData[$scope.currentUrl])&&sessionStorage.getItem($scope.$parent.postData[$scope.currentUrl])!='undefined'){
+        $scope.postbody = sessionStorage.getItem($scope.$parent.postData[$scope.currentUrl]);
+    }else{
+        $scope.postbody = '';
+    }
+    $scope.currentUrl = $location.absUrl();
+    console.log(sessionStorage.getItem($scope.$parent.postData[$scope.currentUrl]));
+    
+    //save what is currently in the new post text box to local storage
+    $scope.savePostData=function(postBody){
+        var currentPost = postBody;
+        sessionStorage.setItem($scope.$parent.postData[$scope.currentUrl], currentPost, $scope.currentUrl);
+        console.log("This is supposed to save the post data in local storage");
+        console.log(sessionStorage.getItem($scope.$parent.postData[$scope.currentUrl]));
+    };
+
+    //clears post data from local storage
+    $scope.clearPostData=function(){
+        sessionStorage.removeItem($scope.$parent.postData[$scope.currentUrl]);
+        console.log("Item removed");
+    };
+
+
 	var webid = $scope.$parent.userProfile.webid;
 	$scope.audience = {};
 	$scope.audience.icon = "fa-globe"; //default value
