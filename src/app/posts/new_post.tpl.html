@@ -13,7 +13,7 @@
           <h3 class="bold" ng-show="users[userProfile.webid].name && !users[userProfile.webid].chspace">Hello {{users[userProfile.webid].name}}!</h3>
           <h3 class="bold" ng-show="users[userProfile.webid].chspace">What's new<span ng-show="users[userProfile.webid].name != ''">, {{users[userProfile.webid].name}}</span>?</h3>
           <form ng-hide="userProfile.webid && !users[userProfile.webid].chspace">                               
-              <textarea name="message" ng-model="postbody" class="form-control message" placeholder="Type your message here.." required></textarea>
+              <textarea name="message" ng-model="postbody" class="form-control message" placeholder="Type your message here.." required style="resize: none"></textarea>
               <div class="pull-left">
                 <div class="btn-group">
                     <button id="audience" class="btn btn-primary" disabled><i class="fa {{audience.icon}} fa-2x white"></i></button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop" rel="tooltip" data-placement="top" title="Audience"><i class="fa fa-chevron-down fa-2x"></i></small></button>

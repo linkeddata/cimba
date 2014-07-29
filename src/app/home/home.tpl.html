@@ -48,7 +48,7 @@
   </div>
 
 <!-- no posts found -->
-  <div id="setup" class="container" ng-show="users[userProfile.webid].gotposts == false && !loading">
+  <div id="setup" class="container" ng-show="users[userProfile.webid].chspace && users[userProfile.webid].gotposts == false && !loading">
       <div class="row">
           <div class="col-md-12">
               <div class="panel panel-default text-center">
@@ -95,21 +95,14 @@
   <div ng-show="newMBModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content popup">
-            <div class="modal-header">                 
                 <button type="button" class="close" ng-click="hidePopup()" aria-hidden="true">x</button>              
                 <h3 class="text-center">Create a new microblog workspace</h3>
-            </div>
-            <div class="modal-body">
-                <form class="m10">
+                <form>
                     <input type="text" id="mburi" name="mburi" ng-model="mburi" class="form-control" placeholder="mb, blog, etc.." required ng-pattern="/^[A-Za-z0-9_ ]*$/">
                 </form>
-            </div>
-            <div class="modal-footer">
-                <div class="col-md-12">
-                    <button class="btn btn-primary" ng-click="newMB(mburi, false)" ng-disabled="!mburi">{{createbtn}}</button>
-                    <button class="btn btn-info btn-sep-right" ng-click="hidePopup()" aria-hidden="true">Close</button>
-                </div>  
-            </div>
+                <p style="margin: 10px 0px 10px">
+                  <button class="btn btn-primary" style="float: right" ng-click="newMB(mburi, false)" ng-disabled="!mburi">{{createbtn}}</button>
+                </p>
         </div>
     </div>
   </div>
@@ -126,7 +119,7 @@
     <div>
         <form >
           <p>The name you provide will be used to create a new channel inside your microblog.</p>
-          <p><input type="text" ng-model="channelname" placeholder="Name (Main, Work, etc.).." required ng-pattern="/^[A-Za-z0-9_ ]*$/"></input></p>
+          <p class="center"><input type="text" class="form-control add-channel-input" ng-model="channelname" placeholder="Name (Main, Work, etc.).." required ng-pattern="/^[A-Za-z0-9_ ]*$/"></input></p>
           <div id="modal-channel-group" class="btn-group-horizontal"> 
             <div id="audience-group" class="btn-group">
                 <button id="audience" class="btn btn-primary" disabled>
@@ -160,7 +153,7 @@
                     </li>
                 </ul>
             </div>          
-              <button class="btn btn-primary" ng-disabled="!channelname" ng-click="newChannel(channelname, true)">
+              <button class="btn btn-primary" ng-disabled="!channelname" ng-click="newChannel(channelname, false)">
                 Create
               </button>            
           </div>                

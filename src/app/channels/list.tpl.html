@@ -101,11 +101,11 @@
 					    <div class="modal-dialog">
 					        <div class="modal-content popup">
 					                <button type="button" class="close" ng-click="hidePopup()" aria-hidden="true">x</button>              
-					                <h3 class="text-center">Are you sure you want to permanently delete this channel?</h3>
+					                <h3 class="text-center">Are you sure you want to delete this channel permanently?</h3>
 					                * Note: deleting this channel will also delete all posts in the channel permanently.
 					                <p>
 						                <div class="col-md-12">
-						                    <button class="btn btn-primary" ng-click="hidePopup(); destroyChannel(channel.uri)" style="float:right">Confirm</button>
+						                    <button class="btn btn-primary" ng-click="hidePopup(); deleteChannel(channel.uri)" style="float:right">Confirm</button>
 						                </div>
 					            	</p>
 					        </div>
