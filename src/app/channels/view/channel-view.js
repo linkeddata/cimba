@@ -28,12 +28,13 @@ angular.module('Cimba.channels.view', ['ui.router'])
 
 	var webid = $scope.$parent.userProfile.webid;
 	$scope.chanUri = "https://" + $scope.path;
-	if(!$scope.channels[$scope.chanUri])
-	{
-		$scope.$parent.getChannel($scope.chanUri);
-	}else{
+	if($scope.channels[$scope.chanUri]) {
+		console.log("found");
 		var ch = $scope.channels[$scope.chanUri];
-		$scope.getPost(ch.uri, ch.title);
+		$scope.$parent.getPosts(ch.uri, ch.title);
+	} else {
+		console.log("not found");
+		$scope.$parent.getChannel($scope.chanUri);
 	}
 
 	$scope.savePostData=function(postBody){
