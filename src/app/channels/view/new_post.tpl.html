@@ -11,7 +11,8 @@
           <div id="spinner" ng-hide="users[userProfile.webid].name"></div>
            <h3 class="channelsHeader" ng-show="channels[chanUri]"><b ng-show="channels[chanUri].owner == userProfile.webid">Write new post to</b><b ng-show="channels[chanUri].owner!=userProfile.webid"></b> {{channels[chanUri].title}}<b ng-show="channels[chanUri].owner!=userProfile.webid"> by {{users[channels[chanUri].owner].name}}</b></h3>
           <form ng-hide="channels[chanUri].owner != userProfile.webid">                               
-              <textarea name="message" ng-model="postbody" class="form-control message" placeholder="Type your message here.." required style="resize: none"></textarea>
+              <textarea name="message" ng-model="postbody" class="form-control message" ng-keydown="savePostData(postbody)" placeholder="Type your message here.." value={{savedPost}} required></textarea>
+
               <div class="pull-left">
                 <div class="btn-group">
                     <button id="audience" class="btn btn-primary" disabled><i class="fa {{audience.icon}} fa-2x white"></i></button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop" rel="tooltip" data-placement="top" title="Audience"><i class="fa fa-chevron-down fa-2x"></i></small></button>
@@ -31,7 +32,7 @@
                 </div>
               </div>
               <div class="pull-right">
-                  <button class="btn btn-primary pull-right" id="post-btn" ng-click="newPost()" ng-disabled="publishing || !postbody">
+                  <button class="btn btn-primary pull-right" id="post-btn" ng-click="newPost(); clearPostData()" ng-disabled="publishing || !postbody">
                     <div ng-show="!publishing">Post</div>
                     <div ng-show="publishing" class="dots"></div>
                   </button>
