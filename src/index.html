@@ -68,10 +68,10 @@
 
       <div ng-show="userProfile.webid" ng-click="showMenu=false" ng-controller="TabController as tabCtrl">
 
-        <div class="menu-item avatar-frame">
+        <div class="menu-item avatar-frame" style="margin: auto">
           <a href="{{userProfile.uri}}" ui-sref="profile" alt="{{userProfile.name}}" ng-click="tabCtrl.setTab(1); tabCtrl.clearbadge(0);">
             <!-- <span class="badge">{{tabCtrl.badges[0]}}</span> -->
-            <img ng-src="{{userProfile.picture}}" class="profile-img" alt="{{userProfile.name}}" title="{{userProfile.name}}" />
+            <img style="margin: auto" ng-src="{{userProfile.picture}}" class="profile-img" alt="{{userProfile.name}}" title="{{userProfile.name}}" />
           </a>
         </div>
 

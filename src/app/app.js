@@ -752,9 +752,12 @@ angular.module( 'Cimba', [
             if (posts.length > 0) {
 
                 for (var p in posts) {
-
+                    console.log("posts[p]"); //debug
+                    console.log(posts[p]); //debug
                     var uri = posts[p]['subject'];
+                    console.log("uri: " + uri); //debug
                     var useraccount = g.any(uri, SIOC('has_creator'));
+                    console.log("useraccount: " + useraccount); //debug
                     var post = g.statementsMatching(posts[p]['subject']);
                     var body = ''; //default 
                     var username = ''; //default
