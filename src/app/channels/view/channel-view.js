@@ -17,6 +17,10 @@ angular.module('Cimba.channels.view', ['ui.router'])
 .controller('ChannelViewCtrl', function ChannelViewController($scope, $stateParams, $location, $http) {	
 	//console.log("channel view ctrl"); //debug
 	$scope.path = $stateParams.path;
+	$scope.currentUrl = $location.absUrl();
+	if(sessionStorage.getItem($scope.$parent.postData[$scope.currentUrl])){
+		postbody = sessionStorage.getItem($scope.$parent.postData[$scope.currentUrl]);
+	}
 
 	$scope.safeUri = function (uri) {
 		return uri.replace(/^https?:\/\//,'');
@@ -28,9 +32,19 @@ angular.module('Cimba.channels.view', ['ui.router'])
 	{
 		$scope.$parent.getChannel($scope.chanUri);
 	}else{
-		var ch = $scope.channels[chanUri];
+		var ch = $scope.channels[$scope.chanUri];
 		$scope.getPost(ch.uri, ch.title);
 	}
+
+	$scope.savePostData=function(postBody){
+		var currentPost = postBody;
+		sessionStorage.setItem($scope.$parent.postData[$scope.currentUrl], JSON.stringify(currentPost));
+		console.log("This is supposed to save the post data in local storage");
+		console.log(sessionStorage.getItem($scope.$parent.postData[$scope.currentUrl]));
+	};
+	$scope.clearPostData=function(){
+		sessionStorage.setItem();
+	};
 
 	// //manual setChannel
  //    if ($scope.users[webid].channels && $scope.users[webid].channels[$scope.chanUri]) {
