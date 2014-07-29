@@ -335,6 +335,7 @@ h2 {
 
 .sub-header {
   background-color: @light-blue!important;
+  position: relative;
 }
 
 .main-header {
@@ -348,15 +349,12 @@ h2 {
  .popup{
   position: fixed;
   top: 25%;
-  left: 25%;
-  min-width: 50%;
+  left: 0;
+  width: 100%;
   min-height: 50%;
   padding: 15px;
-  background-color: #FFFFFF;
   z-index: 1010;
   overflow:auto;
-  border: 15px;
-  border-radius: 15px;
 }
 
 .overlay {
@@ -673,11 +671,6 @@ iframe {border:0px;}
   break-inside: avoid-column;
 }
 
-.container {
-  min-width: 400px;
-}
-
-
 #site-header {
   text-align: center;
   position: fixed;
@@ -700,6 +693,7 @@ iframe {border:0px;}
 
 #cimba-logo-mini {
   height: 20px;
+  margin-left: 0px !important;
 }
 
 #curr-user-img {
@@ -707,12 +701,16 @@ iframe {border:0px;}
   height: 45px;
 }
 
+.curr-user-logo {
+  text-align: center;
+}
+
 #curr-user-name {
-  float: left;
   font-size: 1.5em;
   font-style: bold;
   color: @strong-blue;
   margin-right: 5px;
+  text-align: right;
 }
 
 #cimba-logo {

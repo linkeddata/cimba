@@ -1,12 +1,9 @@
 @import '../../less/variables.less';
 
 #new-channel-button {
-	position: absolute;
-	margin: 10px;
-	top: 22px;
-	right: 20px;
+	position: relaive;
+	margin-top: 10px;
 	verticle-align: middle;
-	margin: 10px;
 	border-radius: 5px;
 	border: none;
 	background-color: @strong-blue !important;
@@ -14,17 +11,19 @@
 }
 
 #find-channel-button {
-	position: absolute;
-	margin: 10px;
-	top: 22px;
-	right: 20px;
+	position: relative;
+	margin-top: 10px;
 	verticle-align: middle;
-	margin: 10px;
 	border-radius: 5px;
 	border: none;
 	background-color: @strong-blue !important;
 	text-align: center;
 	color: #fff;
+}
+
+
+.chan-header-container {
+	vertical-align: middle;
 }
 
 span.fa-icon {
@@ -36,10 +35,12 @@ span.fa-icon {
 }
 
 #channel-modal {
-	border: 1px solid #ddd;
 	overflow: auto;
 	height: 300px;
 	min-height: 300px;
+	background: #fff;
+	border-radius: 15px;
+	padding: 10px;
 }
 
 
@@ -83,6 +84,7 @@ span.fa-icon {
 .panel-header-body {
 	margin: 10px;
 	text-align: left;
+	vertical-align: middle;
 }
 
 .channelsHeader {
@@ -146,10 +148,6 @@ span.fa-icon {
 	color: #fff;
 }
 
-.dropdown.post-options-dropdown {
-	position: absolute;
-	right: 25px;
-}
 
 #post-options {
 	background: transparent;

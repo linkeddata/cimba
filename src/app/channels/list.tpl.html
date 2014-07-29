@@ -6,57 +6,61 @@
 	</a> -->
 	<!-- <div>  -->
 	<!-- </div> -->
-    <div id="channel-modal" ng-show="newChannelModal" class="popup">
-    	<div class="pull-right">
-    		<button type="button" class="close" ng-click="hidePopup()">X</button>
-    	</div>
-    	<div>
-         	<h2 class="text-center">Create a new channel</h2>
-      	</div>
-      	<div>
-          	<form ng-controller="ChannelsCtrl">
-	          <p>The name you provide will be used to create a new channel inside your microblog.</p>
-	          <p class="center"><input type="text" class="form-control add-channel-input" ng-model="channelname" placeholder="Name (Main, Work, etc.).." required ng-pattern="/^[A-Za-z0-9_ ]*$/"></input></p>
-	          <div id="modal-channel-group" class="btn-group-horizontal"> 
-		          <div id="audience-group" class="btn-group">
-		              <button id="audience" class="btn btn-primary" disabled>
-		              	<i class="fa {{audience.icon}} fa-2x white"></i>
-		              </button>
-		              <button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> 
-		              	<small class="drop" rel="tooltip" data-placement="top" title="Audience">
-		              		<i class="fa fa-chevron-down fa-2x"></i>
-		              	</small>
-		              </button>
-		              <ul class="dropdown-menu audience-dropdown" role="menu" aria-labelledby="audience">
-		                  <li ng-click="setAudience('public')">
-		                  	<a href="#/channels">
-		                  		<i id="public" class="fa fa-globe fa-2x default-color"></i> 
-		                  		Public
-		                  	</a>
-		                  </li>
-		                  <li ng-click="setAudience('private')">
-		                  	<a href="#/channels">
-		                  		&nbsp;
-		                  		<i id="private" class="fa fa-lock fa-2x default-color"></i>
-		                  		&nbsp; Private
-		                  	</a>
-		                  </li>
-		                  <li ng-click="setAudience('friends')">
-		                  	<a href="#/channels">
-		                  		&nbsp;
-		                  		<i id="friends" class="fa fa-users fa-2x default-color"></i>
-		                  		&nbsp; Friends
-		                  	</a>
-		                  </li>
-		              </ul>
-		          </div>		      
-	              <button class="btn btn-primary" ng-disabled="!channelname" ng-click="newChannel(channelname, true)">
-	              	{{createbtn}}
-	              </button>		         
-	          </div>                
-          	</form>
-      	</div>
-    </div>
+	<div class="container popup" ng-show="newChannelModal">
+		<div class="row">
+    	<div id="channel-modal" class="col-md-6 col-md-offset-3 col-sm-6 col-sm-offset-3 col-xs-12">
+	    	<div class="pull-right">
+	    		<button type="button" class="close" ng-click="hidePopup()">x</button>
+	    	</div>
+	    	<div>
+	         	<h2 class="text-center">Create a new channel</h2>
+	      	</div>
+	      	<div>
+	          	<form ng-controller="ChannelsCtrl">
+		          <p>The name you provide will be used to create a new channel inside your microblog.</p>
+		          <p class="center"><input type="text" class="form-control add-channel-input" ng-model="channelname" placeholder="Name (Main, Work, etc.).." required ng-pattern="/^[A-Za-z0-9_ ]*$/"></input></p>
+		          <div id="modal-channel-group" class="btn-group-horizontal"> 
+			          <div id="audience-group" class="btn-group">
+			              <button id="audience" class="btn btn-primary" disabled>
+			              	<i class="fa {{audience.icon}} fa-2x white"></i>
+			              </button>
+			              <button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> 
+			              	<small class="drop" rel="tooltip" data-placement="top" title="Audience">
+			              		<i class="fa fa-chevron-down fa-2x"></i>
+			              	</small>
+			              </button>
+			              <ul class="dropdown-menu audience-dropdown" role="menu" aria-labelledby="audience">
+			                  <li ng-click="setAudience('public')">
+			                  	<a href="#/channels">
+			                  		<i id="public" class="fa fa-globe fa-2x default-color"></i> 
+			                  		Public
+			                  	</a>
+			                  </li>
+			                  <li ng-click="setAudience('private')">
+			                  	<a href="#/channels">
+			                  		&nbsp;
+			                  		<i id="private" class="fa fa-lock fa-2x default-color"></i>
+			                  		&nbsp; Private
+			                  	</a>
+			                  </li>
+			                  <li ng-click="setAudience('friends')">
+			                  	<a href="#/channels">
+			                  		&nbsp;
+			                  		<i id="friends" class="fa fa-users fa-2x default-color"></i>
+			                  		&nbsp; Friends
+			                  	</a>
+			                  </li>
+			              </ul>
+			          </div>		      
+		              <button class="btn btn-primary" ng-disabled="!channelname" ng-click="newChannel(channelname, true)">
+		              	{{createbtn}}
+		              </button>		         
+		          </div>                
+	          	</form>
+	          </div>
+	      	</div>
+	    </div>
+	</div>
 
     <div class="container channel-list">
     	<div class="row">
@@ -65,10 +69,13 @@
 		    		<div class="panel-heading main-header">
 		    		</div>
 		    		<div class="panel-body" >
-		    			
-		    				<h2 class="bold panel-header-body">My Channels</h2>
-		    				<button class='btn channel-menu-btn btn-primary ' ng-click="showPopup('new')" id="new-channel-button" title="New Channel"><span class="fa fa-plus fa-2x fa-icon" ></span></button> 
-		    		
+		    			<div class="row chan-header-container">
+		    				<div class="col-md-11 col-xs-8 ">
+		    				<h2 class="panel-header-body bold pull-left">My Channels</h2></div>
+		    				<div class="col-md-1 col-xs-4">
+		    				<button class='btn channel-menu-btn btn-primary pull-right' ng-click="showPopup('new')" id="new-channel-button" title="New Channel"><span class="fa fa-plus fa-2x fa-icon" ></span></button>
+		    				</div> 
+		    			</div>
 		    		</div>
 		    	</div>
 		    	<div ng-show="loading">
@@ -112,9 +119,12 @@
 		    		<div class="panel-heading main-header">
 		    		</div>
 		    		<div class="panel-body" >
-		    			<div align="center">
-		    				<h2 class="panel-header-body bold">Subscribed Channels</h2>
-		    				<button class='btn channel-menu-btn btn-primary' ng-click="goPath('/find')" id="find-channel-button" title="Find Channel"><span class="fa fa-search fa-2x fa-icon"></span></button> 
+		    			<div class="row chan-header-container">
+		    				<div class="col-md-11 col-xs-8 ">
+		    				<h2 class="panel-header-body bold pull-left">Subscribed Channels</h2></div>
+		    				<div class="col-md-1 col-xs-4">
+		    				<button class='btn channel-menu-btn btn-primary pull-right' ng-click="goPath('/find')" id="find-channel-button" title="Find Channel"><span class="fa fa-search fa-2x fa-icon"></span></button>
+		    				</div>    
 		    			</div>
 		    		</div>
 		    	</div>

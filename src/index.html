@@ -32,7 +32,8 @@
             <img class="hidden-xs" id="cimba-logo" src="assets/cimba-logo-name.png">
           </div>
           <div ng-show="loggedin" class="pull-right" id="current-user-info">
-            <div class="" id="curr-user-name"> {{userProfile.name}}<br>
+            <div class="curr-user-logo pull-left">
+              <div id="curr-user-name"> {{userProfile.name}}</div>
               <img class="visible-xs" id="cimba-logo-mini" src="assets/cimba-logo-name.png">
             </div>
             <img class="pull-right" id="curr-user-img" class="thumb-pic media-object" ng-src="{{userProfile.picture}}">
