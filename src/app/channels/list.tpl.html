@@ -1,6 +1,6 @@
 
 <div ng-controller="ChannelsCtrl">
-	<button class='btn channel-menu-btn btn-primary pull-right' ng-click="showPopup()" id="new-channel-button" title="New Channel"><span class="fa fa-plus fa-2x" id="plus-img"></span></button> 
+	
 <!-- 	<a href ui-sref="manage">
 		<button class='fa fa-wrench channel-menu-btn btn-primary pull-right' title='Manage Channels' disabled></button>
 	</a> -->
@@ -10,12 +10,11 @@
     	<div class="pull-right">
     		<button type="button" class="close" ng-click="hidePopup()">X</button>
     	</div>
-      <div>
-          
-          <h2 class="text-center">Create a new channel</h2>
-      </div>
-      <div>
-          <form ng-controller="ChannelsCtrl">
+    	<div>
+         	<h2 class="text-center">Create a new channel</h2>
+      	</div>
+      	<div>
+          	<form ng-controller="ChannelsCtrl">
 	          <p>The name you provide will be used to create a new channel inside your microblog.</p>
 	          <p class="center"><input type="text" class="form-control add-channel-input" ng-model="channelname" placeholder="Name (Main, Work, etc.).." required ng-pattern="/^[A-Za-z0-9_ ]*$/"></input></p>
 	          <div id="modal-channel-group" class="btn-group-horizontal"> 
@@ -55,33 +54,35 @@
 	              	{{createbtn}}
 	              </button>		         
 	          </div>                
-          </form>
-      </div>
+          	</form>
+      	</div>
     </div>
 
     <div class="container channel-list">
-<!--     	<div class="panel panel-default">
-    		<div class="panel-heading main-header"></div>
-    		<div class="panel-body">
-    			<div class="center">Channels</div>
-    		</div>
-    	</div> -->
     	<div class="row">
 		    <div class="col-md-6" align="center">
 		    	<div class="panel panel-default channel-list-item">
 		    		<div class="panel-heading main-header">
 		    		</div>
 		    		<div class="panel-body" >
-		    			<div align="center">
-		    				<h3 class="bold panel-header-body">My Channels</h3>
-		    			</div>
+		    			
+		    				<h2 class="bold panel-header-body">My Channels</h2>
+		    				<button class='btn channel-menu-btn btn-primary ' ng-click="showPopup('new')" id="new-channel-button" title="New Channel"><span class="fa fa-plus fa-2x fa-icon" ></span></button> 
+		    		
 		    		</div>
 		    	</div>
-		        <div ng-repeat="channel in users[userProfile.webid].channels" class="channel-list-item panel panel-default">
+		    	<div ng-show="loading">
+	                <!-- <div class="spinner"> -->
+	                <div class="clear-40">
+	                  <div class="circle circle-large"></div><div class="circle1 circle1-large"></div>
+	                </div>
+	                <!-- <div class="gear"></div> -->
+	            </div>
+		        <div ng-repeat="channel in userProfile.channels" class="channel-list-item panel panel-default">
 			        <div class="chan-panel-heading panel-heading sub-header">
 			        	<div class="pull-left"><a ui-sref="view({path: safeUri(channel.uri)})" class="link-white bold">{{channel.title}}</a>
 			        	</div>
-		                <div class="pull-right"><button type="button" class="close" ng-click="deleteChannel(channel.uri)">x</button></div>
+		                <div class="pull-right"><button type="button" class="close" ng-click="showPopup('del')">x</button></div>
 			        	<br style="line-height:25%"/>
 				    </div>
 				    <div class="panel-body">
@@ -89,6 +90,20 @@
 				            By: <a href="{{channel.owner}}"><i> {{users[channel.owner].name}}</i></a>
 				        </div>
 				    </div>
+					<div ng-show="deleteChannelStatus" tabindex="-1" role="dialog" aria-hidden="true">
+					    <div class="modal-dialog">
+					        <div class="modal-content popup">
+					                <button type="button" class="close" ng-click="hidePopup()" aria-hidden="true">x</button>              
+					                <h3 class="text-center">Are you sure you want to permanently delete this channel?</h3>
+					                * Note: deleting this channel will also delete all posts in the channel permanently.
+					                <p>
+						                <div class="col-md-12">
+						                    <button class="btn btn-primary" ng-click="hidePopup(); destroyChannel(channel.uri)" style="float:right">Confirm</button>
+						                </div>
+					            	</p>
+					        </div>
+					    </div>
+					</div>
 			    </div>
 		    </div>
 
@@ -98,7 +113,8 @@
 		    		</div>
 		    		<div class="panel-body" >
 		    			<div align="center">
-		    				<h3 class="panel-header-body bold">Subscribed Channels</h3>
+		    				<h2 class="panel-header-body bold">Subscribed Channels</h2>
+		    				<button class='btn channel-menu-btn btn-primary' ng-click="goPath('/find')" id="find-channel-button" title="Find Channel"><span class="fa fa-search fa-2x fa-icon"></span></button> 
 		    			</div>
 		    		</div>
 		    	</div>
@@ -108,7 +124,7 @@
 			        	</div>
 
 			        	<div class="pull-right">
-			        		<button type="button" class="close" title="Unsubscribe" ng-click="channelTog(channel, channel.owner)">x</button>
+			        		<button type="button" class="close" title="Unsubscribe" ng-click="channelTog(channel)">x</button>
 			        	</div>
 		                
 			        	<br style="line-height:25%"/>

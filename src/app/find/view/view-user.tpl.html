@@ -3,12 +3,24 @@
 	<div class="row">
 		<div class="col-md-12">
 			<div class="panel panel-default">
-			    <div class="panel-heading main-header"> </div>
+			    <div class="panel-heading main-header">
+			    	<div class="pull-left">
+			            <a id="pic" class="thumbnail pull-right" href="{{webid}}">
+			              <img class="media-object" ng-src="{{users[webid].picture}}" rel="tooltip" data-placement="top" title="{{users[webid].name}}">
+			            </a>
+        			</div>
+			    </div>
 			    <div class="panel-body">
 			        <h2 class="text-center" ng-show="users[webid].name">Channels for {{users[webid].name}}</h2>
 			    </div>
 			</div>
-
+			<div ng-show="loading">
+                <!-- <div class="spinner"> -->
+                <div class="clear-40">
+                  <div class="circle circle-large"></div><div class="circle1 circle1-large"></div>
+                </div>
+                <!-- <div class="gear"></div> -->
+            </div>
 			<div class="two-col-list">
 				<div class="panel panel-default" ng-repeat="ch in users[webid].channels">
 					<div class="panel-heading chan-panel-heading sub-header">

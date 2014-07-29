@@ -9,10 +9,9 @@
     <div class="panel-body">
         <div class="panel-body-textmail center">
           <div id="spinner" ng-hide="users[userProfile.webid].name"></div>
-           <h3 class="channelsHeader" ng-show="channels[chanUri]"><b ng-show="channels[chanUri].owner == userProfile.webid">Write new post to</b><b ng-show="channels[chanUri].owner!=userProfile.webid">Now Viewing</b> {{channels[chanUri].title}}<b ng-show="channels[chanUri].owner!=userProfile.webid"> by {{users[channels[chanUri].owner].name}}</b></h3>
-          <form ng-hide="channels[chanUri].owner != userProfile.webid"> 
-              <script type="text/javascript">postbody='apple'</script>                           
-              <textarea name="message" ng-model="postbody" class="form-control message" ng-keydown="savePostData(postbody)" placeholder="Type your message here.." required></textarea>
+           <h3 class="channelsHeader" ng-show="channels[chanUri]"><b ng-show="channels[chanUri].owner == userProfile.webid">Write new post to</b><b ng-show="channels[chanUri].owner!=userProfile.webid"></b> {{channels[chanUri].title}}<b ng-show="channels[chanUri].owner!=userProfile.webid"> by {{users[channels[chanUri].owner].name}}</b></h3>
+          <form ng-hide="channels[chanUri].owner != userProfile.webid">                               
+              <textarea name="message" ng-model="postbody" class="form-control message" placeholder="Type your message here.." required></textarea>
               <div class="pull-left">
                 <div class="btn-group">
                     <button id="audience" class="btn btn-primary" disabled><i class="fa {{audience.icon}} fa-2x white"></i></button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop" rel="tooltip" data-placement="top" title="Audience"><i class="fa fa-chevron-down fa-2x"></i></small></button>

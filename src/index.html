@@ -40,15 +40,16 @@
       <div class="container">
         <div class="row">
           <div class="col-md-12">
-            <!-- <button class="btn btn-primary" ng-click="addMessage()">Show</button> -->
-            <div ng-repeat="notice in notices" class="error-message-container">
-              <p>{{notice.text}}</p>
+            <div ng-repeat="notice in notices" class="error-message-container" ng-click="cancelTimeout(notice.timeout)">
+              <button type="button" class="close notice-close" ng-click="closeNotice(notice.id)">x</button>
+              <p class="notice-text" ng-bind-html="notice.text | makeLinks"></p>
             </div>
+            <!-- <button class="btn btn-primary" ng-click="addMessage()">Show</button> -->
           </div>
         </div>
       </div>
     </div>
-    
+
 
     
     <div ng-class="showMenu?'slide-out':''" class="sidebar left-menu" style="z-index: 999; position: fixed;">
@@ -125,7 +126,7 @@
         -->
 
         <div class="">
-          <a href ng-click="tabCtrl.setTab(0); logout()">
+          <a href ng-click="tabCtrl.setTab(0); hideMenu(); logout()">
             <div class="logout menu-item">
               <i class="fa fa-power-off fa-3x orange"></i>
               <p>Logout</p>
@@ -135,7 +136,7 @@
       </div>
 
       <div ng-hide="userProfile.webid" ng-click="showMenu=false">
-        <a href ng-click="login()">
+        <a href ng-click="hideMenu(); login()">
           <div class="menu-item">
             <i class="fa fa-power-off fa-3x"></i>
             <p>Login</p>
