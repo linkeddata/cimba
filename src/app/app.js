@@ -1130,6 +1130,7 @@ angular.module( 'Cimba', [
                                     // console.log("im subscribed to a channel: " + chann); //debug
                                     // console.log($scope.users[_user.webid].channels[chann]); //debug
                                     $scope.userProfile['subscribedChannels'][chann] = _user.channels[chann];
+                                    $scope.channels[chann] = _user.channels[chann];
                                     // $scope.users[$scope.userProfile.webid] = $scope.userProfile;
 
                                 }
