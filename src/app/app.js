@@ -501,11 +501,18 @@ angular.module( 'Cimba', [
         // add CORS proxy
         $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
 
+        var test = {}; //debug
+        console.log("at getChannels"); //debug
+        console.log($scope.users[webid].channels); //debug
+        console.log(test); //debug
+        console.log("done log"); //debug
+
         // fetch user data: SIOC:Space -> SIOC:Container -> SIOC:Post
         f.nowOrWhenFetched(uri,undefined,function(){
             // find all SIOC:Container
             var ws = g.statementsMatching(undefined, RDF('type'), SIOC('Space'));
-
+            console.log("ws"); //debug
+            console.log(ws); //debug
             if (ws.length > 0) {
                 /*
                 console.log("at getChannels, webid is " + webid); //debug
@@ -537,6 +544,8 @@ angular.module( 'Cimba', [
 
                 var func = function() {
                     var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));
+                    console.log("chs"); //debug
+                    console.log(chs); //debug
                     // console.log("got Channels!"); //debug
 
                     // console.log("pre: $scope.users[" + webid + "] has channels"); //debug
@@ -568,7 +577,7 @@ angular.module( 'Cimba', [
                             if (title) {
                                 channel['title'] = title;
                             } else {
-                                channel['title'] = channeluri;
+                                channel['title'] = channel.uri;
                             }
 
                             channel["owner"] = webid;
@@ -719,6 +728,7 @@ angular.module( 'Cimba', [
     };
 
     $scope.getPosts = function(channeluri, title) {
+        console.log("getPosts, channeluri: " + channeluri); //debug
         var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
         var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
@@ -726,7 +736,6 @@ angular.module( 'Cimba', [
         var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
 
         var g = $rdf.graph();
-
         var f = $rdf.fetcher(g, TIMEOUT);
 
         // add CORS proxy
@@ -736,6 +745,8 @@ angular.module( 'Cimba', [
         f.nowOrWhenFetched(channeluri+'*', undefined, function(){
 
             var posts = g.statementsMatching(undefined, RDF('type'), SIOC('Post'));
+            console.log("posts"); //debug
+            console.log(posts); //debug
             // console.log("got Posts!"); //debug
 
             if (posts.length > 0) {
