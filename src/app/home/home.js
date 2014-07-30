@@ -37,7 +37,7 @@ angular.module( 'Cimba.home', [
 /**
  * And of course we define a controller for our route.
  */
-.controller( 'HomeCtrl', function HomeController( $scope, $http, $location, $sce) {
+.controller( 'HomeCtrl', function HomeController( $scope, $http, $location, $sce, $rootScope) {
     //defaults for creating a new channel
     $scope.audience = {};
     $scope.audience.range = 'public';
@@ -59,7 +59,7 @@ angular.module( 'Cimba.home', [
     $scope.showPopup = function (p) {
         console.log("ex show");
         if (p == "ch") {
-            $scope.newChannelModal = true;
+            $scope.$parent.newChannelModal = true;
         }
         else if (p == "mb") {
             $scope.newMBModal = true;
@@ -89,6 +89,175 @@ angular.module( 'Cimba.home', [
     });
 
     $scope.createbtn = 'Create'; //create button for newMBModal
+
+    $scope.newChannel = function(channelname, redirect){
+        console.log(channelname);
+        $scope.loading = true;
+        $scope.createbtn = 'Creating...';
+        var title = 'ch';
+        var churi = 'ch';
+        
+        var chan = {};
+
+        if (channelname !== undefined && testIfAllEnglish(channelname)) {
+            // remove white spaces and force lowercase
+            title = channelname;
+            churi = channelname.toLowerCase().split(' ').join('_');
+        } 
+
+        chan.uri = churi;
+        chan.title = title;
+        chan.owner = $scope.$parent.userProfile.webid;
+        chan.author = $scope.$parent.userProfile.name;
+
+        if (isEmpty($scope.$parent.users[chan.owner].channels)) {
+            $scope.$parent.users[chan.owner].channels = {};
+        }
+
+        $.ajax({
+            type: "POST",
+            url: $scope.$parent.users[chan.owner].mbspace,
+            processData: false,
+            contentType: 'text/turtle',
+            headers: {
+                Link: '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"'
+            },
+            xhrFields: {
+                withCredentials: true
+            },
+            statusCode: {
+                201: function() {
+                    console.log("201 Created");
+                },
+                401: function() {
+                    console.log("401 Unauthorized");
+                    notify('Error', 'Unauthorized! You need to authentificate!');
+                },
+                403: function() {
+                    console.log("403 Forbidden");
+                    notify('Error', 'Forbidden! You are not allowed to create new channels.');
+                },
+                406: function() {
+                    console.log("406 Content-type unacceptable");
+                    notify('Error', 'Content-type unacceptable.');
+                },
+                507: function() {
+                    console.log("507 Insufficient storage");
+                    notify('Error', 'Insuffifient storage left! Check your server storage.');
+                }
+            },
+            success: function(d,s,r) {
+                console.log('Success! Created new channel "'+title+'".');
+                //console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
+                //console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
+                // create the meta file
+                var meta = parseLinkHeader(r.getResponseHeader('Link'));
+                var metaURI = meta['meta']['href'];
+
+                console.log("metaURI: " + metaURI);
+
+                var chURI = r.getResponseHeader('Location');
+                console.log("chURI: " + chURI);
+
+                // got the URI for the new channel
+                if (chURI && metaURI) {
+                    var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+                    var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
+                    var FOAF = $rdf.Namespace('http://xmlns.com/foaf/0.1/');
+                    var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
+                    var LDPX = $rdf.Namespace("http://ns.rww.io/ldpx#");
+                    var g = $rdf.graph();
+
+                    // add uB triple (append trailing slash since we got dir)
+                    g.add($rdf.sym(chURI), RDF('type'), SIOC('Container'));
+                    g.add($rdf.sym(chURI), DCT('title'), $rdf.lit(title));
+                    g.add($rdf.sym(chURI), LDPX('ldprPrefix'), $rdf.lit('post'));
+                    g.add($rdf.sym(chURI), SIOC('has_creator'), $rdf.sym('#author'));
+
+
+                    // add author triples
+                    g.add($rdf.sym('#author'), RDF('type'), SIOC('UserAccount'));
+                    g.add($rdf.sym('#author'), SIOC('account_of'), $rdf.sym($scope.userProfile.webid));
+                    g.add($rdf.sym('#author'), SIOC('avatar'), $rdf.sym($scope.userProfile.picture));
+                    g.add($rdf.sym('#author'), FOAF('name'), $rdf.lit($scope.userProfile.name));
+
+                    s = new $rdf.Serializer(g).toN3(g);
+                    //console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
+                    //console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
+
+                    if (s.length > 0) {
+                        $.ajax({
+                            type: "POST",
+                            url: metaURI,
+                            contentType: "text/turtle",
+                            data: s,
+                            processData: false,
+                            xhrFields: {
+                                withCredentials: true
+                            },
+                            statusCode: {
+                                201: function() {
+                                    console.log("201 Created");                             
+                                },
+                                401: function() {
+                                    console.log("401 Unauthorized");
+                                    notify('Error', 'Unauthorized! You need to authenticate before posting.');
+                                },
+                                403: function() {
+                                    console.log("403 Forbidden");
+                                    notify('Error', 'Forbidden! You are not allowed to create new containers.');
+                                },
+                                406: function() {
+                                    console.log("406 Content-type unacceptable");
+                                    notify('Error', 'Content-type unacceptable.');
+                                },
+                                507: function() {
+                                    console.log("507 Insufficient storage");
+                                    notify('Error', 'Insuffifient storage left! Check your server storage.');
+                                }
+                            },
+                            success: function(d,s,r) {
+                                // set default ACLs for channel
+                                $scope.setACL(chURI, $scope.audience.range, true); // set defaultForNew too
+                                console.log('Success! New channel created.');
+                                notify('Success', 'Your new "'+title+'" channel was succesfully created!');
+                                // clear form
+                                $scope.channelname = '';
+
+                                $scope.$apply();
+
+                                $scope.hidePopup();
+
+                                //set default if first channel
+                                if ($scope.defaultChannel === undefined) {
+                                    //console.log("no default channel, setting default equal to "); //debug
+                                    $scope.defaultChannel = chan;
+                                    //console.log(chan); //debug
+                                }
+
+                                //adds the newly created channel to our list
+                                chan.uri = chURI;
+                                $scope.$parent.users[chan.owner].channels[chURI] = chan;
+                                $scope.$parent.channels[chURI] = chan;
+                                //hide window
+                                $scope.hidePopup();
+
+                                // reload user profile when done
+                                $scope.getInfo(chan.owner, true, false);
+                            }
+                        });
+                    }
+                }
+            }
+        }).always(function() {
+            // revert button contents to previous state
+            console.log("executing creation always");
+            $scope.createbtn = 'Create';
+            $scope.loading = false;
+            $scope.$apply();
+        });
+    };
+
 
     // prepare the triples for new storage
     // do not actually create the space, we just point to it
@@ -320,241 +489,241 @@ angular.module( 'Cimba.home', [
         });
     };
 
-    ///--- these functions are used for creating a new channel in /home
-    $scope.newChannel = function(channelname, redirect){
-        console.log("right newchannel function if called from home"); //debug
-        $scope.loading = true;
-        $scope.createbtn = 'Creating...';
-        var title = 'ch';
-        var churi = 'ch';
+    // ///--- these functions are used for creating a new channel in /home
+    // $scope.newChannel = function(channelname, redirect){
+    //     console.log("right newchannel function if called from home"); //debug
+    //     $scope.loading = true;
+    //     $scope.createbtn = 'Creating...';
+    //     var title = 'ch';
+    //     var churi = 'ch';
         
-        var chan = {};
+    //     var chan = {};
 
-        if ($scope.channelname !== undefined && testIfAllEnglish($scope.channelname)) {
-            // remove white spaces and force lowercase
-            title = $scope.channelname;
-            churi = $scope.channelname.toLowerCase().split(' ').join('_');
-        } 
+    //     if ($scope.channelname !== undefined && testIfAllEnglish($scope.channelname)) {
+    //         // remove white spaces and force lowercase
+    //         title = $scope.channelname;
+    //         churi = $scope.channelname.toLowerCase().split(' ').join('_');
+    //     } 
 
-        chan.uri = churi;
-        chan.title = title;
-        chan.owner = $scope.$parent.userProfile.webid;
-        chan.author = $scope.$parent.userProfile.name;
+    //     chan.uri = churi;
+    //     chan.title = title;
+    //     chan.owner = $scope.$parent.userProfile.webid;
+    //     chan.author = $scope.$parent.userProfile.name;
 
-        /*
-        console.log("START listing channels"); //debug
-        for (var w in $scope.$parent.users[chan.owner].channels) {
-            console.log("key: " + w); //debug
-            console.log($scope.$parent.users[chan.owner].channels[w]); //debug
-        }
-        console.log("END listing channels"); //debug
-        */
+    //     /*
+    //     console.log("START listing channels"); //debug
+    //     for (var w in $scope.$parent.users[chan.owner].channels) {
+    //         console.log("key: " + w); //debug
+    //         console.log($scope.$parent.users[chan.owner].channels[w]); //debug
+    //     }
+    //     console.log("END listing channels"); //debug
+    //     */
 
-        if (isEmpty($scope.$parent.users[chan.owner].channels)) {
-            //console.log("empty channels"); //debug
-            $scope.$parent.users[chan.owner].channels = {};
-        }
-        /*
-        console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
-        console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
+    //     if (isEmpty($scope.$parent.users[chan.owner].channels)) {
+    //         //console.log("empty channels"); //debug
+    //         $scope.$parent.users[chan.owner].channels = {};
+    //     }
+    //     /*
+    //     console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
+    //     console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
 
-        console.log("$scope.$parent.users[" + chan.owner + "].channels[" + chan.uri + "] = "); //debug
-        console.log($scope.$parent.users[chan.owner].channels[chan.uri]); //debug
+    //     console.log("$scope.$parent.users[" + chan.owner + "].channels[" + chan.uri + "] = "); //debug
+    //     console.log($scope.$parent.users[chan.owner].channels[chan.uri]); //debug
 
-        // TODO: let the user select the Microblog workspace too
+    //     // TODO: let the user select the Microblog workspace too
 
-        console.log("mbspace: " + $scope.$parent.users[chan.owner].mbspace); //debug
+    //     console.log("mbspace: " + $scope.$parent.users[chan.owner].mbspace); //debug
 
-        console.log("START listing channels"); //debug
+    //     console.log("START listing channels"); //debug
 
-        for (var r in $scope.$parent.users[chan.owner].channels) {
-            console.log("key: " + r); //debug
-            console.log($scope.$parent.users[chan.owner].channels[r]); //debug
-        }
-        console.log("END listing channels"); //debug
-        console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
-        console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
-        */
+    //     for (var r in $scope.$parent.users[chan.owner].channels) {
+    //         console.log("key: " + r); //debug
+    //         console.log($scope.$parent.users[chan.owner].channels[r]); //debug
+    //     }
+    //     console.log("END listing channels"); //debug
+    //     console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
+    //     console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
+    //     */
 
-        $.ajax({
-            type: "POST",
-            url: $scope.$parent.users[chan.owner].mbspace,
-            processData: false,
-            contentType: 'text/turtle',
-            headers: {
-                Link: '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"'
-            },
-            xhrFields: {
-                withCredentials: true
-            },
-            statusCode: {
-                201: function() {
-                    console.log("201 Created");
-                },
-                401: function() {
-                    console.log("401 Unauthorized");
-                    notify('Error', 'Unauthorized! You need to authentificate!');
-                },
-                403: function() {
-                    console.log("403 Forbidden");
-                    notify('Error', 'Forbidden! You are not allowed to create new channels.');
-                },
-                406: function() {
-                    console.log("406 Content-type unacceptable");
-                    notify('Error', 'Content-type unacceptable.');
-                },
-                507: function() {
-                    console.log("507 Insufficient storage");
-                    notify('Error', 'Insuffifient storage left! Check your server storage.');
-                }
-            },
-            success: function(d,s,r) {
-                console.log('Success! Created new channel "'+title+'".');
-                //console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
-                //console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
-                // create the meta file
-                var meta = parseLinkHeader(r.getResponseHeader('Link'));
-                var metaURI = meta['meta']['href'];
+    //     $.ajax({
+    //         type: "POST",
+    //         url: $scope.$parent.users[chan.owner].mbspace,
+    //         processData: false,
+    //         contentType: 'text/turtle',
+    //         headers: {
+    //             Link: '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"'
+    //         },
+    //         xhrFields: {
+    //             withCredentials: true
+    //         },
+    //         statusCode: {
+    //             201: function() {
+    //                 console.log("201 Created");
+    //             },
+    //             401: function() {
+    //                 console.log("401 Unauthorized");
+    //                 notify('Error', 'Unauthorized! You need to authentificate!');
+    //             },
+    //             403: function() {
+    //                 console.log("403 Forbidden");
+    //                 notify('Error', 'Forbidden! You are not allowed to create new channels.');
+    //             },
+    //             406: function() {
+    //                 console.log("406 Content-type unacceptable");
+    //                 notify('Error', 'Content-type unacceptable.');
+    //             },
+    //             507: function() {
+    //                 console.log("507 Insufficient storage");
+    //                 notify('Error', 'Insuffifient storage left! Check your server storage.');
+    //             }
+    //         },
+    //         success: function(d,s,r) {
+    //             console.log('Success! Created new channel "'+title+'".');
+    //             //console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
+    //             //console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
+    //             // create the meta file
+    //             var meta = parseLinkHeader(r.getResponseHeader('Link'));
+    //             var metaURI = meta['meta']['href'];
 
-                console.log("metaURI: " + metaURI);
+    //             console.log("metaURI: " + metaURI);
 
-                var chURI = r.getResponseHeader('Location');
-                console.log("chURI: " + chURI);
+    //             var chURI = r.getResponseHeader('Location');
+    //             console.log("chURI: " + chURI);
 
-                // got the URI for the new channel
-                if (chURI && metaURI) {
-                    var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-                    var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
-                    var FOAF = $rdf.Namespace('http://xmlns.com/foaf/0.1/');
-                    var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
-                    var LDPX = $rdf.Namespace("http://ns.rww.io/ldpx#");
-                    var g = $rdf.graph();
+    //             // got the URI for the new channel
+    //             if (chURI && metaURI) {
+    //                 var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+    //                 var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
+    //                 var FOAF = $rdf.Namespace('http://xmlns.com/foaf/0.1/');
+    //                 var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
+    //                 var LDPX = $rdf.Namespace("http://ns.rww.io/ldpx#");
+    //                 var g = $rdf.graph();
 
-                    // add uB triple (append trailing slash since we got dir)
-                    g.add($rdf.sym(chURI), RDF('type'), SIOC('Container'));
-                    g.add($rdf.sym(chURI), DCT('title'), $rdf.lit(title));
-                    g.add($rdf.sym(chURI), LDPX('ldprPrefix'), $rdf.lit('post'));
-                    g.add($rdf.sym(chURI), SIOC('has_creator'), $rdf.sym('#author'));
+    //                 // add uB triple (append trailing slash since we got dir)
+    //                 g.add($rdf.sym(chURI), RDF('type'), SIOC('Container'));
+    //                 g.add($rdf.sym(chURI), DCT('title'), $rdf.lit(title));
+    //                 g.add($rdf.sym(chURI), LDPX('ldprPrefix'), $rdf.lit('post'));
+    //                 g.add($rdf.sym(chURI), SIOC('has_creator'), $rdf.sym('#author'));
 
 
-                    // add author triples
-                    g.add($rdf.sym('#author'), RDF('type'), SIOC('UserAccount'));
-                    g.add($rdf.sym('#author'), SIOC('account_of'), $rdf.sym($scope.userProfile.webid));
-                    g.add($rdf.sym('#author'), SIOC('avatar'), $rdf.sym($scope.userProfile.picture));
-                    g.add($rdf.sym('#author'), FOAF('name'), $rdf.lit($scope.userProfile.name));
+    //                 // add author triples
+    //                 g.add($rdf.sym('#author'), RDF('type'), SIOC('UserAccount'));
+    //                 g.add($rdf.sym('#author'), SIOC('account_of'), $rdf.sym($scope.userProfile.webid));
+    //                 g.add($rdf.sym('#author'), SIOC('avatar'), $rdf.sym($scope.userProfile.picture));
+    //                 g.add($rdf.sym('#author'), FOAF('name'), $rdf.lit($scope.userProfile.name));
 
-                    s = new $rdf.Serializer(g).toN3(g);
-                    //console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
-                    //console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
+    //                 s = new $rdf.Serializer(g).toN3(g);
+    //                 //console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
+    //                 //console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
 
-                    if (s.length > 0) {
-                        $.ajax({
-                            type: "POST",
-                            url: metaURI,
-                            contentType: "text/turtle",
-                            data: s,
-                            processData: false,
-                            xhrFields: {
-                                withCredentials: true
-                            },
-                            statusCode: {
-                                201: function() {
-                                    console.log("201 Created");                             
-                                },
-                                401: function() {
-                                    console.log("401 Unauthorized");
-                                    notify('Error', 'Unauthorized! You need to authenticate before posting.');
-                                },
-                                403: function() {
-                                    console.log("403 Forbidden");
-                                    notify('Error', 'Forbidden! You are not allowed to create new containers.');
-                                },
-                                406: function() {
-                                    console.log("406 Content-type unacceptable");
-                                    notify('Error', 'Content-type unacceptable.');
-                                },
-                                507: function() {
-                                    console.log("507 Insufficient storage");
-                                    notify('Error', 'Insuffifient storage left! Check your server storage.');
-                                }
-                            },
-                            success: function(d,s,r) {
-                                // set default ACLs for channel
-                                $scope.setACL(chURI, $scope.audience.range, true); // set defaultForNew too
-                                console.log('Success! New channel created.');
-                                notify('Success', 'Your new "'+title+'" channel was succesfully created!');
-                                // clear form
-                                $scope.channelname = '';
+    //                 if (s.length > 0) {
+    //                     $.ajax({
+    //                         type: "POST",
+    //                         url: metaURI,
+    //                         contentType: "text/turtle",
+    //                         data: s,
+    //                         processData: false,
+    //                         xhrFields: {
+    //                             withCredentials: true
+    //                         },
+    //                         statusCode: {
+    //                             201: function() {
+    //                                 console.log("201 Created");                             
+    //                             },
+    //                             401: function() {
+    //                                 console.log("401 Unauthorized");
+    //                                 notify('Error', 'Unauthorized! You need to authenticate before posting.');
+    //                             },
+    //                             403: function() {
+    //                                 console.log("403 Forbidden");
+    //                                 notify('Error', 'Forbidden! You are not allowed to create new containers.');
+    //                             },
+    //                             406: function() {
+    //                                 console.log("406 Content-type unacceptable");
+    //                                 notify('Error', 'Content-type unacceptable.');
+    //                             },
+    //                             507: function() {
+    //                                 console.log("507 Insufficient storage");
+    //                                 notify('Error', 'Insuffifient storage left! Check your server storage.');
+    //                             }
+    //                         },
+    //                         success: function(d,s,r) {
+    //                             // set default ACLs for channel
+    //                             $scope.setACL(chURI, $scope.audience.range, true); // set defaultForNew too
+    //                             console.log('Success! New channel created.');
+    //                             notify('Success', 'Your new "'+title+'" channel was succesfully created!');
+    //                             // clear form
+    //                             $scope.channelname = '';
 
-                                $scope.$apply();
+    //                             $scope.$apply();
 
-                                if (redirect) {
-                                    //gets rid of the https:// or http:// in chURI and appends it to the path
-                                    $location.path('/channels/view/' + chURI.slice(chURI.indexOf(":")+3,chURI.length));
-                                }
-                                else {
-                                    $scope.hidePopup();
-                                }
+    //                             if (redirect) {
+    //                                 //gets rid of the https:// or http:// in chURI and appends it to the path
+    //                                 $location.path('/channels/view/' + chURI.slice(chURI.indexOf(":")+3,chURI.length));
+    //                             }
+    //                             else {
+    //                                 $scope.hidePopup();
+    //                             }
 
-                                /*
-                                console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
-                                console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
+    //                             /*
+    //                             console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
+    //                             console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
 
-                                console.log("$scope.defaultChannel before"); //debug
-                                console.log($scope.defaultChannel); //debug
-                                */
-                                //set default if first channel
-                                if ($scope.defaultChannel === undefined) {
-                                    //console.log("no default channel, setting default equal to "); //debug
-                                    $scope.defaultChannel = chan;
-                                    //console.log(chan); //debug
-                                }
-                                /*
-                                console.log("$scope.defaultChannel after"); //debug
-                                console.log($scope.defaultChannel); //debug
-                                */
+    //                             console.log("$scope.defaultChannel before"); //debug
+    //                             console.log($scope.defaultChannel); //debug
+    //                             */
+    //                             //set default if first channel
+    //                             if ($scope.defaultChannel === undefined) {
+    //                                 //console.log("no default channel, setting default equal to "); //debug
+    //                                 $scope.defaultChannel = chan;
+    //                                 //console.log(chan); //debug
+    //                             }
+    //                             /*
+    //                             console.log("$scope.defaultChannel after"); //debug
+    //                             console.log($scope.defaultChannel); //debug
+    //                             */
 
-                                //adds the newly created channel to our list
-                                chan.uri = chURI;
-                                $scope.$parent.users[chan.owner].channels[chURI] = chan;
-                                $scope.$parent.channels[chURI] = chan;
-                                /*
-                                console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
-                                console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
+    //                             //adds the newly created channel to our list
+    //                             chan.uri = chURI;
+    //                             $scope.$parent.users[chan.owner].channels[chURI] = chan;
+    //                             $scope.$parent.channels[chURI] = chan;
+    //                             /*
+    //                             console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
+    //                             console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
 
-                                console.log("START listing channels"); //debug
-                                for (var t in $scope.$parent.users[chan.owner].channels) {
-                                    console.log("key: " + t); //debug
-                                    console.log($scope.$parent.users[chan.owner].channels[t]); //debug
-                                }
-                                console.log("END listing channels"); //debug
-                                */
+    //                             console.log("START listing channels"); //debug
+    //                             for (var t in $scope.$parent.users[chan.owner].channels) {
+    //                                 console.log("key: " + t); //debug
+    //                                 console.log($scope.$parent.users[chan.owner].channels[t]); //debug
+    //                             }
+    //                             console.log("END listing channels"); //debug
+    //                             */
 
-                                //console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
-                                //console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
-                                //hide window
-                                $scope.hidePopup();
-                                /*
-                                console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
-                                console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
-                                console.log("1"); //debug
-                                */
+    //                             //console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
+    //                             //console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
+    //                             //hide window
+    //                             $scope.hidePopup();
+    //                             /*
+    //                             console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
+    //                             console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
+    //                             console.log("1"); //debug
+    //                             */
 
-                                // reload user profile when done
-                                $scope.getInfo(chan.owner, true, false);
-                            }
-                        });
-                    }
-                }
-            }
-        }).always(function() {
-            // revert button contents to previous state
-            console.log("executing creation always");
-            $scope.createbtn = 'Create';
-            $scope.loading = false;
-            $scope.$apply();
-        });
-    };
+    //                             // reload user profile when done
+    //                             $scope.getInfo(chan.owner, true, false);
+    //                         }
+    //                     });
+    //                 }
+    //             }
+    //         }
+    //     }).always(function() {
+    //         // revert button contents to previous state
+    //         console.log("executing creation always");
+    //         $scope.createbtn = 'Create';
+    //         $scope.loading = false;
+    //         $scope.$apply();
+    //     });
+    // };
     // set the corresponding ACLs for the given post, using the right ACL URI
     $scope.setACL = function(uri, type, defaultForNew) {
         // get the acl URI first

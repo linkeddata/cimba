@@ -21,9 +21,9 @@ angular.module('Cimba.channels',[
     });
 })
 
-.controller('ChannelsCtrl', function ChannelsController($scope, $http, $location, $sce){
+.controller('ChannelsCtrl', function ChannelsController($scope, $http, $location, $sce, $rootScope){
     console.log("executing channels controller"); //debug
-    console.log($scope.userProfile.subscribedChannels);
+    console.log($scope.userProfile);
     $scope.audience = {};
     $scope.audience.range = 'public';
     $scope.audience.icon = 'fa-globe';
@@ -45,6 +45,15 @@ angular.module('Cimba.channels',[
         $scope.$parent.loading = false;
     }
     
+    $scope.$on('newChannel', function(event, data) {
+        console.log('received');
+        $scope.newChannel(data.chname, data.redirect);
+    });
+
+    $rootScope.$on("rootScope:broadcast", function(event, data) {
+        console.log(data);
+    });
+
     $scope.showPopup = function (arg) {
         console.log("ex show 1");
         console.log("$scope.newChannelModal before: " + $scope.newChannelModal); //debug
@@ -199,40 +208,9 @@ angular.module('Cimba.channels',[
         chan.owner = $scope.$parent.userProfile.webid;
         chan.author = $scope.$parent.userProfile.name;
 
-        /*
-        console.log("START listing channels"); //debug
-        for (var w in $scope.$parent.users[chan.owner].channels) {
-            console.log("key: " + w); //debug
-            console.log($scope.$parent.users[chan.owner].channels[w]); //debug
-        }
-        console.log("END listing channels"); //debug
-        */
-
         if (isEmpty($scope.$parent.users[chan.owner].channels)) {
-            //console.log("empty channels"); //debug
             $scope.$parent.users[chan.owner].channels = {};
         }
-        /*
-        console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
-        console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
-
-        console.log("$scope.$parent.users[" + chan.owner + "].channels[" + chan.uri + "] = "); //debug
-        console.log($scope.$parent.users[chan.owner].channels[chan.uri]); //debug
-
-        // TODO: let the user select the Microblog workspace too
-
-        console.log("mbspace: " + $scope.$parent.users[chan.owner].mbspace); //debug
-
-        console.log("START listing channels"); //debug
-
-        for (var r in $scope.$parent.users[chan.owner].channels) {
-            console.log("key: " + r); //debug
-            console.log($scope.$parent.users[chan.owner].channels[r]); //debug
-        }
-        console.log("END listing channels"); //debug
-        console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
-        console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
-        */
 
         $.ajax({
             type: "POST",
@@ -600,5 +578,13 @@ angular.module('Cimba.channels',[
             }
         });
     };
-    ///---
+    console.log($scope.newChannelModal);
+})
+
+.directive('newChannel', function() {
+    return {
+        replace: true,
+        restrict: 'E',
+        templateUrl: 'channels/new_channel.tpl.html'
+    };
 });

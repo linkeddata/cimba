@@ -34,16 +34,19 @@ span.fa-icon {
 	color: white;
 }
 
-#channel-modal {
+.modal-content {
 	overflow: auto;
-	height: 300px;
-	min-height: 300px;
 	background: #fff;
 	border-radius: 15px;
 	padding: 10px;
+	pointer-events: auto;
+	vertical-align: middle;
 }
 
-
+#channel-modal {
+	height: 300px;
+	min-height: 300px;
+}
 
 #channel-create-button {
 	margin-left: 30px;
@@ -108,7 +111,7 @@ span.fa-icon {
   margin-left: 5px;
 }
 
-.form-control.add-channel-input {
+.form-control.modal-input {
   width: 80%;
   margin-left: 10%;
 }
@@ -126,11 +129,12 @@ span.fa-icon {
 	position: absolute;
 	left: 10px;
 }
+
 .post-time, #panel-chan-link {
-	margin-top: 3px;
-	font-size: .8em;
+	margin-top: 3px;	
 	font-weight: 700!important; 
 	color: #fff;
+	font-size: 14px;
 }
 
 

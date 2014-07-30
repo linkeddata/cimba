@@ -155,14 +155,14 @@ h2 {
   -o-transition: left .3s;
   transition: left .3s;
   width: 150px;
-  background-color: #2A3137;
-  position: absolute;
-  min-height: 700px;
+  background-color: #555; /*#2A3137;*/
+  position: fixed;  
   top: 0px;
-  padding-top: 10px;
+  padding-top: 30px;
   bottom: 0px;
   left: -150px;
   text-align: center;
+
 }
 .sidebar .menu-item {
   width: 150px;
@@ -368,6 +368,7 @@ h2 {
   padding: 15px;
   z-index: 1010;
   overflow:auto;
+  pointer-events: none;
 }
 
 .overlay {
@@ -690,6 +691,7 @@ iframe {border:0px;}
   text-align: center;
   position: fixed;
   width: 100%;
+  min-width: 320px;
   height: 65px;
   top: 0px;
   margin-top: 0px;
@@ -707,13 +709,13 @@ iframe {border:0px;}
 }
 
 #cimba-logo-mini {
-  height: 20px;
-  margin-left: 0px !important;
+  height: 35px;
+  margin-top: 5px;
+  margin-right: 10px !important;
 }
 
 #curr-user-img {
-  float: right;
-  height: 45px;
+  height: 40px;
 }
 
 .curr-user-logo {
@@ -776,4 +778,18 @@ iframe {border:0px;}
   color: #fff;
   font-family: Georgia, serif;
   font-weight: 200;
+}
+
+.container {
+  min-width: 320px;
+}
+
+.delete {
+  margin: auto;
+  background: none;
+  border: none;
+  color: #fff;
+}
+.delete:hover {
+  color: @strong-blue;
 }

@@ -123,6 +123,7 @@ angular.module( 'Cimba', [
     $scope.search = {};
     $scope.loadChannels = {};
     $scope.loadSubscriptions = {}; 
+    $scope.newChannelModal = false;
     // $scope.gotErrorMessage = true; 
     $rootScope.notices = [];
     $scope.postData = {};
@@ -502,10 +503,10 @@ angular.module( 'Cimba', [
         $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
 
         var test = {}; //debug
-        console.log("at getChannels"); //debug
-        console.log($scope.users[webid].channels); //debug
-        console.log(test); //debug
-        console.log("done log"); //debug
+        // console.log("at getChannels"); //debug
+        // console.log($scope.users[webid].channels); //debug
+        // console.log(test); //debug
+        // console.log("done log"); //debug
 
         // fetch user data: SIOC:Space -> SIOC:Container -> SIOC:Post
         f.nowOrWhenFetched(uri,undefined,function(){
@@ -892,8 +893,10 @@ angular.module( 'Cimba', [
             }).then(function(res){
                 $scope.webidresults = [];
                 angular.forEach(res.data, function(value, key) {
+                    console.log(value);
                     value.webid = key;
                     if (!value.img) {
+                        console.log("got here");
                         value.img = ['assets/generic_photo.png'];
                     }
                     value.host = getHostname(key);
