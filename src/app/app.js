@@ -489,6 +489,7 @@ angular.module( 'Cimba', [
     };
 
     $scope.getChannels = function(uri, webid, mine, update, loadposts) {
+        console.log("attempting to get Channels"); //debug
         var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
         var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
@@ -501,12 +502,6 @@ angular.module( 'Cimba', [
         // add CORS proxy
         $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
 
-        var test = {}; //debug
-        console.log("at getChannels"); //debug
-        console.log($scope.users[webid].channels); //debug
-        console.log(test); //debug
-        console.log("done log"); //debug
-
         // fetch user data: SIOC:Space -> SIOC:Container -> SIOC:Post
         f.nowOrWhenFetched(uri,undefined,function(){
             // find all SIOC:Container
@@ -514,6 +509,7 @@ angular.module( 'Cimba', [
             console.log("ws"); //debug
             console.log(ws); //debug
             if (ws.length > 0) {
+                console.log("ws.length: " + ws.length); //debug
                 /*
                 console.log("at getChannels, webid is " + webid); //debug
                 console.log("at getChannels, users are"); //debug
@@ -548,11 +544,21 @@ angular.module( 'Cimba', [
                     console.log(chs); //debug
                     // console.log("got Channels!"); //debug
 
-                    // console.log("pre: $scope.users[" + webid + "] has channels"); //debug
-                    // for (var r in $scope.users[webid].channels) {
-                    //     console.log("key: " + r); //debug
-                    //     console.log($scope.users[webid].channels[r]); //debug
-                    // }
+                    console.log("pre: $scope.users[" + webid + "] has channels"); //debug
+                    for (var r in $scope.users[webid].channels) {
+                        console.log("key: " + r); //debug
+                        console.log($scope.users[webid].channels[r]); //debug
+                    }
+                    console.log("pre: $scope.channels"); //debug
+                    for (var rr in $scope.channels) {
+                        console.log("key: " + rr); //debug
+                        console.log($scope.channels[rr]); //debug
+                    }
+                    console.log("pre: $scope.userProfile.channels"); //debug
+                    for (var er in $scope.userProfile.channels) {
+                        console.log("key: " + er); //debug
+                        console.log($scope.userProfile.channels[er]); //debug
+                    }
 
                     if (chs.length > 0) {
                         if (!$scope.channels) {
@@ -607,6 +613,22 @@ angular.module( 'Cimba', [
                                 $scope.userProfile.channels[channel.uri] = channel;
                             }
                             
+                            console.log("post: $scope.users[" + webid + "] has channels"); //debug
+                            for (var re in $scope.users[webid].channels) {
+                                console.log("key: " + re); //debug
+                                console.log($scope.users[webid].channels[re]); //debug
+                            }
+                            console.log("post: $scope.channels"); //debug
+                            for (var rre in $scope.channels) {
+                                console.log("key: " + rre); //debug
+                                console.log($scope.channels[rre]); //debug
+                            }
+                            console.log("post: $scope.userProfile.channels"); //debug
+                            for (var rree in $scope.userProfile.channels) {
+                                console.log("key: " + rree); //debug
+                                console.log($scope.userProfile.channels[rree]); //debug
+                            }
+
                             $scope.$apply();
 
                             // mine
@@ -653,7 +675,9 @@ angular.module( 'Cimba', [
                         console.log('No channels found!');
                         if (mine) {
                             // hide loader
+                            console.log("attempting to hide loader, before: " + $scope.loading); //debug
                             $scope.loading = false;
+                            console.log("after: " + $scope.loading); //debug
                             console.log("loading 3: false"); //debug
                             $scope.users[webid].chspace = false;
                         }
@@ -757,6 +781,7 @@ angular.module( 'Cimba', [
                     var uri = posts[p]['subject'];
                     console.log("uri: " + uri); //debug
                     var useraccount = g.any(uri, SIOC('has_creator'));
+                    //useraccount = useraccount.value;
                     console.log("useraccount: " + useraccount); //debug
                     var post = g.statementsMatching(posts[p]['subject']);
                     var body = ''; //default 
@@ -819,6 +844,9 @@ angular.module( 'Cimba', [
                         username : username,
                         body : body
                     };
+
+                    console.log("_newPost"); //debug
+                    console.log(_newPost); //debug
 
                     if (!$scope.posts) {
                         $scope.posts =  {};

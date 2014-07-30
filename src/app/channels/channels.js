@@ -23,7 +23,6 @@ angular.module('Cimba.channels',[
 
 .controller('ChannelsCtrl', function ChannelsController($scope, $http, $location, $sce){
     console.log("executing channels controller"); //debug
-    console.log($scope.userProfile.subscribedChannels);
     $scope.audience = {};
     $scope.audience.range = 'public';
     $scope.audience.icon = 'fa-globe';
@@ -33,11 +32,20 @@ angular.module('Cimba.channels',[
     $scope.showOverlay = false;
     $scope.createbtn = "Create";
 
-    if (!$scope.$parent.userProfile.channels || 
-         Object.keys($scope.$parent.userProfile.channels) === 0) {        
+    console.log("$scope.parent.userprofile"); //debug
+    console.log($scope.$parent.userProfile); //debug
+    console.log("$scope.userprofile"); //debug
+    console.log($scope.userProfile); //debug
+    console.log("$scope.users"); //debug
+    console.log($scope.users); //debug
+    console.log("$scope.parent.users"); //debug
+    console.log($scope.$parent.users); //debug
+
+    if (!$scope.$parent.userProfile.channels || Object.keys($scope.$parent.userProfile.channels) === 0) {        
         $scope.$parent.loading = true;
         var storage = $scope.$parent.userProfile.storagespace;
         var webid = $scope.$parent.userProfile.webid;
+        console.log("channels controller calling getChannels"); //debug
         $scope.$parent.getChannels(storage, webid, true, false, false);
     } else {
         console.log("else executed");
@@ -45,11 +53,25 @@ angular.module('Cimba.channels',[
         $scope.$parent.loading = false;
     }
     
+    console.log("listing $scope.$parent.userProfile.channels"); //debug
+    for (var a in $scope.$parent.userProfile.channels) {
+        console.log("key: " + a); //debug
+        console.log($scope.$parent.userProfile.channels[a]); //debug
+    }
+
+    console.log("listing $scope.userProfile.channels"); //debug
+    for (var aa in $scope.userProfile.channels) {
+        console.log("key: " + aa); //debug
+        console.log($scope.userProfile.channels[aa]); //debug
+    } 
+
     $scope.showPopup = function (arg) {
-        console.log("ex show 1");
+        /*
+        console.log("ex show 1"); //debug
         console.log("$scope.newChannelModal before: " + $scope.newChannelModal); //debug
         console.log("$scope.deleteChannelStatus before: " + $scope.deleteChannelStatus); //debug
         console.log("$scope.showOverlay before: " + $scope.showOverlay); //debug
+        */
         if (arg === "new") {
             $scope.newChannelModal = true;
         }
@@ -57,22 +79,28 @@ angular.module('Cimba.channels',[
             $scope.deleteChannelStatus = true;
         }
         $scope.showOverlay = true;
+        /*
         console.log("$scope.newChannelModal after: " + $scope.newChannelModal); //debug
         console.log("$scope.deleteChannelStatus after: " + $scope.deleteChannelStatus); //debug
         console.log("$scope.showOverlay after: " + $scope.showOverlay); //debug
+        */
     };
 
     $scope.hidePopup = function () {
-        console.log("ex hide 1");
+        /*
+        console.log("ex hide 1"); //debug
         console.log("$scope.newChannelModal before: " + $scope.newChannelModal); //debug
         console.log("$scope.deleteChannelStatus before: " + $scope.deleteChannelStatus); //debug
         console.log("$scope.showOverlay before: " + $scope.showOverlay); //debug
+        */
         $scope.newChannelModal = false;
         $scope.deleteChannelStatus = false;
         $scope.showOverlay = false;
+        /*
         console.log("$scope.newChannelModal after: " + $scope.newChannelModal); //debug
         console.log("$scope.deleteChannelStatus after: " + $scope.deleteChannelStatus); //debug
         console.log("$scope.showOverlay after: " + $scope.showOverlay); //debug
+        */
     };
 
     $scope.channelTog = function(channel){
@@ -188,14 +216,19 @@ angular.module('Cimba.channels',[
         
         var chan = {};
 
+        console.log("$scope.channelname: " + $scope.channelname); //debug
         if ($scope.channelname !== undefined && testIfAllEnglish($scope.channelname)) {
             // remove white spaces and force lowercase
+            console.log("setting title, before: " + title); //debug
             title = $scope.channelname;
+            console.log("title is now: " + title); //debug
             churi = $scope.channelname.toLowerCase().split(' ').join('_');
         } 
 
         chan.uri = churi;
+        console.log("setting title, before: " + chan.title); //debug
         chan.title = title;
+        console.log("title is now: " + chan.title); //debug
         chan.owner = $scope.$parent.userProfile.webid;
         chan.author = $scope.$parent.userProfile.name;
 
@@ -376,6 +409,18 @@ angular.module('Cimba.channels',[
                                 chan.uri = chURI;
                                 $scope.$parent.users[chan.owner].channels[chURI] = chan;
                                 $scope.$parent.channels[chURI] = chan;
+
+                                console.log("listing $scope.$parent.users[" + chan.owner + "].channels"); //debug
+                                for (var k in $scope.$parent.users[chan.owner].channels) {
+                                    console.log("key: " + k); //debug
+                                    console.log($scope.$parent.users[chan.owner].channels[k]); //debug
+                                }
+                                console.log("listing $scope.$parent.channels"); //debug
+                                for (var kk in $scope.$parent.channels) {
+                                    console.log("key: " + kk); //debug
+                                    console.log($scope.$parent.channels[kk]); //debug
+                                }
+
                                 /*
                                 console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
                                 console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
@@ -418,54 +463,26 @@ angular.module('Cimba.channels',[
     // delete a single post
     $scope.deleteChannel = function (ch) {
         $scope.channelToDelete = ch;
-        $scope.deleteDirectory(ch);
-        
-        if (status === 0) {
-            console.log("status 0, success"); //debug
-            //manual way to remove .meta and .acl
-            var chn = ch.slice(0,ch.lastIndexOf("/"));
-            console.log("chn: " + chn); //debug
-            var chnumber = chn.slice(chn.lastIndexOf("/") + 1, chn.length);
-            console.log("chnumber: " + chnumber); //debug
-            var head = chn.slice(0,chn.lastIndexOf("/") + 1);
-            console.log("head: " + head); //debug
-            var metauri = head + ".meta." + chnumber;
-            console.log("metauri: " + metauri); //debug
-            var acluri = head + ".acl." + chnumber;
-            console.log("acluri: " + acluri); //debug
-            $scope.deleteFile(metauri);
-            $scope.deleteFile(acluri);
 
-            //remove channel from arrays
-            var webid = $scope.userProfile.webid;
-            delete $scope.users[webid].channels[ch];
-            delete $scope.channels[ch];
-            for (var p in $scope.posts) {
-                if ($scope.posts[p].channel === ch) {
-                    delete $scope.posts[p];
-                }
-            }
+        //manual way to create .meta and .acl uri
+        var chn = ch.slice(0,ch.lastIndexOf("/"));
+        console.log("chn: " + chn); //debug
+        var chnumber = chn.slice(chn.lastIndexOf("/") + 1, chn.length);
+        console.log("chnumber: " + chnumber); //debug
+        var head = chn.slice(0,chn.lastIndexOf("/") + 1);
+        console.log("head: " + head); //debug
+        var metauri = head + ".meta." + chnumber;
+        console.log("metauri: " + metauri); //debug
+        var acluri = head + ".acl." + chnumber;
+        console.log("acluri: " + acluri); //debug
 
-            ///debug
-            console.log("proof of deletion by showing whats left"); //debug
-            console.log("$scope.users[" + webid + "].channels"); //debug
-            for (var weew in $scope.users[webid].channels) {
-                console.log("key: " + weew); //debug
-                console.log($scope.users[webid].channels[weew]); //debug
-            }
-            console.log("done"); //debug
-            console.log("$scope.channels"); //debug
-            for (var wee in $scope.channels) {
-                console.log("key: " + wee); //debug
-                console.log($scope.channels[wee]); //debug
-            }
-            console.log("done"); //debug
-            ///
-        }
+        $scope.delList = [metauri, acluri, ch]; // file uris are strings, directory uris are arrays
+        $scope.delCounter = 3; //counter for number of deleted files
+        $scope.delStack = []; // holds the directories in queue to check
+        $scope.mapTree(ch); //enumerates the channel directory first
     };
 
-    $scope.deleteDirectory = function(uri) {
-        console.log("deleteDirectory uri: " + uri); //debug
+    $scope.mapTree = function(uri) { //creates a flat map structure of the uri passed in
         var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
         var rdfschema = $rdf.Namespace("http://www.w3.org/2000/01/rdf-schema#");
@@ -479,67 +496,112 @@ angular.module('Cimba.channels',[
 
         // get all SIOC:Post (using globbing)
         f.nowOrWhenFetched(uri, undefined, function(){
-            console.log("newuri: " + uri); //debug
+            console.log("fetching for uri: " + uri); //debug
+            console.log("$scope.delList is"); //debug
+            for (var l in $scope.delList) {
+                console.log($scope.delList[l]); //debug
+            }
+            console.log("done");
+
 
             console.log(posix('Directory')); //debug
             console.log(rdfschema('Resource')); //debug
             console.log(SIOC('Post')); //debug
             var directories = g.statementsMatching(undefined, RDF('type'), posix('Directory'));
             var resources = g.statementsMatching(undefined, RDF('type'), rdfschema('Resource'));
-            var posts = g.statementsMatching(undefined, RDF('type'), SIOC('Post'));
 
-            console.log("directories"); //debug
+            console.log("directories, length: " + directories.length); //debug
             console.log(directories); //debug
-            console.log("resources"); //debug
+            console.log("resources, length: " + resources.length); //debug
             console.log(resources); //debug
-            console.log("posts"); //debug
-            console.log(posts); //debug
 
-            if (directories.length > 0) {
-                for (var d in directories) {
-                    var nuri = directories[d]['subject']['value'];
-                    if (nuri !== uri) { //makeshift way of preventing loopback
-                        console.log("going recursively into: " + nuri); //debug
-                        $scope.remChannel(nuri);
-                    }
-                }
-            }
             if (resources.length > 0) {
                 for (var r in resources) {
                     var ruri = resources[r]['subject']['value'];
-                    console.log("deleting uri: " + ruri); //debug
-                    $scope.deleteFile(ruri);
+                    $scope.delCounter = $scope.delCounter + 1;
+                    $scope.delList.push(ruri);
+                    console.log("adding to delList: " + ruri); //debug
+                    console.log("$scope.delList is now"); //debug
+                    for (var le in $scope.delList) {
+                        console.log($scope.delList[le]); //debug
+                    }
+                    console.log("done");
                 }
             }
 
-            console.log("finished emptying, now deleting: " + uri); //debug
-            $scope.deleteFile(uri);
+            if (directories.length > 1) { //directories[0] always references the uri itself
+                console.log(1); //debug
+                for (var d in directories) {
+                    console.log(2); //debug
+                    var nuri = directories[d]['subject']['value'];
+                    if (nuri !== uri) { //makeshift way of preventing loopback
+                        console.log(3); //debug
+                        console.log("directories length: " + directories.length); //debug
+                        console.log("d at: " + d); //debug
+                        if (d == 1) { //if first one (not uri itself), add to delList, otherwise, add to delStack
+                            console.log(4); //debug
+                            $scope.delCounter = $scope.delCounter + 1;
+                            $scope.delList.push(nuri);
+                            console.log("adding to delList: " + nuri); //debug
+                            console.log("$scope.delList is now"); //debug
+                            for (var ll in $scope.delList) {
+                                console.log($scope.delList[ll]); //debug
+                            }
+                            console.log("done");
+                        }
+                        else {
+                            $scope.delStack.push(nuri);
+                            console.log("adding to delStack: " + nuri); //debug
+                        }
+                    }
+                }
+                console.log("attempting to fetch: " + directories[1]['subject']['value']); //debug
+                $scope.mapTree(directories[1]['subject']['value']);
+            }
+            else if ($scope.delStack.length > 0) {
+                $scope.delCounter = $scope.delCounter + 1;
+                var suri = $scope.delStack.pop();
+                $scope.delList.push(suri);
+                console.log("$scope.delList is now"); //debug
+                for (var li in $scope.delList) {
+                    console.log($scope.delList[li]); //debug
+                }
+                console.log("done");
+                $scope.mapTree(suri);
+            }
+            else {
+                console.log("is this order right? counter: " + $scope.delCounter); //debug
+                console.log("$scope.delList is now"); //debug
+                for (var ly in $scope.delList) {
+                    console.log($scope.delList[ly]); //debug
+                }
+                console.log("done");
+                $scope.deleteContent(); //we finished mapping the directory uri, now we need to delete the content
+            }
 
+            /*
             ////---- specific to channel
             console.log("is " + uri + " equal to " + $scope.channelToDelete + "?"); //debug
             if (uri === $scope.channelToDelete && $scope.channelToDelete !== "") {
                 console.log("removing channel from $scope.channels and $scope.users[<webid>].channels"); //debug
-                //manual way to remove .meta and .acl
-                var chn = uri.slice(0,uri.lastIndexOf("/"));
-                console.log("chn: " + chn); //debug
-                var chnumber = chn.slice(chn.lastIndexOf("/") + 1, chn.length);
-                console.log("chnumber: " + chnumber); //debug
-                var head = chn.slice(0,chn.lastIndexOf("/") + 1);
-                console.log("head: " + head); //debug
-                var metauri = head + ".meta." + chnumber;
-                console.log("metauri: " + metauri); //debug
-                var acluri = head + ".acl." + chnumber;
-                console.log("acluri: " + acluri); //debug
-                $scope.deleteFile(metauri);
-                $scope.deleteFile(acluri);
 
                 //remove channel from arrays
+                //TODO, figure out if i shud delete parent or child channels array
                 var webid = $scope.userProfile.webid;
+                delete $scope.$parent.userProfile.channels[uri];
+                delete $scope.userProfile.channels[uri];
                 delete $scope.$parent.users[webid].channels[uri];
+                delete $scope.users[webid].channels[uri];
                 delete $scope.$parent.channels[uri];
+                delete $scope.channels[uri];
                 for (var p in $scope.$parent.posts) {
                     if ($scope.$parent.posts[p].channel === uri) {
                         delete $scope.$parent.posts[p];
+                    }
+                }
+                for (var q in $scope.posts) {
+                    if ($scope.posts[q].channel === uri) {
+                        delete $scope.posts[q];
                     }
                 }
 
@@ -563,12 +625,13 @@ angular.module('Cimba.channels',[
                 }
                 console.log("done"); //debug
                 ///
-            }
+            }*/
         });
     };
 
-    // deletes a single post
-    $scope.deleteFile = function (uri) {
+    // recursively deletes everything in $scope.delList[] from high to low index (most recent to earliest)
+    $scope.deleteContent = function () {
+        var uri = $scope.delList.pop();
         console.log("Attempting to delete: " + uri); //debug
         $.ajax({
             url: uri,
@@ -580,11 +643,21 @@ angular.module('Cimba.channels',[
                 console.log('Deleted: ' + uri);
                 notify('Success', 'Your file was removed from the server!');
                 $scope.$apply();
+                if ($scope.delList.length > 0) {
+                    $scope.deleteContent();
+                }
+                else {
+                    $scope.removeChannel(); //we're done deleting files on server-side, now we need to clean up our local channel variables
+                }
             },
             failure: function (r) {
                 var status = r.status.toString();
                 //error handling
                 console.log("ERROR: " + status + ". Cannot proceed with deleting the file.");
+                console.log("What's left in mapTree: ");
+                for (var c in $scope.mapTree) {
+                    console.log($scope.mapTree[c]);
+                }
                 notify("ERROR: " + status + ". Cannot proceed with deleting the file.");
 
                 if (status == '403') {
@@ -593,12 +666,61 @@ angular.module('Cimba.channels',[
                 if (status == '404') {
                     notify('Error', 'Could not delete file, no such resource on the server!');
                 }
-                //reset, specific to deleting a channel
-                if ($scope.channelToDelete !== "") {
+                //attempt to proceed with deleting the next item on the agenda
+                if ($scope.delList.length > 0) {
+                    $scope.deleteContent();
+                }
+                else { //we already popped it, if there's nothing else left that we can delete, then reset $scope.channelToDelete
                     $scope.channelToDelete = "";
                 }
             }
         });
+    };
+
+    $scope.removeChannel = function () {
+        if ($scope.channelToDelete !== "") {
+            var uri = $scope.channelToDelete;
+            console.log("removing channel from $scope.channels and $scope.users[<webid>].channels"); //debug
+            //remove channel from arrays
+            //TODO, figure out if i shud delete parent or child channels array
+            var webid = $scope.userProfile.webid;
+            delete $scope.$parent.userProfile.channels[uri];
+            delete $scope.userProfile.channels[uri];
+            delete $scope.$parent.users[webid].channels[uri];
+            delete $scope.users[webid].channels[uri];
+            delete $scope.$parent.channels[uri];
+            delete $scope.channels[uri];
+            for (var p in $scope.$parent.posts) {
+                if ($scope.$parent.posts[p].channel === uri) {
+                    delete $scope.$parent.posts[p];
+                }
+            }
+            for (var q in $scope.posts) {
+                if ($scope.posts[q].channel === uri) {
+                    delete $scope.posts[q];
+                }
+            }
+
+            $scope.$apply();
+
+            //reset
+            $scope.channelToDelete = "";
+
+            ///debug
+            console.log("proof of deletion by showing whats left"); //debug
+            console.log("$scope.users[" + webid + "].channels"); //debug
+            for (var weew in $scope.users[webid].channels) {
+                console.log("key: " + weew); //debug
+                console.log($scope.users[webid].channels[weew]); //debug
+            }
+            console.log("done"); //debug
+            console.log("$scope.channels"); //debug
+            for (var wee in $scope.channels) {
+                console.log("key: " + wee); //debug
+                console.log($scope.channels[wee]); //debug
+            }
+            console.log("done"); //debug
+        }
     };
     ///---
 });

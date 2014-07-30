@@ -106,7 +106,14 @@ angular.module('Cimba.posts',[
 		//console.log(new $rdf.Serializer(g)); //debug
 		var s = new $rdf.Serializer(g).toN3(g);
 		//console.log(s); //debug
+
 		var uri = $scope.defaultChannel.uri;
+
+		console.log("$scope.defaultChannel: "); //debug
+		console.log($scope.defaultChannel); //debug
+		console.log("$scope.defaultChannel.uri: "); //debug
+		console.log($scope.defaultChannel.uri); //debug
+		console.log("'uri': " + uri); //debug
 		var title = $scope.defaultChannel.title;
 		
 		var _newPost = {

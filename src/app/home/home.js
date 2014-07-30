@@ -330,14 +330,19 @@ angular.module( 'Cimba.home', [
         
         var chan = {};
 
+        console.log("$scope.channelname: " + $scope.channelname); //debug
         if ($scope.channelname !== undefined && testIfAllEnglish($scope.channelname)) {
             // remove white spaces and force lowercase
+            console.log("setting title, before: " + title); //debug
             title = $scope.channelname;
+            console.log("title is now: " + title); //debug
             churi = $scope.channelname.toLowerCase().split(' ').join('_');
         } 
 
         chan.uri = churi;
+        console.log("setting title, before: " + chan.title); //debug
         chan.title = title;
+        console.log("title is now: " + chan.title); //debug
         chan.owner = $scope.$parent.userProfile.webid;
         chan.author = $scope.$parent.userProfile.name;
 
