@@ -19,7 +19,7 @@
 		    				<div class="col-md-11 col-xs-8 ">
 		    				<h2 class="panel-header-body bold pull-left">My Channels</h2></div>
 		    				<div class="col-md-1 col-xs-4">
-		    				<button class='btn channel-menu-btn btn-primary pull-right' ng-click="showPopup('new')" id="new-channel-button" title="New Channel"><span class="fa fa-plus fa-2x fa-icon" ></span></button>
+		    				<button class='btn channel-menu-btn btn-primary pull-right' ng-click="showPopup('new','')" id="new-channel-button" title="New Channel"><span class="fa fa-plus fa-2x fa-icon" ></span></button>
 		    				</div> 
 		    			</div>
 		    		</div>
@@ -35,7 +35,7 @@
 			        <div class="chan-panel-heading panel-heading sub-header">
 			        	<div class="pull-left"><a ui-sref="view({path: safeUri(channel.uri)})" class="link-white bold">{{channel.title}}</a>
 			        	</div>
-		                <div class="pull-right"><button type="button" class="delete" ng-click="showPopup('del')"><span class="fa fa-trash-o"></span></button></div>
+		                <div class="pull-right"><button type="button" class="delete" ng-click="showPopup('del', channel.uri)"><span class="fa fa-trash-o"></span></button></div>
 			        	<br style="line-height:25%"/>
 				    </div>
 				    <div class="panel-body">
@@ -61,6 +61,23 @@
 					</div>
 			    </div>
 		    </div>
+
+		    <div ng-show="deleteChannelStatus" tabindex="-1" role="dialog" aria-hidden="true">
+			    <div class="modal-dialog">
+			        <div class="modal-content popup">
+		                <button type="button" class="close" ng-click="hidePopup()" aria-hidden="true">x</button>              
+		                <h3 class="text-center">Are you sure you want to delete this channel permanently?</h3>
+		                * Note: deleting this channel will also delete all posts in the channel permanently.
+		                <br>
+		                DEBUG: {{channelToDelete}}
+		                <p>
+			                <div class="col-md-12">
+			                    <button class="btn btn-primary" ng-click="hidePopup(); deleteChannel()" style="float:right">Confirm</button>
+			                </div>
+		            	</p>
+			        </div>
+			    </div>
+			</div>
 
 		    <div class="col-md-6" align="center">
 		    	<div class="panel panel-default channel-list-item">

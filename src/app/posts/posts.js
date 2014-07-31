@@ -150,14 +150,14 @@ angular.module('Cimba.posts',[
 				},
 				401: function() {
 					console.log("401 Unauthorized");
-					notify('Error', 'Unauthorized! You need to authentify before posting.');
+					notify('Error', 'Unauthorized! You need to authenticate before posting.');
 				},
 				403: function() {
 					console.log("403 Forbidden");
 					notify('Error', 'Forbidden! You are not allowed to post to the selected channel.');
 				},
 				406: function() {
-					console.log("406 Contet-type unacceptable");
+					console.log("406 Content-type unacceptable");
 					notify('Error', 'Content-type unacceptable.');
 				},
 				507: function() {

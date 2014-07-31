@@ -29,7 +29,7 @@ angular.module('Cimba.channels',[
     $scope.audience.icon = 'fa-globe';
     $scope.newChannelModal = false;
     $scope.deleteChannelStatus = false;
-    $scope.channelToDelete = ""; //variable to hold the uri of the channel to remove from $scope.channels and $scope.users[<webid>].channels
+    $scope.channelToDelete = ""; //variable to hold the uri of the channel to remove from $scope.userProfile.channels and $scope.users[<webid>].channels
     $scope.showOverlay = false;
     $scope.createbtn = "Create";
 
@@ -49,24 +49,25 @@ angular.module('Cimba.channels',[
         console.log("channels controller calling getChannels"); //debug
         $scope.$parent.getChannels(storage, webid, true, false, false);
     } else {
-        console.log("else executed");
+        console.log("else executed"); //debug
         $scope.$parent.gotstorage = false;
         $scope.$parent.loading = false;
     }
 
 
-    $scope.showPopup = function (arg) {
+    $scope.showPopup = function (arg1, arg2) {
         /*
         console.log("ex show 1"); //debug
         console.log("$scope.newChannelModal before: " + $scope.newChannelModal); //debug
         console.log("$scope.deleteChannelStatus before: " + $scope.deleteChannelStatus); //debug
         console.log("$scope.showOverlay before: " + $scope.showOverlay); //debug
         */
-        if (arg === "new") {
+        if (arg1 === "new") {
             $scope.newChannelModal = true;
         }
-        else if (arg === "del") {
+        else if (arg1 === "del") {
             $scope.deleteChannelStatus = true;
+            $scope.channelToDelete = arg2;
         }
         $scope.showOverlay = true;
         /*
@@ -83,6 +84,7 @@ angular.module('Cimba.channels',[
         console.log("$scope.deleteChannelStatus before: " + $scope.deleteChannelStatus); //debug
         console.log("$scope.showOverlay before: " + $scope.showOverlay); //debug
         */
+        //reset
         $scope.newChannelModal = false;
         $scope.deleteChannelStatus = false;
         $scope.showOverlay = false;
@@ -199,6 +201,12 @@ angular.module('Cimba.channels',[
 
     $scope.newChannel = function(channelname, redirect){
         console.log("wrong newchannel function if called from home"); //debug
+        console.log('start channels'); //debug
+        console.log($scope.$parent.userProfile.channels); //debug
+        console.log($scope.userProfile.channels); //debug
+        console.log($scope.$parent.users[$scope.userProfile.webid].channels); //debug
+        console.log($scope.users[$scope.userProfile.webid].channels); //debug
+        console.log("end channels"); //debug
         $scope.loading = true;
         $scope.createbtn = 'Creating...';
         var title = 'ch';
@@ -402,6 +410,13 @@ angular.module('Cimba.channels',[
                                 console.log("1"); //debug
                                 */
 
+                                console.log('start channels'); //debug
+                                console.log($scope.$parent.userProfile.channels); //debug
+                                console.log($scope.userProfile.channels); //debug
+                                console.log($scope.$parent.users[$scope.userProfile.webid].channels); //debug
+                                console.log($scope.users[$scope.userProfile.webid].channels); //debug
+                                console.log("end channels"); //debug
+
                                 // reload user profile when done
                                 $scope.getInfo(chan.owner, true, false);
                             }
@@ -419,9 +434,8 @@ angular.module('Cimba.channels',[
     };
 
     ///--- everything within these ///--- is used in deleting a channel
-    // delete a single post
-    $scope.deleteChannel = function (ch) {
-        $scope.channelToDelete = ch;
+    $scope.deleteChannel = function () {
+        var ch = $scope.channelToDelete;
 
         //manual way to create .meta and .acl uri
         var chn = ch.slice(0,ch.lastIndexOf("/"));
@@ -579,6 +593,19 @@ angular.module('Cimba.channels',[
                 }
                 //attempt to proceed with deleting the next item on the agenda
                 if ($scope.delList.length > 0) {
+                    console.log("Even though we failed, we're going to attempt to delete the next file.");
+                    $scope.deleteContent();
+                }
+                else { //we already popped it, if there's nothing else left that we can delete, then reset $scope.channelToDelete
+                    $scope.channelToDelete = "";
+                }
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                //error handling
+                console.log("ERROR: Cannot proceed with deleting file");
+                //attempt to proceed with deleting the next item on the agenda
+                if ($scope.delList.length > 0) {
+                    console.log("Even though we failed, we're going to attempt to delete the next file.");
                     $scope.deleteContent();
                 }
                 else { //we already popped it, if there's nothing else left that we can delete, then reset $scope.channelToDelete
@@ -591,16 +618,23 @@ angular.module('Cimba.channels',[
     $scope.removeChannel = function () {
         if ($scope.channelToDelete !== "") {
             var uri = $scope.channelToDelete;
-            console.log("removing channel from $scope.channels and $scope.users[<webid>].channels"); //debug
+            console.log("removing channel from $scope.userProfile.channels and $scope.users[<webid>].channels"); //debug
             //remove channel from arrays
-            //TODO, figure out if i shud delete parent or child channels array
+            //TODO, figure out whether to delete parent or child channels array or both
             var webid = $scope.userProfile.webid;
+
+            console.log('start channels'); //debug
+            console.log($scope.$parent.userProfile.channels); //debug
+            console.log($scope.userProfile.channels); //debug
+            console.log($scope.$parent.users[webid].channels); //debug
+            console.log($scope.users[webid].channels); //debug
+            console.log("end channels"); //debug
+
             delete $scope.$parent.userProfile.channels[uri];
             delete $scope.userProfile.channels[uri];
             delete $scope.$parent.users[webid].channels[uri];
             delete $scope.users[webid].channels[uri];
-            delete $scope.$parent.channels[uri];
-            delete $scope.channels[uri];
+
             for (var p in $scope.$parent.posts) {
                 if ($scope.$parent.posts[p].channel === uri) {
                     delete $scope.$parent.posts[p];
@@ -612,10 +646,18 @@ angular.module('Cimba.channels',[
                 }
             }
 
-            $scope.$apply();
-
             //reset
             $scope.channelToDelete = "";
+            $scope.$parent.saveCredentials();
+            $scope.$apply();
+            //
+
+            console.log('start channels'); //debug
+            console.log($scope.$parent.userProfile.channels); //debug
+            console.log($scope.userProfile.channels); //debug
+            console.log($scope.$parent.users[webid].channels); //debug
+            console.log($scope.users[webid].channels); //debug
+            console.log("end channels"); //debug
         }
     };
 
