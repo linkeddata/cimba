@@ -127,6 +127,7 @@ angular.module( 'Cimba', [
     // $scope.gotErrorMessage = true; 
     $rootScope.notices = [];
     $scope.postData = {};
+    $scope.defaultChannel = undefined;
 
     $scope.login = function () {
         $location.path('/login');
@@ -200,16 +201,14 @@ angular.module( 'Cimba', [
                 $scope.loggedin = true;
                 // console.log($scope.userProfile.channels);
 
-                if ($scope.userProfile.channels) {
-                    for (var w in $scope.userProfile.channels) {
-                        if (!$scope.defaultChannel) {
-                            $scope.defaultChannel = $scope.userProfile.channels[w];
-                        }
-                    }
-                }
-                // console.log($scope.userProfile.mbspace);
-                // load from PDS (follows)
-                console.log($scope.users);
+                // if ($scope.userProfile.channels && !$scope.defaultChannel) {
+                //     for (var w in $scope.userProfile.channels) {
+                //         $scope.defaultChannel = $scope.userProfile.channels[w];
+                //         console.log($scope.defaultChannel);
+                //         break;
+                //     }
+                // }
+
                 if ($scope.userProfile.mbspace && (!$scope.users || Object.keys($scope.users).length === 0)) {
                     // console.log("found user mbspace");
                     console.log("no scope.users");
@@ -467,26 +466,15 @@ angular.module( 'Cimba', [
                 // console.log(ownerObj);
                 // console.log(g.any(ownerObj, FOAF('name')));
                 if (g.any(ownerObj, SIOC('account_of'))) {
-                    channel["owner"] = g.any(ownerObj, SIOC('account_of')).value;                    
-                    console.log("channel owner found: " + channel.owner);
+                    channel["owner"] = g.any(ownerObj, SIOC('account_of')).value;                                        
                 }  else if ($scope.userProfile.channels && 
                     $scope.userProfile.channels[channel.uri]) {
                     channel["owner"] = $scope.userProfile.webid;
-                }
-                console.log("owner: " + channel.owner);
-
-                // $scope.channels[channel.uri] = channel;
-                
-                
-                $scope.defaultChannel = $scope.channels[churi];                
+                }                
+               
                 $scope.$apply();
                 $scope.getPosts(channel.uri, channel.title);
-
-                //console.log("channel in getCHannel"); //debug
-                //console.log(channel); //debug
-            }
-
-            // console.log($scope.channels);
+            }            
         });
     };
 
@@ -517,21 +505,8 @@ angular.module( 'Cimba', [
 
             // find all SIOC:Container
             var ws = g.statementsMatching(undefined, RDF('type'), SIOC('Space'));
-            if (ws.length > 0) {
-                /*
-                console.log("at getChannels, webid is " + webid); //debug
-                console.log("at getChannels, users are"); //debug
-                for (var l in $scope.users) {
-                    console.log("key: " + l); //debug
-                    console.log($scope.users[l]); //debug
-                    console.log("that user has channels"); //debug
-                    for (var tu in $scope.users[l].channels) {
-                        console.log("key: " + tu); //debug
-                        console.log($scope.users[l].channels[tu]); //debug
-                    }
-                }
-                */
 
+            if (ws.length > 0) {
                 if (!$scope.users[webid]) {
                     //console.log("$scope.users[" + webid + "] doesn't exist (which doesn't make sense since i need the webid to call this function), initializing it"); //debug
                     $scope.users[webid] = {};
@@ -548,9 +523,6 @@ angular.module( 'Cimba', [
 
                 var func = function() {
                     var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));
-                    //console.log("chs"); //debug
-                    //console.log(chs); //debug
-                    // console.log("got Channels!"); //debug
 
                     if (chs.length > 0) {
                         if (!$scope.channels) {
@@ -604,7 +576,7 @@ angular.module( 'Cimba', [
                             if (mine) {
                                 $scope.userProfile.channels[channel.uri] = channel;
                             }
-                            
+
                             /*
                             console.log('start channels'); //debug
                             console.log($scope.userProfile.channels); //debug
@@ -639,15 +611,16 @@ angular.module( 'Cimba', [
                         }
 
                         // set a default channel for the logged user
-                        if (mine) {
-                            $scope.userProfile.channel_size = Object.keys($scope.userProfile.channels).length; //not supported in IE8 and below
-                            for (var u in $scope.users[webid].channels) {
-                                if (!$scope.defaultChannel) {
-                                    $scope.defaultChannel = $scope.userProfile.channels[u];
-                                    break;
-                                }
-                            }
-                        }
+                        // if (mine) {
+                        //     $scope.userProfile.channel_size = Object.keys($scope.userProfile.channels).length; //not supported in IE8 and below
+                        //     if (!$scope.defaultChannel) {
+                        //         console.log("no default channel found");
+                        //         for (var u in $scope.users[webid].channels) {                                
+                        //             $scope.defaultChannel = $scope.userProfile.channels[u];
+                        //             break;
+                        //         }
+                        //     }   
+                        // }
 
                         // done refreshing user information -> update view
                         if (update) {
@@ -679,7 +652,7 @@ angular.module( 'Cimba', [
                         $scope.loading = false;
                         $scope.saveCredentials();
                         $scope.$apply();
-                    }
+                    }                    
                 };
 
                 for (var i in ws) {
@@ -731,7 +704,6 @@ angular.module( 'Cimba', [
     };
 
     $scope.getPosts = function(channeluri, title) {
-        //console.log("getPosts, channeluri: " + channeluri); //debug
         var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
         var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
@@ -751,20 +723,12 @@ angular.module( 'Cimba', [
         f.nowOrWhenFetched(channeluri+'*', undefined, function(){
 
             var posts = g.statementsMatching(undefined, RDF('type'), SIOC('Post'));
-            //console.log("posts"); //debug
-            //console.log(posts); //debug
-            // console.log("got Posts!"); //debug
 
             if (posts.length > 0) {
 
                 for (var p in posts) {
-                    //console.log("posts[p]"); //debug
-                    //console.log(posts[p]); //debug
-                    var uri = posts[p]['subject'];
-                    //console.log("uri: " + uri); //debug
+                    var uri = posts[p]['subject'];                    
                     var useraccount = g.any(uri, SIOC('has_creator'));
-                    //useraccount = useraccount.value;
-                    //console.log("useraccount: " + useraccount); //debug
                     var post = g.statementsMatching(posts[p]['subject']);
                     var body = ''; //default 
                     var username = ''; //default
@@ -826,9 +790,6 @@ angular.module( 'Cimba', [
                         username : username,
                         body : body
                     };
-
-                    //console.log("_newPost"); //debug
-                    //console.log(_newPost); //debug
 
                     if (!$scope.posts) {
                         $scope.posts =  {};
