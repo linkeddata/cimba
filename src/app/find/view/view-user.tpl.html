@@ -23,13 +23,13 @@
             </div>
         </div>
     </div>
-    <div class="row">
+    <div class="row" ng-show="!loading">
     	<div class="col-md-6">
 			<div ng-repeat="ch in users[webid].channels">
 				<div ng-if="$index % 2 === 0" class="panel panel-default">
 					<div class="panel-heading chan-panel-heading sub-header">
 						<div class="pull-left"><a ui-sref="view({path: safeUri(ch.uri)})" class="link-white bold">{{ch.title}}</a></div>
-						<button class="btn pull-right" ng-class="ch.css" ng-click="toggleChannel(ch)" rel="tooltip" data-placement="top" title="{{ch.action}}"><i class="fa {{ch.button}} fa-2x"></i></button>
+						<button class="btn pull-right" ng-class="ch.css" ng-disabled="ch.enabled === false" ng-click="toggleChannel(ch)" rel="tooltip" data-placement="top" title="{{ch.action}}"><i class="fa {{ch.button}} fa-2x"></i></button>
 					</div>
 					<div class="panel-body"></div>
 				</div>
@@ -40,7 +40,7 @@
 				<div ng-if="$index % 2 === 1" class="panel panel-default">
 					<div class="panel-heading chan-panel-heading sub-header">
 						<div class="pull-left"><a ui-sref="view({path: safeUri(ch.uri)})" class="link-white bold">{{ch.title}}</a></div>
-						<button class="btn pull-right" ng-class="ch.css" ng-click="toggleChannel(ch)" rel="tooltip" data-placement="top" title="{{ch.action}}"><i class="fa {{ch.button}} fa-2x"></i></button>
+						<button class="btn pull-right" ng-class="ch.css" ng-disabled="ch.enabled === false" ng-click="toggleChannel(ch)" rel="tooltip" data-placement="top" title="{{ch.action}}"><i class="fa {{ch.button}} fa-2x"></i></button>
 					</div>
 					<div class="panel-body"></div>
 				</div>

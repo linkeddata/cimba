@@ -44,7 +44,7 @@
 			                  </li>
 			              </ul>
 			          </div>		      
-		              <button class="btn btn-primary" ng-disabled="!channelname" ng-click="newChannel(channelname, true)">
+		              <button class="btn btn-primary" ng-disabled="!channelname || createbtn === 'Creating...'" ng-click="newChannel(channelname, true)">
 		              	{{createbtn}}
 		              </button>		         
 		          </div>                
