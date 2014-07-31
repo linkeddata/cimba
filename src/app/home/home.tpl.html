@@ -5,7 +5,7 @@
           <!-- <div class="clear-70"></div> -->
           <div class="col-md-12">
               <!-- new post -->
-              <post-box ng-show="loggedin"></postBox>
+              <post-box ng-show="loggedin && userProfile.webid && users[userProfile.webid].chspace"></postBox>
               <!-- end new post -->
           </div>
       </div>

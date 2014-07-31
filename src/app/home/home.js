@@ -52,6 +52,7 @@ angular.module( 'Cimba.home', [
     $scope.newMBModal = false;
     $scope.newStorageModal = false;
     $scope.showOverlay = false;
+    $scope.defaultChannel = $scope.$parent.defaultChannel;
     for (var c in $scope.$parent.userProfile.subscribedChannels) {
         var channel = $scope.$parent.userProfile.subscribedChannels[c];
         $scope.$parent.getPosts(channel.uri, channel.title);
@@ -78,13 +79,11 @@ angular.module( 'Cimba.home', [
         $scope.showOverlay = false;
     };
 
-    $scope.$watch('$parent.getInfoDone', function(newVal,oldVal){   //waits for getInfo to be done to call getChannels
-        console.log('getInfo is done');
-        if ($scope.$parent.userProfile.storagespace !== undefined && newVal === true) {
-            console.log('close');
+    $scope.$watch('$parent.getInfoDone', function(newVal,oldVal){   //waits for getInfo to be done to call getChannels        
+        if ($scope.$parent.userProfile.storagespace !== undefined && newVal === true) {            
             var storage = $scope.$parent.userProfile.storagespace;
             var webid = $scope.$parent.userProfile.webid;
-            $scope.$parent.getChannels(storage, webid, true, false, true); //get channels and posts        
+            $scope.$parent.getChannels(storage, webid, true, false, true); //get channels and posts                 
         }
     });
 
@@ -228,12 +227,12 @@ angular.module( 'Cimba.home', [
 
                                 $scope.hidePopup();
 
-                                //set default if first channel
-                                if ($scope.defaultChannel === undefined) {
-                                    //console.log("no default channel, setting default equal to "); //debug
-                                    $scope.defaultChannel = chan;
-                                    //console.log(chan); //debug
-                                }
+                                // //set default if first channel
+                                // if ($scope.defaultChannel === undefined) {
+                                //     console.log("no default channel, setting default equal to "); //debug
+                                //     $scope.defaultChannel = chan;
+                                //     //console.log(chan); //debug
+                                // }
 
                                 //adds the newly created channel to our list
                                 chan.uri = chURI;

@@ -17,22 +17,22 @@ angular.module('Cimba.posts',[
 	});
 })
 
-.controller("PostsController", function PostsController( $scope, $http, $location, $sce ) {
+.controller("PostsController", function PostsController( $scope, $http, $location, $sce, noticesData) {
 	//puts the post information that is saved in local storage into the text box
 	if(sessionStorage.getItem($scope.$parent.postData[$scope.currentUrl])&&sessionStorage.getItem($scope.$parent.postData[$scope.currentUrl])!='undefined'){
         $scope.postbody = sessionStorage.getItem($scope.$parent.postData[$scope.currentUrl]);
     }else{
         $scope.postbody = '';
     }
-    $scope.currentUrl = $location.absUrl();
-    console.log(sessionStorage.getItem($scope.$parent.postData[$scope.currentUrl]));
+    $scope.currentUrl = $location.absUrl();    
     
+    $scope.listAudiences = ['Public', 'Private', 'Friends'];
+	
+    $scope.defaultChannel = $scope.$parent.defaultChannel;
     //save what is currently in the new post text box to local storage
     $scope.savePostData=function(postBody){
         var currentPost = postBody;
         sessionStorage.setItem($scope.$parent.postData[$scope.currentUrl], currentPost, $scope.currentUrl);
-        console.log("This is supposed to save the post data in local storage");
-        console.log(sessionStorage.getItem($scope.$parent.postData[$scope.currentUrl]));
     };
 
     //clears post data from local storage
@@ -50,21 +50,9 @@ angular.module('Cimba.posts',[
 		$scope.$parent.showMenu = false;
 	};
 
-	// update account
-    $scope.setChannel = function(channelUri) {
-		//console.log("wrong setChannel"); //debug
-		if ($scope.users[webid].channels && $scope.users[webid].channels[channelUri]) {
-			$scope.defaultChannel = $scope.users[webid].channels[channelUri];
-			//console.log("defaultChannel set to "); //debug
-			//console.log($scope.defaultChannel); //debug
-		}
-		else {
-            console.log("Error: cannot set channel to " + channelUri);
-        }
-    };
-
 	// update the audience selector
-	$scope.setAudience = function(v) {
+	$scope.setAudience = function(audience) {
+		v = audience.toLowerCase();
 		if (v=='public') {
 			$scope.audience.icon = 'fa-globe';
 			$scope.audience.range = 'public';
@@ -78,127 +66,125 @@ angular.module('Cimba.posts',[
 	};
 
 	// post new message
-	$scope.newPost = function () {
-		$scope.publishing = true;
-		// get the current date
-		var now = Date.now();
-		now = moment(now).zone('00:00').format("YYYY-MM-DDTHH:mm:ssZZ");
-		
-		var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-		var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
-		var FOAF = $rdf.Namespace('http://xmlns.com/foaf/0.1/');
-		var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
-		var g = $rdf.graph();
-		
-		// set triples
-		g.add($rdf.sym(''), RDF('type'), SIOC('Post'));
-		g.add($rdf.sym(''), SIOC('content'), $rdf.lit($scope.postbody.trim()));
-		g.add($rdf.sym(''), SIOC('has_creator'), $rdf.sym('#author'));
-		g.add($rdf.sym(''), DCT('created'), $rdf.lit(now, '', $rdf.Symbol.prototype.XSDdateTime));
-		
-		// add author triples
-		g.add($rdf.sym('#author'), RDF('type'), SIOC('UserAccount'));
-		g.add($rdf.sym('#author'), SIOC('account_of'), $rdf.sym(webid));
-		g.add($rdf.sym('#author'), SIOC('avatar'), $rdf.sym($scope.userProfile.picture));
-		g.add($rdf.sym('#author'), FOAF('name'), $rdf.lit($scope.userProfile.name));
+	$scope.newPost = function (currentChannel) {
+		if (currentChannel) {
+			$scope.publishing = true;
+			// get the current date
+			var now = Date.now();
+			now = moment(now).zone('00:00').format("YYYY-MM-DDTHH:mm:ssZZ");
+			
+			var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+			var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
+			var FOAF = $rdf.Namespace('http://xmlns.com/foaf/0.1/');
+			var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
+			var g = $rdf.graph();
+			
+			// set triples
+			g.add($rdf.sym(''), RDF('type'), SIOC('Post'));
+			g.add($rdf.sym(''), SIOC('content'), $rdf.lit($scope.postbody.trim()));
+			g.add($rdf.sym(''), SIOC('has_creator'), $rdf.sym('#author'));
+			g.add($rdf.sym(''), DCT('created'), $rdf.lit(now, '', $rdf.Symbol.prototype.XSDdateTime));
+			
+			// add author triples
+			g.add($rdf.sym('#author'), RDF('type'), SIOC('UserAccount'));
+			g.add($rdf.sym('#author'), SIOC('account_of'), $rdf.sym(webid));
+			g.add($rdf.sym('#author'), SIOC('avatar'), $rdf.sym($scope.userProfile.picture));
+			g.add($rdf.sym('#author'), FOAF('name'), $rdf.lit($scope.userProfile.name));
 
-		//console.log(g); //debug
-		//console.log(new $rdf.Serializer(g)); //debug
-		var s = new $rdf.Serializer(g).toN3(g);
-		//console.log(s); //debug
+			//console.log(g); //debug
+			//console.log(new $rdf.Serializer(g)); //debug
+			var s = new $rdf.Serializer(g).toN3(g);
+			//console.log(s); //debug
 
-		var uri = $scope.defaultChannel.uri;
+			var uri = currentChannel.uri;
+			var title = currentChannel.title;
+			
+			var _newPost = {
+				uri : '',
+				channel: uri,
+				chtitle: title,
+				date : now,
+				timeago : moment(now).fromNow(),
+				userpic : $scope.userProfile.picture,
+				userwebid : webid,
+				username : $scope.userProfile.name,
+				body : $scope.postbody.trim(),
+				readMore : false
+			};
 
-		console.log("$scope.defaultChannel: "); //debug
-		console.log($scope.defaultChannel); //debug
-		console.log("$scope.defaultChannel.uri: "); //debug
-		console.log($scope.defaultChannel.uri); //debug
-		console.log("'uri': " + uri); //debug
-		var title = $scope.defaultChannel.title;
-		
-		var _newPost = {
-			uri : '',
-			channel: uri,
-			chtitle: title,
-			date : now,
-			timeago : moment(now).fromNow(),
-			userpic : $scope.userProfile.picture,
-			userwebid : webid,
-			username : $scope.userProfile.name,
-			body : $scope.postbody.trim(),
-			readMore : false
-		};
-
-		if(_newPost.body.length > 150)
-		{
-			_newPost.readMore = true;
-		}
-
-		$.ajax({
-			type: "POST",
-			url: uri,
-			contentType: "text/turtle",
-			data: s,
-			processData: false,
-			xhrFields: {
-				withCredentials: true
-			},
-			statusCode: {
-				201: function() {
-					console.log("201 Created");
-					notify('Post', 'Your post was succesfully submitted and created!');
-				},
-				401: function() {
-					console.log("401 Unauthorized");
-					notify('Error', 'Unauthorized! You need to authentify before posting.');
-				},
-				403: function() {
-					console.log("403 Forbidden");
-					notify('Error', 'Forbidden! You are not allowed to post to the selected channel.');
-				},
-				406: function() {
-					console.log("406 Contet-type unacceptable");
-					notify('Error', 'Content-type unacceptable.');
-				},
-				507: function() {
-					console.log("507 Insufficient storage");
-					notify('Error', 'Insuffifient storage left! Check your server storage.');
-				}
-			},
-			success: function(d,s,r) {
-				console.log('Success, new message was posted!');            
-				// clear form
-				$scope.postbody = '';
-				// also display new post
-				var postURI = r.getResponseHeader('Location');
-				if (postURI) {
-					_newPost.uri = postURI;
-
-					if (!$scope.posts) {
-						$scope.posts = {};
-					}
-					// append post to the local list
-					if ($scope.channels[uri].posts === undefined) {
-						$scope.channels[uri].posts = [];
-					}
-					$scope.channels[uri].posts.push(_newPost);
-					$scope.posts[_newPost.uri] = _newPost;
-					$scope.users[webid].gotposts = true;
-
-					// set the corresponding acl
-					$scope.setACL(postURI, $scope.audience.range);
-					// save to local posts
-					$scope.$apply();
-				} else {
-					console.log('Error: posting on the server did not return a Location header');
-					notify('Error', 'Unable to save post on the server!');
-				}
+			if(_newPost.body.length > 150)
+			{
+				_newPost.readMore = true;
 			}
-		}).done(function() {
-		// revert button contents to previous state
-		$scope.publishing = false;
-		$scope.$apply();
-		});
+
+			$.ajax({
+				type: "POST",
+				url: uri,
+				contentType: "text/turtle",
+				data: s,
+				processData: false,
+				xhrFields: {
+					withCredentials: true
+				},
+				statusCode: {
+					201: function() {
+						console.log("201 Created");
+						notify('Post', 'Your post was succesfully submitted and created!');
+					},
+					401: function() {
+						console.log("401 Unauthorized");
+						notify('Error', 'Unauthorized! You need to authentify before posting.');
+					},
+					403: function() {
+						console.log("403 Forbidden");
+						notify('Error', 'Forbidden! You are not allowed to post to the selected channel.');
+					},
+					406: function() {
+						console.log("406 Contet-type unacceptable");
+						notify('Error', 'Content-type unacceptable.');
+					},
+					507: function() {
+						console.log("507 Insufficient storage");
+						notify('Error', 'Insuffifient storage left! Check your server storage.');
+					}
+				},
+				success: function(d,s,r) {
+					console.log('Success, new message was posted!');            
+					// clear form
+					$scope.postbody = '';
+					// also display new post
+					var postURI = r.getResponseHeader('Location');
+					if (postURI) {
+						_newPost.uri = postURI;
+
+						if (!$scope.posts) {
+							$scope.posts = {};
+						}
+						// append post to the local list
+						if ($scope.channels[uri].posts === undefined) {
+							$scope.channels[uri].posts = [];
+						}
+						$scope.channels[uri].posts.push(_newPost);
+						$scope.posts[_newPost.uri] = _newPost;
+						$scope.users[webid].gotposts = true;
+
+						// set the corresponding acl
+						$scope.setACL(postURI, $scope.audience.range);
+						// save to local posts
+						$scope.$apply();
+					} else {
+						console.log('Error: posting on the server did not return a Location header');
+						notify('Error', 'Unable to save post on the server!');
+					}
+				}
+			}).done(function() {
+			// revert button contents to previous state
+			$scope.publishing = false;
+			$scope.$apply();
+			});
+		} else {
+			noticesData.add("error", "please select a channel to post to");
+		}
 	};
 
 	// set the corresponding ACLs for the given post, using the right ACL URI
