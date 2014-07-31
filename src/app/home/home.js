@@ -487,7 +487,6 @@ angular.module( 'Cimba.home', [
             }
         });
     };
-
     // set the corresponding ACLs for the given post, using the right ACL URI
     $scope.setACL = function(uri, type, defaultForNew) {
         // get the acl URI first

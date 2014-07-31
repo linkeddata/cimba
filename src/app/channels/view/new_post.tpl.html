@@ -11,7 +11,7 @@
           <div id="spinner" ng-hide="users[userProfile.webid].name"></div>
            <h3 class="channelsHeader" ng-show="channels[chanUri]"><b ng-show="channels[chanUri].owner == userProfile.webid">Write new post to</b><b ng-show="channels[chanUri].owner!=userProfile.webid"></b> {{channels[chanUri].title}}<b ng-show="channels[chanUri].owner!=userProfile.webid"> by {{users[channels[chanUri].owner].name}}</b></h3>
           <form ng-hide="channels[chanUri].owner != userProfile.webid">                               
-              <textarea name="message" ng-model="postbody" class="form-control message" ng-keydown="savePostData(postbody)" placeholder="Type your message here.." value={{savedPost}} required></textarea>
+              <textarea name="message" ng-model="postbody" class="form-control message" ng-keydown="savePostData(postbody)" placeholder="Type your message here.." value={{savedPost}} required style="resize:none"></textarea>
 
               <div class="pull-left">
                 <div class="btn-group">
@@ -22,14 +22,7 @@
                         <li><a href="" ng-click="setAudience('friends')">&nbsp;<i id="friends" class="fa fa-user fa-2x default-color"></i>&nbsp;&nbsp;Friends</a></li>
                     </ul>
                 </div>
-                <!-- <div class="btn-group" ng-show="users[userProfile.webid].channels.length > 0" rel="tooltip" data-placement="top" title="Channels">
-                    <button id="chs" class="btn btn-primary" disabled>{{defaultChannel.title}}</button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop" rel="tooltip" data-placement="top" title="Channels"><i class="fa fa-chevron-down fa-2x"></i></small></button>
-                    <ul class="dropdown-menu" role="menu" aria-labelledby="chs">
-                        <li ng-repeat="channel in users[userProfile.webid].channels | orderBy:'title'">
-                            <a href="#home" ng-click="setChannel(channel.uri)">{{channel.title}}</a>
-                        </li>
-                    </ul>
-                </div> -->
+
               </div>
               <div class="pull-right">
                   <button class="btn btn-primary pull-right" id="post-btn" ng-click="newPost(channels[chanUri]); clearPostData()" ng-disabled="publishing || !postbody">

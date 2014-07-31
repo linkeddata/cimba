@@ -116,7 +116,7 @@ angular.module('Cimba.posts',[
 			{
 				_newPost.readMore = true;
 			}
-
+			
 			$.ajax({
 				type: "POST",
 				url: uri,

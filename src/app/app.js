@@ -493,6 +493,13 @@ angular.module( 'Cimba', [
 
         // fetch user data: SIOC:Space -> SIOC:Container -> SIOC:Post
         f.nowOrWhenFetched(uri,undefined,function(){
+
+            console.log('start channels'); //debug
+            console.log($scope.userProfile.channels); //debug
+            console.log($scope.channels); //debug
+            console.log($scope.users[webid].channels); //debug
+            console.log("end channels"); //debug
+
             // find all SIOC:Container
             var ws = g.statementsMatching(undefined, RDF('type'), SIOC('Space'));
 
@@ -567,6 +574,12 @@ angular.module( 'Cimba', [
                                 $scope.userProfile.channels[channel.uri] = channel;
                             }
 
+                            console.log('start channels'); //debug
+                            console.log($scope.userProfile.channels); //debug
+                            console.log($scope.channels); //debug
+                            console.log($scope.users[webid].channels); //debug
+                            console.log("end channels"); //debug
+
                             $scope.$apply();
 
                             // mine
@@ -622,12 +635,6 @@ angular.module( 'Cimba', [
                         }
                     }
 
-                    // also save updated users & channels list
-                    if (update) { 
-                        // $scope.saveUsers();
-                    }
-
-
                     if ($scope.loadChannels[webid]) {
                         // console.log(webid);
                         delete $scope.loadChannels[webid];
@@ -644,6 +651,7 @@ angular.module( 'Cimba', [
                 };
 
                 for (var i in ws) {
+                    console.log("doing this"); //debug
                     w = ws[i]['subject']['value'];
 
                     //console.log("$scope.users[" + webid + "] has channels"); //debug
