@@ -78,8 +78,8 @@
             </div>
           </form>
           <div>
-            <button class="btn btn-primary" ng-click="newStorage(true)" ng-disabled="!storageuri || addstoragebtn = 'Adding...'" tooltip="Skip all configuration">{{addstoragebtn}} (simple)</button>
-            <button class="btn btn-primary" ng-click="newStorage()" ng-disabled="!storageuri || addstoragebtn = 'Adding...'" rel="tooltip" data-placement="top" title="Choose configuration options">{{addstoragebtn}} (advanced)</button>
+            <button class="btn btn-primary" ng-click="newStorage(true)" ng-disabled="!storageuri || addstoragebtn === 'Adding...'" tooltip="Skip all configuration">{{addstoragebtn}} (simple)</button>
+            <button class="btn btn-primary" ng-click="newStorage()" ng-disabled="!storageuri || addstoragebtn === 'Adding...'" rel="tooltip" data-placement="top" title="Choose configuration options">{{addstoragebtn}} (advanced)</button>
           </div>
         </div>
       </div>
