@@ -244,11 +244,11 @@ angular.module( 'Cimba', [
 
         // start progress bar
         ngProgress.start();
-        console.log("ng 1: start"); //debug
+        //console.log("ng 1: start"); //debug
 
         if (mine) {
             $scope.loading = true;
-            console.log("loading 0: true"); //debug
+            //console.log("loading 0: true"); //debug
         }
 
         $scope.found = true;
@@ -280,7 +280,7 @@ angular.module( 'Cimba', [
                   $scope.searchbtn = 'Search';
                   // reset progress bar
                   ngProgress.complete();
-                  console.log("ng 2: reset"); //debug
+                  console.log("ng 2: complete"); //debug
                   $scope.$apply();
                 }
             } 
@@ -302,14 +302,14 @@ angular.module( 'Cimba', [
             // set avatar picture
             if (pic) {
                 pic = pic.value;
-                console.log("picture found at " + pic); //debug
+                //console.log("picture found at " + pic); //debug
             } else {
                 if (depic) {
                     pic = depic.value;
-                    console.log("depiction found at " + pic); //debug
+                    //console.log("depiction found at " + pic); //debug
                 } else {
                     pic = 'assets/generic_photo.png';
-                    console.log("no image found: loading from " + pic); //debug
+                    //console.log("no image found: loading from " + pic); //debug
                 }
             }
 
@@ -368,8 +368,8 @@ angular.module( 'Cimba', [
 
                 // find microblogging feeds/channels
                 if (!storage) {
-                  $scope.loading = false; // hide spinner
-                  console.log("loading 1: false"); //debug
+                    $scope.loading = false; // hide spinner
+                    //console.log("loading 1: false"); //debug
                 }
 
                 // cache user credentials in sessionStorage
@@ -394,6 +394,7 @@ angular.module( 'Cimba', [
 
             } else {
                 ngProgress.complete();
+                console.log("ng 3.3: complete");
                 $scope.loading = false;
             }
 
@@ -478,7 +479,7 @@ angular.module( 'Cimba', [
     };
 
     $scope.getChannels = function(uri, webid, mine, update, loadposts) {
-        console.log("attempting to get Channels"); //debug
+        //console.log("attempting to get Channels"); //debug
         var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
         var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
@@ -494,11 +495,13 @@ angular.module( 'Cimba', [
         // fetch user data: SIOC:Space -> SIOC:Container -> SIOC:Post
         f.nowOrWhenFetched(uri,undefined,function(){
 
+            /*
             console.log('start channels'); //debug
             console.log($scope.userProfile.channels); //debug
             console.log($scope.channels); //debug
             console.log($scope.users[webid].channels); //debug
             console.log("end channels"); //debug
+            */
 
             // find all SIOC:Container
             var ws = g.statementsMatching(undefined, RDF('type'), SIOC('Space'));
@@ -574,11 +577,13 @@ angular.module( 'Cimba', [
                                 $scope.userProfile.channels[channel.uri] = channel;
                             }
 
+                            /*
                             console.log('start channels'); //debug
                             console.log($scope.userProfile.channels); //debug
                             console.log($scope.channels); //debug
                             console.log($scope.users[webid].channels); //debug
                             console.log("end channels"); //debug
+                            */
 
                             $scope.$apply();
 
@@ -627,10 +632,10 @@ angular.module( 'Cimba', [
                         console.log('No channels found!');
                         if (mine) {
                             // hide loader
-                            console.log("attempting to hide loader, before: " + $scope.loading); //debug
+                            //console.log("attempting to hide loader, before: " + $scope.loading); //debug
                             $scope.loading = false;
-                            console.log("after: " + $scope.loading); //debug
-                            console.log("loading 3: false"); //debug
+                            //console.log("after: " + $scope.loading); //debug
+                            //console.log("loading 3: false"); //debug
                             $scope.users[webid].chspace = false;
                         }
                     }
@@ -640,7 +645,7 @@ angular.module( 'Cimba', [
                         delete $scope.loadChannels[webid];
                         $scope.addChannelStyling(webid, $scope.users[webid].channels);
                         ngProgress.complete();                        
-                        // console.log("ng 4: complete"); //debug
+                        //console.log("ng 4: complete"); //debug
                         $scope.$apply();
                     } 
                     if (mine) {
@@ -651,7 +656,7 @@ angular.module( 'Cimba', [
                 };
 
                 for (var i in ws) {
-                    console.log("doing this"); //debug
+                    //console.log("doing this"); //debug
                     w = ws[i]['subject']['value'];
 
                     //console.log("$scope.users[" + webid + "] has channels"); //debug
@@ -675,7 +680,7 @@ angular.module( 'Cimba', [
                     delete $scope.loadChannels[webid];
                     // $scope.addChannelStyling(webid, $scope.users[webid].channels);
                     ngProgress.complete();
-                    console.log("ng 4 alt: complete"); //debug
+                    //console.log("ng 4 alt: complete"); //debug
                     $scope.$apply();
                 }
 
@@ -689,7 +694,7 @@ angular.module( 'Cimba', [
 
                     // hide loader
                     $scope.loading = false;
-                    console.log("loading 4: false"); //debug
+                    //console.log("loading 4: false"); //debug
 
                     $scope.$apply();
                 }
@@ -699,7 +704,6 @@ angular.module( 'Cimba', [
     };
 
     $scope.getPosts = function(channeluri, title) {
-        // console.log("getPosts, channeluri: " + channeluri); //debug
         var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
         var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
@@ -711,19 +715,20 @@ angular.module( 'Cimba', [
 
         // add CORS proxy
         $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
+        //console.log("at getPosts: loading before: " + $scope.loading); //debug
+        //$scope.loading = true; //iffy, test if this works for showing the loading when getting posts in home pages
+        //console.log("at getPosts: loading after: " + $scope.loading); //debug
 
         // get all SIOC:Post (using globbing)
         f.nowOrWhenFetched(channeluri+'*', undefined, function(){
 
             var posts = g.statementsMatching(undefined, RDF('type'), SIOC('Post'));
-            // console.log("got Posts!"); //debug
 
             if (posts.length > 0) {
 
                 for (var p in posts) {
                     var uri = posts[p]['subject'];                    
                     var useraccount = g.any(uri, SIOC('has_creator'));
-                    //useraccount = useraccount.value;                    
                     var post = g.statementsMatching(posts[p]['subject']);
                     var body = ''; //default 
                     var username = ''; //default
@@ -750,9 +755,9 @@ angular.module( 'Cimba', [
                         // console.log("userpic: " + userpic); //debug
                     }
                     else if (g.any(useraccount, SIOC('avatar'))) {
-                        console.log("tried loading from rww storage"); //debug
+                        //console.log("tried loading from rww storage"); //debug
                         userpic = g.any(useraccount, SIOC('avatar')).value;
-                        console.log("userpic: " + userpic); //debug
+                        //console.log("userpic: " + userpic); //debug
                     }
 
                     // try using the name from the WebID first
@@ -785,7 +790,6 @@ angular.module( 'Cimba', [
                         username : username,
                         body : body
                     };
-
 
                     if (!$scope.posts) {
                         $scope.posts =  {};
@@ -837,7 +841,7 @@ angular.module( 'Cimba', [
             $scope.loading = false;
             // console.log("loading 5: false"); //debug
             ngProgress.complete(); 
-            // console.log("ng 4.5?: complete"); //testing
+            console.log("ng 4.5?: complete"); //testing
             $scope.$apply();
         });
     };
@@ -893,7 +897,7 @@ angular.module( 'Cimba', [
     };
 
     // save the list of users + channels
-    $scope.saveUsers = function () {
+    $scope.saveUsers = function (sch) {
         // save to PDS
         // TODO: try to discover the followURI instead?
         var channels = {}; // temporary channel list (will load posts from them once this is done)
@@ -964,7 +968,7 @@ angular.module( 'Cimba', [
         }
 
         // serialize graph
-        var t = new $rdf.Serializer(g); //debug
+        //var t = new $rdf.Serializer(g); //debug
         var s = new $rdf.Serializer(g).toN3(g);
         // PUT the new file on the PDS
         if (s.length > 0) {
@@ -1003,6 +1007,7 @@ angular.module( 'Cimba', [
                     // console.log('Success! Your channel subscription has been updated.');
                     notify('Success', 'Your user and channel subscription has been updated!');
                     //$scope.updatePosts();//testing
+                    sch.enabled = true; //reenable disabled subscribed buttons
                 }
             });
         }
@@ -1145,19 +1150,19 @@ angular.module( 'Cimba', [
         // }
         //
         for (var p in $scope.users[webid].channels[ch].posts) {
-            console.log("deleting this: "); //debug
-            console.log($scope.posts[$scope.users[webid].channels[ch].posts[p].uri]); //debug
+            //console.log("deleting this: "); //debug
+            //console.log($scope.posts[$scope.users[webid].channels[ch].posts[p].uri]); //debug
             delete $scope.posts[$scope.users[webid].channels[ch].posts[p].uri];
-            console.log("finished"); //debug
+            //console.log("finished"); //debug
         }
 
         if ($scope.users[webid].channels[ch].posts) {
-            console.log("deleting this as well: "); //debug
-            for (var r in $scope.users[webid].channels[ch].posts) {
-                console.log($scope.users[webid].channels[ch].posts[r]); //debug
-            }
+            //console.log("deleting this as well: "); //debug
+            //for (var r in $scope.users[webid].channels[ch].posts) {
+            //    console.log($scope.users[webid].channels[ch].posts[r]); //debug
+            //}
             delete $scope.users[webid].channels[ch].posts;
-            console.log("finished"); //debug
+            //console.log("finished"); //debug
         }
 
         // console.log("at removePostsbyChannel, $scope.channels"); //debug
@@ -1176,7 +1181,7 @@ angular.module( 'Cimba', [
         if ($scope.users[$scope.userProfile.webid] && $scope.users[$scope.userProfile.webid].channels && $scope.users[$scope.userProfile.webid].channels.length > 0) {
             // add my posts
             $scope.loading = true;
-            console.log("loading 6: true"); //debug
+            //console.log("loading 6: true"); //debug
             for (var c in $scope.users[$scope.userProfile.webid].channels) {
                 $scope.getPosts($scope.users[$scope.userProfile.webid].channels[c].uri, $scope.users[$scope.userProfile.webid].channels[c].title);
             }
@@ -1198,6 +1203,7 @@ angular.module( 'Cimba', [
 
     // toggle selected channel for user
     $scope.channelToggle = function(ch) {
+        ch.enabled = false; //disable the button to prevent asynchronous actions
         if (ch.action === 'Unsubscribe') {
             // we are following this channel
             // set properties
@@ -1205,12 +1211,14 @@ angular.module( 'Cimba', [
             ch.button = 'fa-square-o';
             ch.css = 'btn-info';
 
+            $scope.loading = true; //test
             // remove the channel
             $scope.removePostsByChannel(ch.uri, ch.owner);
-            console.log("deleting the following:"); //debug
-            console.log($scope.userProfile.subscribedChannels[ch.uri]); //debug
+            //console.log("deleting the following:"); //debug
+            //console.log($scope.userProfile.subscribedChannels[ch.uri]); //debug
             delete $scope.userProfile.subscribedChannels[ch.uri];
-            console.log($scope.userProfile.subscribedChannels);
+            //console.log($scope.userProfile.subscribedChannels);
+            $scope.loading = false; //test
         } else {
             // we are not following this channel
             // subscribe to the channel
@@ -1222,8 +1230,8 @@ angular.module( 'Cimba', [
         }
 
         $scope.saveCredentials();
-        $scope.saveUsers();
-        console.log("done listing"); //debug
+        $scope.saveUsers(ch);
+        //console.log("done listing"); //debug
     };
 
     // lookup a WebID to find channels
@@ -1242,9 +1250,9 @@ angular.module( 'Cimba', [
         $scope.addChannelStyling(webid, $scope.users[webid].channels);
         $scope.searchbtn = 'Search';
         $scope.search.loading = false;
-        console.log("search.loading 7: false"); //debug
+        //console.log("search.loading 7: false"); //debug
         ngProgress.complete();
-        console.log("ng 5: complete"); //debug
+        //console.log("ng 5: complete"); //debug
         $scope.$apply();
     };
     

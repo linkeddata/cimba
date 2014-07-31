@@ -53,8 +53,6 @@
 		                <button type="button" class="close" ng-click="hidePopup()" aria-hidden="true">x</button>              
 		                <h3 class="text-center">Are you sure you want to delete this channel permanently?</h3>
 		                * Note: deleting this channel will also delete all posts in the channel permanently.
-		                <br>
-		                DEBUG: {{channelToDelete}}
 		                <p>
 			                <div class="col-md-12">
 			                    <button class="btn btn-primary" ng-click="hidePopup(); deleteChannel()" style="float:right">Confirm</button>
@@ -99,7 +97,7 @@
 		    </div>
 		</div>
 	</div>
-	<div class="overlay" ng-show="showOverlay" ng-click="hidePopup()"></div>
+	<!-- <div class="overlay" ng-show="showOverlay" ng-click="hidePopup()"></div> -->
 </div>
 
 

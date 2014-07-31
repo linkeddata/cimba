@@ -78,8 +78,8 @@
             </div>
           </form>
           <div>
-            <button class="btn btn-primary" ng-click="newStorage(true)" ng-disabled="!storageuri" tooltip="Skip all configuration">{{addstoragebtn}} (simple)</button>
-            <button class="btn btn-primary" ng-click="newStorage()" ng-disabled="!storageuri" rel="tooltip" data-placement="top" title="Choose configuration options">{{addstoragebtn}} (advanced)</button>
+            <button class="btn btn-primary" ng-click="newStorage(true)" ng-disabled="!storageuri || addstoragebtn = 'Adding...'" tooltip="Skip all configuration">{{addstoragebtn}} (simple)</button>
+            <button class="btn btn-primary" ng-click="newStorage()" ng-disabled="!storageuri || addstoragebtn = 'Adding...'" rel="tooltip" data-placement="top" title="Choose configuration options">{{addstoragebtn}} (advanced)</button>
           </div>
         </div>
       </div>
@@ -99,7 +99,7 @@
               <input type="text" id="mburi" name="mburi" ng-model="mburi" class="form-control modal-input" placeholder="mb, blog, etc.." required ng-pattern="/^[A-Za-z0-9_ ]*$/">
           </form>
           <p style="margin: 10px 0px 10px">
-            <button class="btn btn-primary" ng-click="newMB(mburi, false)" ng-disabled="!mburi">{{createbtn}}</button>
+            <button class="btn btn-primary" ng-click="newMB(mburi, false)" ng-disabled="!mburi || createbtn === 'Creating...'">{{createbtn}}</button>
           </p>
         </div>
       </div>

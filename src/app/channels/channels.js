@@ -21,8 +21,8 @@ angular.module('Cimba.channels',[
     });
 })
 
-.controller('ChannelsCtrl', function ChannelsController($scope, $http, $location, $sce, $rootScope){
-    console.log("executing channels controller"); //debug
+.controller('ChannelsCtrl', function ChannelsController($scope, $http, $location, $sce, $rootScope, noticesData){
+    //console.log("executing channels controller"); //debug
 
     $scope.audience = {};
     $scope.audience.range = 'public';
@@ -33,23 +33,14 @@ angular.module('Cimba.channels',[
     $scope.showOverlay = false;
     $scope.createbtn = "Create";
 
-    console.log("$scope.parent.userprofile"); //debug
-    console.log($scope.$parent.userProfile); //debug
-    console.log("$scope.userprofile"); //debug
-    console.log($scope.userProfile); //debug
-    console.log("$scope.users"); //debug
-    console.log($scope.users); //debug
-    console.log("$scope.parent.users"); //debug
-    console.log($scope.$parent.users); //debug
-
     if (!$scope.$parent.userProfile.channels || Object.keys($scope.$parent.userProfile.channels) === 0) {        
         $scope.$parent.loading = true;
         var storage = $scope.$parent.userProfile.storagespace;
         var webid = $scope.$parent.userProfile.webid;
-        console.log("channels controller calling getChannels"); //debug
+        //console.log("channels controller calling getChannels"); //debug
         $scope.$parent.getChannels(storage, webid, true, false, false);
     } else {
-        console.log("else executed"); //debug
+        //console.log("else executed"); //debug
         $scope.$parent.gotstorage = false;
         $scope.$parent.loading = false;
     }
@@ -161,19 +152,19 @@ angular.module('Cimba.channels',[
                             },
                             401: function() {
                                 console.log("401 Unauthorized");
-                                notify('Error', 'Unauthorized! You need to authentify before posting.');
+                                notify('Error', 'Unauthorized! You need to authenticate before posting.');
                             },
                             403: function() {
                                 console.log("403 Forbidden");
                                 notify('Error', 'Forbidden! You are not allowed to update the selected profile.');
                             },
                             406: function() {
-                                console.log("406 Contet-type unacceptable");
+                                console.log("406 Content-type unacceptable");
                                 notify('Error', 'Content-type unacceptable.');
                             },
                             507: function() {
                                 console.log("507 Insufficient storage");
-                                notify('Error', 'Insuffifient storage left! Check your server storage.');
+                                notify('Error', 'Insufficient storage left! Check your server storage.');
                             }
                         },
                         success: function(d,s,r) {
@@ -200,6 +191,7 @@ angular.module('Cimba.channels',[
     };
 
     $scope.newChannel = function(channelname, redirect){
+        /*
         console.log("wrong newchannel function if called from home"); //debug
         console.log('start channels'); //debug
         console.log($scope.$parent.userProfile.channels); //debug
@@ -207,6 +199,7 @@ angular.module('Cimba.channels',[
         console.log($scope.$parent.users[$scope.userProfile.webid].channels); //debug
         console.log($scope.users[$scope.userProfile.webid].channels); //debug
         console.log("end channels"); //debug
+        */
         $scope.loading = true;
         $scope.createbtn = 'Creating...';
         var title = 'ch';
@@ -214,19 +207,19 @@ angular.module('Cimba.channels',[
         
         var chan = {};
 
-        console.log("$scope.channelname: " + $scope.channelname); //debug
+        //console.log("$scope.channelname: " + $scope.channelname); //debug
         if ($scope.channelname !== undefined && testIfAllEnglish($scope.channelname)) {
             // remove white spaces and force lowercase
-            console.log("setting title, before: " + title); //debug
+            //console.log("setting title, before: " + title); //debug
             title = $scope.channelname;
-            console.log("title is now: " + title); //debug
+            //console.log("title is now: " + title); //debug
             churi = $scope.channelname.toLowerCase().split(' ').join('_');
         } 
 
         chan.uri = churi;
-        console.log("setting title, before: " + chan.title); //debug
+        //console.log("setting title, before: " + chan.title); //debug
         chan.title = title;
-        console.log("title is now: " + chan.title); //debug
+        //console.log("title is now: " + chan.title); //debug
         chan.owner = $scope.$parent.userProfile.webid;
         chan.author = $scope.$parent.userProfile.name;
 
@@ -251,23 +244,22 @@ angular.module('Cimba.channels',[
                 },
                 401: function() {
                     console.log("401 Unauthorized");
-                    notify('Error', 'Unauthorized! You need to authentificate!');
+                    noticesData.add('Error', 'Unauthorized! You need to authentificate!');
                 },
                 403: function() {
                     console.log("403 Forbidden");
-                    notify('Error', 'Forbidden! You are not allowed to create new channels.');
+                    noticesData.add('Error', 'Forbidden! You are not allowed to create new channels.');
                 },
                 406: function() {
                     console.log("406 Content-type unacceptable");
-                    notify('Error', 'Content-type unacceptable.');
+                    noticesData.add('Error', 'Content-type unacceptable.');
                 },
                 507: function() {
                     console.log("507 Insufficient storage");
-                    notify('Error', 'Insuffifient storage left! Check your server storage.');
+                    noticesData.add('Error', 'Insufficient storage left! Check your server storage.');
                 }
             },
             success: function(d,s,r) {
-                console.log('Success! Created new channel "'+title+'".');
                 //console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
                 //console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
                 // create the meta file
@@ -321,25 +313,25 @@ angular.module('Cimba.channels',[
                                 },
                                 401: function() {
                                     console.log("401 Unauthorized");
-                                    notify('Error', 'Unauthorized! You need to authenticate before posting.');
+                                    noticesData.add('Error', 'Unauthorized! You need to authenticate before posting.');
                                 },
                                 403: function() {
                                     console.log("403 Forbidden");
-                                    notify('Error', 'Forbidden! You are not allowed to create new containers.');
+                                    noticesData.add('Error', 'Forbidden! You are not allowed to create new containers.');
                                 },
                                 406: function() {
                                     console.log("406 Content-type unacceptable");
-                                    notify('Error', 'Content-type unacceptable.');
+                                    noticesData.add('Error', 'Content-type unacceptable.');
                                 },
                                 507: function() {
                                     console.log("507 Insufficient storage");
-                                    notify('Error', 'Insuffifient storage left! Check your server storage.');
+                                    noticesData.add('Error', 'Insufficient storage left! Check your server storage.');
                                 }
                             },
                             success: function(d,s,r) {
                                 // set default ACLs for channel
                                 $scope.setACL(chURI, $scope.audience.range, true); // set defaultForNew too
-                                console.log('Success! New channel created.');
+                                console.log('Success! Created new channel "'+title+'".');
                                 notify('Success', 'Your new "'+title+'" channel was succesfully created!');
                                 // clear form
                                 $scope.channelname = '';
@@ -377,6 +369,7 @@ angular.module('Cimba.channels',[
                                 $scope.$parent.users[chan.owner].channels[chURI] = chan;
                                 $scope.$parent.channels[chURI] = chan;
 
+                                /*
                                 console.log("listing $scope.$parent.users[" + chan.owner + "].channels"); //debug
                                 for (var k in $scope.$parent.users[chan.owner].channels) {
                                     console.log("key: " + k); //debug
@@ -387,6 +380,7 @@ angular.module('Cimba.channels',[
                                     console.log("key: " + kk); //debug
                                     console.log($scope.$parent.channels[kk]); //debug
                                 }
+                                */
 
                                 /*
                                 console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
@@ -410,12 +404,14 @@ angular.module('Cimba.channels',[
                                 console.log("1"); //debug
                                 */
 
+                                /*
                                 console.log('start channels'); //debug
                                 console.log($scope.$parent.userProfile.channels); //debug
                                 console.log($scope.userProfile.channels); //debug
                                 console.log($scope.$parent.users[$scope.userProfile.webid].channels); //debug
                                 console.log($scope.users[$scope.userProfile.webid].channels); //debug
                                 console.log("end channels"); //debug
+                                */
 
                                 // reload user profile when done
                                 $scope.getInfo(chan.owner, true, false);
@@ -426,8 +422,8 @@ angular.module('Cimba.channels',[
             }
         }).always(function() {
             // revert button contents to previous state
-            console.log("executing creation always");
             $scope.createbtn = 'Create';
+            channelname = "";
             $scope.loading = false;
             $scope.$apply();
         });
@@ -439,15 +435,10 @@ angular.module('Cimba.channels',[
 
         //manual way to create .meta and .acl uri
         var chn = ch.slice(0,ch.lastIndexOf("/"));
-        console.log("chn: " + chn); //debug
         var chnumber = chn.slice(chn.lastIndexOf("/") + 1, chn.length);
-        console.log("chnumber: " + chnumber); //debug
         var head = chn.slice(0,chn.lastIndexOf("/") + 1);
-        console.log("head: " + head); //debug
         var metauri = head + ".meta." + chnumber;
-        console.log("metauri: " + metauri); //debug
         var acluri = head + ".acl." + chnumber;
-        console.log("acluri: " + acluri); //debug
 
         $scope.delList = [metauri, acluri, ch]; // file uris are strings, directory uris are arrays
         $scope.delCounter = 3; //counter for number of deleted files
@@ -469,86 +460,54 @@ angular.module('Cimba.channels',[
 
         // get all SIOC:Post (using globbing)
         f.nowOrWhenFetched(uri, undefined, function(){
-            console.log("fetching for uri: " + uri); //debug
-            console.log("$scope.delList is"); //debug
-            for (var l in $scope.delList) {
-                console.log($scope.delList[l]); //debug
-            }
-            console.log("done");
-
-
-            console.log(posix('Directory')); //debug
-            console.log(rdfschema('Resource')); //debug
-            console.log(SIOC('Post')); //debug
+            //console.log("fetching for uri: " + uri); //debug
             var directories = g.statementsMatching(undefined, RDF('type'), posix('Directory'));
             var resources = g.statementsMatching(undefined, RDF('type'), rdfschema('Resource'));
 
+            /*
             console.log("directories, length: " + directories.length); //debug
             console.log(directories); //debug
             console.log("resources, length: " + resources.length); //debug
             console.log(resources); //debug
+            */
 
             if (resources.length > 0) {
                 for (var r in resources) {
                     var ruri = resources[r]['subject']['value'];
                     $scope.delCounter = $scope.delCounter + 1;
                     $scope.delList.push(ruri);
-                    console.log("adding to delList: " + ruri); //debug
-                    console.log("$scope.delList is now"); //debug
-                    for (var le in $scope.delList) {
-                        console.log($scope.delList[le]); //debug
-                    }
-                    console.log("done");
+                    //console.log("adding to delList: " + ruri); //debug
                 }
             }
 
             if (directories.length > 1) { //directories[0] always references the uri itself
-                console.log(1); //debug
                 for (var d in directories) {
-                    console.log(2); //debug
                     var nuri = directories[d]['subject']['value'];
                     if (nuri !== uri) { //makeshift way of preventing loopback
-                        console.log(3); //debug
-                        console.log("directories length: " + directories.length); //debug
-                        console.log("d at: " + d); //debug
+                        //console.log("directories length: " + directories.length); //debug
+                        //console.log("d at: " + d); //debug
                         if (d == 1) { //if first one (not uri itself), add to delList, otherwise, add to delStack
-                            console.log(4); //debug
+                            //console.log(4); //debug
                             $scope.delCounter = $scope.delCounter + 1;
                             $scope.delList.push(nuri);
-                            console.log("adding to delList: " + nuri); //debug
-                            console.log("$scope.delList is now"); //debug
-                            for (var ll in $scope.delList) {
-                                console.log($scope.delList[ll]); //debug
-                            }
-                            console.log("done");
+                            //console.log("adding to delList: " + nuri); //debug
                         }
                         else {
                             $scope.delStack.push(nuri);
-                            console.log("adding to delStack: " + nuri); //debug
+                            //console.log("adding to delStack: " + nuri); //debug
                         }
                     }
                 }
-                console.log("attempting to fetch: " + directories[1]['subject']['value']); //debug
+                //console.log("attempting to fetch: " + directories[1]['subject']['value']); //debug
                 $scope.mapTree(directories[1]['subject']['value']);
             }
             else if ($scope.delStack.length > 0) {
                 $scope.delCounter = $scope.delCounter + 1;
                 var suri = $scope.delStack.pop();
                 $scope.delList.push(suri);
-                console.log("$scope.delList is now"); //debug
-                for (var li in $scope.delList) {
-                    console.log($scope.delList[li]); //debug
-                }
-                console.log("done");
                 $scope.mapTree(suri);
             }
             else {
-                console.log("is this order right? counter: " + $scope.delCounter); //debug
-                console.log("$scope.delList is now"); //debug
-                for (var ly in $scope.delList) {
-                    console.log($scope.delList[ly]); //debug
-                }
-                console.log("done");
                 $scope.deleteContent(); //we finished mapping the directory uri, now we need to delete the content
             }
         });
@@ -557,16 +516,36 @@ angular.module('Cimba.channels',[
     // recursively deletes everything in $scope.delList[] from high to low index (most recent to earliest)
     $scope.deleteContent = function () {
         var uri = $scope.delList.pop();
-        console.log("Attempting to delete: " + uri); //debug
+        //console.log("Attempting to delete: " + uri); //debug
         $.ajax({
             url: uri,
             type: "delete",
             xhrFields: {
                 withCredentials: true
             },
+            statusCode: {
+                201: function() {
+                    console.log("201 Created");
+                },
+                401: function() {
+                    console.log("401 Unauthorized");
+                    noticesData.add('Error', 'Unauthorized! You need to authentificate!');
+                },
+                403: function() {
+                    console.log("403 Forbidden");
+                    noticesData.add('Error', 'Forbidden! You are not allowed to create new channels.');
+                },
+                406: function() {
+                    console.log("406 Content-type unacceptable");
+                    noticesData.add('Error', 'Content-type unacceptable.');
+                },
+                507: function() {
+                    console.log("507 Insufficient storage");
+                    noticesData.add('Error', 'Insufficient storage left! Check your server storage.');
+                }
+            },
             success: function (d,s,r) {
-                console.log('Deleted: ' + uri);
-                notify('Success', 'Your file was removed from the server!');
+                console.log('Successfully deleted: ' + uri); //leave this here
                 $scope.$apply();
                 if ($scope.delList.length > 0) {
                     $scope.deleteContent();
@@ -578,22 +557,23 @@ angular.module('Cimba.channels',[
             failure: function (r) {
                 var status = r.status.toString();
                 //error handling
-                console.log("ERROR: " + status + ". Cannot proceed with deleting the file.");
-                console.log("What's left in mapTree: ");
+                console.log("ERROR: Could not delete " + uri + ". Reason: " + errorThrown);
+                noticesData.add("error", "ERROR: Could not delete " + uri + ". Reason: " + errorThrown);
+
+                console.log("What's left in the map tree:");
                 for (var c in $scope.mapTree) {
                     console.log($scope.mapTree[c]);
                 }
-                notify("ERROR: " + status + ". Cannot proceed with deleting the file.");
 
                 if (status == '403') {
-                    notify('Error', 'Could not delete file, access denied!');
+                    noticesData.add('Error', 'Could not delete file, access denied!');
                 }
                 if (status == '404') {
-                    notify('Error', 'Could not delete file, no such resource on the server!');
+                    noticesData.add('Error', 'Could not delete file, no such resource on the server!');
                 }
+
                 //attempt to proceed with deleting the next item on the agenda
                 if ($scope.delList.length > 0) {
-                    console.log("Even though we failed, we're going to attempt to delete the next file.");
                     $scope.deleteContent();
                 }
                 else { //we already popped it, if there's nothing else left that we can delete, then reset $scope.channelToDelete
@@ -602,10 +582,11 @@ angular.module('Cimba.channels',[
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 //error handling
-                console.log("ERROR: Cannot proceed with deleting file");
+                console.log("ERROR: Could not delete '" + uri + "'. Reason: " + errorThrown);
+                noticesData.add("error", "ERROR: Could not delete " + uri + " . Reason: " + errorThrown);
+
                 //attempt to proceed with deleting the next item on the agenda
                 if ($scope.delList.length > 0) {
-                    console.log("Even though we failed, we're going to attempt to delete the next file.");
                     $scope.deleteContent();
                 }
                 else { //we already popped it, if there's nothing else left that we can delete, then reset $scope.channelToDelete
@@ -618,17 +599,19 @@ angular.module('Cimba.channels',[
     $scope.removeChannel = function () {
         if ($scope.channelToDelete !== "") {
             var uri = $scope.channelToDelete;
-            console.log("removing channel from $scope.userProfile.channels and $scope.users[<webid>].channels"); //debug
+            //console.log("removing channel from $scope.userProfile.channels and $scope.users[<webid>].channels"); //debug
             //remove channel from arrays
             //TODO, figure out whether to delete parent or child channels array or both
             var webid = $scope.userProfile.webid;
 
+            /*
             console.log('start channels'); //debug
             console.log($scope.$parent.userProfile.channels); //debug
             console.log($scope.userProfile.channels); //debug
             console.log($scope.$parent.users[webid].channels); //debug
             console.log($scope.users[webid].channels); //debug
             console.log("end channels"); //debug
+            */
 
             delete $scope.$parent.userProfile.channels[uri];
             delete $scope.userProfile.channels[uri];
@@ -652,12 +635,14 @@ angular.module('Cimba.channels',[
             $scope.$apply();
             //
 
+            /*
             console.log('start channels'); //debug
             console.log($scope.$parent.userProfile.channels); //debug
             console.log($scope.userProfile.channels); //debug
             console.log($scope.$parent.users[webid].channels); //debug
             console.log($scope.users[webid].channels); //debug
             console.log("end channels"); //debug
+            */
         }
     };
 

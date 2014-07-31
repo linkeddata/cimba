@@ -456,7 +456,7 @@ angular.module( 'Cimba.home', [
                         // close modal
                         $scope.hidePopup();
                         //$('#newMBModal').modal('hide');
-                        this.newMBModal = false; //debug, testing
+                        this.newMBModal = false; //testing
                         if (express && express === true) {
                             $scope.channelname = "main";
                             $scope.newChannel();

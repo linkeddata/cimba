@@ -302,6 +302,9 @@ angular.module('Cimba.posts',[
 						},
 						success: function (d,s,r) {
 							console.log('Deleted! ACL file was removed from the server.');
+							//reset
+							$scope.deletePostStatus = false;
+							$scope.postToDelete = [];
 						}
 					});
 				},
@@ -313,6 +316,9 @@ angular.module('Cimba.posts',[
 					if (status == '404') {
 						notify('Error', 'Could not delete post, no such resource on the server!');
 					}
+					//reset
+					$scope.deletePostStatus = false;
+					$scope.postToDelete = [];
 				}
 			});
 		}
