@@ -52,24 +52,7 @@
 
       </div>
 
-    </div>
 
-    <div class="notices">
-      <div class="container">
-        <div class="row">
-          <div class="col-md-12">
-            <div ng-repeat="notice in notices" class="error-message-container" ng-click="cancelTimeout(notice.timeout)">
-              <button type="button" class="close notice-close" ng-click="closeNotice(notice.id)"><span class="fa fa-times"></span></button>
-              <p class="notice-text" ng-bind-html="notice.text | makeLinks"></p>
-            </div>
-            <!-- <button class="btn btn-primary" ng-click="addMessage()">Show</button> -->
-          </div>
-        </div>
-      </div>
-    </div>
-
-
-    
     <div ng-class="showMenu?'slide-out':''" class="sidebar left-menu" style="z-index: 999; position: fixed;">
 
       <div ng-show="userProfile.webid" ng-click="showMenu=false" ng-controller="TabController as tabCtrl">
@@ -157,6 +140,24 @@
         </a>
       </div>
     </div>
+    </div>
+
+    <div class="notices">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <div ng-repeat="notice in notices" class="error-message-container" ng-click="cancelTimeout(notice.timeout)">
+              <button type="button" class="close notice-close" ng-click="closeNotice(notice.id)"><span class="fa fa-times"></span></button>
+              <p class="notice-text" ng-bind-html="notice.text | makeLinks"></p>
+            </div>
+            <!-- <button class="btn btn-primary" ng-click="addMessage()">Show</button> -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    
 
     <!-- set the notifications container hidden when the page first loads -->
     <div id="notification" style="display:none">
