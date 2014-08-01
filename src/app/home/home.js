@@ -147,17 +147,21 @@ angular.module( 'Cimba.home', [
                 }
             },
             success: function(d,s,r) {
-                console.log('Success! Created new channel "'+title+'".');
-                //console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
-                //console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
                 // create the meta file
                 var meta = parseLinkHeader(r.getResponseHeader('Link'));
+                var aclURI = meta['acl']['href'];
                 var metaURI = meta['meta']['href'];
 
+                console.log("aclURI: " + aclURI);
                 console.log("metaURI: " + metaURI);
 
                 var chURI = r.getResponseHeader('Location');
                 console.log("chURI: " + chURI);
+
+                // got the URI for the new channel
+                if (chURI && aclURI) {
+                    $scope.setACL(aclURI, $scope.audience.range, true); //set default ACLs for the channel
+                }
 
                 // got the URI for the new channel
                 if (chURI && metaURI) {
@@ -217,8 +221,6 @@ angular.module( 'Cimba.home', [
                                 }
                             },
                             success: function(d,s,r) {
-                                // set default ACLs for channel
-                                $scope.setACL(chURI, $scope.audience.range, true); // set defaultForNew too
                                 console.log('Success! New channel created.');
                                 notify('Success', 'Your new "'+title+'" channel was succesfully created!');
                                 // clear form
@@ -226,16 +228,10 @@ angular.module( 'Cimba.home', [
 
                                 $scope.$apply();
 
-                                // //set default if first channel
-                                // if ($scope.defaultChannel === undefined) {
-                                //     console.log("no default channel, setting default equal to "); //debug
-                                //     $scope.defaultChannel = chan;
-                                //     //console.log(chan); //debug
-                                // }
-
                                 //adds the newly created channel to our list
                                 chan.uri = chURI;
                                 $scope.$parent.users[chan.owner].channels[chURI] = chan;
+                                $scope.$parent.userProfile.channels[chan.uri] = chan;
                                 $scope.$parent.channels[chURI] = chan;
 
                                 // reload user profile when done
@@ -506,6 +502,7 @@ angular.module( 'Cimba.home', [
 
                 var g = $rdf.graph();
                 // add document triples
+                g.add($rdf.sym(''), RDF('type'), WAC('Authorization'));
                 g.add($rdf.sym(''), WAC('accessTo'), $rdf.sym(''));
                 g.add($rdf.sym(''), WAC('accessTo'), $rdf.sym(uri));
                 g.add($rdf.sym(''), WAC('agent'), $rdf.sym($scope.userProfile.webid));
@@ -513,6 +510,7 @@ angular.module( 'Cimba.home', [
                 g.add($rdf.sym(''), WAC('mode'), WAC('Write'));
 
                 // add post triples
+                g.add($rdf.sym(frag), RDF('type'), WAC('Authorization'));
                 g.add($rdf.sym(frag), WAC('accessTo'), $rdf.sym(uri));
                 // public visibility
                 if (type == 'public' || type == 'friends') {
