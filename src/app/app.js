@@ -201,17 +201,14 @@ angular.module( 'Cimba', [
                 $scope.loggedin = true;
                 // console.log($scope.userProfile.channels);
 
-                // if ($scope.userProfile.channels && !$scope.defaultChannel) {
-                //     for (var w in $scope.userProfile.channels) {
-                //         $scope.defaultChannel = $scope.userProfile.channels[w];
-                //         console.log($scope.defaultChannel);
-                //         break;
-                //     }
-                // }
+                if ($scope.userProfile.channels && !$scope.defaultChannel) {
+                    for (var w in $scope.userProfile.channels) {
+                        $scope.defaultChannel = $scope.userProfile.channels[w];                        
+                        break;
+                    }
+                }
 
-                if ($scope.userProfile.mbspace && (!$scope.users || Object.keys($scope.users).length === 0)) {
-                    // console.log("found user mbspace");
-                    console.log("no scope.users");
+                if ($scope.userProfile.mbspace && (!$scope.users || Object.keys($scope.users).length === 0)) {                                        
                     $scope.getUsers();
                 }
                 // refresh data
@@ -267,12 +264,6 @@ angular.module( 'Cimba', [
 
         // fetch user data
         f.nowOrWhenFetched(docURI,undefined,function(ok, body) {
-            // console.log("listing $scope.users"); //debug
-            for (var k in $scope.users) {
-                // console.log("key: " + k); //debug
-                // console.log($scope.users[k]); //debug
-            }
-
             if (!ok) {
                 if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
                   notify('Warning', 'WebID profile not found.');
@@ -280,7 +271,7 @@ angular.module( 'Cimba', [
                   $scope.searchbtn = 'Search';
                   // reset progress bar
                   ngProgress.complete();
-                  console.log("ng 2: complete"); //debug
+                  // console.log("ng 2: complete"); //debug
                   $scope.$apply();
                 }
             } 
@@ -292,6 +283,7 @@ angular.module( 'Cimba', [
 
             // get storage endpoints
             var storage = g.any(webidRes, SPACE('storage')).value;
+            console.log("storage: " + storage);
 
             // get list of delegatees
             var delegs = g.statementsMatching(webidRes, ACL('delegatee'), undefined);
@@ -332,7 +324,7 @@ angular.module( 'Cimba', [
                 // console.log("$scope.users[" + webid + "] doesn't exist, initializing it"); //debug
                 $scope.users[webid] = {};
             }
-            $scope.users[webid].mine = mine;
+            
 
             if (update) {
                 $scope.refreshinguser = true;                
@@ -354,7 +346,10 @@ angular.module( 'Cimba', [
                 // $scope.users[webid].name = name; //for displaying delete button in posts.tpl.html
                 // $scope.users[webid].picture = pic; //resolves issue of not displaying profile picture that the above line creates
                 // $scope.users[webid].storagespace = storage; //not inherently necessary since we could just call $scope.userProfile.storagespace
-                $scope.users[webid] = $scope.userProfile;
+                $scope.users[webid].name = name;
+                $scope.users[webid].picture = pic;
+                $scope.users[webid].storagespace = storage;
+                $scope.users[webid].mine = mine;
                     //but it's nice to have just in case
 
                 // console.log("$scope.users[" + webid + "]"); //debug
@@ -394,7 +389,7 @@ angular.module( 'Cimba', [
 
             } else {
                 ngProgress.complete();
-                console.log("ng 3.3: complete");
+                // console.log("ng 3.3: complete");
                 $scope.loading = false;
             }
 
@@ -413,8 +408,7 @@ angular.module( 'Cimba', [
         // if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
         //     $scope.searchbtn = 'Search';
         // }
-
-        return $scope.channels;
+        
     };
 
     $scope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams){
@@ -467,10 +461,10 @@ angular.module( 'Cimba', [
                 // console.log(g.any(ownerObj, FOAF('name')));
                 if (g.any(ownerObj, SIOC('account_of'))) {
                     channel["owner"] = g.any(ownerObj, SIOC('account_of')).value;                                        
-                }  else if ($scope.userProfile.channels && 
+                } else if ($scope.userProfile.channels && 
                     $scope.userProfile.channels[channel.uri]) {
                     channel["owner"] = $scope.userProfile.webid;
-                }                
+                }               
                
                 $scope.$apply();
                 $scope.getPosts(channel.uri, channel.title);
@@ -488,7 +482,7 @@ angular.module( 'Cimba', [
 
         var g = $rdf.graph();
         var f = $rdf.fetcher(g, TIMEOUT);
-        
+                
         // add CORS proxy
         $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
 
@@ -513,8 +507,10 @@ angular.module( 'Cimba', [
                 }
                 if (mine && !$scope.users[webid].mbspace) {
                     // set default Microblog space
+                    console.log(ws);
                     $scope.users[webid].mbspace = ws[0]['subject']['value'];
                     $scope.userProfile.mbspace = ws[0]['subject']['value'];
+                    console.log("mbspace: " + $scope.userProfile.mbspace);
                     // console.log("at getChannels, looking for .mbspace $scope.users[" + webid + "] is"); //debug
                     // console.log($scope.users[webid]); //debug
 
@@ -611,16 +607,15 @@ angular.module( 'Cimba', [
                         }
 
                         // set a default channel for the logged user
-                        // if (mine) {
-                        //     $scope.userProfile.channel_size = Object.keys($scope.userProfile.channels).length; //not supported in IE8 and below
-                        //     if (!$scope.defaultChannel) {
-                        //         console.log("no default channel found");
-                        //         for (var u in $scope.users[webid].channels) {                                
-                        //             $scope.defaultChannel = $scope.userProfile.channels[u];
-                        //             break;
-                        //         }
-                        //     }   
-                        // }
+                        if (mine) {
+                            $scope.userProfile.channel_size = Object.keys($scope.userProfile.channels).length; //not supported in IE8 and below
+                            if (!$scope.defaultChannel) {                                
+                                for (var u in $scope.users[webid].channels) {                                
+                                    $scope.defaultChannel = $scope.userProfile.channels[u];
+                                    break;
+                                }
+                            }
+                        }
 
                         // done refreshing user information -> update view
                         if (update) {
@@ -658,12 +653,6 @@ angular.module( 'Cimba', [
                 for (var i in ws) {
                     //console.log("doing this"); //debug
                     w = ws[i]['subject']['value'];
-
-                    //console.log("$scope.users[" + webid + "] has channels"); //debug
-                    for (var ty in $scope.users[webid].channels) {
-                        //console.log("key: " + ty); //debug
-                        //console.log($scope.users[webid].channels[ty]); //debug
-                    }
 
                     // find the channels info for the user (from .meta files)
                     f.nowOrWhenFetched(w+'.*', undefined,func);
@@ -841,7 +830,7 @@ angular.module( 'Cimba', [
             $scope.loading = false;
             // console.log("loading 5: false"); //debug
             ngProgress.complete(); 
-            console.log("ng 4.5?: complete"); //testing
+            // console.log("ng 4.5?: complete"); //testing
             $scope.$apply();
         });
     };
@@ -1018,8 +1007,9 @@ angular.module( 'Cimba', [
     $scope.getUsers = function (loadposts) {
         console.log("get users called");
         // console.log("get subscriptions for " + $scope.userProfile.webid);
-        // console.log("space: " + $scope.users[$scope.userProfile.webid].mbspace);
+        console.log("space: " + $scope.userProfile.mbspace);
         if ($scope.userProfile.mbspace && $scope.userProfile.mbspace.length > 1) {
+
             var followURI = $scope.userProfile.mbspace+'following';
     
             var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");

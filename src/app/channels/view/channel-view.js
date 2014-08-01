@@ -24,8 +24,7 @@ angular.module('Cimba.channels.view', ['ui.router'])
         $scope.postbody = '';
     }
     $scope.path = $stateParams.path;
-    $scope.currentUrl = $location.absUrl();
-    console.log(sessionStorage.getItem($scope.$parent.postData[$scope.currentUrl]));
+    $scope.currentUrl = $location.absUrl();    
 
     $scope.safeUri = function (uri) {
         return uri.replace(/^https?:\/\//,'');
@@ -37,6 +36,10 @@ angular.module('Cimba.channels.view', ['ui.router'])
         console.log("found");
         var ch = $scope.channels[$scope.chanUri];
         $scope.$parent.getPosts(ch.uri, ch.title);
+    } else if ($scope.userProfile.channels[$scope.chanUri]) {
+        $scope.channels[$scope.chanUri] = $scope.userProfile.channels[$scope.chanUri];
+        var ch = $scope.channels[$scope.chanUri];
+        $scope.$parent.getPosts(ch.uri, ch.title);
     } else {
         console.log("not found");
         $scope.$parent.getChannel($scope.chanUri);
@@ -46,14 +49,11 @@ angular.module('Cimba.channels.view', ['ui.router'])
     $scope.savePostData=function(postBody){
         var currentPost = postBody;
         sessionStorage.setItem($scope.$parent.postData[$scope.currentUrl], currentPost, $scope.currentUrl);
-        console.log("This is supposed to save the post data in local storage");
-        console.log(sessionStorage.getItem($scope.$parent.postData[$scope.currentUrl]));
     };
 
     //clears post data from local storage
     $scope.clearPostData=function(){
-        sessionStorage.removeItem($scope.$parent.postData[$scope.currentUrl]);
-        console.log("Item removed");
+        sessionStorage.removeItem($scope.$parent.postData[$scope.currentUrl]);        
     };
     
 })

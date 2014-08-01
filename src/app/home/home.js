@@ -52,7 +52,7 @@ angular.module( 'Cimba.home', [
     $scope.newMBModal = false;
     $scope.newStorageModal = false;
     $scope.showOverlay = false;
-    $scope.defaultChannel = $scope.$parent.defaultChannel;
+        
     for (var c in $scope.$parent.userProfile.subscribedChannels) {
         var channel = $scope.$parent.userProfile.subscribedChannels[c];
         $scope.$parent.getPosts(channel.uri, channel.title);

@@ -379,6 +379,15 @@ angular.module('Cimba.posts',[
 			$scope.users[$scope.userProfile.webid].gotposts = false;
 		}
 	};
+
+	$scope.setChannel = function(channelUri) {		
+		if ($scope.userProfile.channels && $scope.userProfile.channels[channelUri]) {
+			$scope.defaultChannel = $scope.userProfile.channels[channelUri];
+		}
+		else {
+            noticesData.add("Could not set channel to: " + channelUri);
+        }
+    };
 })
 
 //simple directive to display new post box
