@@ -52,11 +52,12 @@ angular.module( 'Cimba.home', [
     $scope.newMBModal = false;
     $scope.newStorageModal = false;
     $scope.showOverlay = false;
-        
+
     for (var c in $scope.$parent.userProfile.subscribedChannels) {
         var channel = $scope.$parent.userProfile.subscribedChannels[c];
         $scope.$parent.getPosts(channel.uri, channel.title);
     }
+
     $scope.showPopup = function (p) {
         console.log("ex show");
         if (p == "ch") {

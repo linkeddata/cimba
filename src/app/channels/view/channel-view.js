@@ -38,8 +38,8 @@ angular.module('Cimba.channels.view', ['ui.router'])
         $scope.$parent.getPosts(ch.uri, ch.title);
     } else if ($scope.userProfile.channels[$scope.chanUri]) {
         $scope.channels[$scope.chanUri] = $scope.userProfile.channels[$scope.chanUri];
-        var ch = $scope.channels[$scope.chanUri];
-        $scope.$parent.getPosts(ch.uri, ch.title);
+        var ch2 = $scope.channels[$scope.chanUri];
+        $scope.$parent.getPosts(ch2.uri, ch2.title);
     } else {
         console.log("not found");
         $scope.$parent.getChannel($scope.chanUri);

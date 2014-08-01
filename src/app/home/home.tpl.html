@@ -12,7 +12,7 @@
   </div>
 
   <!-- new storage modal -->
-  <div id="setup" class="container" ng-show="userProfile.webid && !userProfile.storagespace">
+  <div id="setup" class="container" ng-show="userProfile.webid && !userProfile.storagespace && !loading">
       <div class="row">
           <div class="col-md-12">
               <div class="panel panel-default text-center">
@@ -24,7 +24,7 @@
   </div>
 
   <!-- new uB modal -->
-  <div id="setup" class="container" ng-show="userProfile.webid && userProfile.storagespace && users[userProfile.webid].mbspace == false">
+  <div id="setup" class="container" ng-show="userProfile.webid && userProfile.storagespace && users[userProfile.webid].mbspace == false && !loading">
       <div class="row">
           <div class="col-md-12">
               <div class="panel panel-default text-center">

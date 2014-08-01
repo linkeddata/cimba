@@ -111,7 +111,7 @@ function unquote(value) {
     return value;
 }
 // parse a Link header
-function parseLinkHeader(header) {
+function parseLinkHeader(header) {	
 	var linkexp = /<[^>]*>\s*(\s*;\s*[^\(\)<>@,;:"\/\[\]\?={} \t]+=(([^\(\)<>@,;:"\/\[\]\?={} \t]+)|("[^"]*")))*(,|$)/g;
 	var paramexp = /[^\(\)<>@,;:"\/\[\]\?={} \t]+=(([^\(\)<>@,;:"\/\[\]\?={} \t]+)|("[^"]*"))/g;
 

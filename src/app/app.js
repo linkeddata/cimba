@@ -127,7 +127,7 @@ angular.module( 'Cimba', [
     // $scope.gotErrorMessage = true; 
     $rootScope.notices = [];
     $scope.postData = {};
-    $scope.defaultChannel = undefined;
+    // $scope.defaultChannel = {};
 
     $scope.login = function () {
         $location.path('/login');
@@ -187,8 +187,7 @@ angular.module( 'Cimba', [
     };
 
     // retrieve from sessionStorage
-    $scope.loadCredentials = function () {
-        console.log("load credentials executed");
+    $scope.loadCredentials = function () {        
         if (sessionStorage.getItem($scope.appuri)) {
             // console.log("found session stored info");
             var cimba = JSON.parse(sessionStorage.getItem($scope.appuri));
@@ -203,7 +202,7 @@ angular.module( 'Cimba', [
 
                 if ($scope.userProfile.channels && !$scope.defaultChannel) {
                     for (var w in $scope.userProfile.channels) {
-                        $scope.defaultChannel = $scope.userProfile.channels[w];                        
+                        $scope.defaultChannel = $scope.userProfile.channels[w];
                         break;
                     }
                 }
@@ -282,8 +281,7 @@ angular.module( 'Cimba', [
             var depic = g.any(webidRes, FOAF('depiction'));
 
             // get storage endpoints
-            var storage = g.any(webidRes, SPACE('storage')).value;
-            console.log("storage: " + storage);
+            var storage = g.any(webidRes, SPACE('storage')).value;            
 
             // get list of delegatees
             var delegs = g.statementsMatching(webidRes, ACL('delegatee'), undefined);
@@ -507,10 +505,10 @@ angular.module( 'Cimba', [
                 }
                 if (mine && !$scope.users[webid].mbspace) {
                     // set default Microblog space
-                    console.log(ws);
+                    // console.log(ws);
                     $scope.users[webid].mbspace = ws[0]['subject']['value'];
                     $scope.userProfile.mbspace = ws[0]['subject']['value'];
-                    console.log("mbspace: " + $scope.userProfile.mbspace);
+                    // console.log("mbspace: " + $scope.userProfile.mbspace);
                     // console.log("at getChannels, looking for .mbspace $scope.users[" + webid + "] is"); //debug
                     // console.log($scope.users[webid]); //debug
 
@@ -609,12 +607,13 @@ angular.module( 'Cimba', [
                         // set a default channel for the logged user
                         if (mine) {
                             $scope.userProfile.channel_size = Object.keys($scope.userProfile.channels).length; //not supported in IE8 and below
-                            if (!$scope.defaultChannel) {                                
-                                for (var u in $scope.users[webid].channels) {                                
-                                    $scope.defaultChannel = $scope.userProfile.channels[u];
+                            if (!$scope.defaultChannel) { 
+                                console.log("default channel not found");                               
+                                for (var u in $scope.userProfile.channels) {                                
+                                    $scope.defaultChannel = $scope.userProfile.channels[u];                                    
                                     break;
                                 }
-                            }
+                            }                            
                         }
 
                         // done refreshing user information -> update view
@@ -851,11 +850,9 @@ angular.module( 'Cimba', [
                 }
             }).then(function(res){
                 $scope.webidresults = [];
-                angular.forEach(res.data, function(value, key) {
-                    console.log(value);
+                angular.forEach(res.data, function(value, key) {                    
                     value.webid = key;
-                    if (!value.img) {
-                        console.log("got here");
+                    if (!value.img) {                        
                         value.img = ['assets/generic_photo.png'];
                     }
                     value.host = getHostname(key);
@@ -1005,9 +1002,6 @@ angular.module( 'Cimba', [
     // get list of users (that I'm following) + their channels
     // optionally load posts
     $scope.getUsers = function (loadposts) {
-        console.log("get users called");
-        // console.log("get subscriptions for " + $scope.userProfile.webid);
-        console.log("space: " + $scope.userProfile.mbspace);
         if ($scope.userProfile.mbspace && $scope.userProfile.mbspace.length > 1) {
 
             var followURI = $scope.userProfile.mbspace+'following';
@@ -1088,8 +1082,7 @@ angular.module( 'Cimba', [
                         if (_user.webid !== $scope.userProfile.webid) { //do not overwrite our own user
                             //(change later to append because we need to know if we're subscribed or not to our own channel)
                             $scope.users[_user.webid] = _user;
-                            console.log("user webid: " + _user.webid);
-                            // console.log("in $scope.users[" + _user.webid + "], channels are"); //debug
+                            
                             for (var chann in $scope.users[_user.webid].channels) {
                                 // console.log(_user.channels[chann]); //debug
                                 if ($scope.users[_user.webid].channels[chann].action === 'Unsubscribe') {
