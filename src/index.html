@@ -20,12 +20,11 @@
     <% scripts.forEach( function ( file ) { %>
     <script type="text/javascript" src="<%= file %>"></script>
     <% }); %>
-    <script type='text/javascript' src="http://momentjs.com/downloads/moment.min.js"></script>
 
 
   </head>
   <body class='gray'>
-    <div id="site-header" class="navbar navbar-default">
+    <div id="site-header" class="navbar navbar-default" >
       <div class="container-fluid">
         <div class="row">
           <div ng-show="loggedin" class="pull-right" id="current-user-info">

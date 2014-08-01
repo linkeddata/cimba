@@ -124,6 +124,7 @@ function parseLinkHeader(header) {
 		var link = {};
 		link.href = href;
 		var s = ps.match(paramexp);
+		console.log(link.href); //debug
 		for (j = 0; j < s.length; j++) {
 			var p = s[j];
 			var paramsplit = p.split('=');

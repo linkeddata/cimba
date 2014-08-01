@@ -181,6 +181,8 @@ angular.module( 'Cimba', [
 
     // cache user credentials in sessionStorage to avoid double sign in
     $scope.saveCredentials = function () {
+        console.log("userprofile channels: "); //debug
+        console.log($scope.userProfile); //debug
         var cimba = {};
         cimba.userProfile = $scope.userProfile;
         sessionStorage.setItem($scope.appuri, JSON.stringify(cimba));
