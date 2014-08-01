@@ -2,6 +2,7 @@
 var PROXY = "https://rww.io/proxy?uri={uri}";
 var AUTH_PROXY = "https://rww.io/auth-proxy?uri=";
 var TIMEOUT = 90000;
+var meta_starts_with_dot = false;
 // add filters
 var ngCimba = angular.module('CimbaApp', ['ui','ui.filters','ngSanitize']);
 // replace dates with moment's "time ago" style
@@ -634,6 +635,15 @@ function CimbaCtrl($scope, $http, $filter) {
 	        success: function(d,s,r) {
 	            console.log('Success! Created new uB directory at '+mburi+'/');
 	            // create the meta file
+		        var l = r.getResponseHeader('Link');
+			if (l == null)
+			  {
+			    notify ('Error', 'No Link Headers found in reply');
+			    $scope.createbtn = 'Create';
+			    $scope.loading = false;
+			    $scope.$apply();
+			    return;
+			  }
 	           	var meta = parseLinkHeader(r.getResponseHeader('Link'));
 				var metaURI = meta['meta']['href'];
 				var ldpresource = r.getResponseHeader("Location");
@@ -643,6 +653,8 @@ function CimbaCtrl($scope, $http, $filter) {
 			    var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
 			    var LDPX = $rdf.Namespace("http://ns.rww.io/ldpx#");
 				var g = $rdf.graph();
+			    if (metaURI.indexOf ('/.') != -1)
+			      meta_starts_with_dot = true;
 				
 				// add uB triple (append trailing slash since we got dir)
 		        g.add($rdf.sym(mburi+'/'), RDF('type'), SIOC('Space'));
@@ -849,7 +861,7 @@ function CimbaCtrl($scope, $http, $filter) {
 		$scope.publishing = true;
 		// get the current date
 		var now = Date.now();
-		now = moment(now).zone('00:00').format("YYYY-MM-DDTHH:mm:ssZZ");
+		now = moment(now).zone('00:00').format("YYYY-MM-DDTHH:mm:ssZ");
 		
 		var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 		var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
@@ -967,6 +979,7 @@ function CimbaCtrl($scope, $http, $filter) {
 
 			    var g = $rdf.graph();
 			    // add document triples
+				g.add($rdf.sym(''), RDF('type'), WAC('Authorization'));
 				g.add($rdf.sym(''), WAC('accessTo'), $rdf.sym(''));
 				g.add($rdf.sym(''), WAC('accessTo'), $rdf.sym(uri));
 				g.add($rdf.sym(''),	WAC('agent'), $rdf.sym($scope.me.webid));
@@ -974,6 +987,7 @@ function CimbaCtrl($scope, $http, $filter) {
 				g.add($rdf.sym(''),	WAC('mode'), WAC('Write'));
 
 				// add post triples
+				g.add($rdf.sym(frag), RDF('type'), WAC('Authorization'));
 				g.add($rdf.sym(frag), WAC('accessTo'), $rdf.sym(uri));
 				// public visibility
 				if (type == 'public' || type == 'friends') {
@@ -1254,6 +1268,24 @@ function CimbaCtrl($scope, $http, $filter) {
 	    var f = $rdf.fetcher(g, TIMEOUT);
 	    // add CORS proxy
 	    $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
+	    $.ajax ({
+	        type:"GET",
+		url:uri, 
+		processData: false, 
+	        headers: {
+		  Accept: 'text/turtle'
+		},
+	        xhrFields: { withCredentials: true },
+		success: function(d,s,r) {
+		      var l = r.getResponseHeader('Link');
+		      if (l != null) {
+		      var meta = parseLinkHeader(l);
+		      var metaURI = meta['meta']['href'];
+		      if (metaURI.indexOf ('/.') != -1)
+			meta_starts_with_dot = true;
+		      }
+			 },
+	    	error: function() {}});
 	    // fetch user data: SIOC:Space -> SIOC:Container -> SIOC:Post
 	    f.nowOrWhenFetched(uri,undefined,function(){
 	        // find all SIOC:Container
@@ -1271,7 +1303,7 @@ function CimbaCtrl($scope, $http, $filter) {
 					w = ws[i]['subject']['value'];
 
 					// find the channels info for the user (from .meta files)
-		        	f.nowOrWhenFetched(w+'.*', undefined,function(){
+					f.nowOrWhenFetched(w + (meta_starts_with_dot ? '.*' : '*'), undefined,function(){
 			        	var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));
 			        	var channels = [];
 
