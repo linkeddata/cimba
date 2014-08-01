@@ -229,7 +229,7 @@ angular.module('Cimba.channels',[
 
         $.ajax({
             type: "POST",
-            url: $scope.$parent.users[chan.owner].mbspace,
+            url: $scope.$parent.userProfile.mbspace,
             processData: false,
             contentType: 'text/turtle',
             headers: {
@@ -244,7 +244,7 @@ angular.module('Cimba.channels',[
                 },
                 401: function() {
                     console.log("401 Unauthorized");
-                    noticesData.add('Error', 'Unauthorized! You need to authentificate!');
+                    noticesData.add('Error', 'Unauthorized! You need to authenticate!');
                 },
                 403: function() {
                     console.log("403 Forbidden");
@@ -263,6 +263,8 @@ angular.module('Cimba.channels',[
                 //console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
                 //console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
                 // create the meta file
+                console.log("response header"); //debug
+                console.log(r.getResponseHeader('Link')); //debug
                 var meta = parseLinkHeader(r.getResponseHeader('Link'));
                 var metaURI = meta['meta']['href'];
 
@@ -330,6 +332,7 @@ angular.module('Cimba.channels',[
                             },
                             success: function(d,s,r) {
                                 // set default ACLs for channel
+                                console.log("chURI to set ACL is: " + chURI); //debug
                                 $scope.setACL(chURI, $scope.audience.range, true); // set defaultForNew too
                                 console.log('Success! Created new channel "'+title+'".');
                                 notify('Success', 'Your new "'+title+'" channel was succesfully created!');
@@ -367,7 +370,9 @@ angular.module('Cimba.channels',[
                                 //adds the newly created channel to our list
                                 chan.uri = chURI;
                                 $scope.$parent.users[chan.owner].channels[chURI] = chan;
-                                $scope.$parent.channels[chURI] = chan;
+                                $scope.$parent.userProfile.channels[chan.uri] = chan;
+                                $scope.users[chan.owner].channels[chURI] = chan; //testing
+                                $scope.$parent.channels[chURI] = chan; //is this one necessary?
 
                                 /*
                                 console.log("listing $scope.$parent.users[" + chan.owner + "].channels"); //debug
@@ -396,8 +401,6 @@ angular.module('Cimba.channels',[
 
                                 //console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
                                 //console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
-                                //hide window
-                                $scope.hidePopup();
                                 /*
                                 console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
                                 console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
@@ -422,6 +425,7 @@ angular.module('Cimba.channels',[
             }
         }).always(function() {
             // revert button contents to previous state
+            $scope.hidePopup(); //hide modal
             $scope.createbtn = 'Create';
             channelname = "";
             $scope.loading = false;
@@ -617,6 +621,8 @@ angular.module('Cimba.channels',[
             delete $scope.userProfile.channels[uri];
             delete $scope.$parent.users[webid].channels[uri];
             delete $scope.users[webid].channels[uri];
+            delete $scope.$parent.channels[uri]; //to be sure
+            delete $scope.channels[uri]; //to be sure
 
             for (var p in $scope.$parent.posts) {
                 if ($scope.$parent.posts[p].channel === uri) {

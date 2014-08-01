@@ -116,7 +116,7 @@ angular.module( 'Cimba.home', [
 
         $.ajax({
             type: "POST",
-            url: $scope.$parent.users[chan.owner].mbspace,
+            url: $scope.$parent.userProfile.mbspace,
             processData: false,
             contentType: 'text/turtle',
             headers: {
@@ -131,7 +131,7 @@ angular.module( 'Cimba.home', [
                 },
                 401: function() {
                     console.log("401 Unauthorized");
-                    notify('Error', 'Unauthorized! You need to authentificate!');
+                    notify('Error', 'Unauthorized! You need to authenticate!');
                 },
                 403: function() {
                     console.log("403 Forbidden");
@@ -143,7 +143,7 @@ angular.module( 'Cimba.home', [
                 },
                 507: function() {
                     console.log("507 Insufficient storage");
-                    notify('Error', 'Insuffifient storage left! Check your server storage.');
+                    notify('Error', 'Insufficient storage left! Check your server storage.');
                 }
             },
             success: function(d,s,r) {
@@ -213,7 +213,7 @@ angular.module( 'Cimba.home', [
                                 },
                                 507: function() {
                                     console.log("507 Insufficient storage");
-                                    notify('Error', 'Insuffifient storage left! Check your server storage.');
+                                    notify('Error', 'Insufficient storage left! Check your server storage.');
                                 }
                             },
                             success: function(d,s,r) {
@@ -226,8 +226,6 @@ angular.module( 'Cimba.home', [
 
                                 $scope.$apply();
 
-                                $scope.hidePopup();
-
                                 // //set default if first channel
                                 // if ($scope.defaultChannel === undefined) {
                                 //     console.log("no default channel, setting default equal to "); //debug
@@ -239,8 +237,6 @@ angular.module( 'Cimba.home', [
                                 chan.uri = chURI;
                                 $scope.$parent.users[chan.owner].channels[chURI] = chan;
                                 $scope.$parent.channels[chURI] = chan;
-                                //hide window
-                                $scope.hidePopup();
 
                                 // reload user profile when done
                                 $scope.getInfo(chan.owner, true, false);
@@ -251,7 +247,7 @@ angular.module( 'Cimba.home', [
             }
         }).always(function() {
             // revert button contents to previous state
-            console.log("executing creation always");
+            $scope.hidePopup(); //hide modal
             $scope.createbtn = 'Create';
             $scope.loading = false;
             $scope.$apply();
@@ -379,7 +375,7 @@ angular.module( 'Cimba.home', [
                 },
                 401: function() {
                     console.log("401 Unauthorized");
-                    notify('Error', 'Unauthorized! You need to authentificate!');
+                    notify('Error', 'Unauthorized! You need to authenticate!');
                 },
                 403: function() {
                     console.log("403 Forbidden");
@@ -429,19 +425,19 @@ angular.module( 'Cimba.home', [
                         },
                         401: function() {
                             console.log("401 Unauthorized");
-                            notify('Error', 'Unauthorized! You need to authentify before posting.');
+                            notify('Error', 'Unauthorized! You need to authenticate before posting.');
                         },
                         403: function() {
                             console.log("403 Forbidden");
                             notify('Error', 'Forbidden! You are not allowed to create new resources.');
                         },
                         406: function() {
-                            console.log("406 Contet-type unacceptable");
+                            console.log("406 Content-type unacceptable");
                             notify('Error', 'Content-type unacceptable.');
                         },
                         507: function() {
                             console.log("507 Insufficient storage");
-                            notify('Error', 'Insuffifient storage left! Check your server storage.');
+                            notify('Error', 'Insufficient storage left! Check your server storage.');
                         }
                     },
                     success: function(d,s,r) {
@@ -550,19 +546,19 @@ angular.module( 'Cimba.home', [
                             },
                             401: function() {
                                 console.log("401 Unauthorized");
-                                notify('Error', 'Unauthorized! You need to authentify before posting.');
+                                notify('Error', 'Unauthorized! You need to authenticate before posting.');
                             },
                             403: function() {
                                 console.log("403 Forbidden");
                                 notify('Error', 'Forbidden! You are not allowed to update the selected profile.');
                             },
                             406: function() {
-                                console.log("406 Contet-type unacceptable");
+                                console.log("406 Content-type unacceptable");
                                 notify('Error', 'Content-type unacceptable.');
                             },
                             507: function() {
                                 console.log("507 Insufficient storage");
-                                notify('Error', 'Insuffifient storage left! Check your server storage.');
+                                notify('Error', 'Insufficient storage left! Check your server storage.');
                             }
                         },
                         success: function(d,s,r) {
