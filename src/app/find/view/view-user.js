@@ -23,12 +23,10 @@ angular.module('Cimba.find.view-user', ['ui.router'])
 	$scope.$parent.loadChannels[$scope.webid] = $scope.webid;
 	// $scope.$parent.loadSubscriptions[$scope.$parent.userProfile.webid] = $scope.$parent.userProfile.webid;
 
-    $scope.getInfo($scope.webid, false, true);    
-    console.log($scope.userProfile);
+    $scope.getInfo($scope.webid, false, true);        
     $scope.webidresults = [];
 
-    $scope.toggleChannel = function (ch) {
-		console.log(ch.owner);
+    $scope.toggleChannel = function (ch) {		
 		$scope.$parent.channelToggle(ch);
     };
 

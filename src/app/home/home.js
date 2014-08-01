@@ -46,7 +46,7 @@ angular.module( 'Cimba.home', [
     $scope.hideMenu = function() {
         $scope.$parent.showMenu = false;
     };
-
+    
     //defaults
     $scope.$parent.newChannelModal = false;
     $scope.newMBModal = false;
@@ -58,10 +58,9 @@ angular.module( 'Cimba.home', [
         $scope.$parent.getPosts(channel.uri, channel.title);
     }
 
-    $scope.showPopup = function (p) {
-        console.log("ex show");
-        if (p == "ch") {
-            $scope.$parent.newChannelModal = true;
+    $scope.showPopup = function (p) {        
+        if (p == "ch") {            
+            $scope.newChannelModal = true;
         }
         else if (p == "mb") {
             $scope.newMBModal = true;
@@ -72,8 +71,7 @@ angular.module( 'Cimba.home', [
         $scope.showOverlay = true;
     };
 
-    $scope.hidePopup = function (p) {
-        console.log("ex hide");
+    $scope.hidePopup = function (p) {        
         $scope.newChannelModal = false;
         $scope.newMBModal = false;
         $scope.newStorageModal = false;
@@ -90,8 +88,7 @@ angular.module( 'Cimba.home', [
 
     $scope.createbtn = 'Create'; //create button for newMBModal
 
-    $scope.newChannel = function(channelname, redirect){
-        console.log(channelname);
+    $scope.newChannel = function(channelname, redirect){        
         $scope.loading = true;
         $scope.createbtn = 'Creating...';
         var title = 'ch';
@@ -147,17 +144,17 @@ angular.module( 'Cimba.home', [
                 }
             },
             success: function(d,s,r) {
-                console.log('Success! Created new channel "'+title+'".');
+                // console.log('Success! Created new channel "'+title+'".');
                 //console.log("$scope.newChannelModal: " + $scope.newChannelModal); //debug
                 //console.log("$scope.showOverlay: " + $scope.showOverlay); //debug
                 // create the meta file
                 var meta = parseLinkHeader(r.getResponseHeader('Link'));
                 var metaURI = meta['meta']['href'];
 
-                console.log("metaURI: " + metaURI);
+                // console.log("metaURI: " + metaURI);
 
                 var chURI = r.getResponseHeader('Location');
-                console.log("chURI: " + chURI);
+                // console.log("chURI: " + chURI);
 
                 // got the URI for the new channel
                 if (chURI && metaURI) {
@@ -219,7 +216,7 @@ angular.module( 'Cimba.home', [
                             success: function(d,s,r) {
                                 // set default ACLs for channel
                                 $scope.setACL(chURI, $scope.audience.range, true); // set defaultForNew too
-                                console.log('Success! New channel created.');
+                                // console.log('Success! New channel created.');
                                 notify('Success', 'Your new "'+title+'" channel was succesfully created!');
                                 // clear form
                                 $scope.channelname = '';
@@ -251,7 +248,7 @@ angular.module( 'Cimba.home', [
             }
         }).always(function() {
             // revert button contents to previous state
-            console.log("executing creation always");
+            // console.log("executing creation always");
             $scope.createbtn = 'Create';
             $scope.loading = false;
             $scope.$apply();
@@ -284,8 +281,7 @@ angular.module( 'Cimba.home', [
         // add storage triple
         g.add($rdf.sym($scope.userProfile.webid), SPACE('storage'), $rdf.sym(storage));
 
-        var s = new $rdf.Serializer(g).toN3(g);
-        console.log(s);
+        var s = new $rdf.Serializer(g).toN3(g);        
         if (s.length > 0) {
             $.ajax({
                 type: "POST",
@@ -457,7 +453,7 @@ angular.module( 'Cimba.home', [
                         // close modal
                         $scope.hidePopup();
                         //$('#newMBModal').modal('hide');
-                        this.newMBModal = false; //testing
+                        // this.newMBModal = false; //testing
                         if (express && express === true) {
                             $scope.channelname = "main";
                             $scope.newChannel();
@@ -584,8 +580,7 @@ angular.module( 'Cimba.home', [
         } else if (v=='friends') {
             $scope.audience.icon = 'fa-users';
             $scope.audience.range = 'friends';
-        }
-        console.log('this is the audience: '+$scope.audience.range);
+        }        
     };
     ///---
 

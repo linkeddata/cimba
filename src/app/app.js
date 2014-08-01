@@ -127,8 +127,8 @@ angular.module( 'Cimba', [
     // $scope.gotErrorMessage = true; 
     $rootScope.notices = [];
     $scope.postData = {};
-    // $scope.defaultChannel = {};
-
+    $scope.defaultChannel = {};
+    
     $scope.login = function () {
         $location.path('/login');
     };
@@ -147,7 +147,7 @@ angular.module( 'Cimba', [
     };
 
     $scope.cancelTimeout = function (timeout) {
-        console.log("timeout executed");
+        // console.log("timeout executed");
         $timeout.cancel(timeout);
     };
 
@@ -417,7 +417,7 @@ angular.module( 'Cimba', [
 
     // returns the channel object for 
     $scope.getChannel = function (uri) {
-        console.log("getting channel");
+        // console.log("getting channel");
         var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
         var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
@@ -607,10 +607,10 @@ angular.module( 'Cimba', [
                         // set a default channel for the logged user
                         if (mine) {
                             $scope.userProfile.channel_size = Object.keys($scope.userProfile.channels).length; //not supported in IE8 and below
-                            if (!$scope.defaultChannel) { 
-                                console.log("default channel not found");                               
+                            if (isEmpty($scope.defaultChannel)) {
                                 for (var u in $scope.userProfile.channels) {                                
                                     $scope.defaultChannel = $scope.userProfile.channels[u];                                    
+                                    $scope.$apply();                                   
                                     break;
                                 }
                             }                            
@@ -622,8 +622,7 @@ angular.module( 'Cimba', [
                             delete $scope.users[webid].refreshing;
                             $scope.$apply();
                         }
-                    } else {
-                        console.log('No channels found!');
+                    } else {                        
                         if (mine) {
                             // hide loader
                             //console.log("attempting to hide loader, before: " + $scope.loading); //debug
@@ -848,9 +847,10 @@ angular.module( 'Cimba', [
                 params: {
                     q: query
                 }
-            }).then(function(res){
+            }).success(function(data) {
+                console.log("success");
                 $scope.webidresults = [];
-                angular.forEach(res.data, function(value, key) {                    
+                angular.forEach(data, function(value, key) {                    
                     value.webid = key;
                     if (!value.img) {                        
                         value.img = ['assets/generic_photo.png'];
@@ -859,7 +859,24 @@ angular.module( 'Cimba', [
                     $scope.webidresults.push(value);
                 });
                 return $scope.webidresults;
+            }).error(function(data, status) {
+                console.log("error");
+                $scope.webidresults = [];
+                $scope.search.selected = true;
+                return $scope.webidresults;
             });
+            // then(function(res){                
+            //     $scope.webidresults = [];
+            //     angular.forEach(res.data, function(value, key) {                    
+            //         value.webid = key;
+            //         if (!value.img) {                        
+            //             value.img = ['assets/generic_photo.png'];
+            //         }
+            //         value.host = getHostname(key);
+            //         $scope.webidresults.push(value);
+            //     });
+            //     return $scope.webidresults;
+            // });
         }
     };
 
@@ -905,7 +922,7 @@ angular.module( 'Cimba', [
             u.channels.push(value); 
         });
 
-        console.log(_users);
+        // console.log(_users);
         if ($scope.users[mywebid].mbspace && $scope.users[mywebid].mbspace.length > 1) {
             followURI = $scope.users[mywebid].mbspace+'following';
         }
@@ -920,9 +937,9 @@ angular.module( 'Cimba', [
         g.add($rdf.sym(followURI), DCT('created'), $rdf.lit(Date.now(), '', $rdf.Symbol.prototype.XSDdateTime));
         
         var i = 0;
-        console.log(_users);
+        // console.log(_users);
         for (var userId in _users) {
-            console.log("user id: " +userId);        
+            // console.log("user id: " +userId);        
             var user = _users[userId];
             var uid = followURI+'#user_'+i;
 
@@ -1016,88 +1033,90 @@ angular.module( 'Cimba', [
 
             // fetch user data
             f.nowOrWhenFetched(followURI,undefined,function(ok, body){
-                var users = g.statementsMatching(undefined, RDF('type'), SIOC('UserAccount'));
+                if (ok) {
+                    var users = g.statementsMatching(undefined, RDF('type'), SIOC('UserAccount'));
 
-                // console.log("listing users: "); //debug
-                if (users.length > 0) {
-                    for (var i in users) {
-                        var u = users[i]['subject'];
-                        // console.log(users[i]);
-                        var _user = {};
-                        _user.webid = g.any(u, SIOC('account_of')).value;
-                        // console.log( g.any(u, SIOC('name')));
-                        _user.name = (g.any(u, SIOC('name')))?g.any(u, SIOC('name')).value:'';
-                        // console.log(g.any(u, SIOC('avatar')));
-                        _user.picture = (g.any(u, SIOC('avatar')))?g.any(u, SIOC('avatar')).value:'assets/generic_photo.png';
-                        // console.log("_user.picture: " + _user.picture);
-                        // console.log(_user);
-                        // console.log("loading user picture for " + _user.webid + ". _user.picture: " + _user.picture); //debug
-                        _user.channels = {};
-                        // add channels
-                        var channels = g.statementsMatching(u, SIOC('feed'), undefined);
-                        if (channels.length > 0) {
-                            for (var j in channels) {
-                                var ch = channels[j]['object'];
-                                var _channel = {};
-                                _channel.uri = g.any(ch, SIOC('link')).value;
-                                _channel.title = (g.any(ch, DCT('title')))?g.any(ch, DCT('title')).value:'Untitled';
-                                _channel.author = _user.name; //for subscription
-                                // console.log("channel author: " + _channel.author);
-                                _channel.owner = _user.webid; //for subscription
-                                if (g.any(ch, SIOC('has_subscriber'))) {
-                                    // console.log("found channel I'm subscribed to: " + _channel.uri);
-                                // subscribed 
-                                    _channel.action = 'Unsubscribe';
-                                    _channel.button = ch.button = 'fa-check-square-o';
-                                    _channel.css = ch.css = 'btn-success';
-                                    // also load the posts for this channel
-                                    if (loadposts && _channel.uri) {
-                                        $scope.getPosts(_channel.uri, _channel.title);
+                    // console.log("listing users: "); //debug
+                    if (users.length > 0) {
+                        for (var i in users) {
+                            var u = users[i]['subject'];
+                            // console.log(users[i]);
+                            var _user = {};
+                            _user.webid = g.any(u, SIOC('account_of')).value;
+                            // console.log( g.any(u, SIOC('name')));
+                            _user.name = (g.any(u, SIOC('name')))?g.any(u, SIOC('name')).value:'';
+                            // console.log(g.any(u, SIOC('avatar')));
+                            _user.picture = (g.any(u, SIOC('avatar')))?g.any(u, SIOC('avatar')).value:'assets/generic_photo.png';
+                            // console.log("_user.picture: " + _user.picture);
+                            // console.log(_user);
+                            // console.log("loading user picture for " + _user.webid + ". _user.picture: " + _user.picture); //debug
+                            _user.channels = {};
+                            // add channels
+                            var channels = g.statementsMatching(u, SIOC('feed'), undefined);
+                            if (channels.length > 0) {
+                                for (var j in channels) {
+                                    var ch = channels[j]['object'];
+                                    var _channel = {};
+                                    _channel.uri = g.any(ch, SIOC('link')).value;
+                                    _channel.title = (g.any(ch, DCT('title')))?g.any(ch, DCT('title')).value:'Untitled';
+                                    _channel.author = _user.name; //for subscription
+                                    // console.log("channel author: " + _channel.author);
+                                    _channel.owner = _user.webid; //for subscription
+                                    if (g.any(ch, SIOC('has_subscriber'))) {
+                                        // console.log("found channel I'm subscribed to: " + _channel.uri);
+                                    // subscribed 
+                                        _channel.action = 'Unsubscribe';
+                                        _channel.button = ch.button = 'fa-check-square-o';
+                                        _channel.css = ch.css = 'btn-success';
+                                        // also load the posts for this channel
+                                        if (loadposts && _channel.uri) {
+                                            $scope.getPosts(_channel.uri, _channel.title);
+                                        }
+                                    } else {
+                                        _channel.action = ch.action = 'Subscribe';
+                                        _channel.button = ch.button = 'fa-square-o';
+                                        _channel.css = ch.css = 'btn-info';
                                     }
-                                } else {
-                                    _channel.action = ch.action = 'Subscribe';
-                                    _channel.button = ch.button = 'fa-square-o';
-                                    _channel.css = ch.css = 'btn-info';
+                                    // add channel to user objects
+                                    _user.channels[_channel.uri] = _channel;
                                 }
-                                // add channel to user objects
-                                _user.channels[_channel.uri] = _channel;
                             }
-                        }
-                        // add user
-                        if (!$scope.users) {
-                            $scope.users = {};
-                        }
-                        // console.log("_user"); //debug
-                        // console.log(_user); //debug
-                        if (_user.webid === $scope.userProfile.webid) {
-                            // console.log("got same user as userProfile, _user"); //debug
+                            // add user
+                            if (!$scope.users) {
+                                $scope.users = {};
+                            }
+                            // console.log("_user"); //debug
                             // console.log(_user); //debug
-                            // console.log("users[" + _user.webid + "]"); //debug
-                            // console.log($scope.users[_user.webid]); //debug
-                            // console.log("userProfile"); //debug
-                            // console.log($scope.userProfile); //debug
-                            $scope.users[$scope.userProfile.webid] = $scope.userProfile;
-                            $scope.$apply();
-                        }
-                        if (_user.webid !== $scope.userProfile.webid) { //do not overwrite our own user
-                            //(change later to append because we need to know if we're subscribed or not to our own channel)
-                            $scope.users[_user.webid] = _user;
-                            
-                            for (var chann in $scope.users[_user.webid].channels) {
-                                // console.log(_user.channels[chann]); //debug
-                                if ($scope.users[_user.webid].channels[chann].action === 'Unsubscribe') {
-                                    // console.log("im subscribed to a channel: " + chann); //debug
-                                    // console.log($scope.users[_user.webid].channels[chann]); //debug
-                                    $scope.userProfile['subscribedChannels'][chann] = _user.channels[chann];
-                                    $scope.channels[chann] = _user.channels[chann];
-                                    // $scope.users[$scope.userProfile.webid] = $scope.userProfile;
-
-                                }
+                            if (_user.webid === $scope.userProfile.webid) {
+                                // console.log("got same user as userProfile, _user"); //debug
+                                // console.log(_user); //debug
+                                // console.log("users[" + _user.webid + "]"); //debug
+                                // console.log($scope.users[_user.webid]); //debug
+                                // console.log("userProfile"); //debug
+                                // console.log($scope.userProfile); //debug
+                                $scope.users[$scope.userProfile.webid] = $scope.userProfile;
+                                $scope.$apply();
                             }
-                            $scope.$apply();
+                            if (_user.webid !== $scope.userProfile.webid) { //do not overwrite our own user
+                                //(change later to append because we need to know if we're subscribed or not to our own channel)
+                                $scope.users[_user.webid] = _user;
+                                
+                                for (var chann in $scope.users[_user.webid].channels) {
+                                    // console.log(_user.channels[chann]); //debug
+                                    if ($scope.users[_user.webid].channels[chann].action === 'Unsubscribe') {
+                                        // console.log("im subscribed to a channel: " + chann); //debug
+                                        // console.log($scope.users[_user.webid].channels[chann]); //debug
+                                        $scope.userProfile['subscribedChannels'][chann] = _user.channels[chann];
+                                        $scope.channels[chann] = _user.channels[chann];
+                                        // $scope.users[$scope.userProfile.webid] = $scope.userProfile;
+
+                                    }
+                                }
+                                $scope.$apply();
+                            }
                         }
                     }
-                }
+                } 
             });
         }
     };
@@ -1356,7 +1375,7 @@ angular.module( 'Cimba', [
         notice.timeout = $timeout(function(){
             obj.close(nId);
         }, 5000);
-        console.log(notice);
+        // console.log(notice);
         $rootScope.notices.push(notice);
     };
     obj.close = function(nId){

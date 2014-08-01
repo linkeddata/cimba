@@ -27,9 +27,7 @@ angular.module('Cimba.posts',[
     $scope.currentUrl = $location.absUrl();    
     
     $scope.listAudiences = ['Public', 'Private', 'Friends'];
-	
-    $scope.defaultChannel = $scope.$parent.defaultChannel;
-    //save what is currently in the new post text box to local storage
+
     $scope.savePostData=function(postBody){
         var currentPost = postBody;
         sessionStorage.setItem($scope.$parent.postData[$scope.currentUrl], currentPost, $scope.currentUrl);

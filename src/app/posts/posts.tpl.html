@@ -7,7 +7,7 @@
         </div>
 
         <div class="post-info pull-left">
-            <div class="post-usr-name"><a href="{{post.userwebid}}" target="_blank">{{post.username}}</a> </div>
+            <div class="post-usr-name"><a ui-sref="view-user({path: safeUri(post.userwebid)})">{{post.username}}</a> </div>
             <div class="post-time">
                 <span rel="tooltip" data-placement="top" title="{{post.date}}">{{post.date | fromNow}}</span>
                 <a id="panel-chan-link" ui-sref="view({path: safeUri(post.channel)})">in {{post.chtitle}}</a>

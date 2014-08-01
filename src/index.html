@@ -28,16 +28,9 @@
     <div id="site-header" class="navbar navbar-default">
       <div class="container-fluid">
         <div class="row">
-          <div class="col-md-4 col-md-offset-4 col-sm-4 col-sm-offset-4">
-            <a ng-href="#">
-              <img class="hidden-xs" id="cimba-logo" src="assets/cimba-logo-name.png">
-            </a>
-          </div>
           <div ng-show="loggedin" class="pull-right" id="current-user-info">
-            <div class="curr-user-logo pull-left">
-              <a ng-href="#">            
-               <img class="visible-xs" id="cimba-logo-mini" src="assets/cimba-logo-name.png">
-              </a>
+            <div class="pull-left">
+              <div id="curr-user-name">{{userProfile.name}}</div>
             </div>
             <div class="thumbnail pull-right">
               <img id="curr-user-img" class="thumb-pic media-object" ng-src="{{userProfile.picture}}">
@@ -147,7 +140,7 @@
         <div class="row">
           <div class="col-md-12">
             <div ng-repeat="notice in notices" class="error-message-container" ng-click="cancelTimeout(notice.timeout)">
-              <button type="button" class="close notice-close" ng-click="closeNotice(notice.id)"><span class="fa fa-times"></span></button>
+              <button type="button" class="close delete notice-close" ng-click="closeNotice(notice.id)"><span class="fa fa-times"></span></button>
               <p class="notice-text" ng-bind-html="notice.text | makeLinks"></p>
             </div>
             <!-- <button class="btn btn-primary" ng-click="addMessage()">Show</button> -->

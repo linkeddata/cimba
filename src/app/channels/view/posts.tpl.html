@@ -9,7 +9,7 @@
 
        <!--  <a href="{{post.uri}}" class="link-post pull-right" target="_blank"><i class="fa fa-link"></i> Link to post</a> -->
         <div class="post-info no-img pull-left">
-        	<div class="post-usr-name"><a href="{{post.userwebid}}" target="_blank">{{post.username}}</a></div>
+        	<div class="post-usr-name"><a ui-sref="view-user({path: safeUri(post.userwebid)})">{{post.username}}</a></div>
             <div class="post-time"><span rel="tooltip" data-placement="top" title="{{post.date}}">{{post.date | fromNow}}</span></div>
         	
         	<!-- <small><a href="{{post.channel}}" class="link-white pull-left" target="_blank">In {{channelTitle}}</a></small> -->

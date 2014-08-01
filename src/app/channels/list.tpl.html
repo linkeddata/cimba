@@ -41,7 +41,7 @@
 				    </div>
 				    <div class="panel-body">
 				        <div class="chan-panel-body-text" align="left">
-				            By: <a href="{{channel.owner}}"><i> {{users[channel.owner].name}}</i></a>
+				            By: <a ui-sref="view-user({path: safeUri(channel.owner)})"><i> {{users[channel.owner].name}}</i></a>
 				        </div>
 				    </div>
 			    </div>
@@ -89,7 +89,7 @@
 				    </div>
 				    <div class="panel-body">
 				        <div class="chan-panel-body-text" align="left">
-				             By: <a href="{{channel.owner}}">
+				             By: <a ui-sref="view-user({path: safeUri(channel.owner)})">
 				             <i>{{channel.author}}</a>
 				        </div>
 				    </div>
