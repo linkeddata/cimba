@@ -484,7 +484,7 @@ angular.module( 'Cimba.home', [
         var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         var g = $rdf.graph();
         var s = new $rdf.Serializer(g).toN3(g);
-
+        var webid = $scope.$parent.userProfile.webid;
         $.ajax({
             type: "POST",
             url: uri,
@@ -523,8 +523,7 @@ angular.module( 'Cimba.home', [
                     xhrFields: {
                         withCredentials: true
                     },
-                    success: function(d,s,r) {
-                        console.log("success 1"); //debug
+                    success: function(d,s,r) {                   
                         // acl URI
                         var acl = parseLinkHeader(r.getResponseHeader('Link'));
                         var aclURI = acl['acl']['href'];
