@@ -333,6 +333,9 @@ angular.module( 'Cimba', [
                 if (!$scope.userProfile.subscribedChannels) {
                     $scope.userProfile.subscribedChannels = {};
                 }
+                if (!$scope.userProfile.channels) {
+                    $scope.userProfile.channels = {};
+                }
 
                 // find microblogging feeds/channels
                 if (!storage) {

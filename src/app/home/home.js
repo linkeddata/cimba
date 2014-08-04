@@ -37,7 +37,7 @@ angular.module( 'Cimba.home', [
 /**
  * And of course we define a controller for our route.
  */
-.controller( 'HomeCtrl', function HomeController( $scope, $http, $location, $sce, $rootScope) {
+.controller( 'HomeCtrl', function HomeController( $scope, $http, $location, $sce, $rootScope, noticesData) {
     //defaults for creating a new channel
     $scope.audience = {};
     $scope.audience.range = 'public';
@@ -602,7 +602,7 @@ angular.module( 'Cimba.home', [
                     },
                     error: function(XMLHttpRequest, textStatus, errorThrown) {
                         //error handling
-                        console.log("ERROR: Could set acl '" + uri + "'. Reason: " + errorThrown);
+                        console.log("ERROR: Could not set acl '" + uri + "'. Reason: " + errorThrown);
                         noticesData.add("error", "ERROR: Could not set " + uri + " . Reason: " + errorThrown);
                     }
                 });

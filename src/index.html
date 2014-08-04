@@ -61,7 +61,7 @@
         <div class="menu-item">
           <a href ui-sref="home" ng-click="tabCtrl.setTab(0); hideMenu()">
             <div>
-              <i class="fa fa-bar-chart-o fa-3x"></i>
+              <i class="fa fa-bar-chart-o fa-3x" ng-class="{selectedMenu: tabCtrl.isSet(0)}"></i>
               <p>Dashboard</p>
             </div>
           </a>
@@ -72,7 +72,7 @@
           <a href ui-sref="channels" ng-click="tabCtrl.setTab(2); tabCtrl.clearbadge(1); hideMenu()">          
             <!-- <span class="badge">{{tabCtrl.badges[1]}}</span> -->
             <div>
-              <i class="fa fa-rss fa-3x"></i>
+              <i class="fa fa-rss fa-3x" ng-class="{selectedMenu: tabCtrl.isSet(2)}"></i>
               <p>Channels</p>    <!--changed this-->        
             </div>
           </a>
@@ -82,7 +82,7 @@
         <div class="menu-item" ng-class="{active:tabCtrl.isSet(3)}">
           <a href ui-sref="find" ng-click="tabCtrl.setTab(3); hideMenu()">
             <div>
-              <i class="fa fa-search fa-3x"></i>
+              <i class="fa fa-search fa-3x" ng-class="{selectedMenu: tabCtrl.isSet(3)}"></i>
               <p>Find</p>
             </div>
           </a>
