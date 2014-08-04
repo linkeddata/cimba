@@ -150,6 +150,11 @@ angular.module( 'Cimba', [
         $timeout.cancel(timeout);
     };
 
+    $scope.isEmpty = function (obj) {
+        console.log('empty called');
+        return angular.equals({}, obj);
+    };
+
     $scope.logout = function () {
         // Logout WebID (only works in Firefox and IE)
         if (document.all == null) {

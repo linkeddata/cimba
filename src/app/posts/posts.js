@@ -35,8 +35,7 @@ angular.module('Cimba.posts',[
 
     //clears post data from local storage
     $scope.clearPostData=function(){
-        sessionStorage.removeItem($scope.$parent.postData[$scope.currentUrl]);
-        console.log("Item removed");
+        sessionStorage.removeItem($scope.$parent.postData[$scope.currentUrl]);        
     };
 
 
@@ -131,19 +130,19 @@ angular.module('Cimba.posts',[
 					},
 					401: function() {
 						console.log("401 Unauthorized");
-						notify('Error', 'Unauthorized! You need to authentify before posting.');
+						noticesData.add('error', 'Unauthorized! You need to authentify before posting.');
 					},
 					403: function() {
 						console.log("403 Forbidden");
-						notify('Error', 'Forbidden! You are not allowed to post to the selected channel.');
+						noticesData.add('error', 'Forbidden! You are not allowed to post to the selected channel.');
 					},
 					406: function() {
 						console.log("406 Contet-type unacceptable");
-						notify('Error', 'Content-type unacceptable.');
+						noticesData.add('error', 'Content-type unacceptable.');
 					},
 					507: function() {
 						console.log("507 Insufficient storage");
-						notify('Error', 'Insuffifient storage left! Check your server storage.');
+						noticesData.add('error', 'Insuffifient storage left! Check your server storage.');
 					}
 				},
 				success: function(d,s,r) {
@@ -175,10 +174,14 @@ angular.module('Cimba.posts',[
 						notify('Error', 'Unable to save post on the server!');
 					}
 				}
+			}).error(function (data, status) {
+				
+				$scope.publishing = false;
+				$scope.$apply();
 			}).done(function() {
-			// revert button contents to previous state
-			$scope.publishing = false;
-			$scope.$apply();
+				// revert button contents to previous state
+				$scope.publishing = false;
+				$scope.$apply();
 			});
 		} else {
 			noticesData.add("error", "please select a channel to post to");

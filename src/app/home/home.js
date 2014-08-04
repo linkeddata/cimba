@@ -110,6 +110,9 @@ angular.module( 'Cimba.home', [
         if (isEmpty($scope.$parent.users[chan.owner].channels)) {
             $scope.$parent.users[chan.owner].channels = {};
         }
+        if (isEmpty($scope.$parent.userProfile.channels)) {
+            $scope.$parent.userProfile.channels = {};
+        }
 
         $.ajax({
             type: "POST",
@@ -216,7 +219,7 @@ angular.module( 'Cimba.home', [
                             },
                             success: function(d,s,r) {
                                 // set default ACLs for channel
-                                $scope.setACL(chURI, $scope.audience.range, true); // set defaultForNew too
+                                // $scope.setACL(chURI, $scope.audience.range, true); // set defaultForNew too
                                 // console.log('Success! New channel created.');
 
                                 notify('Success', 'Your new "'+title+'" channel was succesfully created!');
@@ -225,6 +228,10 @@ angular.module( 'Cimba.home', [
 
                                 $scope.$apply();
 
+                                if ($scope.defaultChannel === undefined) {
+                                    $scope.defaultChannel = chan;
+                                }
+                                
                                 //adds the newly created channel to our list
                                 chan.uri = chURI;
                                 $scope.$parent.users[chan.owner].channels[chURI] = chan;
@@ -477,6 +484,7 @@ angular.module( 'Cimba.home', [
             }
         });
     };
+
     // set the corresponding ACLs for the given post, using the right ACL URI
     $scope.setACL = function(uri, type, defaultForNew) {
         // get the acl URI first

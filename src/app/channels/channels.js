@@ -275,6 +275,9 @@ angular.module('Cimba.channels',[
         if (isEmpty($scope.$parent.users[chan.owner].channels)) {
             $scope.$parent.users[chan.owner].channels = {};
         }
+        if (isEmpty($scope.$parent.userProfile.channels)) {
+            $scope.$parent.userProfile.channels = {};
+        }
 
         $.ajax({
             type: "POST",
@@ -314,12 +317,8 @@ angular.module('Cimba.channels',[
                 var aclURI = meta['acl']['href'];
                 var metaURI = meta['meta']['href'];
 
-                console.log("aclURI: " + aclURI);
-                console.log("metaURI: " + metaURI);
-
                 var chURI = r.getResponseHeader('Location');
-                console.log("chURI: " + chURI);
-
+                
                 // got the URI for the new channel
                 if (chURI && aclURI) {
                     $scope.setACL(aclURI, $scope.audience.range, true); //set default ACLs for the channel
@@ -388,18 +387,7 @@ angular.module('Cimba.channels',[
 
                                 $scope.$apply();
 
-                                if (redirect) {
-                                    //gets rid of the https:// or http:// in chURI and appends it to the path
-                                    $location.path('/channels/view/' + chURI.slice(chURI.indexOf(":")+3,chURI.length));
-                                }
-                                else {
-                                    $scope.hidePopup();
-                                }
-
-                                //set default if first channel
-                                if ($scope.defaultChannel === undefined) {
-                                    $scope.defaultChannel = chan;
-                                }
+                                $location.path('/channels/view/' + chURI.slice(chURI.indexOf(":")+3,chURI.length));
 
                                 //adds the newly created channel to our list
                                 chan.uri = chURI;

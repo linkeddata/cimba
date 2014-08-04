@@ -32,6 +32,12 @@
 	                </div>
 	                <!-- <div class="gear"></div> -->
 	            </div>
+	            <div id="setup" ng-show="isEmpty(userProfile.channels)">
+      				<div class="panel panel-default text-center">
+	                	<h3>You do not have any channels to view.</h3>
+	                	<p><button ng-click="showPopup('new', '')" class="btn btn-primary"><i class="fa fa-plus"></i> Create a channel</button></p>
+	            	</div>
+				</div>
 		        <div ng-show="!loading" ng-repeat="channel in userProfile.channels" class="channel-list-item panel panel-default">
 			        <div class="chan-panel-heading panel-heading sub-header">
 			        	<div class="pull-left"><a ui-sref="view({path: safeUri(channel.uri)})" class="link-white bold">{{channel.title}}</a>
@@ -76,6 +82,12 @@
 		    			</div>
 		    		</div>
 		    	</div>
+		    	<div id="setup" ng-show="isEmpty(userProfile.subscribedChannels)">
+      				<div class="panel panel-default text-center">
+	                	<h3>You are not subscribed to any Channels.</h3>
+	                	<p><button ng-click="goPath('/find')" class="btn btn-primary"><i class="fa fa-search"></i> Find users and their channels</button></p>
+	            	</div>
+				</div>
 		    	<div ng-repeat="channel in userProfile.subscribedChannels" class="channel-list-item panel panel-default">
 			        <div class="chan-panel-heading panel-heading sub-header">
 			        	<div class="pull-left"><a ui-sref="view({path: safeUri(channel.uri)})" class="link-white bold">{{channel.title}}</a>
