@@ -69,7 +69,10 @@ module.exports = {
       'vendor/angular-ui-utils/modules/route/route.js',
       'vendor/ngProgress/ngProgress.min.js',
       'vendor/jquery/dist/jquery.min.js',
-      'vendor/rdflib.js/rdflib.js'
+      'vendor/rdflib.js/rdflib.js',
+      'vendor/jquery-ui/jquery-ui.js',
+      'vendor/notify/jquery.notify.js',
+      'vendor/moment/moment.min.js'
     ],
     css: [
       'vendor/ngProgress/ngProgress.less',

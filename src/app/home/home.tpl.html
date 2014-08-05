@@ -1,3 +1,129 @@
-<div ng-click="hideMenu()">
+<div ng-click="hideMenu()" ng-controller="PostsController as postCtrl">
 
+  <div id="newpost" class="container">
+      <div class="row">
+          <!-- <div class="clear-70"></div> -->
+          <div class="col-md-12">
+              <!-- new post -->
+              <post-box ng-show="loggedin && userProfile.webid && users[userProfile.webid].chspace"></postBox>
+              <!-- end new post -->
+          </div>
+      </div>
+  </div>
+
+  <!-- new storage modal -->
+  <div id="setup" class="container" ng-show="userProfile.webid && !userProfile.storagespace && !loading">
+      <div class="row">
+          <div class="col-md-12">
+              <div class="panel panel-default text-center">
+                  <h3>We could not find a shared storage space in your WebID profile.</h3>
+                  <p><button ng-click="showPopup('st')" class="btn btn-primary">Please provide one here</button></p>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <!-- new uB modal -->
+  <div id="setup" class="container" ng-show="userProfile.webid && userProfile.storagespace && users[userProfile.webid].mbspace == false && !loading">
+      <div class="row">
+          <div class="col-md-12">
+              <div class="panel panel-default text-center">
+                  <h3>To start using Cimba, you will need a microblogging space.</h3>
+                  <p><button ng-click="showPopup('mb')" class="btn btn-primary">Click here to create one</button></p>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <!-- no channels found -->
+  <div id="setup" class="container" ng-show="userProfile.webid && userProfile.storagespace && users[userProfile.webid].mbspace && users[userProfile.webid].chspace == false">
+      <div class="row">
+          <div class="col-md-12">
+              <div class="panel panel-default text-center">
+                  <h3>You're almost there! Now you just need to create a channel for your posts.</h3>
+                  <p><button ng-click="showPopup('ch')" class="btn btn-primary">Click here to create a channel</button></p>
+              </div>
+          </div>
+      </div>
+  </div>
+
+<!-- no posts found -->
+  <div id="setup" class="container" ng-show="userProfile.webid && userProfile.storagespace && users[userProfile.webid].mbspace && users[userProfile.webid].chspace && users[userProfile.webid].gotposts == false && !loading">
+      <div class="row">
+          <div class="col-md-12">
+              <div class="panel panel-default text-center">
+                  <h3>You haven't posted anything. Try writing a new post or <a ui-sref="find" role="button"><button class="btn btn-primary"><i class="fa fa-rss white"></i> subscribe</button></a> to someone's channels!</h3>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <!--new storage modal-->
+  <div class="container popup" ng-show="newStorageModal">
+    <div class="row">
+      <div id="storage-modal" class="modal-content col-md-6 col-md-offset-3 col-sm-6 col-sm-offset-3 col-xs-12">
+        <div class="pull-right">
+          <button type="button" class="close" ng-click="hidePopup()" aria-hidden="true"><span class="fa fa-times"></span></button>
+        </div> 
+        <div>
+          <h2 class="text-center">Provide a URI for your storage</h2>
+          <form id="storage-modal-form">
+            <p><small>Full storage location URI. Must start with http(s)://</small></p>
+            <input type="text" id="storageuri" name="storageuri" ng-model="storageuri" class="form-control" placeholder="http.." required ng-pattern="/^http[A-Za-z0-9_.:/]*$/">
+            <div ng-show="storageuri" class="text-center">
+                <br>
+                <p>Alternatively, if your WebID profile is not Web writable, you can manually add the following triple at the end of your profile:</p>
+                <br>
+                <textarea class="triples form-control"><{{userProfile.webid}}><http://www.w3.org/ns/pim/space#storage><{{storageuri}}> .</textarea>
+            </div>
+          </form>
+          <div>
+            <button class="btn btn-primary" ng-click="newStorage(true)" ng-disabled="!storageuri || addstoragebtn === 'Adding...'" tooltip="Skip all configuration">{{addstoragebtn}} (simple)</button>
+            <button class="btn btn-primary" ng-click="newStorage()" ng-disabled="!storageuri || addstoragebtn === 'Adding...'" rel="tooltip" data-placement="top" title="Choose configuration options">{{addstoragebtn}} (advanced)</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--new microblogging workspace modal-->
+  <div class="container popup" ng-show="newMBModal">
+    <div class="row">
+      <div id="mb-modal" class="modal-content col-md-6 col-md-offset-3 col-sm-6 col-sm-offset-3 col-xs-12">
+        <div class="pull-right">
+          <button type="button" class="close" ng-click="hidePopup()" aria-hidden="true"><span class="fa fa-times"></span></button>
+        </div>   
+        <div>           
+          <h2 class="text-center">Create a new microblog workspace</h2>
+          <form>
+              <input type="text" id="mburi" name="mburi" ng-model="mburi" class="form-control modal-input" placeholder="Name of Microblog (ex: mb, blog, etc..)" required ng-pattern="/^[A-Za-z0-9_ ]*$/">
+          </form>
+          <p style="margin: 10px 0px 10px">
+            <button class="btn btn-primary" ng-click="newMB(mburi, false)" ng-disabled="!mburi || createbtn === 'Creating...'">{{createbtn}}</button>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--new channel modal-->
+  <new-channel ng-show="newChannelModal"></new-channel>
+
+	<div id="posts" class="container">
+	    <div class="row">
+	        <div class="col-md-12">
+	            <!-- Loading animation -->
+	            <div ng-show="loading">
+	                <!-- <div class="spinner"> -->
+	                <div class="clear-40">
+	                  <div class="circle circle-large"></div><div class="circle1 circle1-large"></div>
+	                </div>	                
+	            </div>
+              <div class=""> 
+  	            <posts-viewer ng-show="loggedin"></posts-viewer>
+              </div>
+	        </div>
+	    </div>
+	</div>
+  <div class="overlay" ng-show="showOverlay" ng-click="hidePopup()"></div>
 </div>

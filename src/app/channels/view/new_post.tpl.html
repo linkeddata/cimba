@@ -1,0 +1,37 @@
+<div class="panel panel-default"> <!-- debug -->
+    <div class="panel-heading main-header">
+        <div class="pull-left" ng-show="channels[chanUri].owner">
+            <a id="pic" class="thumbnail thumbnail-lg pull-right" href="{{channels[chanUri].owner}}">
+              <img class="media-object" ng-src="{{users[channels[chanUri].owner].picture}}" rel="tooltip" data-placement="top" title="{{users[channels[chanUri].owner].name}}">
+            </a>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div class="panel-body-textmail center">
+          <div id="spinner" ng-hide="users[userProfile.webid].name"></div>
+           <h3 class="channelsHeader" ng-show="channels[chanUri]"><b ng-show="channels[chanUri].owner == userProfile.webid">Write new post to</b><b ng-show="channels[chanUri].owner!=userProfile.webid"></b> {{channels[chanUri].title}}<b ng-show="channels[chanUri].owner!=userProfile.webid && users[channels[chanUri].owner].name"> by {{users[channels[chanUri].owner].name}}</b></h3>
+          <form ng-hide="channels[chanUri].owner != userProfile.webid">                               
+              <textarea name="message" ng-model="postbody" class="form-control message" ng-keydown="savePostData(postbody)" placeholder="Type your message here.." value={{savedPost}} required style="resize:none"></textarea>
+
+              <div class="pull-left">
+                <div class="btn-group">
+                    <button id="audience" class="btn btn-primary" disabled><i class="fa {{audience.icon}} fa-2x white"></i></button><button class="btn dropdown-toggle" data-toggle="dropdown" data-target="#" href="#"> <small class="drop" rel="tooltip" data-placement="top" title="Audience"><i class="fa fa-chevron-down fa-2x"></i></small></button>
+                    <ul class="dropdown-menu" role="menu" aria-labelledby="audience">
+                        <li><a href="" ng-click="setAudience('public')"><i id="public" class="fa fa-globe fa-2x default-color"></i>&nbsp; Public</a></li>
+                        <li><a href="" ng-click="setAudience('private')">&nbsp;<i id="private" class="fa fa-lock fa-2x default-color"></i>&nbsp;&nbsp; Private</a></li>
+                        <!--
+                        <li><a href="" ng-click="setAudience('friends')">&nbsp;<i id="friends" class="fa fa-user fa-2x default-color"></i>&nbsp;&nbsp;Friends</a></li> -->
+                    </ul>
+                </div>
+
+              </div>
+              <div class="pull-right">
+                  <button class="btn btn-primary pull-right" id="post-btn" ng-click="newPost(channels[chanUri]); clearPostData()" ng-disabled="publishing || !postbody">
+                    <div ng-show="!publishing">Post</div>
+                    <div ng-show="publishing" class="dots"></div>
+                  </button>
+              </div>
+          </form>
+        </div>
+    </div>
+</div>

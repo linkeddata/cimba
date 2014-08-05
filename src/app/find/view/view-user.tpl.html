@@ -1,0 +1,50 @@
+
+<div class="container" ng-click="hideMenu()" ng-show="loggedin" align="center">
+	<div class="row">
+		<div class="col-md-12">
+			<div class="panel panel-default">
+			    <div class="panel-heading main-header">
+			    	<div class="pull-left">
+			            <a id="pic" class="thumbnail thumbnail-lg pull-right" href="{{webid}}">
+			              <img class="media-object" ng-src="{{users[webid].picture}}" rel="tooltip" data-placement="top" title="{{users[webid].name}}">
+			            </a>
+        			</div>
+			    </div>
+			    <div class="panel-body">
+			        <h2 class="text-center" ng-show="users[webid].name">Channels for {{users[webid].name}}</h2>
+			    </div>
+			</div>
+			<div ng-show="loading">
+                <!-- <div class="spinner"> -->
+                <div class="clear-40">
+                  <div class="circle circle-large"></div><div class="circle1 circle1-large"></div>
+                </div>
+                <!-- <div class="gear"></div> -->
+            </div>
+        </div>
+    </div>
+    <div class="row" ng-show="!loading">
+    	<div class="col-md-6">
+			<div ng-repeat="ch in users[webid].channels">
+				<div ng-if="$index % 2 === 0" class="panel panel-default">
+					<div class="panel-heading chan-panel-heading sub-header">
+						<div class="pull-left"><a ui-sref="view({path: safeUri(ch.uri)})" class="link-white bold">{{ch.title}}</a></div>
+						<button class="btn pull-right" ng-class="ch.css" ng-disabled="ch.enabled === false" ng-click="toggleChannel(ch)" rel="tooltip" data-placement="top" title="{{ch.action}}"><i class="fa {{ch.button}} fa-2x"></i></button>
+					</div>
+					<div class="panel-body"></div>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-6">
+			<div ng-repeat="ch in users[webid].channels">
+				<div ng-if="$index % 2 === 1" class="panel panel-default">
+					<div class="panel-heading chan-panel-heading sub-header">
+						<div class="pull-left"><a ui-sref="view({path: safeUri(ch.uri)})" class="link-white bold">{{ch.title}}</a></div>
+						<button class="btn pull-right" ng-class="ch.css" ng-disabled="ch.enabled === false" ng-click="toggleChannel(ch)" rel="tooltip" data-placement="top" title="{{ch.action}}"><i class="fa {{ch.button}} fa-2x"></i></button>
+					</div>
+					<div class="panel-body"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
