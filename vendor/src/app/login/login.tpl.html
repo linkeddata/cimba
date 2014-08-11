@@ -1,0 +1,22 @@
+<div ng-click="hideMenu()">
+  <div class="panel-body col-md-12" ng-hide="showLogin">
+    <div class="panel-body">
+      <h2 class="text-center">Welcome to <img src="assets/cimba-logo-name.png" height="50"></h2>
+      <div class="text-center">
+        <h3>You must be authenticated in order to use this microblogging application.</h3>
+        <p><button class="btn btn-primary btn-sep-right" ng-click="showLogin=!showLogin">Login / Sign Up</button></p>
+      </div>
+    </div>
+  </div>
+
+  <!--login screen -->
+  <div ng-show="showLogin">
+    <div class="login-frame">
+      <h2 class="text-center">Login / Sign Up</h2>
+
+      <iframe ng-src="{{signupWidget}}" sandbox="allow-same-origin allow-scripts allow-forms" frameborder="0"></iframe>
+
+    </div>
+  </div>
+
+</div>

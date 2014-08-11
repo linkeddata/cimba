@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html ng-app="Cimba" ng-controller="MainCtrl">
+  <head>
+    <title ng-bind="pageTitle"></title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- font awesome from BootstrapCDN -->
+    <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+
+    <!-- compiled CSS -->
+    <% styles.forEach( function ( file ) { %>
+    <link rel="stylesheet" type="text/css" href="<%= file %>" />
+    <% }); %>
+
+    <!-- favicon -->
+    <link rel="shortcut icon" type="img/png" href="assets/cimba-logo.png">
+
+    <!-- compiled JavaScript -->
+    <% scripts.forEach( function ( file ) { %>
+    <script type="text/javascript" src="<%= file %>"></script>
+    <% }); %>
+
+
+  </head>
+  <body class='gray'>
+    <div id="site-header" class="navbar navbar-default" >
+      <div class="container-fluid">
+        <div class="row">
+          <div ng-show="loggedin" class="pull-right" id="current-user-info">
+            <div class="pull-left">
+              <div id="curr-user-name">{{userProfile.name}}</div>
+            </div>
+            <div class="thumbnail pull-right">
+              <img id="curr-user-img" class="thumb-pic media-object" ng-src="{{userProfile.picture}}">
+            </div>
+          </div>
+          <button type="button" ng-class="showMenu?'icon-bars-slide-out':''"ng-click="showMenu=!showMenu" class="btn icon-bars-button" alt="Toggle navigation">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+        </div>
+
+      </div>
+
+
+    <div ng-class="showMenu?'slide-out':''" class="sidebar left-menu" style="z-index: 999; position: fixed;">
+
+      <div ng-show="userProfile.webid" ng-click="showMenu=false" ng-controller="TabController as tabCtrl">
+
+        <!-- <div class="menu-item avatar-frame" style="margin: auto">
+          <a href="{{userProfile.uri}}" ui-sref="profile" alt="{{userProfile.name}}" ng-click="tabCtrl.setTab(1); tabCtrl.clearbadge(0);">
+            <span class="badge">{{tabCtrl.badges[0]}}</span>
+            <img style="margin: auto" ng-src="{{userProfile.picture}}" class="profile-img" alt="{{userProfile.name}}" title="{{userProfile.name}}" />
+          </a>
+        </div> -->
+
+        <!-- <i class="fa fa-ellipsis-h fa-2x dark-grey"></i> -->
+        
+        <div class="menu-item">
+          <a href ui-sref="home" ng-click="tabCtrl.setTab(0); hideMenu()">
+            <div>
+              <i class="fa fa-home fa-3x" ng-class="{selectedMenu: tabCtrl.isSet(0)}"></i>
+              <p>Home</p>
+            </div>
+          </a>
+          <i class="fa fa-ellipsis-h fa-2x dark-grey"></i>
+        </div>
+
+        <div class="menu-item" ng-class="{active:tabCtrl.isSet(2)}">
+          <a href ui-sref="channels" ng-click="tabCtrl.setTab(2); tabCtrl.clearbadge(1); hideMenu()">          
+            <!-- <span class="badge">{{tabCtrl.badges[1]}}</span> -->
+            <div>
+              <i class="fa fa-rss fa-3x" ng-class="{selectedMenu: tabCtrl.isSet(2)}"></i>
+              <p>Channels</p>    <!--changed this-->        
+            </div>
+          </a>
+          <i class="fa fa-ellipsis-h fa-2x dark-grey"></i>
+        </div>
+
+        <div class="menu-item" ng-class="{active:tabCtrl.isSet(3)}">
+          <a href ui-sref="find" ng-click="tabCtrl.setTab(3); hideMenu()">
+            <div>
+              <i class="fa fa-search fa-3x" ng-class="{selectedMenu: tabCtrl.isSet(3)}"></i>
+              <p>Find</p>
+            </div>
+          </a>
+          <i class="fa fa-ellipsis-h fa-2x dark-grey"></i>
+        </div>
+
+        <!--
+        <div class="menu-item" ng-class="{active:tabCtrl.isSet(3)}">
+          <a href ui-sref="conversations" ng-click="tabCtrl.setTab(3); tabCtrl.clearbadge(2);">
+            <span class="badge">{{tabCtrl.badges[2]}}</span>
+            <div>
+              <i class="fa fa-comments-o fa-3x"></i>
+              <p>Conversations</p>
+            </div>
+          </a>
+          <i class="fa fa-ellipsis-h fa-2x dark-grey"></i>
+        </div>
+        -->
+
+        <!--
+        <div class="menu-item" ng-class="{active:tabCtrl.isSet(4)}">
+          <a href ui-sref="settings" ng-click="tabCtrl.setTab(4)">
+            <div class="settings">
+              <i class="fa fa-cogs fa-3x"></i>
+              <p>Settings</p>
+            </div>
+          </a>
+        </div>
+        -->
+
+        <div class="">
+          <a href ng-click="tabCtrl.setTab(0); hideMenu(); logout()">
+            <div class=" menu-item">
+              <i class="fa fa-power-off fa-3x orange"></i>
+              <p>Logout</p>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <div ng-hide="userProfile.webid" ng-click="showMenu=false">
+        <a href ng-click="hideMenu(); login()">
+          <div class="menu-item">
+            <i class="fa fa-power-off fa-3x"></i>
+            <p>Login</p>
+          </div>
+        </a>
+      </div>
+    </div>
+    </div>
+
+    <div class="notices">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <div ng-repeat="notice in notices" class="error-message-container" ng-click="cancelTimeout(notice.timeout)">
+              <button type="button" class="close delete notice-close" ng-click="closeNotice(notice.id)"><span class="fa fa-times"></span></button>
+              <p class="notice-text" ng-bind-html="notice.text | makeLinks"></p>
+            </div>
+            <!-- <button class="btn btn-primary" ng-click="addMessage()">Show</button> -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    
+
+    <!-- set the notifications container hidden when the page first loads -->
+    <div id="notification" style="display:none">
+        <div id="basic-template">
+            <a class="ui-notify-cross ui-notify-close" href="#">x</a>
+            <h1>#{title}</h1>
+            <p>#{text}</p>
+        </div>
+    </div>
+
+    <div ui-view="main" class="main" ng-click = 'hideMenu()'></div>
+
+    <footer class="footer" ng-click='hideMenu()'>
+      <div class="container">
+        <div class="footer-inner">
+          <p>
+            &copy; 2014 <a href="#">Cimba</a>
+          </p>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

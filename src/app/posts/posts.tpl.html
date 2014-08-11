@@ -1,0 +1,83 @@
+<div ng-animate="{enter: 'animate'}" class="panel panel-default" custom ng-repeat="post in posts | unique:'uri' | orderBy:'date':true ">
+    <div class="panel-heading sub-header post-header">
+        <div class="pull-left post-img">
+            <a class="thumbnail thumbnail-sm" href="" ng-click="userModal = true; showOverlay = true" role="button" data-toggle="modal">
+                <img class="media-object thumb-pic thumb-pic-sm" ng-src="{{post.userpic}}" err-src="assets/generic_photo.png" rel="tooltip" data-placement="top" title="{{post.username}}">
+            </a>
+        </div>
+
+        <div class="post-info pull-left">
+            <div class="post-usr-name"><a ui-sref="view-user({path: safeUri(post.userwebid)})">{{post.username}}</a> </div>
+            <div class="post-time">
+                <span rel="tooltip" data-placement="top" title="{{post.date}}">{{post.date | fromNow}}</span>
+                <a id="panel-chan-link" ui-sref="view({path: safeUri(post.channel)})">in {{post.chtitle}}</a>
+                <!--
+                <a href="{{location.path+'/#/channels/view/'+post.channel.slice(post.channel.indexOf(':')+3, post.channel.length)}}" target="_blank">In {{post.chtitle}}</a>
+                -->
+            </div>
+        </div>
+
+        <div class="dropdown post-options-dropdown">
+            <button class="btn btn-default dropdown-toggle" type="button" id="post-options" data-toggle="dropdown">
+                <span class="fa fa-angle-down fa-2x"></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="post-options">
+                <li role="presentation" ng-click="starPost()"><a role="menuitem" tabindex="-1" href="#"><i class="fa fa-star"></i> Favorite</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="{{post.uri}}" target="_blank"><i class="fa fa-link"></i> Link to post</a></li>
+                <li role="presentation" ng-click="post.delPost = true; showOverlay = true" ng-show="userProfile.webid == post.userwebid"><a role="menuitem" tabindex="-1" href=""><i class="fa fa-trash-o"></i> Delete Post</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div ng-show="post.delPost" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="popup">
+            <div class="modal-content col-md-6 col-md-offset-3 col-sm-6 col-sm-offset-3 col-xs-12">
+                <button type="button" class="close" ng-click="userModal = false; showOverlay = false; post.delPost = false" aria-hidden="true">x</button>              
+                <h3 class="text-center">Are you sure you want to delete this post permanently?</h3>
+                    <div class="col-md-12">
+                        <button class="btn btn-primary" ng-click="userModal = false; showOverlay = false; post.delStatus = true; deletePost(post, post.channel, true)" ng-disabled="post.delStatus" style="float:right">Confirm</button>
+                    </div>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel-body">
+        <div class="panel-body-text" align="left">
+            <p>
+                <script>
+                var fullText = false;
+                var postbody = String(post.body);
+                post.readMore = false;
+                if(postbody.length>100)
+                {
+                    post.readMore = true;
+                }
+                </script>
+                <alex ng-bind-html="post.body | makeLinks" ng-hide="fullText"></alex>
+                <!-- <a style="cursor:pointer" ng-click="fullText=true" ng-hide="fullText">Read More</a> -->
+                <div ng-bind-html="post.body | makeLinks" ng-show="fullText"></div>
+                <!-- <a style="cursor:pointer; min-height:3.75em" ng-click="fullText=false" ng-show="fullText">Read Less</a> -->
+            </p>
+        </div>        
+    </div>
+
+    <!-- user info modal -->
+    <div ng-show="userModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="popup user-info-modal" >  
+            <button type="button" class="close" ng-click="userModal = false; showOverlay = false" aria-hidden="true">x</button>    
+            <div class="pull-left">
+                <a class="thumbnail thumbnail-lg center" href="{{post.userwebid}}" target="_blank">
+                    <img class="media-object thumb-pic" ng-src="{{post.userpic}}" rel="tooltip" data-placement="top" title="{{post.username}}">
+                </a>
+            </div>      
+            <div class="modal-header text-center">
+                <div>
+                    <h3><a href="{{post.userwebid}}" target="_blank">{{post.username}}</a></h3>
+                </div>
+            </div>            
+        </div>
+    </div>
+    
+    <div class="overlay" ng-show="showOverlay" ng-click="userModal = false; showOverlay = false; post.delPost = false"></div>
+</div>
