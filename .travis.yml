@@ -13,4 +13,4 @@ script: grunt
 
 branches:
   only:
-    - next
+    - main
