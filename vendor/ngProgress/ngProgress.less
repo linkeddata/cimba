@@ -1,5 +1,6 @@
 /* Styling for the ngProgress itself */
 #ngProgress {
+    position: absolute;
     margin: 0;
     padding: 0;
     z-index: 99998;
@@ -8,6 +9,7 @@
     box-shadow: 0 0 10px 0; /* Inherits the font color */
     height: 2px;
     opacity: 0;
+    overflow-x: hidden;
 
     /* Add CSS3 styles for transition smoothing */
     -webkit-transition: all 0.5s ease-in-out;
@@ -18,7 +20,7 @@
 
 /* Styling for the ngProgress-container */
 #ngProgress-container {
-    position: fixed;
+    position: absolute;
     margin: 0;
     padding: 0;
     top: 0;
