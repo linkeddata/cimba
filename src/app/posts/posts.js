@@ -24,8 +24,8 @@ angular.module('Cimba.posts',[
     }else{
         $scope.postbody = '';
     }
-    $scope.currentUrl = $location.absUrl();    
-    
+    $scope.currentUrl = $location.absUrl();
+
     $scope.listAudiences = ['Public', 'Private', 'Friends'];
 
     $scope.savePostData=function(postBody){
@@ -35,9 +35,8 @@ angular.module('Cimba.posts',[
 
     //clears post data from local storage
     $scope.clearPostData=function(){
-        sessionStorage.removeItem($scope.$parent.postData[$scope.currentUrl]);        
+        sessionStorage.removeItem($scope.$parent.postData[$scope.currentUrl]);
     };
-
 
 	var webid = $scope.$parent.userProfile.webid;
 	$scope.audience = {};
@@ -109,8 +108,7 @@ angular.module('Cimba.posts',[
 				readMore : false
 			};
 
-			if(_newPost.body.length > 150)
-			{
+			if(_newPost.body.length > 150) {
 				_newPost.readMore = true;
 			}
 			
@@ -151,6 +149,9 @@ angular.module('Cimba.posts',[
 					$scope.postbody = '';
 					// also display new post
 					var postURI = r.getResponseHeader('Location');
+					var ah = parseLinkHeader(r.getResponseHeader('Link'));
+					var aclURI = ah['acl']['href'];
+
 					if (postURI) {
 						_newPost.uri = postURI;
 
@@ -166,7 +167,7 @@ angular.module('Cimba.posts',[
 						$scope.users[webid].gotposts = true;
 
 						// set the corresponding acl
-						$scope.setACL(postURI, $scope.audience.range);
+						$scope.setACL(aclURI, postURI, $scope.audience.range);
 						// save to local posts
 						$scope.$apply();
 					} else {
@@ -188,91 +189,76 @@ angular.module('Cimba.posts',[
 		}
 	};
 
+
 	// set the corresponding ACLs for the given post, using the right ACL URI
-	$scope.setACL = function(uri, type, defaultForNew) {
-		// get the acl URI first
-		$.ajax({
-			type: "HEAD",
-			url: uri,
-			xhrFields: {
-				withCredentials: true
-			},
-			success: function(d,s,r) {
-				// acl URI
-				var acl = parseLinkHeader(r.getResponseHeader('Link'));
-				var aclURI = acl['acl']['href'];
-				// frag identifier
-				var frag = '#'+basename(uri);
+    $scope.setACL = function(acl, uri, type) {
+        var frag = '#'+basename(uri);
+        var owner = '#owner';
 
-				var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-				var WAC = $rdf.Namespace("http://www.w3.org/ns/auth/acl#");
-				var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
+        var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+        var WAC = $rdf.Namespace("http://www.w3.org/ns/auth/acl#");
+        var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
 
-				var g = $rdf.graph();
-				// add document triples
-				g.add($rdf.sym(''), WAC('accessTo'), $rdf.sym(''));
-				g.add($rdf.sym(''), WAC('accessTo'), $rdf.sym(uri));
-				g.add($rdf.sym(''),	WAC('agent'), $rdf.sym(webid));
-				g.add($rdf.sym(''),	WAC('mode'), WAC('Read'));
-				g.add($rdf.sym(''),	WAC('mode'), WAC('Write'));
+        var g = $rdf.graph();
+        // add document triples
+        g.add($rdf.sym(owner), RDF('type'), WAC('Authorization'));
+        g.add($rdf.sym(owner), WAC('accessTo'), $rdf.sym(''));
+        g.add($rdf.sym(owner), WAC('accessTo'), $rdf.sym(uri));
+        g.add($rdf.sym(owner), WAC('agent'), $rdf.sym($scope.$parent.userProfile.webid));
+        g.add($rdf.sym(owner), WAC('mode'), WAC('Read'));
+        g.add($rdf.sym(owner), WAC('mode'), WAC('Write'));
+        g.add($rdf.sym(owner), WAC('mode'), WAC('Control'));
 
-				// add post triples
-				g.add($rdf.sym(frag), WAC('accessTo'), $rdf.sym(uri));
-				// public visibility
-				if (type == 'public' || type == 'friends') {
-					g.add($rdf.sym(frag), WAC('agentClass'), FOAF('Agent'));
-					g.add($rdf.sym(frag), WAC('mode'), WAC('Read'));
-				} else if (type == 'private') {
-					// private visibility
-					g.add($rdf.sym(frag), WAC('agent'), $rdf.sym(webid));
-					g.add($rdf.sym(frag), WAC('mode'), WAC('Read'));
-					g.add($rdf.sym(frag), WAC('mode'), WAC('Write'));
-				}
-				if (defaultForNew && uri.substring(uri.length - 1) == '/') {
-					g.add($rdf.sym(frag), WAC('defaultForNew'), $rdf.sym(uri));
-				}
+        // add post triples
+        if (type == 'public' || type == 'friends') {
+            g.add($rdf.sym(frag), RDF('type'), WAC('Authorization'));
+            g.add($rdf.sym(frag), WAC('accessTo'), $rdf.sym(uri));
+            // public visibility
+            g.add($rdf.sym(frag), WAC('agentClass'), FOAF('Agent'));
+            g.add($rdf.sym(frag), WAC('mode'), WAC('Read'));
+        }
 
-				s = new $rdf.Serializer(g).toN3(g);
-				
-				if (s && aclURI) {
-					$.ajax({
-						type: "PUT", // overwrite just in case
-						url: aclURI,
-						contentType: "text/turtle",
-						data: s,
-						processData: false,
-						xhrFields: {
-							withCredentials: true
-						},
-						statusCode: {
-							200: function(data) {
-								console.log("200 Created");
-							},
-							401: function() {
-								console.log("401 Unauthorized");
-								notify('Error', 'Unauthorized! You need to authentify before posting.');
-							},
-							403: function() {
-								console.log("403 Forbidden");
-								notify('Error', 'Forbidden! You are not allowed to update the selected profile.');
-							},
-							406: function() {
-								console.log("406 Contet-type unacceptable");
-								notify('Error', 'Content-type unacceptable.');
-							},
-							507: function() {
-								console.log("507 Insufficient storage");
-								notify('Error', 'Insuffifient storage left! Check your server storage.');
-							}
-						},
-						success: function(d,s,r) {
-							console.log('Success! ACLs are now set.');
-						}
-					});
-				}
-			}
-		});
-	};
+        console.log(g.toNT());
+        console.log(acl);
+        s = new $rdf.Serializer(g).toN3(g);
+
+        if (s && s.length > 0 && acl.length > 0) {
+            $.ajax({
+                type: "PUT", // overwrite just in case
+                url: acl,
+                contentType: "text/turtle",
+                data: s,
+                processData: false,
+                xhrFields: {
+                    withCredentials: true
+                },
+                statusCode: {
+                    200: function(data) {
+                        console.log("200 Created");
+                    },
+                    401: function() {
+                        console.log("401 Unauthorized");
+                        notify('Error', 'Unauthorized! You need to authenticate before posting.');
+                    },
+                    403: function() {
+                        console.log("403 Forbidden");
+                        notify('Error', 'Forbidden! You are not allowed to update the selected profile.');
+                    },
+                    406: function() {
+                        console.log("406 Content-type unacceptable");
+                        notify('Error', 'Content-type unacceptable.');
+                    },
+                    507: function() {
+                        console.log("507 Insufficient storage");
+                        notify('Error', 'Insufficient storage left! Check your server storage.');
+                    }
+                },
+                success: function(d,s,r) {
+                    console.log('Success! ACLs are now set.');
+                }
+            });
+        }
+    };
 
 	// delete a single post
 	$scope.deletePost = function (post, channeluri, refresh) {

@@ -32,7 +32,7 @@
               <div id="curr-user-name">{{userProfile.name}}</div>
             </div>
             <div class="thumbnail pull-right">
-              <img id="curr-user-img" class="thumb-pic media-object" ng-src="{{userProfile.picture}}">
+              <a href="{{userProfile.webid}}" target="blank"><img id="curr-user-img" class="thumb-pic media-object" ng-src="{{userProfile.picture}}"></a>
             </div>
           </div>
           <button type="button" ng-class="showMenu?'icon-bars-slide-out':''"ng-click="showMenu=!showMenu" class="btn icon-bars-button" alt="Toggle navigation">
@@ -48,15 +48,6 @@
     <div ng-class="showMenu?'slide-out':''" class="sidebar left-menu" style="z-index: 999; position: fixed;">
 
       <div ng-show="userProfile.webid" ng-click="showMenu=false" ng-controller="TabController as tabCtrl">
-
-        <!-- <div class="menu-item avatar-frame" style="margin: auto">
-          <a href="{{userProfile.uri}}" ui-sref="profile" alt="{{userProfile.name}}" ng-click="tabCtrl.setTab(1); tabCtrl.clearbadge(0);">
-            <span class="badge">{{tabCtrl.badges[0]}}</span>
-            <img style="margin: auto" ng-src="{{userProfile.picture}}" class="profile-img" alt="{{userProfile.name}}" title="{{userProfile.name}}" />
-          </a>
-        </div> -->
-
-        <!-- <i class="fa fa-ellipsis-h fa-2x dark-grey"></i> -->
         
         <div class="menu-item">
           <a href ui-sref="home" ng-click="tabCtrl.setTab(0); hideMenu()">
@@ -88,30 +79,6 @@
           </a>
           <i class="fa fa-ellipsis-h fa-2x dark-grey"></i>
         </div>
-
-        <!--
-        <div class="menu-item" ng-class="{active:tabCtrl.isSet(3)}">
-          <a href ui-sref="conversations" ng-click="tabCtrl.setTab(3); tabCtrl.clearbadge(2);">
-            <span class="badge">{{tabCtrl.badges[2]}}</span>
-            <div>
-              <i class="fa fa-comments-o fa-3x"></i>
-              <p>Conversations</p>
-            </div>
-          </a>
-          <i class="fa fa-ellipsis-h fa-2x dark-grey"></i>
-        </div>
-        -->
-
-        <!--
-        <div class="menu-item" ng-class="{active:tabCtrl.isSet(4)}">
-          <a href ui-sref="settings" ng-click="tabCtrl.setTab(4)">
-            <div class="settings">
-              <i class="fa fa-cogs fa-3x"></i>
-              <p>Settings</p>
-            </div>
-          </a>
-        </div>
-        -->
 
         <div class="">
           <a href ng-click="tabCtrl.setTab(0); hideMenu(); logout()">
@@ -147,9 +114,6 @@
         </div>
       </div>
     </div>
-
-
-    
 
     <!-- set the notifications container hidden when the page first loads -->
     <div id="notification" style="display:none">
