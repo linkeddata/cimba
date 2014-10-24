@@ -1,13 +1,13 @@
 <div ng-animate="{enter: 'animate'}" class="panel panel-default" custom ng-repeat="post in posts | unique:'uri' | orderBy:'date':true">
     <div class="panel-heading light-blue">
         <a href="{{post.uri}}" class="link-post pull-right" target="_blank"><i class="fa fa-link"></i> Link to post</a>
-        <h4><span rel="tooltip" data-placement="top" title="{{post.date}}">{{post.date | fromNow}}</span> by <a href="{{post.userwebid}}" class="link-white bold" target="_blank">{{post.username}}</a>
+        <h4><span rel="tooltip" data-placement="top" title="{{post.date}}">{{post.date | fromNow}}</span> by <a href="{{post.author}}" class="link-white bold" target="_blank">{{post.authorName}}</a>
         <br/>
         <small><a href="{{post.channel}}" class="link-white" target="_blank">In {{post.chtitle}}</a></small>
         </h4>
         <div class="pull-left">
             <a class="thumbnail pull-right" href="#{{post.$$hashKey}}" role="button" data-toggle="modal">
-              <img class="media-object thumb-pic" ng-src="{{post.userpic}}" rel="tooltip" data-placement="top" title="{{post.username}}">
+              <img class="media-object thumb-pic" ng-src="{{post.authorPic}}" rel="tooltip" data-placement="top" title="{{post.authorName}}">
             </a>
         </div>
     </div>
@@ -21,8 +21,8 @@
         <form>
             <div class="input-group">
                 <div class="input-group-btn">
-                    <button class="btn btn-success" rel="tooltip" data-placement="top" title="Read full message">More</button>
-                    <button class="btn btn-default" rel="tooltip" data-placement="top" title="Star message" ng-click="starPost()"><i class="fa fa-star fa-2x"></i></button>
+                    <!-- <button class="btn btn-success" rel="tooltip" data-placement="top" title="Read full message">More</button>
+                    <button class="btn btn-default" rel="tooltip" data-placement="top" title="Star message" ng-click="starPost()"><i class="fa fa-star fa-2x"></i></button> -->
                     <button class="btn btn-default" data-placement="top" title="Delete message" ng-click="deletePost(post)" ng-show="me.webid == post.userwebid"><i class="fa fa-trash-o fa-2x"></i></button>
                 </div>
             </div>
@@ -36,9 +36,9 @@
                   <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
                   <div class="text-center">
                         <a class="thumbnail center" href="{{post.userwebid}}" target="_blank">
-                            <img class="media-object thumb-pic" ng-src="{{post.userpic}}" rel="tooltip" data-placement="top" title="{{post.username}}">
+                            <img class="media-object thumb-pic" ng-src="{{post.authorPic}}" rel="tooltip" data-placement="top" title="{{post.authorName}}">
                         </a>
-                        <h3><a href="{{post.userwebid}}" target="_blank">{{post.username}}</a></h3>
+                        <h3><a href="{{post.userwebid}}" target="_blank">{{post.authorName}}</a></h3>
                   </div>
                 </div>
                 <div class="modal-body">

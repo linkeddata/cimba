@@ -1,7 +1,17 @@
 // some config
+var PROFILE_PIC = 'img/generic_photo.png';
+
 var PROXY = "https://rww.io/proxy?uri={uri}";
 var AUTH_PROXY = "https://rww.io/auth-proxy?uri=";
 var TIMEOUT = 90000;
+
+var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
+var FOAF = $rdf.Namespace('http://xmlns.com/foaf/0.1/');
+var MBLOG = $rdf.Namespace("http://w3.org/ns/mblog#");
+var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
+var LDPX = $rdf.Namespace("http://ns.rww.io/ldpx#");
+
 var meta_starts_with_dot = false;
 // add filters
 var ngCimba = angular.module('CimbaApp', ['ui','ui.filters','ngSanitize']);
@@ -141,7 +151,7 @@ function CimbaCtrl($scope, $http, $filter) {
 		}
 	}
 
-	// save the list of users + channels
+	// save the list of users + channels as following
 	$scope.saveUsers = function () {
 		// save to PDS
 		// TODO: try to discover the followURI instead?
@@ -152,7 +162,6 @@ function CimbaCtrl($scope, $http, $filter) {
 
 		var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 		var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
-	    var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
 		var g = $rdf.graph();
 
 		// set triples
@@ -633,37 +642,31 @@ function CimbaCtrl($scope, $http, $filter) {
 	            },
 	        },
 	        success: function(d,s,r) {
-	            console.log('Success! Created new uB directory at '+mburi+'/');
+	            console.log('Success! Created new microblog workspace at '+mburi+'/');
 	            // create the meta file
 		        var l = r.getResponseHeader('Link');
-			if (l == null)
-			  {
-			    notify ('Error', 'No Link Headers found in reply');
-			    $scope.createbtn = 'Create';
-			    $scope.loading = false;
-			    $scope.$apply();
-			    return;
-			  }
+				if (l === undefined || l.length <= 0) {
+					notify ('Error', 'No Link headers found in reply');
+					$scope.createbtn = 'Create';
+					$scope.loading = false;
+					$scope.$apply();
+					return;
+				}
 	           	var meta = parseLinkHeader(r.getResponseHeader('Link'));
 				var metaURI = meta['meta']['href'];
 				var ldpresource = r.getResponseHeader("Location");
-				var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-				var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
-			    var FOAF = $rdf.Namespace('http://xmlns.com/foaf/0.1/');
-			    var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
-			    var LDPX = $rdf.Namespace("http://ns.rww.io/ldpx#");
+
 				var g = $rdf.graph();
 			    if (metaURI.indexOf ('/.') != -1)
 			      meta_starts_with_dot = true;
 				
 				// add uB triple (append trailing slash since we got dir)
-		        g.add($rdf.sym(mburi+'/'), RDF('type'), SIOC('Space'));
+		        g.add($rdf.sym(mburi+'/'), RDF('type'), MBLOG('BlogSpace'));
 		        g.add($rdf.sym(mburi+'/'), DCT('title'), $rdf.lit("Microblogging workspace"));
-		        g.add($rdf.sym(mburi+'/'), LDPX('ldprPrefix'), $rdf.lit("ch"));
 		        var s = new $rdf.Serializer(g).toN3(g);	        
 		        if (s.length > 0) {
 				    $.ajax({
-				        type: "POST",
+				        type: "PUT",
 				        url: metaURI,
 				        contentType: "text/turtle",
 				        data: s,
@@ -753,6 +756,7 @@ function CimbaCtrl($scope, $http, $filter) {
 	        processData: false,
 	        contentType: 'text/turtle',
 	        headers: {
+	        	Slug: churi,
 	        	Link: '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"'
 	        },
 	        xhrFields: {
@@ -788,22 +792,21 @@ function CimbaCtrl($scope, $http, $filter) {
 				var chURI = r.getResponseHeader('Location');
 				// got the URI for the new channel
 				if (chURI && metaURI) {
-					var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-					var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
-				    var FOAF = $rdf.Namespace('http://xmlns.com/foaf/0.1/');
-				    var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
-				    var LDPX = $rdf.Namespace("http://ns.rww.io/ldpx#");
 					var g = $rdf.graph();
+
+					var now = Date.now();
+					now = moment(now).zone('00:00').format("YYYY-MM-DDTHH:mm:ssZ");
 					
 					// add uB triple (append trailing slash since we got dir)
-			        g.add($rdf.sym(chURI), RDF('type'), SIOC('Container'));
+			        g.add($rdf.sym(chURI), RDF('type'), MBLOG('Channel'));
+			        g.add($rdf.sym(chURI), MBLOG('author'), $rdf.sym($scope.me.webid));
 			        g.add($rdf.sym(chURI), DCT('title'), $rdf.lit(title));
-			        g.add($rdf.sym(chURI), LDPX('ldprPrefix'), $rdf.lit('post'));
+			        g.add($rdf.sym(chURI), DCT('created'), $rdf.lit(now, '', $rdf.Symbol.prototype.XSDdateTime));
 			        var s = new $rdf.Serializer(g).toN3(g);
 
 			        if (s.length > 0) {
 					    $.ajax({
-					        type: "POST",
+					        type: "PUT",
 					        url: metaURI,
 					        contentType: "text/turtle",
 					        data: s,
@@ -862,27 +865,22 @@ function CimbaCtrl($scope, $http, $filter) {
 		// get the current date
 		var now = Date.now();
 		now = moment(now).zone('00:00').format("YYYY-MM-DDTHH:mm:ssZ");
-		
+
 		var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 		var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
-	    var FOAF = $rdf.Namespace('http://xmlns.com/foaf/0.1/');
-	    var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
+		var FOAF = $rdf.Namespace('http://xmlns.com/foaf/0.1/');
+		var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
 		var g = $rdf.graph();
-		
-		// set triples
-        g.add($rdf.sym(''), RDF('type'), SIOC('Post'));
-        g.add($rdf.sym(''), SIOC('content'), $rdf.lit($scope.postbody.trim()));
-        g.add($rdf.sym(''), SIOC('has_creator'), $rdf.sym('#author'));
-    	g.add($rdf.sym(''), DCT('created'), $rdf.lit(now, '', $rdf.Symbol.prototype.XSDdateTime));
-        // add author triples
-        g.add($rdf.sym('#author'), RDF('type'), SIOC('UserAccount'));
-        g.add($rdf.sym('#author'), SIOC('account_of'), $rdf.sym($scope.me.webid));
-        g.add($rdf.sym('#author'), SIOC('avatar'), $rdf.sym($scope.me.pic));
-        g.add($rdf.sym('#author'), FOAF('name'), $rdf.lit($scope.me.name));
 
-    	var s = new $rdf.Serializer(g).toN3(g);
-    	var uri = $scope.defaultChannel.uri;
-    	var title = $scope.defaultChannel.title;
+		// set triples
+		g.add($rdf.sym(''), RDF('type'), SIOC('Post'));
+		g.add($rdf.sym(''), SIOC('content'), $rdf.lit($scope.postbody.trim()));
+		g.add($rdf.sym(''), MBLOG('author'), $rdf.sym($scope.me.webid));
+		g.add($rdf.sym(''), DCT('created'), $rdf.lit(now, '', $rdf.Symbol.prototype.XSDdateTime));
+
+		var s = new $rdf.Serializer(g).toN3(g);
+		var uri = $scope.defaultChannel.uri;
+		var title = $scope.defaultChannel.title;
     	
 		var _newPost = {
 			uri : '',
@@ -890,9 +888,9 @@ function CimbaCtrl($scope, $http, $filter) {
 			chtitle: title,
 			date : now,
 			timeago : moment(now).fromNow(),
-			userpic : $scope.me.pic,
-			userwebid : $scope.me.webid,
-			username : $scope.me.name,
+			author : $scope.me.webid,
+			authorName : $scope.me.name,
+			authorPic : $scope.me.pic,
 			body : $scope.postbody.trim()
 		}
 
@@ -942,7 +940,7 @@ function CimbaCtrl($scope, $http, $filter) {
 					$scope.me.gotposts = true;
 
 					// set the corresponding acl
-					$scope.setACL(postURI, $scope.audience.range);
+					$scope.setACL(postURI, $scope.audience.range, false);
 					// save to local posts
 					$scope.$apply();
 				} else {
@@ -983,6 +981,7 @@ function CimbaCtrl($scope, $http, $filter) {
 				g.add($rdf.sym(''), WAC('accessTo'), $rdf.sym(''));
 				g.add($rdf.sym(''), WAC('accessTo'), $rdf.sym(uri));
 				g.add($rdf.sym(''),	WAC('agent'), $rdf.sym($scope.me.webid));
+				g.add($rdf.sym(''),	WAC('mode'), WAC('Control'));
 				g.add($rdf.sym(''),	WAC('mode'), WAC('Read'));
 				g.add($rdf.sym(''),	WAC('mode'), WAC('Write'));
 
@@ -993,11 +992,6 @@ function CimbaCtrl($scope, $http, $filter) {
 				if (type == 'public' || type == 'friends') {
 					g.add($rdf.sym(frag), WAC('agentClass'), FOAF('Agent'));
 					g.add($rdf.sym(frag), WAC('mode'), WAC('Read'));
-				} else if (type == 'private') {
-					// private visibility
-					g.add($rdf.sym(frag), WAC('agent'), $rdf.sym($scope.me.webid));
-					g.add($rdf.sym(frag), WAC('mode'), WAC('Read'));
-					g.add($rdf.sym(frag), WAC('mode'), WAC('Write'));
 				}
 				if (defaultForNew && uri.substring(uri.length - 1) == '/')
 					g.add($rdf.sym(frag), WAC('defaultForNew'), $rdf.sym(uri));
@@ -1259,37 +1253,34 @@ function CimbaCtrl($scope, $http, $filter) {
 
 	// get channel feeds based on a storage container
 	$scope.getChannels = function(uri, webid, mine, update) {
-		var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-		var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
-	    var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
-	    var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
-	    var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
 	    var g = $rdf.graph();
 	    var f = $rdf.fetcher(g, TIMEOUT);
 	    // add CORS proxy
 	    $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
+	    // find how server does globbing
 	    $.ajax ({
-	        type:"GET",
-		url:uri, 
-		processData: false, 
+	        type:"HEAD",
+			url:uri, 
+			processData: false, 
 	        headers: {
-		  Accept: 'text/turtle'
-		},
+				Accept: 'text/turtle'
+			},
 	        xhrFields: { withCredentials: true },
-		success: function(d,s,r) {
-		      var l = r.getResponseHeader('Link');
-		      if (l != null) {
-		      var meta = parseLinkHeader(l);
-		      var metaURI = meta['meta']['href'];
-		      if (metaURI.indexOf ('/.') != -1)
-			meta_starts_with_dot = true;
-		      }
-			 },
-	    	error: function() {}});
+			success: function(d,s,r) {
+				var l = r.getResponseHeader('Link');
+				if (l != null) {
+				var meta = parseLinkHeader(l);
+				var metaURI = meta['meta']['href'];
+				if (metaURI.indexOf ('/.') != -1)
+					meta_starts_with_dot = true;
+				}
+			},
+		    error: function() {}
+		});
 	    // fetch user data: SIOC:Space -> SIOC:Container -> SIOC:Post
 	    f.nowOrWhenFetched(uri,undefined,function(){
 	        // find all SIOC:Container
-	        var ws = g.statementsMatching(undefined, RDF('type'), SIOC('Space'));
+	        var ws = g.statementsMatching(undefined, RDF('type'), MBLOG('BlogSpace'));
 	        
 	        if (ws.length > 0) {
 				// set a default Microblog workspace
@@ -1304,7 +1295,7 @@ function CimbaCtrl($scope, $http, $filter) {
 
 					// find the channels info for the user (from .meta files)
 					f.nowOrWhenFetched(w + (meta_starts_with_dot ? '.*' : '*'), undefined,function(){
-			        	var chs = g.statementsMatching(undefined, RDF('type'), SIOC('Container'));
+			        	var chs = g.statementsMatching(undefined, RDF('type'), MBLOG('Channel'));
 			        	var channels = [];
 
 			        	if (chs.length > 0) {
@@ -1402,11 +1393,6 @@ function CimbaCtrl($scope, $http, $filter) {
 	
 	// get all posts for a given microblogging workspace
 	$scope.getPosts = function(channel, title) {
-		var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-		var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
-	    var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
-	    var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
-	    var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
 	    var g = $rdf.graph();
 	    var f = $rdf.fetcher(g, TIMEOUT);
 	    // add CORS proxy
@@ -1419,7 +1405,6 @@ function CimbaCtrl($scope, $http, $filter) {
 			if (posts.length > 0) {
 				for (var p in posts) {
 					var uri = posts[p]['subject'];
-					var useraccount = g.any(uri, SIOC('has_creator'));
 					var post = g.statementsMatching(posts[p]['subject']);
 					if (g.any(uri, DCT('created'))) {
 						var d = g.any(uri, DCT('created')).value;
@@ -1427,33 +1412,35 @@ function CimbaCtrl($scope, $http, $filter) {
 					} else {
 						var date = undefined;
 					}
-					if (g.any(useraccount, SIOC('account_of'))) {
-						var userwebid = g.any(useraccount, SIOC('account_of')).value;
+
+					// get user details
+					var author = g.any(uri, MBLOG('author')).value;
+					if ($scope.me.webid && author == $scope.me.webid) {
+						var authorName = ($scope.me.name)?$scope.me.name:'';
+						var authorPic = ($scope.me.pic)?$scope.me.pic:PROFILE_PIC;
+					} else if ($scope.users[author]) {
+						var authorName = ($scope.users[author].name)?$scope.users[author].name:'';
+						var authorPic = ($scope.users[author].pic)?$scope.users[author].pic:PROFILE_PIC;
 					} else {
-						var userwebid = undefined;
+						var authorProfile = author.slice(0, author.indexOf('#'));
+		    			var authorRes = $rdf.sym(author);
+						f.nowOrWhenFetched(authorProfile, undefined, function() {
+							var authorName = (g.any(authorRes, FOAF('name')))?g.any(authorRes, FOAF('name')).value:'';
+					        var pic = g.any(authorRes, FOAF('img'));
+					        var depic = g.any(authorRes, FOAF('depiction'));
+					        var authorPic = '';
+					        // set avatar picture
+					        if (pic) {
+					        	authorPic = pic.value
+				        	} else {
+					            if (depic)
+					                authorPic = depic.value;
+					            else
+					                authorPic = PROFILE_PIC;
+					        }
+						});
 					}
-					// try using the picture from the WebID first
-					if (userwebid) {
-						if ($scope.me.webid && $scope.me.webid == userwebid)
-							var userpic = $scope.me.pic;
-						else if ($scope.users[userwebid])
-							var userpic = $scope.users[userwebid].pic;
-					} else if (g.any(useraccount, SIOC('avatar'))) {
-						var userpic = g.any(useraccount, SIOC('avatar')).value;
-					} else {
-						var userpic = 'img/generic_photo.png';
-					}
-					// try using the name from the WebID first
-					if (userwebid) {
-						if ($scope.me.webid && $scope.me.webid == userwebid)
-							var username = $scope.me.name;
-						else if ($scope.users[userwebid])
-							var username = $scope.users[userwebid].name;
-					} else if (g.any(useraccount, FOAF('name'))) {
-						var username = g.any(useraccount, FOAF('name')).value;
-					} else {
-						var username = '';
-					}
+
 					if (g.any(uri, SIOC('content'))) {
 						var body = g.any(uri, SIOC('content')).value;
 					} else {
@@ -1467,9 +1454,9 @@ function CimbaCtrl($scope, $http, $filter) {
 						channel: channel,
 						chtitle: title,
 						date : date,
-						userwebid : userwebid,
-						userpic : userpic,
-						username : username,
+						author : author,
+						authorPic : authorPic,
+						authorName : authorName,
 						body : body
 					}
 
