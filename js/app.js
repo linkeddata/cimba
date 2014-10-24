@@ -2,15 +2,17 @@
 var PROFILE_PIC = 'img/generic_photo.png';
 
 var PROXY = "https://rww.io/proxy?uri={uri}";
-var AUTH_PROXY = "https://rww.io/auth-proxy?uri=";
+//var AUTH_PROXY = 'https://rww.io/auth-proxy?uri=';
+var AUTH_PROXY = '';
 var TIMEOUT = 90000;
 
 var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+var ACL = $rdf.Namespace("http://www.w3.org/ns/auth/acl#");
 var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
 var FOAF = $rdf.Namespace('http://xmlns.com/foaf/0.1/');
 var MBLOG = $rdf.Namespace("http://w3.org/ns/mblog#");
 var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
-var LDPX = $rdf.Namespace("http://ns.rww.io/ldpx#");
+var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
 
 var meta_starts_with_dot = false;
 // add filters
@@ -152,6 +154,7 @@ function CimbaCtrl($scope, $http, $filter) {
 	}
 
 	// save the list of users + channels as following
+	// TODO switch to new schem
 	$scope.saveUsers = function () {
 		// save to PDS
 		// TODO: try to discover the followURI instead?
@@ -247,10 +250,7 @@ function CimbaCtrl($scope, $http, $filter) {
 	$scope.getUsers = function (loadposts) {
 		if ($scope.me.mbspace && $scope.me.mbspace.length > 1) {
 			var followURI = $scope.me.mbspace+'following';
-	
-			var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-			var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
-		    var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
+
 		    var g = $rdf.graph();
 		    var f = $rdf.fetcher(g, TIMEOUT);
 		    // add CORS proxy
@@ -524,11 +524,6 @@ function CimbaCtrl($scope, $http, $filter) {
 		if (storage.substring(storage.length - 1) != '/')
         	storage = storage+'/';
 
-		var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-		var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
-	    var FOAF = $rdf.Namespace('http://xmlns.com/foaf/0.1/');
-	    var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
-	    var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
 		var g = $rdf.graph();
 		
 		// add storage triple
@@ -654,15 +649,15 @@ function CimbaCtrl($scope, $http, $filter) {
 				}
 	           	var meta = parseLinkHeader(r.getResponseHeader('Link'));
 				var metaURI = meta['meta']['href'];
-				var ldpresource = r.getResponseHeader("Location");
+				var blogspace = r.getResponseHeader("Location");
 
 				var g = $rdf.graph();
 			    if (metaURI.indexOf ('/.') != -1)
 			      meta_starts_with_dot = true;
 				
 				// add uB triple (append trailing slash since we got dir)
-		        g.add($rdf.sym(mburi+'/'), RDF('type'), MBLOG('BlogSpace'));
-		        g.add($rdf.sym(mburi+'/'), DCT('title'), $rdf.lit("Microblogging workspace"));
+		        g.add($rdf.sym(blogspace), RDF('type'), MBLOG('BlogSpace'));
+		        g.add($rdf.sym(blogspace), DCT('title'), $rdf.lit("Microblogging workspace"));
 		        var s = new $rdf.Serializer(g).toN3(g);	        
 		        if (s.length > 0) {
 				    $.ajax({
@@ -698,17 +693,20 @@ function CimbaCtrl($scope, $http, $filter) {
 				        success: function(d,s,r) {
 				            console.log('Success! Microblog space created.');
                         	notify('Success', 'Microblog space created.');
-                        	$scope.me.mbspace = ldpresource;
+                        	$scope.me.mbspace = blogspace;
 			            	// clear form
 							$scope.mburi = '';
 							// close modal
 							$('#newMBModal').modal('hide');
+							// set generic ACL
+							$scope.setACL(blogspace, 'public', true);
+
 							if (express && express == true) {
 								$scope.channelname = "main";
 								$scope.newChannel();
 							} else {
 								// reload user profile when done
-								$scope.getInfo($scope.me.webid, true);
+								// $scope.getInfo($scope.me.webid, true);
 					        	// revert button contents to previous state
 					        	$scope.createbtn = 'Create';
 								$scope.loading = false;
@@ -844,8 +842,24 @@ function CimbaCtrl($scope, $http, $filter) {
 				            	$scope.channelname = '';
 								// close modal
 								$('#newChannelModal').modal('hide');
+
+								var channel = {};
+		        				channel.uri = chURI;
+		        				channel.title = title;
+
+								// mine
+								if ($scope.me.channels.length <= 0) {
+									$scope.me.gotposts = false;
+									$scope.me.channels = [];
+								}
+								$scope.me.channels.push(channel);
+								$scope.me.chspace = true;
+
+								// set a default channel for the logged user
+								$scope.defaultChannel = $scope.me.channels[0];
+								$scope.$apply();
 								// reload user profile when done
-								$scope.getInfo($scope.me.webid, true);
+								// $scope.getInfo($scope.me.webid, true);
 					        }
 					    });
 			        }
@@ -981,6 +995,9 @@ function CimbaCtrl($scope, $http, $filter) {
 				g.add($rdf.sym(''), WAC('accessTo'), $rdf.sym(''));
 				g.add($rdf.sym(''), WAC('accessTo'), $rdf.sym(uri));
 				g.add($rdf.sym(''),	WAC('agent'), $rdf.sym($scope.me.webid));
+				if (defaultForNew && uri.substring(uri.length - 1) == '/') {
+					g.add($rdf.sym(''), WAC('defaultForNew'), $rdf.sym(uri));
+				}
 				g.add($rdf.sym(''),	WAC('mode'), WAC('Control'));
 				g.add($rdf.sym(''),	WAC('mode'), WAC('Read'));
 				g.add($rdf.sym(''),	WAC('mode'), WAC('Write'));
@@ -993,8 +1010,9 @@ function CimbaCtrl($scope, $http, $filter) {
 					g.add($rdf.sym(frag), WAC('agentClass'), FOAF('Agent'));
 					g.add($rdf.sym(frag), WAC('mode'), WAC('Read'));
 				}
-				if (defaultForNew && uri.substring(uri.length - 1) == '/')
+				if (defaultForNew && uri.substring(uri.length - 1) == '/') {
 					g.add($rdf.sym(frag), WAC('defaultForNew'), $rdf.sym(uri));
+				}
 
 				var s = new $rdf.Serializer(g).toN3(g);
 				
@@ -1152,10 +1170,6 @@ function CimbaCtrl($scope, $http, $filter) {
 
 	    $scope.found = true;
 
-	    var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-	    var FOAF = $rdf.Namespace("http://xmlns.com/foaf/0.1/");
-	    var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
-	    var ACL = $rdf.Namespace("http://www.w3.org/ns/auth/acl#");
 	    var g = $rdf.graph();
 	    var f = $rdf.fetcher(g, TIMEOUT);
 	    // add CORS proxy
@@ -1182,12 +1196,12 @@ function CimbaCtrl($scope, $http, $filter) {
 			var storage = g.any(webidRes, SPACE('storage'));
 			// get list of delegatees
 			var delegs = g.statementsMatching(webidRes, ACL('delegatee'), undefined);
-/*			if (delegs.length > 0) {
+			if (delegs.length > 0 && AUTH_PROXY.length > 0) {
 				jQuery.ajaxPrefilter(function(options) {
 			        options.url = AUTH_PROXY + encodeURIComponent(options.url);
 				});
 			}
-*/
+
 	    	// Clean up name
 	        name = (name)?name.value:'';
 
@@ -1269,10 +1283,11 @@ function CimbaCtrl($scope, $http, $filter) {
 			success: function(d,s,r) {
 				var l = r.getResponseHeader('Link');
 				if (l != null) {
-				var meta = parseLinkHeader(l);
-				var metaURI = meta['meta']['href'];
-				if (metaURI.indexOf ('/.') != -1)
-					meta_starts_with_dot = true;
+					var meta = parseLinkHeader(l);
+					var metaURI = meta['meta']['href'];
+					if (metaURI.indexOf ('/.') != -1) {
+						meta_starts_with_dot = true;
+					}
 				}
 			},
 		    error: function() {}
@@ -1290,13 +1305,15 @@ function CimbaCtrl($scope, $http, $filter) {
 					// get the list of people I'm following + channels + posts
 					$scope.getUsers(true);
 				}
+
+				var channels = [];
 				for (var i in ws) {
 					w = ws[i]['subject']['value'];
 
 					// find the channels info for the user (from .meta files)
-					f.nowOrWhenFetched(w + (meta_starts_with_dot ? '.*' : '*'), undefined,function(){
+					f.nowOrWhenFetched(w, undefined, function() {
 			        	var chs = g.statementsMatching(undefined, RDF('type'), MBLOG('Channel'));
-			        	var channels = [];
+			        	console.log("Got channels: "+chs.length);
 
 			        	if (chs.length > 0) {
 				        	// clear list first
@@ -1306,33 +1323,36 @@ function CimbaCtrl($scope, $http, $filter) {
 								$scope.users[webid].channels = [];
 
 				        	for (var ch in chs) {
-		        				var channel = {};
-		        				channel.uri = chs[ch]['subject']['value'];
-			        			var title = g.any(chs[ch]['subject'], DCT('title')).value;
+				        		var chan = chs[ch];
+			        			f.nowOrWhenFetched(chan['subject']['value'], undefined, function() {
+			        				var channel = {};
+			        				channel.uri = chan['subject']['value'];
+				        			var title = g.any(chan['subject'], DCT('title')).value;
 			        			
-			        			if (title)
-			        				channel.title = title;
-			        			else
-			        				channel.title = channel.uri;
+				        			if (title)
+				        				channel.title = title;
+				        			else
+				        				channel.title = channel.uri;
 
-			        			// add channel to the list
-								channels.push(channel);
+				        			// add channel to the list
+									channels.push(channel);
 
-								// mine
-								if (mine) {
-									$scope.me.channels.push(channel);
-		        					// force get the posts for my channels
-		        					$scope.getPosts(channel.uri, channel.title);
-									$scope.me.chspace = true;
-								}
-
-								// update
-								if (update) {
-									var exists = findWithAttr($scope.users[webid].channels, 'uri', channel.uri);
-									if (exists == undefined) {
-										$scope.users[webid].channels.push(channel);
+									// mine
+									if (mine) {
+										$scope.me.channels.push(channel);
+			        					// force get the posts for my channels
+			        					$scope.getPosts(channel.uri, channel.title);
+										$scope.me.chspace = true;
 									}
-								}
+
+									// update
+									if (update) {
+										var exists = findWithAttr($scope.users[webid].channels, 'uri', channel.uri);
+										if (exists == undefined) {
+											$scope.users[webid].channels.push(channel);
+										}
+									}
+								});
 				        	}
 
 				        	// set a default channel for the logged user
