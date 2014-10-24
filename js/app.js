@@ -1339,10 +1339,14 @@ function CimbaCtrl($scope, $http, $filter) {
 
 									// mine
 									if (mine) {
+										// set a default channel for the logged user
 										$scope.me.channels.push(channel);
 			        					// force get the posts for my channels
 			        					$scope.getPosts(channel.uri, channel.title);
 										$scope.me.chspace = true;
+										if (ch == 0) {
+											$scope.defaultChannel = $scope.me.channels[0];
+										}
 									}
 
 									// update
@@ -1354,10 +1358,6 @@ function CimbaCtrl($scope, $http, $filter) {
 									}
 								});
 				        	}
-
-				        	// set a default channel for the logged user
-	    					if (mine)
-					        	$scope.defaultChannel = $scope.me.channels[0];
 
 					        // done refreshing user information -> update view
 					        if (update) {
