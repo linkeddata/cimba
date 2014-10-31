@@ -2,6 +2,9 @@
 var PROFILE_PIC = 'img/generic_photo.png';
 
 var PROXY = "https://rww.io/proxy?uri={uri}";
+// add CORS proxy
+$rdf.Fetcher.crossSiteProxyTemplate=PROXY;
+
 //var AUTH_PROXY = 'https://rww.io/auth-proxy?uri=';
 var AUTH_PROXY = '';
 var TIMEOUT = 90000;
@@ -122,6 +125,7 @@ function CimbaCtrl($scope, $http, $filter) {
 		_user.channels = $scope.me.channels;
 		_user.mbspace = $scope.me.mbspace;
 		_user.chspace = $scope.me.chspace;
+		_user.subscriptionList = $scope.me.subscriptionList;
 		cimba.me = _user;
 		sessionStorage.setItem($scope.appuri, JSON.stringify(cimba));
 	}
@@ -138,6 +142,7 @@ function CimbaCtrl($scope, $http, $filter) {
 				$scope.me.mbspace = cimba.me.mbspace;
 				$scope.me.chspace = cimba.me.chspace;
 				$scope.me.channels = cimba.me.channels;
+				$scope.me.subscriptionList = cimba.me.subscriptionList;
 				$scope.loggedin = true;
 				if ($scope.me.channels)
 					$scope.defaultChannel = $scope.me.channels[0];
@@ -155,61 +160,81 @@ function CimbaCtrl($scope, $http, $filter) {
 
 	// save the list of users + channels as following
 	// TODO switch to new schem
-	$scope.saveUsers = function () {
+	// saveUsers -> modifySub
+	$scope.setSubscription = function (uri) {
 		// save to PDS
-		// TODO: try to discover the followURI instead?
-		var channels = []; // temporary channel list (will load posts from them once this is done)
-		var followURI = ''; // uri of the preferences file
-		if ($scope.me.mbspace && $scope.me.mbspace.length > 1)
-			followURI = $scope.me.mbspace+'following';
-
-		var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-		var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
+		if (!$scope.me.subscriptionList && $scope.me.subscriptionList.length <= 0 && $scope.me.mbspace) {
+			// create the subList container
+			$.ajax({
+		        type: "POST",
+		        url: $scope.me.mbspace,
+		        contentType: "text/turtle",
+		        headers: {
+					Slug: 'subscriptions',
+					Link: '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"'
+					},
+		        processData: false,
+		        xhrFields: {
+					withCredentials: true
+				},
+		        statusCode: {
+		            201: function(data) {
+		                console.log("201 Created");
+		            },
+		            401: function() {
+		                console.log("401 Unauthorized");
+		                notify('Error', 'Unauthorized! You need to authentify before posting.');
+		            },
+		            403: function() {
+		                console.log("403 Forbidden");
+		                notify('Error', 'Forbidden! You are not allowed to update the selected profile.');
+		            },
+		            406: function() {
+		                console.log("406 Contet-type unacceptable");
+		                notify('Error', 'Content-type unacceptable.');
+		            },
+		            507: function() {
+		                console.log("507 Insufficient storage");
+		                notify('Error', 'Insuffifient storage left! Check your server storage.');
+		            },
+		        },
+		        success: function(d,s,r) {
+						var meta = parseLinkHeader(r.getResponseHeader('Link'));
+					var metaURI = meta['meta']['href'];
+					if (r.getResponseHeader("Location").length > 0) {
+						$scope.me.subscriptionList = r.getResponseHeader("Location");
+						console.log('Success! Subscription container has been created.');					
+					} else {
+						console.log('Failed to create subscription list container. Missing Location header.');
+					}
+		        }
+		    });
+		}
+	    // add users
 		var g = $rdf.graph();
+		var now = Date.now();
 
 		// set triples
-        g.add($rdf.sym(followURI), RDF('type'), SIOC('Usergroup'));        
-    	g.add($rdf.sym(followURI), DCT('created'), $rdf.lit(Date.now(), '', $rdf.Symbol.prototype.XSDdateTime));
-        // add users
-        var i=0;        
-    	for (var key in $scope.users) {
-    		var user = $scope.users[key];
-    		var uid = '#user_'+i;
-    		// add hash id to main graph
-    		g.add($rdf.sym(followURI), SIOC('has_member'), $rdf.sym(uid));
+		g.add($rdf.sym(''), RDF('type'), MBLOG('Subscription'));
+		g.add($rdf.sym(''), DCT('created'), $rdf.lit(moment(now).zone('00:00').format("YYYY-MM-DDTHH:mm:ssZ"), '', $rdf.Symbol.prototype.XSDdateTime));
 
-	    	g.add($rdf.sym(uid), RDF('type'), SIOC('UserAccount'));
-	    	g.add($rdf.sym(uid), SIOC('account_of'), $rdf.sym(user.webid));
-	        g.add($rdf.sym(uid), SIOC('name'), $rdf.lit(user.name));
-	        g.add($rdf.sym(uid), SIOC('avatar'), $rdf.sym(user.pic));
-	        // add each channel
-	        if (user.channels) {
-		        for (var j=0;j<user.channels.length;j++) {
-		        	var ch = user.channels[j];
-		        	var ch_id = '#channel_'+i+'_'+j;
-		        	// add the channel uri to the list
-		        	channels.push(ch.uri);
+		var user = $scope.users[key];
+		// add hash id to main graph
+		g.add($rdf.sym(user.subscriptionURI), MBLOG('owner'), $rdf.sym(uid));
 
-		        	// add the channel reference back to the user
-		        	g.add($rdf.sym(uid), SIOC('feed'), $rdf.sym(ch_id));
-		        	// add channel details
-		        	g.add($rdf.sym(ch_id), RDF('type'), SIOC('Container'));
-					g.add($rdf.sym(ch_id), SIOC('link'), $rdf.sym(ch.uri));
-					g.add($rdf.sym(ch_id), DCT('title'), $rdf.lit(ch.title));
-					// add my WebID if I'm subscribed to this channel
-					if (ch.action == 'Unsubscribe')
-						g.add($rdf.sym(ch_id), SIOC('has_subscriber'), $rdf.sym($scope.me.webid));
-		        }
-	    	}
-	        i++;
-        }
-        // serialize graph
-    	var s = new $rdf.Serializer(g).toN3(g);
-    	// PUT the new file on the PDS
-    	if (s.length > 0) {
+		// add each channel
+        if (user.channels && user.channels.length > 0) {
+	        for (var i=0;i<user.channels.length;i++) {
+				// add the channel reference back to the user
+				g.add($rdf.sym(uid), MBLOG('toChannel'), $rdf.sym(user.channels[i].uri));
+	        }
+			// serialize graph
+			var s = new $rdf.Serializer(g).toN3(g);
+			// PUT the new file on the PDS
+			var subscriptionURI = (user.subscription)?user.subscription:$scope.me.subscriptionList;
 		    $.ajax({
 		        type: "PUT",
-		        url: followURI,
+		        url: subscriptionURI,
 		        contentType: "text/turtle",
 		        data: s,
 		        processData: false,
@@ -240,8 +265,8 @@ function CimbaCtrl($scope, $http, $filter) {
 		        success: function(d,s,r) {
 		            console.log('Success! Your channel subscription has been updated.');
 		            notify('Success', 'Your user and channel subscription has been updated!');
-		        }
-		    });
+			}
+		});
 		}
 	}
 
@@ -253,8 +278,6 @@ function CimbaCtrl($scope, $http, $filter) {
 
 		    var g = $rdf.graph();
 		    var f = $rdf.fetcher(g, TIMEOUT);
-		    // add CORS proxy
-		    $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
 
 		    // fetch user data
 		    f.nowOrWhenFetched(followURI,undefined,function(ok, body){
@@ -266,7 +289,7 @@ function CimbaCtrl($scope, $http, $filter) {
 						var _user = {};
 						_user.webid = g.any(u, SIOC('account_of')).value;
 						_user.name = (g.any(u, SIOC('name')))?g.any(u, SIOC('name')).value:'';
-						_user.pic = (g.any(u, SIOC('avatar')))?g.any(u, SIOC('avatar')).value:'img/generic_photo.png';
+						_user.pic = (g.any(u, SIOC('avatar')))?g.any(u, SIOC('avatar')).value:PROFILE_PIC;
 						_user.channels = [];
 						// add channels
 						var channels = g.statementsMatching(u, SIOC('feed'), undefined);
@@ -277,7 +300,7 @@ function CimbaCtrl($scope, $http, $filter) {
 								_channel.uri = g.any(ch, SIOC('link')).value;
 								_channel.title = (g.any(ch, DCT('title')))?g.any(ch, DCT('title')).value:'Untitled';
 								if (g.any(ch, SIOC('has_subscriber'))) {
-					    		// subscribed
+									// subscribed
 									_channel.action = 'Unsubscribe';
 									_channel.button = ch.button = 'fa-check-square-o';
 							    	_channel.css = ch.css = 'btn-success';
@@ -306,7 +329,7 @@ function CimbaCtrl($scope, $http, $filter) {
 
 	// attempt to find a person using webizen.org
 	$scope.lookupWebID = function(query) {
-		if (query.length > 0) {
+		if (query && query.length > 0) {
 			if (!$scope.search)
 				$scope.search;
 			$scope.gotresults = false;
@@ -321,7 +344,7 @@ function CimbaCtrl($scope, $http, $filter) {
 				angular.forEach(res.data, function(value, key){
 					value.webid = key;
 					if (!value.img)
-						value.img = ['img/generic_photo.png'];
+						value.img = [PROFILE_PIC];
 					value.host = getHostname(key);
 					$scope.webidresults.push(value);
 				});
@@ -334,7 +357,7 @@ function CimbaCtrl($scope, $http, $filter) {
 		$scope.search.loading = true;
 		$scope.search.webid = webid;
 		$scope.search.query = name;
-		$scope.getInfo(webid);
+		$scope.getInfo(webid, false, false);
 		$scope.webidresults = [];
 	}
 
@@ -658,6 +681,7 @@ function CimbaCtrl($scope, $http, $filter) {
 				// add uB triple (append trailing slash since we got dir)
 		        g.add($rdf.sym(blogspace), RDF('type'), MBLOG('BlogSpace'));
 		        g.add($rdf.sym(blogspace), DCT('title'), $rdf.lit("Microblogging workspace"));
+		        // TODO add an owner link
 		        var s = new $rdf.Serializer(g).toN3(g);	        
 		        if (s.length > 0) {
 				    $.ajax({
@@ -1172,8 +1196,6 @@ function CimbaCtrl($scope, $http, $filter) {
 
 	    var g = $rdf.graph();
 	    var f = $rdf.fetcher(g, TIMEOUT);
-	    // add CORS proxy
-	    $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
 
 	    var docURI = webid.slice(0, webid.indexOf('#'));
 	    var webidRes = $rdf.sym(webid);
@@ -1219,19 +1241,24 @@ function CimbaCtrl($scope, $http, $filter) {
 					webid: webid,
 		    		name: name,
 					pic: pic,
-					storagespace: storage
+					storagespace: storage,
+					channels: []
 		    	}
 
     		// add to search object if it was the object of a search
     		if ($scope.search && $scope.search.webid && $scope.search.webid == webid)
 	   			$scope.search = _user;
 
-	   		if (update) {
-	   			$scope.refreshinguser = true;
-	   			$scope.users[webid].name = name;
-	   			$scope.users[webid].pic = pic;
-	   			$scope.users[webid].storagespace = storage;
-	   		}
+			if (update) {
+				if (!$scope.users[webid]) {
+					$scope.users[webid] = _user;
+				} else {
+					$scope.refreshinguser = true;
+					$scope.users[webid].name = name;
+					$scope.users[webid].pic = pic;
+					$scope.users[webid].storagespace = storage;
+				}
+			}
 
 	   		// get channels for the user
 	    	if (storage != undefined) {
@@ -1269,29 +1296,7 @@ function CimbaCtrl($scope, $http, $filter) {
 	$scope.getChannels = function(uri, webid, mine, update) {
 	    var g = $rdf.graph();
 	    var f = $rdf.fetcher(g, TIMEOUT);
-	    // add CORS proxy
-	    $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
-	    // find how server does globbing
-	    $.ajax ({
-	        type:"HEAD",
-			url:uri, 
-			processData: false, 
-	        headers: {
-				Accept: 'text/turtle'
-			},
-	        xhrFields: { withCredentials: true },
-			success: function(d,s,r) {
-				var l = r.getResponseHeader('Link');
-				if (l != null) {
-					var meta = parseLinkHeader(l);
-					var metaURI = meta['meta']['href'];
-					if (metaURI.indexOf ('/.') != -1) {
-						meta_starts_with_dot = true;
-					}
-				}
-			},
-		    error: function() {}
-		});
+
 	    // fetch user data: SIOC:Space -> SIOC:Container -> SIOC:Post
 	    f.nowOrWhenFetched(uri,undefined,function(){
 	        // find all SIOC:Container
@@ -1329,13 +1334,17 @@ function CimbaCtrl($scope, $http, $filter) {
 			        				channel.uri = chan['subject']['value'];
 				        			var title = g.any(chan['subject'], DCT('title')).value;
 			        			
-				        			if (title)
-				        				channel.title = title;
-				        			else
-				        				channel.title = channel.uri;
+									if (title) {
+										channel.title = title;
+									} else {
+										channel.title = channel.uri;
+									}
 
-				        			// add channel to the list
-									channels.push(channel);
+									// add channel to the list
+									if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
+										$scope.search.channels.push(channel);
+										$scope.drawSearchResults(webid);
+									}
 
 									// mine
 									if (mine) {
@@ -1356,6 +1365,7 @@ function CimbaCtrl($scope, $http, $filter) {
 											$scope.users[webid].channels.push(channel);
 										}
 									}
+									$scope.$apply();
 								});
 				        	}
 
@@ -1374,26 +1384,37 @@ function CimbaCtrl($scope, $http, $filter) {
 				        	}
 				        }
 
-				        // also save updated users & channels list
-				        if (update)
-				        	$scope.saveUsers();
-						
-				        // if we were called by search
-			        	if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
-							$scope.search.channels = channels;
-							$scope.drawSearchResults();
-			        	}
-
 				        if (mine) {
+					        // @@@ get subscriptions
+							var subList = g.statementsMatching(undefined, RDF('type'), MBLOG('SubscriptionList'));
+
+							if (subList) {
+								$scope.me.subscriptionList = subList['object']['value'];
+								f.nowOrWhenFetched(subList['object']['value']+'*', undefined, function() {
+									var subs = g.statementsMatching(undefined, RDF('type'), MBLOG('Subscription'));
+									for (var s in subs) {
+										var subURI = g.any(subs[s]['subject'], MBLOG('toChannel'))
+										if (subURI) {
+											$scope.getPosts(subUri);
+										}
+									}
+								});
+							}
+
 							$scope.saveCredentials();
-					        $scope.$apply();
-				        }
+							$scope.$apply();
+						}
+
+						// also save updated users & channels list
+						if (update) {
+							$scope.saveUsers();
+						}
 		        	});
 				}
 			} else { // no Microblogging workspaces found!
 		        // we were called by search
 	        	if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
-					$scope.drawSearchResults();
+					$scope.drawSearchResults(webid);
 				}
 
 				if (mine) {
@@ -1415,8 +1436,6 @@ function CimbaCtrl($scope, $http, $filter) {
 	$scope.getPosts = function(channel, title) {
 	    var g = $rdf.graph();
 	    var f = $rdf.fetcher(g, TIMEOUT);
-	    // add CORS proxy
-	    $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
 
 		// get all SIOC:Post (using globbing)
 		f.nowOrWhenFetched(channel+'*', undefined,function(){

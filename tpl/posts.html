@@ -17,16 +17,18 @@
                 <pre ng-bind-html="post.body | makeLinks"></pre>
             </p>
         </div>
-        <hr>
-        <form>
-            <div class="input-group">
-                <div class="input-group-btn">
-                    <!-- <button class="btn btn-success" rel="tooltip" data-placement="top" title="Read full message">More</button>
-                    <button class="btn btn-default" rel="tooltip" data-placement="top" title="Star message" ng-click="starPost()"><i class="fa fa-star fa-2x"></i></button> -->
-                    <button class="btn btn-default" data-placement="top" title="Delete message" ng-click="deletePost(post)" ng-show="me.webid == post.userwebid"><i class="fa fa-trash-o fa-2x"></i></button>
+        <div ng-show="me.webid == post.author">
+            <hr>
+            <form>
+                <div class="input-group">
+                    <div class="input-group-btn">
+                        <!-- <button class="btn btn-success" rel="tooltip" data-placement="top" title="Read full message">More</button>
+                        <button class="btn btn-default" rel="tooltip" data-placement="top" title="Star message" ng-click="starPost()"><i class="fa fa-star fa-2x"></i></button> -->
+                        <button class="btn btn-default" data-placement="top" title="Delete message" ng-click="deletePost(post)"><i class="fa fa-trash-o fa-2x"></i></button>
+                    </div>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
     <!-- user info modal -->
     <div id="{{post.$$hashKey}}" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
@@ -35,10 +37,10 @@
                 <div class="modal-header">
                   <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
                   <div class="text-center">
-                        <a class="thumbnail center" href="{{post.userwebid}}" target="_blank">
+                        <a class="thumbnail center" href="{{post.author}}" target="_blank">
                             <img class="media-object thumb-pic" ng-src="{{post.authorPic}}" rel="tooltip" data-placement="top" title="{{post.authorName}}">
                         </a>
-                        <h3><a href="{{post.userwebid}}" target="_blank">{{post.authorName}}</a></h3>
+                        <h3><a href="{{post.author}}" target="_blank">{{post.authorName}}</a></h3>
                   </div>
                 </div>
                 <div class="modal-body">
