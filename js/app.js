@@ -104,28 +104,31 @@ function CimbaCtrl($scope, $http, $filter) {
 	$scope.filterFlag = false;
 	$scope.languageFilter = 'International';
 	// user object
-	$scope.me = {};
-	$scope.me.webid = undefined;
-	$scope.me.name = undefined;
-	$scope.me.pic = 'img/generic_photo.png';
-	$scope.me.storagespace = undefined;
-	$scope.me.mbspace = true;
-	$scope.me.chspace = true;
-	$scope.me.gotposts = true;
-	$scope.me.channels = [];
+	$scope.me = {
+		webid: undefined,
+		name: undefined,
+		pic: 'img/generic_photo.png',
+		storagespace: undefined,
+		subscriptionList: '',
+		mbspace: true,
+		chspace: true,
+		gotposts: true,
+		channels: []
+	};
 
 	// cache user credentials in sessionStorage to avoid double sign in
 	$scope.saveCredentials = function () {
 		var cimba = {};
-		var _user = {};
-		_user.webid = $scope.me.webid;
-		_user.name = $scope.me.name;
-		_user.pic = $scope.me.pic;
-		_user.storagespace = $scope.me.storagespace;
-		_user.channels = $scope.me.channels;
-		_user.mbspace = $scope.me.mbspace;
-		_user.chspace = $scope.me.chspace;
-		_user.subscriptionList = $scope.me.subscriptionList;
+		var _user = {
+			webid: $scope.me.webid,
+			name: $scope.me.name,
+			pic: $scope.me.pic,
+			storagespace: $scope.me.storagespace,
+			channels: $scope.me.channels,
+			mbspace: $scope.me.mbspace,
+			chspace: $scope.me.chspace,
+			subscriptionList: $scope.me.subscriptionList
+		};
 		cimba.me = _user;
 		sessionStorage.setItem($scope.appuri, JSON.stringify(cimba));
 	}
@@ -160,172 +163,190 @@ function CimbaCtrl($scope, $http, $filter) {
 
 	// save the list of users + channels as following
 	// TODO switch to new schem
-	// saveUsers -> modifySub
-	$scope.setSubscription = function (uri) {
+	// saveUsers -> setSubscription
+	$scope.setSubscription = function () {
 		// save to PDS
-		if (!$scope.me.subscriptionList && $scope.me.subscriptionList.length <= 0 && $scope.me.mbspace) {
-			// create the subList container
-			$.ajax({
-		        type: "POST",
-		        url: $scope.me.mbspace,
-		        contentType: "text/turtle",
-		        headers: {
-					Slug: 'subscriptions',
-					Link: '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"'
-					},
-		        processData: false,
-		        xhrFields: {
-					withCredentials: true
-				},
-		        statusCode: {
-		            201: function(data) {
-		                console.log("201 Created");
-		            },
-		            401: function() {
-		                console.log("401 Unauthorized");
-		                notify('Error', 'Unauthorized! You need to authentify before posting.');
-		            },
-		            403: function() {
-		                console.log("403 Forbidden");
-		                notify('Error', 'Forbidden! You are not allowed to update the selected profile.');
-		            },
-		            406: function() {
-		                console.log("406 Contet-type unacceptable");
-		                notify('Error', 'Content-type unacceptable.');
-		            },
-		            507: function() {
-		                console.log("507 Insufficient storage");
-		                notify('Error', 'Insuffifient storage left! Check your server storage.');
-		            },
-		        },
-		        success: function(d,s,r) {
-						var meta = parseLinkHeader(r.getResponseHeader('Link'));
-					var metaURI = meta['meta']['href'];
-					if (r.getResponseHeader("Location").length > 0) {
-						$scope.me.subscriptionList = r.getResponseHeader("Location");
-						console.log('Success! Subscription container has been created.');					
-					} else {
-						console.log('Failed to create subscription list container. Missing Location header.');
-					}
-		        }
-		    });
-		}
-	    // add users
 		var g = $rdf.graph();
 		var now = Date.now();
+		g.add($rdf.sym(''), RDF('type'), MBLOG('SubscriptionList'));
 
-		// set triples
-		g.add($rdf.sym(''), RDF('type'), MBLOG('Subscription'));
-		g.add($rdf.sym(''), DCT('created'), $rdf.lit(moment(now).zone('00:00').format("YYYY-MM-DDTHH:mm:ssZ"), '', $rdf.Symbol.prototype.XSDdateTime));
+		for (var i in $scope.users) {
+			var user = $scope.users[i];
+			// set triples
+			var subID = '#'+i;
+			g.add($rdf.sym(subID), RDF('type'), MBLOG('Subscription'));
+			g.add($rdf.sym(subID), DCT('created'), $rdf.lit(moment(now).zone('00:00').format("YYYY-MM-DDTHH:mm:ssZ"), '', $rdf.Symbol.prototype.XSDdateTime));
 
-		var user = $scope.users[key];
-		// add hash id to main graph
-		g.add($rdf.sym(user.subscriptionURI), MBLOG('owner'), $rdf.sym(uid));
+			
+			// add hash id to main graph
+			g.add($rdf.sym(subID), MBLOG('owner'), $rdf.sym(user.webid));
 
-		// add each channel
-        if (user.channels && user.channels.length > 0) {
-	        for (var i=0;i<user.channels.length;i++) {
-				// add the channel reference back to the user
-				g.add($rdf.sym(uid), MBLOG('toChannel'), $rdf.sym(user.channels[i].uri));
-	        }
-			// serialize graph
-			var s = new $rdf.Serializer(g).toN3(g);
-			// PUT the new file on the PDS
-			var subscriptionURI = (user.subscription)?user.subscription:$scope.me.subscriptionList;
-		    $.ajax({
-		        type: "PUT",
-		        url: subscriptionURI,
-		        contentType: "text/turtle",
-		        data: s,
-		        processData: false,
-		        xhrFields: {
-					withCredentials: true
-				},
-		        statusCode: {
-		            201: function(data) {
-		                console.log("201 Created");
-		            },
-		            401: function() {
-		                console.log("401 Unauthorized");
-		                notify('Error', 'Unauthorized! You need to authentify before posting.');
-		            },
-		            403: function() {
-		                console.log("403 Forbidden");
-		                notify('Error', 'Forbidden! You are not allowed to update the selected profile.');
-		            },
-		            406: function() {
-		                console.log("406 Contet-type unacceptable");
-		                notify('Error', 'Content-type unacceptable.');
-		            },
-		            507: function() {
-		                console.log("507 Insufficient storage");
-		                notify('Error', 'Insuffifient storage left! Check your server storage.');
-		            },
-		        },
-		        success: function(d,s,r) {
-		            console.log('Success! Your channel subscription has been updated.');
-		            notify('Success', 'Your user and channel subscription has been updated!');
+			// add each channel
+	        if (user.channels && user.channels.length > 0) {
+		        for (var i=0;i<user.channels.length;i++) {
+					// add the channel reference back to the user
+					g.add($rdf.sym(subID), MBLOG('toChannel'), $rdf.sym(user.channels[i].uri));
+		        }
 			}
-		});
 		}
-	}
 
-	// get list of users (that I'm following) + their channels
-	// optionally load posts
-	$scope.getUsers = function (loadposts) {
-		if ($scope.me.mbspace && $scope.me.mbspace.length > 1) {
-			var followURI = $scope.me.mbspace+'following';
+		var s = new $rdf.Serializer(g).toN3(g);
+		var subscriptionsURI = ($scope.me.subscriptionList && $scope.me.subscriptionList.length > 0)? $scope.me.subscriptionList : $scope.me.mbspace+'subscriptions';
+		$.ajax({
+	        type: "PUT",
+	        url: subscriptionsURI,
+	        contentType: "text/turtle",
+	        processData: false,
+	        data: s,
+	        xhrFields: {
+				withCredentials: true
+			},
+	        statusCode: {
+	            201: function(data) {
+	                console.log("201 Created");
+	            },
+	            401: function() {
+	                console.log("401 Unauthorized");
+	                notify('Error', 'Unauthorized! You need to authentify before posting.');
+	            },
+	            403: function() {
+	                console.log("403 Forbidden");
+	                notify('Error', 'Forbidden! You are not allowed to update the selected profile.');
+	            },
+	            406: function() {
+	                console.log("406 Contet-type unacceptable");
+	                notify('Error', 'Content-type unacceptable.');
+	            },
+	            507: function() {
+	                console.log("507 Insufficient storage");
+	                notify('Error', 'Insuffifient storage left! Check your server storage.');
+	            },
+	        },
+	        success: function() {
+				console.log('Success! Subscription list has been updated.');
+			},
+			error: function(d, s, r) {
+				console.log('Failed to update subscription list. ' + d);
+			}
+        });
+	};
 
-		    var g = $rdf.graph();
-		    var f = $rdf.fetcher(g, TIMEOUT);
+	$scope.getUserInfo = function (webid) {
+		if (webid && webid.length > 0) {
+			var g = new $rdf.graph();
+			var f = new $rdf.fetcher(g, TIMEOUT);
+			var docURI = webid.slice(0, webid.indexOf('#'));
+		    var webidRes = $rdf.sym(webid);
 
-		    // fetch user data
-		    f.nowOrWhenFetched(followURI,undefined,function(ok, body){
-				var users = g.statementsMatching(undefined, RDF('type'), SIOC('UserAccount'));
+			if (!$scope.users) {
+				$scope.users = {};
+			}
 
-				if (users.length > 0) {
-					for (var i in users) {
-						var u = users[i]['subject'];
-						var _user = {};
-						_user.webid = g.any(u, SIOC('account_of')).value;
-						_user.name = (g.any(u, SIOC('name')))?g.any(u, SIOC('name')).value:'';
-						_user.pic = (g.any(u, SIOC('avatar')))?g.any(u, SIOC('avatar')).value:PROFILE_PIC;
-						_user.channels = [];
-						// add channels
-						var channels = g.statementsMatching(u, SIOC('feed'), undefined);
-						if (channels.length > 0) {
-							for (var j in channels) {
-								var ch = channels[j]['object'];
-								var _channel = {};
-								_channel.uri = g.any(ch, SIOC('link')).value;
-								_channel.title = (g.any(ch, DCT('title')))?g.any(ch, DCT('title')).value:'Untitled';
-								if (g.any(ch, SIOC('has_subscriber'))) {
-									// subscribed
-									_channel.action = 'Unsubscribe';
-									_channel.button = ch.button = 'fa-check-square-o';
-							    	_channel.css = ch.css = 'btn-success';
-									// also load the posts for this channel
-									if (loadposts && _channel.uri)
-										$scope.getPosts(_channel.uri, _channel.title);
-								} else {
-							    	_channel.action = ch.action = 'Subscribe';
-									_channel.button = ch.button = 'fa-square-o';
-							    	_channel.css = ch.css = 'btn-primary';
-								}
-								// add channel to user objects
-								_user.channels.push(_channel);
-							}
-						}
-						// add user
-						if (!$scope.users)
-							$scope.users = {};
-						$scope.users[_user.webid] = _user;							
+			if (!$scope.users[webid]) {
+				$scope.users[webid] = {
+					webid: webid,
+					name: '',
+					channels: []
+				};
+			}
+		    // fetch user profile information
+		    f.nowOrWhenFetched(docURI,undefined,function(ok, body) {
+				if (!ok) {
+					if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
+						notify('Warning', 'WebID profile not found.');
+						$scope.found = false;
+						$scope.searchbtn = 'Search';
 						$scope.$apply();
 					}
 				}
-			});
+		        // get some basic info
+		        var name = g.any(webidRes, FOAF('name'));
+		        var pic = g.any(webidRes, FOAF('img'));
+		        var depic = g.any(webidRes, FOAF('depiction'));
+				// get storage endpoints
+				var storage = g.any(webidRes, SPACE('storage'));
+				// get list of delegatees
+				var delegs = g.statementsMatching(webidRes, ACL('delegatee'), undefined);
+				if (delegs.length > 0 && AUTH_PROXY.length > 0) {
+					jQuery.ajaxPrefilter(function(options) {
+				        options.url = AUTH_PROXY + encodeURIComponent(options.url);
+					});
+				}
+
+		    	// Clean up name
+		        name = (name)?name.value:'';
+
+		        // set avatar picture
+		        if (pic) {
+		        	pic = pic.value
+	        	} else {
+		            if (depic)
+		                pic = depic.value;
+		            else
+		                pic = 'img/generic_photo.png';
+		        }
+
+				$scope.users[webid].webid = webid;
+				$scope.users[webid].name = name;
+				$scope.users[webid].pic = pic;
+				$scope.users[webid].storagespace = storage;
+
+				$scope.$apply();
+	    	});
 		}
 	}
+
+
+	// get list of users (that I'm following) + their channels
+	// optionally load posts
+	// @@@TODO@@@@
+	$scope.getUsers = function (loadposts) {
+		if ($scope.me.subscriptionList && $scope.me.subscriptionList.length > 1) {
+		    var g = new $rdf.graph();
+		    var f = new $rdf.fetcher(g, TIMEOUT);
+
+		    // fetch user data
+		    f.nowOrWhenFetched($scope.me.subscriptionList,undefined,function(ok, body) {
+		    	if (ok) {
+					var subs = g.statementsMatching(undefined, RDF('type'), MBLOG('Subscription'));
+
+					if (subs.length > 0) {
+						for (var i in subs) {
+							var subuser = subs[i]['subject'];
+							var webid = g.any(subuser, MBLOG('owner'), undefined).value;
+
+						    $scope.getUserInfo(webid);
+
+							// add channels
+							var channels = g.statementsMatching(subuser, MBLOG('toChannel'), undefined);
+
+							if (channels.length > 0) {
+								for (var j in channels) {
+									var chURI = channels[j]['object'];
+
+									// subscribed
+									var _channel = {
+										uri: chURI.value,
+										action: 'Unsubscribe',
+										button: 'fa-check-square-o',
+							    		css: 'btn-success'
+						    		}
+									// also load the posts for this channel
+									if (loadposts && _channel.uri)
+										$scope.getPosts(_channel.uri);
+									// add channel to user objects
+									$scope.users[webid].channels.push(_channel);
+								}
+							}
+							$scope.$apply();
+						}
+					}
+				} else {
+					console.log(body);
+				}
+			});
+		}
+	};
 
 	// attempt to find a person using webizen.org
 	$scope.lookupWebID = function(query) {
@@ -388,7 +409,7 @@ function CimbaCtrl($scope, $http, $filter) {
 			$scope.removePostsByOwner(webid);
 			notify('Success', 'The user was been removed.');
 			// save new list of users
-			$scope.saveUsers();
+			$scope.setSubscription();
 		}
 	}
 
@@ -1134,6 +1155,7 @@ function CimbaCtrl($scope, $http, $filter) {
 					c.button = ch.button = 'fa-square-o';
 			    	c.css = ch.css = 'btn-info';
 			    	$scope.removePostsByChannel(ch.uri);
+			    	$scope.users[user.webid].channels.splice(idx, 1);
 		    	} else {
 	    		// subscribe
 					c.action = ch.action = 'Unsubscribe';
@@ -1150,7 +1172,7 @@ function CimbaCtrl($scope, $http, $filter) {
 	    	}
 	    	// also update the users list in case there is a new channel
 	    	$scope.users[user.webid] = user;
-	    	$scope.saveUsers();
+	    	$scope.setSubscription();
 		} else {
 			// subscribe (also add user + channels)
 			ch.action = 'Unsubscribe';
@@ -1159,7 +1181,7 @@ function CimbaCtrl($scope, $http, $filter) {
 			if (!$scope.users)
 				$scope.users = {};
 			$scope.users[user.webid] = user;
-			$scope.saveUsers();
+			$scope.setSubscription();
 			$scope.getPosts(ch.uri, ch.title);
 		}
 	}
@@ -1238,12 +1260,12 @@ function CimbaCtrl($scope, $http, $filter) {
 	        }
 
 	        var _user = {
-					webid: webid,
-		    		name: name,
-					pic: pic,
-					storagespace: storage,
-					channels: []
-		    	}
+				webid: webid,
+	    		name: name,
+				pic: pic,
+				storagespace: storage,
+				channels: []
+	    	}
 
     		// add to search object if it was the object of a search
     		if ($scope.search && $scope.search.webid && $scope.search.webid == webid)
@@ -1264,6 +1286,8 @@ function CimbaCtrl($scope, $http, $filter) {
 	    	if (storage != undefined) {
 	    		storage = storage.value;
 	    		// get channels for user
+	    		$scope.users[webid] = _user;
+	    		$scope.users[webid].channels = [];
     			$scope.getChannels(storage, webid, mine, update);
 	    	} else {
 	    		$scope.gotstorage = false;
@@ -1297,9 +1321,9 @@ function CimbaCtrl($scope, $http, $filter) {
 	    var g = $rdf.graph();
 	    var f = $rdf.fetcher(g, TIMEOUT);
 
-	    // fetch user data: SIOC:Space -> SIOC:Container -> SIOC:Post
-	    f.nowOrWhenFetched(uri,undefined,function(){
-	        // find all SIOC:Container
+	    // find microblog workspace on the user's pod
+	    f.nowOrWhenFetched(uri,undefined,function() {
+	        // find all BlogSpace
 	        var ws = g.statementsMatching(undefined, RDF('type'), MBLOG('BlogSpace'));
 	        
 	        if (ws.length > 0) {
@@ -1307,8 +1331,6 @@ function CimbaCtrl($scope, $http, $filter) {
 				if (mine) {
 					// set default Microblog space
 					$scope.me.mbspace = ws[0]['subject']['value'];
-					// get the list of people I'm following + channels + posts
-					$scope.getUsers(true);
 				}
 
 				var channels = [];
@@ -1316,58 +1338,75 @@ function CimbaCtrl($scope, $http, $filter) {
 					w = ws[i]['subject']['value'];
 
 					// find the channels info for the user (from .meta files)
+					// THIS IS EXTREMELY UGLY: it has to rebuild the list after each fetch operation
 					f.nowOrWhenFetched(w, undefined, function() {
-			        	var chs = g.statementsMatching(undefined, RDF('type'), MBLOG('Channel'));
-			        	console.log("Got channels: "+chs.length);
+			        	var channels = g.statementsMatching(undefined, RDF('type'), MBLOG('Channel'));
+			        	if (channels.length > 0) {
+							// get the list of people I'm following + channels + posts
+							var subList = g.any(undefined, RDF('type'), MBLOG('SubscriptionList'));
+							if (subList) {
+								$scope.me.subscriptionList = subList.value;
+								$scope.getUsers(true);
+							}
+							for (var j in channels) {
+								f.nowOrWhenFetched(channels[j]['subject']['value'], undefined, function() {
+									var chs = g.statementsMatching(undefined, RDF('type'), MBLOG('Channel'));
+									if (chs.length > 0) {
+							        	// clear list first
+										$scope.me.channels = [];
+										$scope.users[webid].channels = [];
+										for (var k in chs) {
+											var c = chs[k]['subject'];
+											var channel = {};
+											channel.uri = c.value;
 
-			        	if (chs.length > 0) {
-				        	// clear list first
-				        	if (mine)
-				        		$scope.me.channels = [];
-							if (update)
-								$scope.users[webid].channels = [];
+											if (g.any(c, DCT('title'))) {
+												channel.title = g.any(c, DCT('title')).value;
+											} else {
+												channel.title = channel.uri;
+											}
 
-				        	for (var ch in chs) {
-				        		var chan = chs[ch];
-			        			f.nowOrWhenFetched(chan['subject']['value'], undefined, function() {
-			        				var channel = {};
-			        				channel.uri = chan['subject']['value'];
-				        			var title = g.any(chan['subject'], DCT('title')).value;
-			        			
-									if (title) {
-										channel.title = title;
-									} else {
-										channel.title = channel.uri;
-									}
+											// add channel to the list
+											if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
+												var exists = findWithAttr($scope.search.channels, 'uri', channel.uri);
+												if (exists == undefined) {
+													$scope.search.channels.push(channel);
+													$scope.drawSearchResults(webid);
+												}
+											}
 
-									// add channel to the list
-									if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
-										$scope.search.channels.push(channel);
-										$scope.drawSearchResults(webid);
-									}
+											// mine
+											if (mine) {
+												var exists = findWithAttr($scope.me.channels, 'uri', channel.uri);
+												if (exists == undefined) {
+													// force get the posts for my channels
+													$scope.getPosts(channel.uri, channel.title);
+													$scope.me.chspace = true;
+													if (k == 0) {
+														$scope.defaultChannel = $scope.me.channels[0];
+													}
+												}
+												exists = findWithAttr($scope.users[webid].channels, 'uri', channel.uri);
+												if (exists == undefined) {
+													$scope.users[webid].channels.push(channel);
+												}
+											}
 
-									// mine
-									if (mine) {
-										// set a default channel for the logged user
-										$scope.me.channels.push(channel);
-			        					// force get the posts for my channels
-			        					$scope.getPosts(channel.uri, channel.title);
-										$scope.me.chspace = true;
-										if (ch == 0) {
-											$scope.defaultChannel = $scope.me.channels[0];
+											// update
+											if (update) {
+												var exists = findWithAttr($scope.users[webid].channels, 'uri', channel.uri);
+												if (exists == undefined) {
+													$scope.users[webid].channels.push(channel);
+												}
+											}
 										}
 									}
 
-									// update
-									if (update) {
-										var exists = findWithAttr($scope.users[webid].channels, 'uri', channel.uri);
-										if (exists == undefined) {
-											$scope.users[webid].channels.push(channel);
-										}
-									}
 									$scope.$apply();
 								});
 				        	}
+
+				        	$scope.saveCredentials();
 
 					        // done refreshing user information -> update view
 					        if (update) {
@@ -1384,33 +1423,15 @@ function CimbaCtrl($scope, $http, $filter) {
 				        	}
 				        }
 
-				        if (mine) {
-					        // @@@ get subscriptions
-							var subList = g.statementsMatching(undefined, RDF('type'), MBLOG('SubscriptionList'));
-
-							if (subList) {
-								$scope.me.subscriptionList = subList['object']['value'];
-								f.nowOrWhenFetched(subList['object']['value']+'*', undefined, function() {
-									var subs = g.statementsMatching(undefined, RDF('type'), MBLOG('Subscription'));
-									for (var s in subs) {
-										var subURI = g.any(subs[s]['subject'], MBLOG('toChannel'))
-										if (subURI) {
-											$scope.getPosts(subUri);
-										}
-									}
-								});
-							}
-
-							$scope.saveCredentials();
-							$scope.$apply();
-						}
-
 						// also save updated users & channels list
 						if (update) {
-							$scope.saveUsers();
+							$scope.setSubscription();
 						}
 		        	});
 				}
+
+				//	$scope.saveCredentials();
+				$scope.$apply();
 			} else { // no Microblogging workspaces found!
 		        // we were called by search
 	        	if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
@@ -1439,6 +1460,9 @@ function CimbaCtrl($scope, $http, $filter) {
 
 		// get all SIOC:Post (using globbing)
 		f.nowOrWhenFetched(channel+'*', undefined,function(){
+			var t = g.any($rdf.sym(channel), DCT('title'));
+			title = (t && t.value.length > 0)?t.value:title;
+
 			var posts = g.statementsMatching(undefined, RDF('type'), SIOC('Post'));
 
 			if (posts.length > 0) {
@@ -1460,24 +1484,24 @@ function CimbaCtrl($scope, $http, $filter) {
 					} else if ($scope.users[author]) {
 						var authorName = ($scope.users[author].name)?$scope.users[author].name:'';
 						var authorPic = ($scope.users[author].pic)?$scope.users[author].pic:PROFILE_PIC;
-					} else {
-						var authorProfile = author.slice(0, author.indexOf('#'));
-		    			var authorRes = $rdf.sym(author);
-						f.nowOrWhenFetched(authorProfile, undefined, function() {
-							var authorName = (g.any(authorRes, FOAF('name')))?g.any(authorRes, FOAF('name')).value:'';
-					        var pic = g.any(authorRes, FOAF('img'));
-					        var depic = g.any(authorRes, FOAF('depiction'));
-					        var authorPic = '';
-					        // set avatar picture
-					        if (pic) {
-					        	authorPic = pic.value
-				        	} else {
-					            if (depic)
-					                authorPic = depic.value;
-					            else
-					                authorPic = PROFILE_PIC;
-					        }
-						});
+					// } else {
+					// 	var authorProfile = author.slice(0, author.indexOf('#'));
+		   //  			var authorRes = $rdf.sym(author);
+					// 	f.nowOrWhenFetched(authorProfile, undefined, function() {
+					// 		var authorName = (g.any(authorRes, FOAF('name')))?g.any(authorRes, FOAF('name')).value:'';
+					//         var pic = g.any(authorRes, FOAF('img'));
+					//         var depic = g.any(authorRes, FOAF('depiction'));
+					//         var authorPic = '';
+					//         // set avatar picture
+					//         if (pic) {
+					//         	authorPic = pic.value
+				 //        	} else {
+					//             if (depic)
+					//                 authorPic = depic.value;
+					//             else
+					//                 authorPic = PROFILE_PIC;
+					//         }
+					// 	});
 					}
 
 					if (g.any(uri, SIOC('content'))) {
@@ -1512,6 +1536,13 @@ function CimbaCtrl($scope, $http, $filter) {
 					}
 
 					$scope.me.gotposts = true
+				}
+
+				// update title for the channel
+				for (var c in $scope.users[author].channels) {
+					if ($scope.users[author].channels[c].uri == channel) {
+						$scope.users[author].channels[c].title = title;
+					}
 				}
 			} else {
 				if (isEmpty($scope.posts))
