@@ -162,8 +162,6 @@ function CimbaCtrl($scope, $http, $filter) {
 	}
 
 	// save the list of users + channels as following
-	// TODO switch to new schem
-	// saveUsers -> setSubscription
 	$scope.setSubscription = function () {
 		// save to PDS
 		var g = $rdf.graph();
@@ -174,6 +172,10 @@ function CimbaCtrl($scope, $http, $filter) {
 			var user = $scope.users[i];
 			// set triples
 			var subID = '#'+i;
+			// add arc from List
+			g.add($rdf.sym(''), MBLOG('subscribedTo'), $rdf.sym(subID));
+
+			// add sub info
 			g.add($rdf.sym(subID), RDF('type'), MBLOG('Subscription'));
 			g.add($rdf.sym(subID), DCT('created'), $rdf.lit(moment(now).zone('00:00').format("YYYY-MM-DDTHH:mm:ssZ"), '', $rdf.Symbol.prototype.XSDdateTime));
 
