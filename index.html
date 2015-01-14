@@ -17,11 +17,6 @@
 <link href="css/style.css" rel="stylesheet">
 <link href="css/proxima-nova.css" rel="stylesheet">
 
-<!-- prod
-<script type='text/javascript' src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-<script type='text/javascript' src="//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.js"></script>
--->
 <!-- dev -->
 <script type='text/javascript' src="dev/js/jquery.min.js"></script>
 <script type='text/javascript' src="dev/js/bootstrap.min.js"></script>
@@ -29,7 +24,7 @@
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/showdown/0.3.1/showdown.min.js"></script>
 
 <script src="dev/js/angular.min.js"></script>
-<script src="dev/js/angular-ui.min.js"></script> 
+<script src="dev/js/angular-ui.min.js"></script>
 <script src="dev/js/rdflib.js"></script> 
 <!-- local -->
 <script type='text/javascript' src="js/jquery.notify.js"></script>
@@ -450,7 +445,6 @@
   <div class="modal-content">
       <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-          <h2 class="text-center">Login / Sign Up</h2>
       </div>
       <div class="modal-body">         
           <iframe id="signup" src="" sandbox="allow-same-origin allow-scripts allow-forms" frameborder="0"></iframe>
@@ -492,7 +486,7 @@ $(document).ready(function() {
     $('#audience').tooltip();
 
     // login/signup widget source
-    var providerURI = '//linkeddata.github.io/signup/index.html?ref=';
+    var providerURI = 'http://localhost:8000/?ref=';
     
     // set the parameter in the src of iframe
     document.getElementById('signup').src = providerURI+window.location.protocol+'//'+window.location.host;
