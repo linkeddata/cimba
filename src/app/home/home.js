@@ -46,7 +46,7 @@ angular.module( 'Cimba.home', [
     $scope.hideMenu = function() {
         $scope.$parent.showMenu = false;
     };
-    
+
     //defaults
     $scope.$parent.newChannelModal = false;
     $scope.newMBModal = false;
@@ -58,8 +58,8 @@ angular.module( 'Cimba.home', [
         $scope.$parent.getPosts(channel.uri, channel.title);
     }
 
-    $scope.showPopup = function (p) {        
-        if (p == "ch") {            
+    $scope.showPopup = function (p) {
+        if (p == "ch") {
             $scope.newChannelModal = true;
         }
         else if (p == "mb") {
@@ -71,36 +71,36 @@ angular.module( 'Cimba.home', [
         $scope.showOverlay = true;
     };
 
-    $scope.hidePopup = function (p) {        
+    $scope.hidePopup = function (p) {
         $scope.newChannelModal = false;
         $scope.newMBModal = false;
         $scope.newStorageModal = false;
         $scope.showOverlay = false;
     };
 
-    $scope.$watch('$parent.getInfoDone', function(newVal,oldVal){   //waits for getInfo to be done to call getChannels        
-        if ($scope.$parent.userProfile.storagespace !== undefined && newVal === true) {            
+    $scope.$watch('$parent.getInfoDone', function(newVal,oldVal){   //waits for getInfo to be done to call getChannels
+        if ($scope.$parent.userProfile.storagespace !== undefined && newVal === true) {
             var storage = $scope.$parent.userProfile.storagespace;
             var webid = $scope.$parent.userProfile.webid;
-            $scope.$parent.getChannels(storage, webid, true, false, true); //get channels and posts                 
+            $scope.$parent.getChannels(storage, webid, true, false, true); //get channels and posts
         }
     });
 
     $scope.createbtn = 'Create'; //create button for newMBModal
 
-    $scope.newChannel = function(channelname, redirect){        
+    $scope.newChannel = function(channelname, redirect){
         $scope.loading = true;
         $scope.createbtn = 'Creating...';
         var title = 'ch';
         var churi = 'ch';
-        
+
         var chan = {};
 
         if (channelname !== undefined && testIfAllEnglish(channelname)) {
             // remove white spaces and force lowercase
             title = channelname;
             churi = channelname.toLowerCase().split(' ').join('_');
-        } 
+        }
 
         chan.uri = churi;
         chan.title = title;
@@ -198,7 +198,7 @@ angular.module( 'Cimba.home', [
                             },
                             statusCode: {
                                 201: function() {
-                                    console.log("201 Created");                             
+                                    console.log("201 Created");
                                 },
                                 401: function() {
                                     console.log("401 Unauthorized");
@@ -231,7 +231,7 @@ angular.module( 'Cimba.home', [
                                 if ($scope.defaultChannel === undefined) {
                                     $scope.defaultChannel = chan;
                                 }
-                                
+
                                 //adds the newly created channel to our list
                                 chan.uri = chURI;
                                 $scope.$parent.users[chan.owner].channels[chURI] = chan;
@@ -277,11 +277,11 @@ angular.module( 'Cimba.home', [
         var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
         var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
         var g = $rdf.graph();
-        
+
         // add storage triple
         g.add($rdf.sym($scope.userProfile.webid), SPACE('storage'), $rdf.sym(storage));
 
-        var s = new $rdf.Serializer(g).toN3(g);        
+        var s = new $rdf.Serializer(g).toN3(g);
         if (s.length > 0) {
             $.ajax({
                 type: "POST",
@@ -305,7 +305,7 @@ angular.module( 'Cimba.home', [
                         notify('Error', 'Forbidden! You are not allowed to update the selected profile.');
                     },
                     406: function() {
-                        console.log("406 Contet-type unacceptable");
+                        console.log("406 Content-type unacceptable");
                         notify('Error', 'Content-type unacceptable.');
                     },
                     507: function() {
@@ -403,12 +403,12 @@ angular.module( 'Cimba.home', [
                 var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
                 var LDPX = $rdf.Namespace("http://ns.rww.io/ldpx#");
                 var g = $rdf.graph();
-                
+
                 // add uB triple (append trailing slash since we got dir)
                 g.add($rdf.sym(mburi+'/'), RDF('type'), SIOC('Space'));
                 g.add($rdf.sym(mburi+'/'), DCT('title'), $rdf.lit("Microblogging workspace"));
                 g.add($rdf.sym(mburi+'/'), LDPX('ldprPrefix'), $rdf.lit("ch"));
-                var k = new $rdf.Serializer(g).toN3(g);         
+                var k = new $rdf.Serializer(g).toN3(g);
                 if (k.length > 0) {
                 $.ajax({
                     type: "POST",
@@ -444,7 +444,7 @@ angular.module( 'Cimba.home', [
                         console.log('Success! Microblog space created.');
                         notify('Success', 'Microblog space created.');
                         $scope.users[$scope.userProfile.webid].mbspace = ldpresource;
-                        
+
                         $scope.userProfile.mbspace = ldpresource;
                         //console.log("$scope.users[" + $scope.userProfile.webid + "].mbspace: " + $scope.users[$scope.userProfile.webid].mbspace); //debug
 
@@ -472,7 +472,7 @@ angular.module( 'Cimba.home', [
                             $scope.createbtn = 'Create';
                             $scope.loading = false;
                             $scope.$apply();
-                        }             
+                        }
                     });
                 }
             },
@@ -531,7 +531,7 @@ angular.module( 'Cimba.home', [
                     xhrFields: {
                         withCredentials: true
                     },
-                    success: function(d,s,r) {                   
+                    success: function(d,s,r) {
                         // acl URI
                         var acl = parseLinkHeader(r.getResponseHeader('Link'));
                         var aclURI = acl['acl']['href'];
@@ -570,7 +570,7 @@ angular.module( 'Cimba.home', [
                         }
 
                         s = new $rdf.Serializer(g).toN3(g);
-                        
+
                         if (s && aclURI) {
                             $.ajax({
                                 type: "PUT", // overwrite just in case
@@ -628,7 +628,7 @@ angular.module( 'Cimba.home', [
         } else if (v=='friends') {
             $scope.audience.icon = 'fa-users';
             $scope.audience.range = 'friends';
-        }        
+        }
     };
     ///---
 

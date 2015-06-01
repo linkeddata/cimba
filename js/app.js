@@ -49,7 +49,7 @@ ngCimba.filter('orderObjectBy', function(){
 // filter array of objects by property
 ngCimba.filter('unique', function() {
 	return function(collection, keyname) {
-		var output = [], 
+		var output = [],
 		keys = [];
 
 		angular.forEach(collection, function(item) {
@@ -72,7 +72,7 @@ function CimbaCtrl($scope, $http, $filter) {
 	// posts array
 	$scope.posts = {};
 	$scope.users = {};
-	$scope.defaultChannel = {};	
+	$scope.defaultChannel = {};
 	// misc
 	$scope.appuri = window.location.hostname+window.location.pathname;
 	$scope.loggedin = false;
@@ -156,10 +156,10 @@ function CimbaCtrl($scope, $http, $filter) {
 		var g = $rdf.graph();
 
 		// set triples
-        g.add($rdf.sym(followURI), RDF('type'), SIOC('Usergroup'));        
+        g.add($rdf.sym(followURI), RDF('type'), SIOC('Usergroup'));
     	g.add($rdf.sym(followURI), DCT('created'), $rdf.lit(Date.now(), '', $rdf.Symbol.prototype.XSDdateTime));
         // add users
-        var i=0;        
+        var i=0;
     	for (var key in $scope.users) {
     		var user = $scope.users[key];
     		var uid = '#user_'+i;
@@ -217,7 +217,7 @@ function CimbaCtrl($scope, $http, $filter) {
 		                notify('Error', 'Forbidden! You are not allowed to update the selected profile.');
 		            },
 		            406: function() {
-		                console.log("406 Contet-type unacceptable");
+		                console.log("406 Content-type unacceptable");
 		                notify('Error', 'Content-type unacceptable.');
 		            },
 		            507: function() {
@@ -238,7 +238,7 @@ function CimbaCtrl($scope, $http, $filter) {
 	$scope.getUsers = function (loadposts) {
 		if ($scope.me.mbspace && $scope.me.mbspace.length > 1) {
 			var followURI = $scope.me.mbspace+'following';
-	
+
 			var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 			var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
 		    var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
@@ -287,7 +287,7 @@ function CimbaCtrl($scope, $http, $filter) {
 						// add user
 						if (!$scope.users)
 							$scope.users = {};
-						$scope.users[_user.webid] = _user;							
+						$scope.users[_user.webid] = _user;
 						$scope.$apply();
 					}
 				}
@@ -346,7 +346,7 @@ function CimbaCtrl($scope, $http, $filter) {
 		$scope.getInfo(webid, false, true);
 	}
 
-	
+
 	// remove a given user from the people I follow
 	$scope.removeUser = function (webid) {
 		if (webid) {
@@ -389,7 +389,7 @@ function CimbaCtrl($scope, $http, $filter) {
 			delete $scope.posts[uri];
 		}
 	}
-	
+
 	// delete post
 	$scope.deletePost = function (post, refresh) {
 		// check if the user matches the post owner
@@ -500,7 +500,7 @@ function CimbaCtrl($scope, $http, $filter) {
 			$scope.audience.range = 'friends';
 		}
 	}
-	
+
 	// prepare the triples for new storage
 	// do not actually create the space, we just point to it
 	$scope.newStorage = function(express) {
@@ -521,7 +521,7 @@ function CimbaCtrl($scope, $http, $filter) {
 	    var SPACE = $rdf.Namespace("http://www.w3.org/ns/pim/space#");
 	    var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
 		var g = $rdf.graph();
-		
+
 		// add storage triple
         g.add($rdf.sym($scope.me.webid), SPACE('storage'), $rdf.sym(storage));
 
@@ -550,7 +550,7 @@ function CimbaCtrl($scope, $http, $filter) {
 		                notify('Error', 'Forbidden! You are not allowed to update the selected profile.');
 		            },
 		            406: function() {
-		                console.log("406 Contet-type unacceptable");
+		                console.log("406 Content-type unacceptable");
 		                notify('Error', 'Content-type unacceptable.');
 		            },
 		            507: function() {
@@ -624,7 +624,7 @@ function CimbaCtrl($scope, $http, $filter) {
 	                notify('Error', 'Forbidden! You are not allowed to create new resources.');
 	            },
 	            406: function() {
-	                console.log("406 Contet-type unacceptable");
+	                console.log("406 Content-type unacceptable");
 	                notify('Error', 'Content-type unacceptable.');
 	            },
 	            507: function() {
@@ -655,12 +655,12 @@ function CimbaCtrl($scope, $http, $filter) {
 				var g = $rdf.graph();
 			    if (metaURI.indexOf ('/.') != -1)
 			      meta_starts_with_dot = true;
-				
+
 				// add uB triple (append trailing slash since we got dir)
 		        g.add($rdf.sym(mburi+'/'), RDF('type'), SIOC('Space'));
 		        g.add($rdf.sym(mburi+'/'), DCT('title'), $rdf.lit("Microblogging workspace"));
 		        g.add($rdf.sym(mburi+'/'), LDPX('ldprPrefix'), $rdf.lit("ch"));
-		        var s = new $rdf.Serializer(g).toN3(g);	        
+		        var s = new $rdf.Serializer(g).toN3(g);
 		        if (s.length > 0) {
 				    $.ajax({
 				        type: "POST",
@@ -684,7 +684,7 @@ function CimbaCtrl($scope, $http, $filter) {
 				                notify('Error', 'Forbidden! You are not allowed to create new resources.');
 				            },
 				            406: function() {
-				                console.log("406 Contet-type unacceptable");
+				                console.log("406 Content-type unacceptable");
 				                notify('Error', 'Content-type unacceptable.');
 				            },
 				            507: function() {
@@ -717,7 +717,7 @@ function CimbaCtrl($scope, $http, $filter) {
 				        	$scope.createbtn = 'Create';
 				        	$scope.loading = false;
 				        	$scope.$apply();
-				        }		        	
+				        }
 			        });
 				}
 	    	},
@@ -771,7 +771,7 @@ function CimbaCtrl($scope, $http, $filter) {
 	                notify('Error', 'Forbidden! You are not allowed to create new channels.');
 	            },
 	            406: function() {
-	                console.log("406 Contet-type unacceptable");
+	                console.log("406 Content-type unacceptable");
 	                notify('Error', 'Content-type unacceptable.');
 	            },
 	            507: function() {
@@ -794,7 +794,7 @@ function CimbaCtrl($scope, $http, $filter) {
 				    var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
 				    var LDPX = $rdf.Namespace("http://ns.rww.io/ldpx#");
 					var g = $rdf.graph();
-					
+
 					// add uB triple (append trailing slash since we got dir)
 			        g.add($rdf.sym(chURI), RDF('type'), SIOC('Container'));
 			        g.add($rdf.sym(chURI), DCT('title'), $rdf.lit(title));
@@ -813,7 +813,7 @@ function CimbaCtrl($scope, $http, $filter) {
 							},
 					        statusCode: {
 					            201: function() {
-					                console.log("201 Created");				                
+					                console.log("201 Created");
 					            },
 					            401: function() {
 					                console.log("401 Unauthorized");
@@ -824,7 +824,7 @@ function CimbaCtrl($scope, $http, $filter) {
 					                notify('Error', 'Forbidden! You are not allowed to create new containers.');
 					            },
 					            406: function() {
-					                console.log("406 Contet-type unacceptable");
+					                console.log("406 Content-type unacceptable");
 					                notify('Error', 'Content-type unacceptable.');
 					            },
 					            507: function() {
@@ -862,13 +862,13 @@ function CimbaCtrl($scope, $http, $filter) {
 		// get the current date
 		var now = Date.now();
 		now = moment(now).zone('00:00').format("YYYY-MM-DDTHH:mm:ssZ");
-		
+
 		var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 		var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
 	    var FOAF = $rdf.Namespace('http://xmlns.com/foaf/0.1/');
 	    var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
 		var g = $rdf.graph();
-		
+
 		// set triples
         g.add($rdf.sym(''), RDF('type'), SIOC('Post'));
         g.add($rdf.sym(''), SIOC('content'), $rdf.lit($scope.postbody.trim()));
@@ -883,7 +883,7 @@ function CimbaCtrl($scope, $http, $filter) {
     	var s = new $rdf.Serializer(g).toN3(g);
     	var uri = $scope.defaultChannel.uri;
     	var title = $scope.defaultChannel.title;
-    	
+
 		var _newPost = {
 			uri : '',
 			channel: uri,
@@ -919,7 +919,7 @@ function CimbaCtrl($scope, $http, $filter) {
 	                notify('Error', 'Forbidden! You are not allowed to post to the selected channel.');
 	            },
 	            406: function() {
-	                console.log("406 Contet-type unacceptable");
+	                console.log("406 Content-type unacceptable");
 	                notify('Error', 'Content-type unacceptable.');
 	            },
 	            507: function() {
@@ -928,7 +928,7 @@ function CimbaCtrl($scope, $http, $filter) {
 	            },
 	        },
 	        success: function(d,s,r) {
-	            console.log('Success, new message was posted!');            
+	            console.log('Success, new message was posted!');
             	// clear form
 				$scope.postbody = '';
             	// also display new post
@@ -955,7 +955,7 @@ function CimbaCtrl($scope, $http, $filter) {
         	$scope.publishing = false;
         	$scope.$apply();
         });
-	}	
+	}
 
 	// set the corresponding ACLs for the given post, using the right ACL URI
 	$scope.setACL = function(uri, type, defaultForNew) {
@@ -1003,7 +1003,7 @@ function CimbaCtrl($scope, $http, $filter) {
 					g.add($rdf.sym(frag), WAC('defaultForNew'), $rdf.sym(uri));
 
 				var s = new $rdf.Serializer(g).toN3(g);
-				
+
 				if (s && aclURI) {
 					$.ajax({
 				        type: "PUT", // overwrite just in case
@@ -1027,7 +1027,7 @@ function CimbaCtrl($scope, $http, $filter) {
 				                notify('Error', 'Forbidden! You are not allowed to update the selected profile.');
 				            },
 				            406: function() {
-				                console.log("406 Contet-type unacceptable");
+				                console.log("406 Content-type unacceptable");
 				                notify('Error', 'Content-type unacceptable.');
 				            },
 				            507: function() {
@@ -1052,8 +1052,8 @@ function CimbaCtrl($scope, $http, $filter) {
     	$scope.search.loading = false;
     	$scope.$apply();
     }
-    
-    // add html elements to channels 
+
+    // add html elements to channels
     $scope.addChannelStyling = function(webid, channels) {
     	for (i=0;i<channels.length;i++) {
     		// find if we have the channel in our list already
@@ -1119,7 +1119,7 @@ function CimbaCtrl($scope, $http, $filter) {
 			// subscribe (also add user + channels)
 			ch.action = 'Unsubscribe';
 			ch.button = 'fa-check-square-o';
-	    	ch.css = 'btn-success';	    	
+	    	ch.css = 'btn-success';
 			if (!$scope.users)
 				$scope.users = {};
 			$scope.users[user.webid] = user;
@@ -1129,7 +1129,7 @@ function CimbaCtrl($scope, $http, $filter) {
 	}
 
 	// get a user's WebID profile data to personalize app
-	$scope.authenticate = function(webid) {		
+	$scope.authenticate = function(webid) {
 		if (webid && (webid.substr(0, 4) == 'http')) {
 			$scope.me = {};
 			$scope.me.webid = webid;
@@ -1270,8 +1270,8 @@ function CimbaCtrl($scope, $http, $filter) {
 	    $rdf.Fetcher.crossSiteProxyTemplate=PROXY;
 	    $.ajax ({
 	        type:"GET",
-		url:uri, 
-		processData: false, 
+		url:uri,
+		processData: false,
 	        headers: {
 		  Accept: 'text/turtle'
 		},
@@ -1290,7 +1290,7 @@ function CimbaCtrl($scope, $http, $filter) {
 	    f.nowOrWhenFetched(uri,undefined,function(){
 	        // find all SIOC:Container
 	        var ws = g.statementsMatching(undefined, RDF('type'), SIOC('Space'));
-	        
+
 	        if (ws.length > 0) {
 				// set a default Microblog workspace
 				if (mine) {
@@ -1318,7 +1318,7 @@ function CimbaCtrl($scope, $http, $filter) {
 		        				var channel = {};
 		        				channel.uri = chs[ch]['subject']['value'];
 			        			var title = g.any(chs[ch]['subject'], DCT('title')).value;
-			        			
+
 			        			if (title)
 			        				channel.title = title;
 			        			else
@@ -1366,7 +1366,7 @@ function CimbaCtrl($scope, $http, $filter) {
 				        // also save updated users & channels list
 				        if (update)
 				        	$scope.saveUsers();
-						
+
 				        // if we were called by search
 			        	if ($scope.search && $scope.search.webid && $scope.search.webid == webid) {
 							$scope.search.channels = channels;
@@ -1399,7 +1399,7 @@ function CimbaCtrl($scope, $http, $filter) {
 			}
 	    });
 	}
-	
+
 	// get all posts for a given microblogging workspace
 	$scope.getPosts = function(channel, title) {
 		var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
@@ -1475,7 +1475,7 @@ function CimbaCtrl($scope, $http, $filter) {
 
 					if (!$scope.posts)
 						$scope.posts = {};
-					// filter post by language (only show posts in English or show all)					
+					// filter post by language (only show posts in English or show all)
 					if ($scope.filterFlag && testIfAllEnglish(_newPost.body)) {
 						// add/overwrite post
 						$scope.posts[uri] = _newPost;
@@ -1530,7 +1530,7 @@ ngCimba.directive('postBox',function(){
 		replace : true,
 		restrict : 'E',
 		templateUrl: 'tpl/new_post.html'
-    }; 
+    };
 })
 
 //simple directive to display each post
@@ -1539,7 +1539,7 @@ ngCimba.directive('postsViewer',function(){
 		replace : true,
 		restrict : 'E',
 		templateUrl: 'tpl/posts.html'
-    }; 
+    };
 })
 
 //simple directive to display list of channels
@@ -1548,7 +1548,7 @@ ngCimba.directive('channelslist',function(){
 		replace : true,
 		restrict : 'E',
 		templateUrl: 'tpl/channel-list.html'
-    }; 
+    };
 })
 
 //simple directive to display list of search results
@@ -1557,5 +1557,5 @@ ngCimba.directive('searchresults',function(){
 		replace : true,
 		restrict : 'E',
 		templateUrl: 'tpl/search_results.html'
-    }; 
+    };
 })

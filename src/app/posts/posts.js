@@ -68,19 +68,19 @@ angular.module('Cimba.posts',[
 			// get the current date
 			var now = Date.now();
 			now = moment(now).zone('00:00').format("YYYY-MM-DDTHH:mm:ssZZ");
-			
+
 			var RDF = $rdf.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 			var DCT = $rdf.Namespace("http://purl.org/dc/terms/");
 			var FOAF = $rdf.Namespace('http://xmlns.com/foaf/0.1/');
 			var SIOC = $rdf.Namespace("http://rdfs.org/sioc/ns#");
 			var g = $rdf.graph();
-			
+
 			// set triples
 			g.add($rdf.sym(''), RDF('type'), SIOC('Post'));
 			g.add($rdf.sym(''), SIOC('content'), $rdf.lit($scope.postbody.trim()));
 			g.add($rdf.sym(''), SIOC('has_creator'), $rdf.sym('#author'));
 			g.add($rdf.sym(''), DCT('created'), $rdf.lit(now, '', $rdf.Symbol.prototype.XSDdateTime));
-			
+
 			// add author triples
 			g.add($rdf.sym('#author'), RDF('type'), SIOC('UserAccount'));
 			g.add($rdf.sym('#author'), SIOC('account_of'), $rdf.sym(webid));
@@ -94,7 +94,7 @@ angular.module('Cimba.posts',[
 
 			var uri = currentChannel.uri;
 			var title = currentChannel.title;
-			
+
 			var _newPost = {
 				uri : '',
 				channel: uri,
@@ -111,7 +111,7 @@ angular.module('Cimba.posts',[
 			if(_newPost.body.length > 150) {
 				_newPost.readMore = true;
 			}
-			
+
 			$.ajax({
 				type: "POST",
 				url: uri,
@@ -135,7 +135,7 @@ angular.module('Cimba.posts',[
 						noticesData.add('error', 'Forbidden! You are not allowed to post to the selected channel.');
 					},
 					406: function() {
-						console.log("406 Contet-type unacceptable");
+						console.log("406 Content-type unacceptable");
 						noticesData.add('error', 'Content-type unacceptable.');
 					},
 					507: function() {
@@ -144,7 +144,7 @@ angular.module('Cimba.posts',[
 					}
 				},
 				success: function(d,s,r) {
-					console.log('Success, new message was posted!');            
+					console.log('Success, new message was posted!');
 					// clear form
 					$scope.postbody = '';
 					// also display new post
@@ -176,7 +176,7 @@ angular.module('Cimba.posts',[
 					}
 				}
 			}).error(function (data, status) {
-				
+
 				$scope.publishing = false;
 				$scope.$apply();
 			}).done(function() {
@@ -318,7 +318,7 @@ angular.module('Cimba.posts',[
 			var post = $scope.channels[channeluri].posts[p];
 			if (posturi && post.uri == posturi) {
 				delete $scope.channels[channeluri].posts[p];
-			} 
+			}
 			modified = true;
 		}
 
@@ -344,7 +344,7 @@ angular.module('Cimba.posts',[
 						if (chpost.webid === webid) {
 							delete $scope.channels[post.channel].posts[i];
 						}
-					}					
+					}
 				}
 			}
 		}
@@ -367,7 +367,7 @@ angular.module('Cimba.posts',[
 		}
 	};
 
-	$scope.setChannel = function(channelUri) {		
+	$scope.setChannel = function(channelUri) {
 		if ($scope.userProfile.channels && $scope.userProfile.channels[channelUri]) {
 			$scope.defaultChannel = $scope.userProfile.channels[channelUri];
 		}
@@ -383,13 +383,13 @@ angular.module('Cimba.posts',[
     replace : true,
     restrict : 'E',
     templateUrl: 'posts/new_post.tpl.html'
-    }; 
+    };
 })
 
 .directive('postChannel', function () {
 	return {
 		replace: true,
-		restrict: 'E', 
+		restrict: 'E',
 		templateUrl: "channels/view/new_post.tpl.html"
 	};
 })
@@ -400,5 +400,5 @@ angular.module('Cimba.posts',[
     replace : true,
     restrict : 'E',
     templateUrl: 'posts/posts.tpl.html'
-    }; 
+    };
 });
