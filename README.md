@@ -46,7 +46,7 @@ For software developers, CIMBA presents a *radically open* alternative to platfo
 
 * The client is built using the latest HTML5 technologies. We're also using [AngularJS](http://www.angularjs.org/)!
 
-* To identify users, CIMBA relies on [WebID](www.w3.org/2005/Incubator/webid/spec/identity/) (a work-in-progress open standard at W3C).
+* To identify users, CIMBA relies on [WebID](http://www.w3.org/2005/Incubator/webid/spec/identity/) (a work-in-progress open standard at W3C).
 
 * For authentication, a mix between [WebID-TLS](http://www.w3.org/2005/Incubator/webid/spec/tls) and WebID delegated access ([link to paper](http://hal.archives-ouvertes.fr/docs/00/74/53/55/PDF/paper.pdf)) is used.
 
