@@ -5,6 +5,8 @@
 Client-Integrated Micro-Blogging Architecture application
 ------
 
+[![Join the chat at https://gitter.im/linkeddata/cimba](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/linkeddata/cimba?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Note: if you just want to get down to business, you can skip directly to the [dev section](#Components).
 
 
